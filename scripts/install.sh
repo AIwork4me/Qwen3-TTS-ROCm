@@ -61,6 +61,9 @@ echo "==> [torch] pinned AMD ROCm wheels from repo.amd.com (skipped fast when sa
 .venv/bin/python -m pip install --index-url https://repo.amd.com/rocm/whl-multi-arch/ "torch[device-gfx1151]==2.12.0+rocm7.14.0" "torchvision[device-gfx1151]==0.27.0+rocm7.14.0" "torchaudio==2.11.0+rocm7.14.0" --no-input
 
 # --- 3. this package, editable, with dev+demo extras ------------------------
+# UX-fix U2: pip prints nothing for long stretches while unpacking the wheel
+# stack — warn the user up front so silence is not mistaken for a hang.
+echo "==> [3/4] installing project + deps (unpacking ~4GB wheels; output may be silent for a few minutes — 若长时间无输出属正常)"
 echo "==> [package] pip install -e \".[dev,demo]\""
 $PY -m pip install --no-input -e ".[dev,demo]"
 
@@ -81,3 +84,7 @@ else
     echo "==> [verify] running scripts/verify_gpu.sh"
     bash "$ROOT/scripts/verify_gpu.sh"
 fi
+
+# UX-fix U2: without weights the demo loads nothing — make the next step the
+# last line the user sees on a successful install.
+echo "NEXT: bash scripts/download_models.sh   # six repos ≈18GB (或指定子集: download_models.sh tokenizer custom-voice)"

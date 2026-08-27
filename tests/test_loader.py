@@ -85,6 +85,7 @@ def test_flash_guard_message_names_rocm_wheel_gap_and_alternatives(
     assert "ROCm" in msg  # names the missing-wheel situation
     assert "sdpa" in msg  # suggests the working alternative
     assert "omit" in msg.lower()
+    assert "docs/troubleshooting.md" in msg  # UX-fix U2: docs pointer
 
 
 def test_flash_attention_accepted_when_importable(fake_official, monkeypatch):
@@ -167,6 +168,7 @@ def test_not_downloaded_raises_download_hint_without_touching_official(
     assert "bash scripts/download_models.sh" in msg  # repo helper script
     assert "from qwen3_tts_rocm.models import download" in msg  # python one-liner
     assert "download('all')" in msg  # ...with its concrete invocation
+    assert "docs/troubleshooting.md" in msg  # UX-fix U2: docs pointer
     assert not fake_official  # from_pretrained never invoked
 
 

@@ -194,6 +194,31 @@ def collect() -> EnvReport:
     except Exception:  # noqa: BLE001,S110 - advisory only; never block the report
         pass
 
+    # Startup honesty about models (UX-fix U2): report how many registry repos
+    # are actually usable on disk instead of failing later at load time
+    # (报告已下载模型数，避免等到加载时才发现权重缺失).  Weight-aware check:
+    # a config-only partial repo does not count as downloaded.
+    try:
+        from . import models  # lazy: keeps env.py import-light and cycle-free
+
+        have = sum(
+            1
+            for alias in models.ALIASES
+            if models.is_downloaded(alias, require_weights=True)
+        )
+        total = len(models.ALIASES)
+        extra = (
+            ""
+            if have == total
+            else " Missing ones: `bash scripts/download_models.sh <alias>` "
+            "(缺失模型请先运行下载脚本)."
+        )
+        report.warnings.append(
+            f"INFO: models: {have}/{total} downloaded (已下载模型数).{extra}"
+        )
+    except Exception:  # noqa: BLE001,S110 - diagnostics never raise
+        pass
+
     return report
 
 
@@ -223,6 +248,9 @@ def rocm_check(verbose: bool = True) -> EnvReport:
         f" | 中文摘要：环境自检完成，HIP {state}，版本 {version}，"
         f"可见 GPU {len(report.gpus)} 块，警告 {n_warn} 条，错误 {n_err} 条。"
     )
+    # Generic docs pointer, printed ONCE after the summary rather than tacked
+    # onto every line (UX-fix U2: 排障文档统一指向，避免刷屏).
+    print("→ 更多排障步骤: docs/troubleshooting.md (more: troubleshooting guide)")
     return report
 
 

@@ -304,6 +304,7 @@ def _download_via(repo_id: str, target: Path, sources: Iterable[str]) -> None:
         + "\nManual fix (手动下载): place the files under "
         f"{target}\n  https://modelscope.cn/models/{repo_id}\n"
         f"  https://hf-mirror.com/{repo_id}"
+        " (详见 docs/troubleshooting.md / see docs/troubleshooting.md)"
     )
 
 

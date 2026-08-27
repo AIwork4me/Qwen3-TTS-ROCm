@@ -70,3 +70,28 @@ def test_no_apu_hint_when_cuda_ok_but_no_gpus(monkeypatch):
     r = env.collect()
     assert r.gpus == []
     assert not any("unified-memory APU" in w for w in r.warnings)
+
+
+# --- UX-fix U2: startup honesty about models + docs pointers ---
+
+def test_collect_counts_downloaded_models_into_info_line(monkeypatch):
+    """3 of 6 registry aliases downloaded -> one INFO line in warnings; errors empty."""
+    from qwen3_tts_rocm import models
+
+    monkeypatch.setitem(sys.modules, "torch", make_fake_cuda())
+    downloaded = {"tokenizer", "custom-voice", "base"}
+    monkeypatch.setattr(models, "is_downloaded", lambda ref, **kw: str(ref) in downloaded)
+    r = env.collect()
+    assert r.errors == []
+    assert any(
+        w.startswith("INFO:") and "models: 3/6 downloaded" in w for w in r.warnings
+    )
+
+
+def test_rocm_check_prints_troubleshooting_tail_once(monkeypatch, capsys):
+    """Verbose self-check ends with ONE generic pointer to docs/troubleshooting.md."""
+    monkeypatch.setitem(sys.modules, "torch", make_fake_cuda())
+    env.rocm_check(verbose=True)
+    out = capsys.readouterr().out
+    assert out.count("docs/troubleshooting.md") == 1
+    assert "更多排障步骤" in out

@@ -291,14 +291,35 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.ssl_keyfile is not None:
         launch_kwargs["ssl_keyfile"] = args.ssl_keyfile
 
+    # Human one-line banner (UX-fix U2): what will load, on which device and
+    # where to open the browser — no jargon.  The raw target/mode line moves
+    # behind QWEN3_TTS_ROCM_DEBUG=1 for support/debugging (调试模式保留原始行).
+    alias_display = str(header_info["alias"])
+    device_display = str(args.device or "auto")
     print(
-        f"[qwen3-tts-rocm] target={model_ref!r} mode={mode} "
-        f"alias={header_info['alias']} device={args.device or 'auto'}"
+        f"[qwen3-tts-rocm] 模型 Model: {alias_display} | 设备 device: {device_display} "
+        f"| 就绪后打开 open: http://localhost:{args.port}"
     )
+    if os.environ.get("QWEN3_TTS_ROCM_DEBUG"):
+        print(
+            f"[qwen3-tts-rocm] target={model_ref!r} mode={mode} "
+            f"alias={alias_display} device={device_display}"
+        )
     try:
         app.queue(default_concurrency_limit=max(int(args.concurrency), 1))
         # Gradio 6 carries the official Soft theme / full-width css on launch().
-        app.launch(**launch_visual_kwargs(), **launch_kwargs)
+        try:
+            app.launch(**launch_visual_kwargs(), **launch_kwargs)
+        except OSError:
+            # Gradio raises OSError("Cannot find empty port in range: ...") when
+            # the port is taken — hand the user the ONE next step instead of a
+            # traceback (端口被占用时给出重试命令，UX-fix U2).
+            next_port = int(args.port) + 1
+            print(
+                f"ERROR: 端口 {args.port} 被占用 (port busy) — 重试: "
+                f"bash scripts/run_demo.sh --port {next_port} / retry with: --port {next_port}"
+            )
+            return 2
     except KeyboardInterrupt:
         pass  # Ctrl-C is a normal shutdown path
     finally:

@@ -65,10 +65,13 @@ _FLASH_KEY = "flash_attention_2"
 
 _HIP_DEFAULT_ATTN = "sdpa"
 
+_DOCS_POINTER = " (详见 docs/troubleshooting.md / see docs/troubleshooting.md)"
+
 _DOWNLOAD_HOWTO = (
     "Run one of these commands yourself first (请自行运行以下任一命令完成下载):"
     "\n  bash scripts/download_models.sh   # helper shipped with this repo, after install\n"
     '  python -c "from qwen3_tts_rocm.models import download; download(\'all\')"'
+    + _DOCS_POINTER
 )
 
 
@@ -112,6 +115,7 @@ def resolve_attn(attn_implementation: str | None = None,
                 f"attn_implementation='{_HIP_DEFAULT_ATTN}' explicitly."
                 " | AMD 官方未提供 ROCm 版 flash-attn 轮子，建议省略该参数"
                 f"（HIP GPU 默认即 '{_HIP_DEFAULT_ATTN}'）。"
+                + _DOCS_POINTER
             )
         return attn_implementation
     if device is not None and _is_hip_device(device):

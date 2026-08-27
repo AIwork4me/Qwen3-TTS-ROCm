@@ -137,6 +137,7 @@ def test_auto_exhaustion_raises_runtime_with_both_urls(monkeypatch, tmp_path):
     assert "https://modelscope.cn/models/" + TOKENIZER_REPO in msg
     assert "https://hf-mirror.com/" + TOKENIZER_REPO in msg
     assert "modelscope" in msg and "hfmirror" in msg  # both attempts reported
+    assert "docs/troubleshooting.md" in msg  # UX-fix U2: docs pointer
 
 
 def test_invalid_source_rejected(monkeypatch, tmp_path):

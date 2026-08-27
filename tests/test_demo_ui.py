@@ -625,3 +625,95 @@ def test_cli_bare_launch_defaults_to_custom_voice_and_serves(monkeypatch):
     assert rc == 0
     assert seen["header"]["alias"] == "custom-voice"
     assert seen["launch"]["server_port"] == 8000
+
+
+def test_cli_startup_banner_is_human_one_liner(monkeypatch, capsys):
+    """UX-fix U2: banner names the alias, device and local URL in one line."""
+    import types as _types
+
+    import qwen3_tts_rocm.cli_demo as cd
+    import qwen3_tts_rocm.demo.ui as ui_mod
+
+    def fake_build_ui(service, header_info):
+        return _types.SimpleNamespace(
+            queue=lambda **_kw: fake_build_ui,
+            launch=lambda **_kw: None,
+        )
+
+    monkeypatch.setattr(cd, "resolve_target", lambda args: ("/fake/ref", "base", "registry"))
+    monkeypatch.setattr(cd, "_build_service", lambda *a, **k: _types.SimpleNamespace(unload_all=lambda: None))
+    monkeypatch.setattr(ui_mod, "build_ui", fake_build_ui)
+    monkeypatch.setattr(ui_mod, "launch_visual_kwargs", dict)
+
+    rc = cd.main(["--alias", "base", "--device", "cpu", "--port", "8123"])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    banner = [ln for ln in out.splitlines() if ln.startswith("[qwen3-tts-rocm]")]
+    assert len(banner) == 1  # exactly one human line by default
+    assert "模型 Model: base" in banner[0]
+    assert "设备 device: cpu" in banner[0]
+    assert "就绪后打开 open: http://localhost:8123" in banner[0]
+    assert "mode=" not in out  # jargon dropped from the default banner
+
+
+def test_cli_debug_env_keeps_old_target_line(monkeypatch, capsys):
+    """QWEN3_TTS_ROCM_DEBUG=1 reprints the raw target/mode line for support."""
+    import types as _types
+
+    import qwen3_tts_rocm.cli_demo as cd
+    import qwen3_tts_rocm.demo.ui as ui_mod
+
+    def fake_build_ui(service, header_info):
+        return _types.SimpleNamespace(
+            queue=lambda **_kw: fake_build_ui,
+            launch=lambda **_kw: None,
+        )
+
+    monkeypatch.setattr(cd, "resolve_target", lambda args: ("/fake/ref", "base", "registry"))
+    monkeypatch.setattr(cd, "_build_service", lambda *a, **k: _types.SimpleNamespace(unload_all=lambda: None))
+    monkeypatch.setattr(ui_mod, "build_ui", fake_build_ui)
+    monkeypatch.setattr(ui_mod, "launch_visual_kwargs", dict)
+    monkeypatch.setenv("QWEN3_TTS_ROCM_DEBUG", "1")
+
+    rc = cd.main(["--alias", "base"])
+    out = capsys.readouterr().out
+
+    assert rc == 0
+    assert "target='/fake/ref'" in out and "mode=registry" in out  # raw debug line kept
+
+
+def test_cli_port_busy_prints_bilingual_hint_and_returns_2(monkeypatch, capsys):
+    """UX-fix U2: gradio 'no empty port' OSError -> friendly hint + rc 2, no traceback."""
+    import types as _types
+
+    import qwen3_tts_rocm.cli_demo as cd
+    import qwen3_tts_rocm.demo.ui as ui_mod
+
+    unloaded: list[str] = []
+
+    def fake_build_ui(service, header_info):
+        def launch(**_kw):
+            raise OSError("Cannot find empty port in range: 8000-8000")
+
+        return _types.SimpleNamespace(
+            queue=lambda **_kw: fake_build_ui,
+            launch=launch,
+        )
+
+    monkeypatch.setattr(cd, "resolve_target", lambda args: ("/fake/ref", "custom-voice", "registry"))
+    monkeypatch.setattr(
+        cd, "_build_service",
+        lambda *a, **k: _types.SimpleNamespace(unload_all=lambda: unloaded.append("x")),
+    )
+    monkeypatch.setattr(ui_mod, "build_ui", fake_build_ui)
+    monkeypatch.setattr(ui_mod, "launch_visual_kwargs", dict)
+
+    rc = cd.main(["--port", "8000"])
+    out = capsys.readouterr().out
+
+    assert rc == 2
+    assert "ERROR:" in out
+    assert "端口 8000 被占用" in out and "port busy" in out
+    assert "--port 8001" in out  # concrete retry suggestion
+    assert unloaded == ["x"]  # finally: unload_all still released the model
