@@ -417,3 +417,69 @@ def test_cli_resolve_target_prefers_checkpoint_over_alias():
 
     _r3, alias3, mode3 = cli_demo.resolve_target(parse("Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice"))
     assert mode3 == "registry" and alias3 == "custom-voice-0.6b"
+
+
+# ---------------------------------------------------------------------------
+# Fix round 1 regressions
+# ---------------------------------------------------------------------------
+
+
+def test_load_voice_file_required_guard_before_factory_touch():
+    """SPEC-1: backend owns the official 'Voice file is required' guard."""
+    factory_calls: list[str] = []
+
+    def counting_factory(alias: str) -> FakeTTSModel:
+        factory_calls.append(str(alias))
+        return FakeTTSModel()
+
+    svc = SynthesisService(factory=counting_factory, tokenizer_factory=FakeTokenizer)
+    for bad in (None, "", "   "):
+        with pytest.raises(ValueError, match="Voice file is required") as exc:
+            svc.load_voice_file(bad)
+        assert CHINESE.search(str(exc.value))  # bilingual like upstream
+
+    assert factory_calls == []  # never touched the model
+    assert svc.current_alias is None and svc.cached_aliases() == ()
+    assert svc.history.list() == []
+
+
+def test_load_voice_gen_delegates_missing_file_to_backend(cbs):
+    """SPEC-1: ui callback carries no validation of its own anymore."""
+    _audio, status = cbs["load_voice_gen"]("base", None, "target", "Auto", {})
+    assert "Voice file is required" in status
+    assert CHINESE.search(status)
+
+
+def test_speaker_dropdown_accepts_custom_value_pre_seed():
+    """SPEC-2: cold-start REST/typing path must pass validation (same fix as
+    the Language dropdowns); also pins ALL language dropdowns keep the flag."""
+    from qwen3_tts_rocm.demo.ui import build_ui
+
+    app = build_ui(make_service(), {"alias": "custom-voice"})
+    labeled = [c for c in app.blocks.values() if getattr(c, "label", None) in ("Speaker (说话人)",)]
+    assert len(labeled) == 1
+    assert labeled[0].allow_custom_value is True
+
+    lang_dd = [c for c in app.blocks.values() if getattr(c, "label", None) == "Language (语种)"]
+    assert len(lang_dd) == 4  # clone/save-load/cv/vd
+    assert all(dd.allow_custom_value for dd in lang_dd)
+
+
+def test_callback_accepts_unseeded_speaker_display_via_fallback(cbs):
+    """allow_custom_value end-to-end: 'Ryan' is NOT among the seed choices,
+    yet the backend fallback resolves it and generation succeeds."""
+    audio, status = cbs["custom_voice"]("custom-voice", "Hello custom", "Auto", "Ryan", "", {})
+    assert status == "Finished. (生成完成)" and audio is not None
+
+
+def test_cached_aliases_public_view_is_tolerant():
+    """MINOR-3: public accessor replaces private _cache reach-through."""
+    svc = make_service()
+    assert svc.cached_aliases() == ()  # nothing resident yet
+
+    svc.get("base")
+    svc.get("base")  # cached hit, still one
+    assert svc.cached_aliases() == ("base",)
+
+    bare = SynthesisService.__new__(SynthesisService)  # __init__ skipped
+    assert bare.cached_aliases() == ()  # tolerant of doubles

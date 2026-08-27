@@ -145,6 +145,7 @@ _ITEMS_EMPTY = "Empty voice items (音色为空)."
 _VOICE_FILE_INVALID = "Invalid file format (文件格式不正确)."
 _ITEM_FORMAT_INVALID = "Invalid item format in file (文件内部格式错误)."
 _SPK_MISSING = "Missing ref_spk_embedding (缺少说话人向量)."
+_VOICE_FILE_REQUIRED = "Voice file is required (必须上传音色文件)."
 
 _CODEC_PAIR_REQUIRED = (
     "Audio input must be a (sr, wav) pair (音频输入必须是 (采样率, 波形) 二元组)"
@@ -227,6 +228,15 @@ class SynthesisService:
         self._cache[alias] = model
         self.current_alias = alias
         return model
+
+    def cached_aliases(self) -> tuple[str, ...]:
+        """Public read-only view of aliases whose models are resident.
+
+        Lets UI layers introspect the LRU without reaching into the private
+        ``_cache`` dict; tolerant of doubles constructed via ``__new__``
+        (missing ``_cache`` simply reads as empty).
+        """
+        return tuple(getattr(self, "_cache", {}))
 
     def unload_all(self) -> None:
         """Best-effort teardown of every cached model (尽力释放，绝不抛错)."""
@@ -360,7 +370,7 @@ class SynthesisService:
         )
         return int(sr), _as_float32(wavs[0])
 
-    def load_voice_file(self, path: str | Any) -> list:
+    def load_voice_file(self, path: str | Any = None) -> list:
         """Reconstruct clone-prompt items from an official .pt voice file.
 
         Port of ``qwen_tts/cli/demo.py::load_prompt_and_gen``'s reconstruction
@@ -368,13 +378,25 @@ class SynthesisService:
         ``icl_mode`` falls back to "not x-vector-only" exactly like upstream) --
         the UI layer reuses THIS seam instead of duplicating it.  Errors carry
         the official bilingual strings so the status box reads like the
-        official demo on a malformed file.
+        official demo on a malformed or missing file.
         """
+        # Official "required" guard, owned HERE (backend owns validation):
+        # falsy input and unresolvable-path doubles both raise before any
+        # torch import / factory touch, like upstream's pre-check did.
+        if path is None:
+            raise ValueError(_VOICE_FILE_REQUIRED)
+        resolved_path = (
+            getattr(path, "name", None)
+            or getattr(path, "path", None)
+            or str(path)
+        )
+        if not str(resolved_path).strip():
+            raise ValueError(_VOICE_FILE_REQUIRED)
+
         import torch  # lazy: ambient wheel from earlier tasks
         from qwen_tts import VoiceClonePromptItem
 
-        path = getattr(path, "name", None) or getattr(path, "path", None) or str(path)
-        payload = torch.load(str(path), map_location="cpu", weights_only=True)
+        payload = torch.load(str(resolved_path), map_location="cpu", weights_only=True)
         if not isinstance(payload, dict) or "items" not in payload:
             raise ValueError(_VOICE_FILE_INVALID)
 

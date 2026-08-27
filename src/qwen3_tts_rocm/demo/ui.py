@@ -1,4 +1,4 @@
-"""Enhanced four-tab bilingual Gradio application (增强版双语文示演示界面).
+"""Enhanced four-tab bilingual Gradio application (增强版双语文字演示界面).
 
 Layer contract (Task 16)
 ------------------------
@@ -102,6 +102,21 @@ def _history(service) -> Any:
         store = HistoryStore()
         service.history = store
     return store
+
+
+def _loaded_model(service, alias: str) -> Any:
+    """Resident model for *alias*, or ``None`` when not loaded.
+
+    Goes through the PUBLIC :meth:`SynthesisService.cached_aliases` membership
+    check first; only then touches the cache dict for the instance itself,
+    with a getattr fallback for ``__new__``-built test doubles.
+    """
+    try:
+        if str(alias) not in set(service.cached_aliases()):
+            return None
+    except AttributeError:  # double without __init__
+        pass
+    return getattr(service, "_cache", {}).get(str(alias))
 
 
 def _resolved_path_text(alias: str) -> str:
@@ -268,8 +283,9 @@ def build_callbacks(service) -> dict[str, Any]:
     def load_voice_gen(alias, file_obj, text, language_display, gen_kwargs):
         """Official load_prompt_and_gen through backend.load_voice_file."""
         try:
-            if file_obj is None:
-                raise ValueError("Voice file is required (必须上传音色文件).")
+            # Backend owns validation too: a missing/unresolvable file raises
+            # the official "Voice file is required" ValueError inside
+            # service.load_voice_file and lands here like any other failure.
             items = service.load_voice_file(file_obj)
             sr, wav = service.voice_clone_with_prompt(
                 str(alias),
@@ -318,7 +334,7 @@ def build_callbacks(service) -> dict[str, Any]:
         Returns ``(languages_or_None, speakers_or_None)``; ``None`` leaves the
         dropdown untouched when the model lacks that getter or isn't loaded.
         """
-        model = getattr(service, "_cache", {}).get(str(alias))
+        model = _loaded_model(service, alias)
         if model is None:
             return None, None
         langs = spks = None
@@ -532,7 +548,7 @@ def build_ui(service, port_header_info: dict[str, Any] | None = None) -> gr.Bloc
                                 choices=["Auto"],
                                 value="Auto",
                                 interactive=True,
-                                allow_custom_value=True,   # pre-load typing/REST
+                                allow_custom_value=True,  # pre-load typing/REST
                             )
                         with gr.Column(scale=3):
                             clone_audio = gr.Audio(label="Output Audio (合成结果)")
@@ -586,7 +602,7 @@ Upload a previously saved voice file, then synthesize new text.
                                 choices=["Auto"],
                                 value="Auto",
                                 interactive=True,
-                                allow_custom_value=True,   # pre-load typing/REST
+                                allow_custom_value=True,  # pre-load typing/REST
                             )
                             load_btn = gr.Button(
                                 "Generate (生成)",
@@ -611,13 +627,14 @@ Upload a previously saved voice file, then synthesize new text.
                                 choices=["Auto"],
                                 value="Auto",
                                 interactive=True,
-                                allow_custom_value=True,   # pre-load typing/REST
+                                allow_custom_value=True,  # pre-load typing/REST
                             )
                             cv_spk = gr.Dropdown(
                                 label="Speaker (说话人)",
                                 choices=["Vivian"],
                                 value="Vivian",
                                 interactive=True,
+                                allow_custom_value=True,  # pre-load typing/REST
                             )
                         cv_instruct = gr.Textbox(
                             label="Instruction (Optional) (控制指令，可不输入)",
@@ -648,7 +665,7 @@ Upload a previously saved voice file, then synthesize new text.
                             choices=["Auto"],
                             value="Auto",
                             interactive=True,
-                            allow_custom_value=True,   # pre-load typing/REST
+                            allow_custom_value=True,  # pre-load typing/REST
                         )
                         vd_instruct = gr.Textbox(
                             label="Voice Design Instruction (音色描述)",
