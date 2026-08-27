@@ -1,0 +1,42 @@
+# pyproject.toml
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "qwen3-tts-rocm"
+version = "0.1.0"
+description = "ROCm (gfx1151) runtime adapter, model manager and enhanced Gradio demo for Qwen3-TTS"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Qwen3-TTS-ROCm contributors" }]
+dependencies = [
+  "qwen-tts==0.1.1",
+  "modelscope",
+  "huggingface_hub",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff"]
+
+[project.scripts]
+qwen3-tts-rocm-check = "qwen3_tts_rocm.cli_check:main"
+qwen3-tts-rocm-demo = "qwen3_tts_rocm.cli_demo:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+qwen3_tts_rocm = ["py.typed", "demo/assets/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "gpu: requires a working ROCm GPU (deselect with -m 'not gpu')",
+  "requires_download: requires downloaded model weights",
+]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
