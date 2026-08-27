@@ -47,3 +47,14 @@ Five verified batches on feat/impl-v0.1.0 (each: implementer subagent → indepe
 - S4 cc5608b+70a2dac+d420a0d backend: per-alias load-ticket thread safety (verified by adversarial interleaving analysis), official-faithful _normalize_audio port (bit-for-bit vs installed), ticket-leak window closed, success-path wake hardened (→170)
 - S5 73f2963 docs: troubleshooting aligned to weight-aware semantics + CN polish
 P0-S6 independent acceptance: 10/10 gates (ruff / 170 CPU / 24 GPU real / yaml / bash -n / build+twine PASSED / wheel payload complete / docker rebuild+SPIKE-GPU-OK+bare-serve 200 / 54 links / clean tree). Tag re-pointed to the hardened tree.
+
+## UX audit pass (2026-08-28)
+Dual-route audit (sandbox fresh-clone CLI journey + live GUI/API journey) → 16 frictions (2 Critical, 6 Annoying, 8 Nit) + 8 pleasant surprises.
+Fixes (each: implementer subagent → independent verifier subagent → gates):
+- B-4/521f87e per-tab automatic model routing (audited cross-kind error now auto-switches with bilingual notice; E2E-proven)
+- U2/07d32e3 CLI friction: download_models.sh usage+clean errors, run_demo preflight WARN, port-busy hint rc2, troubleshooting pointers, human banner, install NEXT hint
+- U3a/7df0ad9 --help dedup, loader fd-level banner suppression (VERBOSE_IMPORT/QUIET hatches), per-alias-first refusal
+- U3b/1786f0a README restructure (Quickstart early), size table, subset-download docs, snippet save-lines, <OWNER> guard, troubleshooting noise entry
+- d59dfb4 CHANGELOG UX notes
+Final gates (independent): 10/10 ACCEPTED — 203 CPU / 24 GPU / twine / docker rebuild+SPIKE-GPU-OK / E2E cross-kind auto-switch SUCCESS (1.52s wav) / 0 banners / 0 broken links.
+Tag v0.1.0 re-pointed to the UX-hardened tree.
