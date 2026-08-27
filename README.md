@@ -44,10 +44,8 @@ download sizes (numbers identical to `scripts/download_models.sh --help`):
 
 Five commands from zero to a talking browser tab:
 
-> ⚠️ 发布前请把下方 `<OWNER>` 替换为实际 GitHub 用户名 / Replace `<OWNER>` with the real GitHub username before publishing（本地已有仓库的用户可跳过 clone / skip if you already have the repo）。
-
 ```bash
-git clone https://github.com/<OWNER>/Qwen3-TTS-ROCm.git   # placeholder — replace <OWNER> after push
+git clone https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
 cd Qwen3-TTS-ROCm
 bash scripts/install.sh          # venv + pinned AMD ROCm wheels + editable install + GPU gate
 bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, hf-mirror fallback
@@ -275,9 +273,7 @@ Quick answers to the two most common questions:
   no patched upstream source, no committed weights.
 * Bug reports and feature ideas go to this repository's issue tracker.
 * Canonical home of this project:
-  `https://github.com/<OWNER>/Qwen3-TTS-ROCm` — `<OWNER>` is a placeholder
-  constant for the maintainer account, defined once here and referenced by
-  the Quickstart clone URL above; both are updated together post-push.
+  `https://github.com/AIwork4me/Qwen3-TTS-ROCm` — maintained by [@AIwork4me](https://github.com/AIwork4me).
 
 ## License
 

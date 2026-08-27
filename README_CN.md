@@ -44,10 +44,8 @@
 
 从零到会说话的浏览器标签页只需五条命令：
 
-> ⚠️ 发布前请把下方 `<OWNER>` 替换为实际 GitHub 用户名 / Replace `<OWNER>` with the real GitHub username before publishing（本地已有仓库的用户可跳过 clone / skip if you already have the repo）。
-
 ```bash
-git clone https://github.com/<OWNER>/Qwen3-TTS-ROCm.git   # placeholder — replace <OWNER> after push
+git clone https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
 cd Qwen3-TTS-ROCm
 bash scripts/install.sh          # venv + pinned AMD ROCm wheels + editable install + GPU gate
 bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, hf-mirror fallback
@@ -239,8 +237,7 @@ Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-att
 * 开发环境搭建、守则与 PR 清单：[`CONTRIBUTING.md`](CONTRIBUTING.md)。头条规则：
   贡献必须维护上文“薄壳保证”——不改上游源码、不入库权重。
 * Bug 反馈与功能建议请到本仓库的 issue 跟踪器提交。
-* 本项目的主页：`https://github.com/<OWNER>/Qwen3-TTS-ROCm` —— `<OWNER>` 是维护者账号的
-  占位常量，只在此定义一次并被上方 Quickstart 克隆地址引用；推送后两处一并更新。
+* 本项目的主页：`https://github.com/AIwork4me/Qwen3-TTS-ROCm` —— 维护者：[@AIwork4me](https://github.com/AIwork4me)。
 
 ## 许可证
 
