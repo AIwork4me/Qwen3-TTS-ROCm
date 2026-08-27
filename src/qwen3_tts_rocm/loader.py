@@ -33,9 +33,11 @@ No implicit downloads
 ---------------------
 Loading never fetches multi-GB weights behind your back: when the target is
 not downloaded yet, ``load()`` raises a :class:`RuntimeError` pointing at
-``bash scripts/download_models.sh`` /
-``python -c "from qwen3_tts_rocm import models; models.download([...])"``.
-Only an explicit download invocation ever touches the network.
+commands you run yourself afterwards -- ``bash scripts/download_models.sh``
+(a helper shipped with this repository, after installing the package) or the
+one-liner ``python -c "from qwen3_tts_rocm.models import download;
+download('all')"``.  Only an explicit download invocation ever touches the
+network.
 
 Note that neither this module nor anything it imports may import ``qwen_tts``
 eagerly -- the official package is imported lazily inside :func:`load` so test
@@ -64,9 +66,9 @@ _FLASH_KEY = "flash_attention_2"
 _HIP_DEFAULT_ATTN = "sdpa"
 
 _DOWNLOAD_HOWTO = (
-    "Download it explicitly first (请先显式下载权重):\n"
-    "  bash scripts/download_models.sh {alias}\n"
-    '  python -c "from qwen3_tts_rocm import models; models.download(\'{alias}\')"'
+    "Run one of these commands yourself first (请自行运行以下任一命令完成下载):"
+    "\n  bash scripts/download_models.sh   # helper shipped with this repo, after install\n"
+    '  python -c "from qwen3_tts_rocm.models import download; download(\'all\')"'
 )
 
 
@@ -162,7 +164,7 @@ def load(
             f"model {str(model_ref)!r} is not downloaded yet "
             f"(expected at {resolved}); refusing to fetch multi-GB weights "
             "implicitly at load time (加载时不会自动下载数 GB 权重).\n"
-            + _DOWNLOAD_HOWTO.format(alias=model_ref)
+            + _DOWNLOAD_HOWTO
         )
 
     if device is None:
@@ -187,13 +189,17 @@ def unload(model: object) -> None:
     Deletes the official wrapper's ``model``/``processor`` attributes
     (whichever exist), runs :func:`gc.collect`, and empties the caching
     allocator -- but only when a CUDA-visible device exists under a HIP
-    torch build.  Never raises, even for objects missing both attributes."""
+    torch build.  Never raises, even for objects missing both attributes or
+    on exotic gc failures."""
     for attr in ("model", "processor"):
         try:
             delattr(model, attr)
         except Exception:  # noqa: BLE001,S110 - best effort means exactly that
             pass
-    gc.collect()
+    try:
+        gc.collect()
+    except Exception:  # noqa: BLE001,S110 - absolute never-raise guarantee
+        pass
     try:
         import torch
 

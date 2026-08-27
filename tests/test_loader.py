@@ -19,6 +19,7 @@ Deliberate adjustments to the task-brief fixture (documented in
   ``type(ret) is`` identity rather than being vacuous.
 """
 
+import importlib.metadata
 import sys
 import types
 
@@ -163,8 +164,9 @@ def test_not_downloaded_raises_download_hint_without_touching_official(
         loader.load("base")
     msg = str(excinfo.value)
     assert "download" in msg.lower()
-    assert "scripts/download_models.sh" in msg  # Task 7 entry point
-    assert "models.download" in msg  # python one-liner alternative
+    assert "bash scripts/download_models.sh" in msg  # repo helper script
+    assert "from qwen3_tts_rocm.models import download" in msg  # python one-liner
+    assert "download('all')" in msg  # ...with its concrete invocation
     assert not fake_official  # from_pretrained never invoked
 
 
@@ -244,15 +246,53 @@ def test_patch_unknown_version_warns_but_does_not_raise(fake_official, monkeypat
         patch.apply_compat_patches()
 
 
-def test_patch_missing_version_attribute_warns_but_does_not_raise(
-    fake_official, monkeypatch
+def test_patch_case_a_no_module_no_metadata_warns_version_none(monkeypatch):
+    """Case A: fresh interpreter with qwen_tts absent AND the distribution
+    unresolvable -> advisory fires and official_version() is None.  The probe
+    must NOT import the (heavy, banner-printing) real package."""
+    from qwen3_tts_rocm import patch
+
+    monkeypatch.delitem(sys.modules, "qwen_tts", raising=False)
+
+    def missing(name):
+        raise importlib.metadata.PackageNotFoundError(name)
+
+    monkeypatch.setattr(importlib.metadata, "version", missing)
+    assert patch.official_version() is None
+    with pytest.warns(UserWarning, match="__version__"):
+        patch.apply_compat_patches()
+
+
+def test_patch_case_b_versionless_module_falls_back_to_dist_metadata(
+    fake_official, monkeypatch, recwarn
 ):
-    """Ground truth on this host: the real qwen_tts 0.1.1 exposes NO __version__."""
+    """Case B: module in sys.modules without __version__ but the installed
+    distribution metadata knows it -> metadata value wins silently.  Mirrors
+    this host's ground truth (real qwen-tts==0.1.1 exposes no __version__)."""
     del sys.modules["qwen_tts"].__version__
     from qwen3_tts_rocm import patch
 
-    with pytest.warns(UserWarning):
-        patch.apply_compat_patches()
+    monkeypatch.setattr(importlib.metadata, "version", lambda name: "0.1.1")
+    assert patch.official_version() == "0.1.1"
+    patch.apply_compat_patches()
+    assert [w for w in recwarn.list if "qwen" in str(w.message).lower()] == []
+
+
+def test_patch_case_c_loaded_module_attr_wins_without_touching_metadata(
+    fake_official, monkeypatch
+):
+    """Case C: qwen_tts already loaded WITH __version__ -> that attr is used
+    directly; the metadata layer is never consulted at all."""
+    from qwen3_tts_rocm import patch
+
+    sys.modules["qwen_tts"].__version__ = "0.1.5"
+
+    def explode(name):
+        raise AssertionError("importlib.metadata.version must not be called")
+
+    monkeypatch.setattr(importlib.metadata, "version", explode)
+    assert patch.official_version() == "0.1.5"
+    patch.apply_compat_patches()  # stays inside the validated series: silent
 
 
 def test_load_runs_compat_patches_first(fake_official, monkeypatch):
