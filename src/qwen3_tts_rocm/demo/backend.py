@@ -142,6 +142,9 @@ _REF_TEXT_REQUIRED = (
     "use x-vector only，但效果会变差.)"
 )
 _ITEMS_EMPTY = "Empty voice items (音色为空)."
+_VOICE_FILE_INVALID = "Invalid file format (文件格式不正确)."
+_ITEM_FORMAT_INVALID = "Invalid item format in file (文件内部格式错误)."
+_SPK_MISSING = "Missing ref_spk_embedding (缺少说话人向量)."
 
 _CODEC_PAIR_REQUIRED = (
     "Audio input must be a (sr, wav) pair (音频输入必须是 (采样率, 波形) 二元组)"
@@ -185,6 +188,9 @@ class SynthesisService:
         self.current_alias: str | None = None
         # Speech tokenizer: a separate lazy singleton, outside the model LRU.
         self._tokenizer: Any = None
+        #: Shared generation history for the UI layer (合成历史, wavs live here
+        #: ONLY -- the UI never keeps its own copy of a waveform on disk).
+        self.history = HistoryStore()
 
     # -- model LRU ----------------------------------------------------------
 
@@ -353,6 +359,53 @@ class SynthesisService:
             **_normalize_gen_kwargs(gen_kwargs),
         )
         return int(sr), _as_float32(wavs[0])
+
+    def load_voice_file(self, path: str | Any) -> list:
+        """Reconstruct clone-prompt items from an official .pt voice file.
+
+        Port of ``qwen_tts/cli/demo.py::load_prompt_and_gen``'s reconstruction
+        block VERBATIM (same torch.load options, same field defaults -- note
+        ``icl_mode`` falls back to "not x-vector-only" exactly like upstream) --
+        the UI layer reuses THIS seam instead of duplicating it.  Errors carry
+        the official bilingual strings so the status box reads like the
+        official demo on a malformed file.
+        """
+        import torch  # lazy: ambient wheel from earlier tasks
+        from qwen_tts import VoiceClonePromptItem
+
+        path = getattr(path, "name", None) or getattr(path, "path", None) or str(path)
+        payload = torch.load(str(path), map_location="cpu", weights_only=True)
+        if not isinstance(payload, dict) or "items" not in payload:
+            raise ValueError(_VOICE_FILE_INVALID)
+
+        items_raw = payload["items"]
+        if not isinstance(items_raw, list) or len(items_raw) == 0:
+            raise ValueError(_ITEMS_EMPTY)
+
+        items: list = []
+        for d in items_raw:
+            if not isinstance(d, dict):
+                # ValueError by OFFICIAL PARITY: qwen_tts/cli/demo.py's
+                # load_prompt_and_gen raises ValueError on malformed items.
+                raise ValueError(_ITEM_FORMAT_INVALID)  # noqa: TRY004
+            ref_code = d.get("ref_code", None)
+            if ref_code is not None and not torch.is_tensor(ref_code):
+                ref_code = torch.tensor(ref_code)
+            ref_spk = d.get("ref_spk_embedding", None)
+            if ref_spk is None:
+                raise ValueError(_SPK_MISSING)
+            if not torch.is_tensor(ref_spk):
+                ref_spk = torch.tensor(ref_spk)
+            items.append(
+                VoiceClonePromptItem(
+                    ref_code=ref_code,
+                    ref_spk_embedding=ref_spk,
+                    x_vector_only_mode=bool(d.get("x_vector_only_mode", False)),
+                    icl_mode=bool(d.get("icl_mode", not bool(d.get("x_vector_only_mode", False)))),
+                    ref_text=d.get("ref_text", None),
+                )
+            )
+        return items
 
     # -- codec roundtrip --------------------------------------------------------
 

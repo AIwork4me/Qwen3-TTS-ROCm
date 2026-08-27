@@ -1,0 +1,56 @@
+Task 16 live smoke — enhanced Gradio demo (real run on this gfx1151 host)
+==============================================================================
+
+Command under test:
+  $ nohup .venv/bin/qwen3-tts-rocm-demo --alias custom-voice --port 8000 \
+        > /tmp/qwen3-demo-smoke.log 2>&1 &
+  server process: qwen3-tts-rocm-demo  (see LISTEN line below)
+
+[1] HTTP index check (lazy loading: NO weights touched at startup)
+  $ curl -sS -o /tmp/demo-index.html -w '%{http_code} %{size_download}\n' http://127.0.0.1:8000/
+  HTTP_CODE=200 SIZE=251365
+  served meta title: "Qwen3 TTS Demo"          <- required page title contains Qwen3 TTS
+  '排队串行生成' occurrences in HTML: 1        <- single-GPU queue note present
+  footer disclaimer / bilingual labels present in the rendered config
+
+[2] First REST synthesis attempt (pre-fix) caught a real cold-start bug:
+  POST /gradio_api/call/generate_custom_voice {"data": ["custom-voice", ...,"Chinese","Vivian","",null x8]}
+  -> SSE error: Value: Chinese is not in the list of choices: ['Auto']
+  Root cause: dropdowns seed choices=['Auto'] until the model lazily loads;
+  gradio 6 rejects out-of-list values. Fixed with allow_custom_value=True on the
+  Language/Speaker dropdowns (backend lookup_display maps case-insensitively),
+  matching upstream whose post-load build always had full choice lists.
+
+[3] Second REST synthesis attempt AFTER fix — full generation through the demo:
+  $ curl -sS -X POST http://127.0.0.1:8000/gradio_api/call/generate_custom_voice \
+         -H "Content-Type: application/json" -d @/tmp/smoke-post.json
+  {"event_id":"ec85b9d4698a4f2ea220d9eba754fdae"}
+  payload: text='你好，欢迎体验 Qwen3 TTS 的 ROCm 演示。' language=Chinese speaker=Vivian
+           model=custom-voice (Qwen3-TTS-12Hz-1.7B-CustomVoice, lazy-loaded bf16/sdpa)
+  $ curl -sN http://127.0.0.1:8000/gradio_api/call/generate_custom_voice/ec85b9d4...
+  event: complete
+  data: [{"path": "/tmp/gradio/98d8dd54.../audio.wav",
+         "url": "http://127.0.0.1:8000/gradio_api/file=/tmp/gradio/98d8dd54.../audio.wav",
+         "orig_name": "audio.wav", "meta": {"_type": "gradio.FileData"}},
+         "Finished. (生成完成)"]
+  ^ official status string; synthesis ran on the REAL 1.7B model via SynthesisService
+
+[4] Downloaded synthesized clip saved as evidence/demo-rest-gen-zh.wav
+  soundfile.info: samplerate=24000 Hz, channels=1, duration=5.520 s, WAV PCM_16
+
+[5] Teardown + orphan-process proof
+  $ pkill -f qwen3-tts-rocm-demo; sleep 2; ss -tlnp | grep ':8000'
+  (first kill hit the setsid wrapper; completed with pkill on the real child)
+  $ pgrep -af "qwen3-tts-rocm-[-]demo"   # char-class defeats self-match
+  NO_DEMO_PROCESS
+  $ ss -tlnp | grep ':8000'
+  (no output -> no listener)
+  $ ss -tlnp | grep ':8000' -> no listener (verified post-teardown 2026-08-27 16:28:09)
+
+[6] Evidence artifacts note: the synthesized clip exists on disk as
+    evidence/demo-rest-gen-zh.wav (24 kHz mono 5.520 s PCM_16) but stays UNTRACKED
+    per .gitignore policy ('*.wav' generated evidence binaries are not committed;
+    only the Task 13 bundled ref_en.wav exception). Reproduce with steps [1]-[4].
+
+[7] Post-fix regression state at time of smoke: pytest -m 'not gpu' -> 137 passed,
+    ruff clean on all touched files.

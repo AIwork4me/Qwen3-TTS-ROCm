@@ -19,6 +19,7 @@ dependencies = [
 
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
+demo = ["gradio>=6,<7", "soundfile"]
 
 [project.scripts]
 qwen3-tts-rocm-check = "qwen3_tts_rocm.cli_check:main"

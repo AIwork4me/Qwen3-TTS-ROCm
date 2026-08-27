@@ -7,7 +7,8 @@
 # What it does (idempotent — safe to re-run):
 #   1. creates .venv (prefers uv, falls back to python3 -m venv) unless present;
 #   2. installs the pinned AMD ROCm torch wheel stack from the AMD index;
-#   3. installs this package in editable mode with dev extras (-e ".[dev]");
+#   3. installs this package in editable mode with the dev+demo extras
+#   (-e ".[dev,demo]");
 #   4. with --with-models, runs scripts/download_models.sh afterwards;
 #   5. finishes with scripts/verify_gpu.sh, printing SPIKE-GPU-OK on success.
 #
@@ -59,9 +60,9 @@ PY=".venv/bin/python"
 echo "==> [torch] pinned AMD ROCm wheels from repo.amd.com (skipped fast when satisfied)"
 .venv/bin/python -m pip install --index-url https://repo.amd.com/rocm/whl-multi-arch/ "torch[device-gfx1151]==2.12.0+rocm7.14.0" "torchvision[device-gfx1151]==0.27.0+rocm7.14.0" "torchaudio==2.11.0+rocm7.14.0" --no-input
 
-# --- 3. this package, editable, with dev extras -----------------------------
-echo "==> [package] pip install -e \".[dev]\""
-$PY -m pip install --no-input -e ".[dev]"
+# --- 3. this package, editable, with dev+demo extras ------------------------
+echo "==> [package] pip install -e \".[dev,demo]\""
+$PY -m pip install --no-input -e ".[dev,demo]"
 
 # --- 4. optional model fetch -------------------------------------------------
 if (( WITH_MODELS )); then
