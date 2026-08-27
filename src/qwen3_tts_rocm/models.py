@@ -29,10 +29,10 @@ back to the hf-mirror endpoint (``HF_ENDPOINT=https://hf-mirror.com`` around
 the ``huggingface_hub.snapshot_download`` call) when ModelScope fails.  Each
 source is retried once before moving on; once every attempt fails a
 :class:`RuntimeError` lists both manual download URLs.  Already-downloaded
-targets (``config.json`` or ``.ok`` present, see :func:`is_downloaded`) are
-skipped unless ``resume=False`` is passed, and each successful fetch (or
-skip) yields its target directory in
-the returned list, in alias order.
+targets (weight-aware :func:`is_downloaded`: ``config.json`` or ``.ok`` present
+plus at least one ``*.safetensors`` weight file) are skipped unless
+``resume=False`` is passed, and each successful fetch (or skip) yields its
+target directory in the returned list, in alias order.
 
 Accepted references for :func:`resolve_path` / :func:`is_downloaded` /
 :func:`mark_ok`, in precedence order:
@@ -164,18 +164,26 @@ def resolve_path(ref: str | Path) -> Path:
     )
 
 
-def is_downloaded(ref: str | Path) -> bool:
+def is_downloaded(ref: str | Path, *, require_weights: bool = False) -> bool:
     """True when the resolved target exists and holds ``config.json`` or a ``.ok`` marker.
 
     Unknown references are simply reported as not downloaded instead of raising.
+    With ``require_weights=True`` the target must additionally hold at least one
+    ``*.safetensors`` weight file (all six official repos ship ``model.safetensors``),
+    so a config-only partial repo no longer passes; the default ``False`` keeps the
+    legacy ``config.json``/``.ok`` behaviour for every existing caller.
     """
     try:
         target = resolve_path(ref)
     except KeyError:
         return False
-    return target.is_dir() and (
+    if not target.is_dir() or not (
         (target / "config.json").exists() or (target / ".ok").exists()
-    )
+    ):
+        return False
+    if require_weights:
+        return any(entry.is_file() for entry in target.glob("*.safetensors"))
+    return True
 
 
 def mark_ok(ref: str | Path) -> None:
@@ -323,18 +331,24 @@ def download(
         ``$QWEN3_TTS_ROCM_MODELS_DIR`` and the cwd/cache default (see
         :func:`local_dir`).  Defaults to the ambient root when omitted.
     resume:
-        ``True`` (default) keeps the already-downloaded skip: targets with
-        ``config.json`` or ``.ok`` present are not re-fetched (both transports
-        resume interrupted transfers natively, so partial downloads continue
-        where they left off).  ``False`` bypasses that skip and re-invokes the
-        transport for every requested alias -- the target directory is
-        resolved exactly the same way and ``.ok`` is rewritten after a
-        successful fetch (clean re-download / repair mode).
+        ``True`` (default) keeps the already-downloaded skip: targets that pass the
+        weight-aware completeness check (:func:`is_downloaded` with
+        ``require_weights=True``: ``config.json`` or ``.ok`` present *and* at least
+        one ``*.safetensors`` weight file) are not re-fetched, so a config-only
+        partial repo gets re-fetched instead of skipped (both transports resume
+        interrupted transfers natively, so partial downloads continue where they
+        left off).  ``False`` bypasses that skip and re-invokes the transport for
+        every requested alias -- the target directory is resolved exactly the same
+        way and ``.ok`` is rewritten after a successful fetch (clean re-download /
+        repair mode).
 
-    Already-downloaded targets (:func:`is_downloaded`: ``config.json`` or
-    ``.ok`` present) are skipped without touching the network when
-    ``resume=True`` (the default).  Returns the list of target directories
-    (downloaded or skipped) in requested order.
+    Already-downloaded targets (weight-aware :func:`is_downloaded`) are skipped
+    without touching the network when ``resume=True`` (the default).  A directory
+    holding leftovers from a failed attempt next to files from a later fallback
+    source (a mixed partial dir) is accepted once marked, but if a fetch looks
+    corrupted, wipe the alias directory and re-run :func:`download` (or pass
+    ``resume=False``) for a clean re-download.  Returns the list of target
+    directories (downloaded or skipped) in requested order.
     """
     names = _resolve_aliases(aliases)
     if source == "auto":
@@ -354,7 +368,9 @@ def download(
         # passes existing dirs through verbatim, guaranteeing the check hits
         # the effective root instead of some unrelated env/cwd-derived location.
         # resume=False bypasses the skip entirely and re-invokes the transport.
-        if resume and target.is_dir() and is_downloaded(target):
+        # require_weights=True makes the skip weight-aware: a config-only
+        # partial repo is re-fetched instead of skipped as already-downloaded.
+        if resume and target.is_dir() and is_downloaded(target, require_weights=True):
             results.append(target)
             continue
         target.mkdir(parents=True, exist_ok=True)

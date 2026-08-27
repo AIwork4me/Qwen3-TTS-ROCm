@@ -7,6 +7,7 @@ touching the repo's own ``models/`` checkout).
 """
 
 import os
+from pathlib import Path
 from typing import ClassVar
 
 import pytest
@@ -62,12 +63,14 @@ def test_download_auto_falls_back_to_hfmirror(monkeypatch, tmp_path):
 
 
 def test_skip_already_downloaded(monkeypatch, tmp_path):
-    """models_dir override must win over env/cwd roots; a marked target is skipped."""
+    """models_dir override must win over env/cwd roots; a complete (marked +
+    weights) target is skipped."""
     import qwen3_tts_rocm.models as M
 
     d = tmp_path / models.flatten(models.REPOS["tokenizer"])
     d.mkdir()
     (d / ".ok").write_text("")
+    (d / "model.safetensors").write_bytes(b"weights")  # S3: skip is weight-aware
 
     def boom(*a, **k):
         raise AssertionError("should not be called")
@@ -208,6 +211,7 @@ def test_resume_true_keeps_downloaded_skip(monkeypatch, tmp_path):
     d = tmp_path / models.flatten(models.REPOS["tokenizer"])
     d.mkdir()
     (d / ".ok").write_text("")
+    (d / "model.safetensors").write_bytes(b"weights")  # S3: skip is weight-aware
 
     def boom(*a, **k):
         raise AssertionError("resume=True must skip an already-downloaded target")
@@ -216,3 +220,147 @@ def test_resume_true_keeps_downloaded_skip(monkeypatch, tmp_path):
     monkeypatch.setattr(M, "_hf_snapshot", boom)
     assert M.download("tokenizer", source="modelscope", models_dir=tmp_path,
                       resume=True) == [d]
+
+
+# ---------------------------------------------------------------------------
+# P0-S3 (hardening): weight-aware completeness + pinned auto-fallback-into-
+# partial-dir semantics.  Written test-first (see
+# .superpowers/sdd/v0.1.0-hardening/s3-report.md).
+# ---------------------------------------------------------------------------
+
+def test_is_downloaded_require_weights_rejects_config_only_dir(tmp_path):
+    """A config.json-only partial repo still counts as downloaded for the legacy
+    default call, but NOT once require_weights=True asks for real weight files."""
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / "config.json").write_text("{}", encoding="utf-8")
+    assert M.is_downloaded(d) is True  # default behaviour unchanged
+    assert M.is_downloaded(d, require_weights=True) is False
+
+
+def test_is_downloaded_require_weights_accepts_any_safetensors(tmp_path):
+    """require_weights=True wants at least one *.safetensors: model.safetensors
+    and sharded names both count; config.json/.ok alone stay required too."""
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / ".ok").write_text("", encoding="utf-8")
+    (d / "model.safetensors").write_bytes(b"weights")
+    assert M.is_downloaded(d, require_weights=True) is True
+
+    sharded = tmp_path / models.flatten(models.REPOS["base"])
+    sharded.mkdir()
+    (sharded / "config.json").write_text("{}", encoding="utf-8")
+    (sharded / "model-00001-of-00002.safetensors").write_bytes(b"w")
+    assert M.is_downloaded(sharded, require_weights=True) is True
+
+    (sharded / "model-00001-of-00002.safetensors").unlink()
+    assert M.is_downloaded(sharded, require_weights=True) is False  # weights gone
+
+
+def test_download_refetches_config_only_partial_repo(monkeypatch, tmp_path):
+    """download()'s resume skip is weight-aware: a config.json-only partial repo
+    is re-fetched instead of being skipped as already-downloaded."""
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / "config.json").write_text("{}", encoding="utf-8")
+
+    calls: list = []
+
+    def fake_ms(model_id, local_dir=None, **kw):
+        calls.append(("ms", model_id))
+        M.mark_ok(local_dir)
+
+    def hf_boom(*a, **k):
+        raise AssertionError("hf fallback must not run for an explicit source")
+
+    monkeypatch.setattr(M, "_ms_snapshot", fake_ms)
+    monkeypatch.setattr(M, "_hf_snapshot", hf_boom)
+    out = M.download("tokenizer", source="modelscope",
+                     models_dir=tmp_path)  # resume=True is the default
+    assert calls == [("ms", TOKENIZER_REPO)]  # transport ran (was skipped before)
+    assert out == [d]
+    assert (d / ".ok").exists()
+
+
+def test_download_refetches_ok_dir_without_weights(monkeypatch, tmp_path):
+    """Deliberate S3 tightening: an .ok-only dir whose weights are missing (or
+    were deleted after marking) is refetched under resume=True, so a resume
+    repairs vanished weights instead of trusting the marker alone."""
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / ".ok").write_text("")
+
+    monkeypatch.setattr(M, "_ms_snapshot", FakeMS.snapshot_download)
+    FakeMS.calls.clear()
+    out = M.download("tokenizer", source="modelscope",
+                     models_dir=tmp_path)  # resume=True is the default
+    assert FakeMS.calls == [("ms", TOKENIZER_REPO)]
+    assert out == [d] and (d / ".ok").exists()
+
+
+def test_download_resume_skips_fully_populated_dir(monkeypatch, tmp_path):
+    """config.json + model.safetensors is complete: the resume skip still holds."""
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / "config.json").write_text("{}", encoding="utf-8")
+    (d / "model.safetensors").write_bytes(b"weights")
+
+    def boom(*a, **k):
+        raise AssertionError("complete target must be skipped under resume=True")
+
+    monkeypatch.setattr(M, "_ms_snapshot", boom)
+    monkeypatch.setattr(M, "_hf_snapshot", boom)
+    assert M.download("tokenizer", source="modelscope", models_dir=tmp_path,
+                      resume=True) == [d]
+
+
+def test_auto_fallback_into_partial_dir_recovers_and_marks_ok(monkeypatch, tmp_path):
+    """Pins the auto fallback into a partially-written directory (Task-5 review
+    watch-item): a ModelScope attempt that dies mid-transfer leaves partial files
+    behind, the hf-mirror fallback then succeeds into the SAME directory, the
+    mixed dir is accepted and marked, and a later resume=True download skips it."""
+    import qwen3_tts_rocm.models as M
+
+    def failing_ms(model_id, local_dir=None, **kw):
+        # dies AFTER writing a partial file: config.json present, no .ok yet
+        (Path(local_dir) / "config.json").write_text("{}", encoding="utf-8")
+        (Path(local_dir) / "model.safetensors.part").write_bytes(b"partial")
+        raise OSError("ms died mid-transfer")
+
+    hf_calls: list = []
+
+    def hf_ok(repo_id, local_dir, **kw):
+        hf_calls.append(repo_id)
+        # a successful hf-mirror snapshot of these repos always carries
+        # model.safetensors (Task-8: present in all six); it doubles as the
+        # marker proving hf ran and satisfies the weight-aware resume skip below
+        (Path(local_dir) / "model.safetensors").write_bytes(b"weights")
+        M.mark_ok(local_dir)
+
+    monkeypatch.setattr(M, "_ms_snapshot", failing_ms)
+    monkeypatch.setattr(M, "_hf_snapshot", hf_ok)
+    out = M.download("tokenizer", source="auto", models_dir=tmp_path)
+    d = out[0]
+    assert hf_calls == [TOKENIZER_REPO]  # recovered via hfmirror
+    assert (d / ".ok").exists()  # dir left marked, no exception escaped
+    # BOTH sources' artifacts coexist in the accepted mixed dir:
+    assert (d / "config.json").is_file()  # from the failed ms attempt
+    assert (d / "model.safetensors.part").is_file()  # ms partial leftover
+    assert (d / "model.safetensors").is_file()  # from the hf fallback
+    # subsequent resume download skips the mixed (now marked) dir:
+    def boom(*a, **k):
+        raise AssertionError("marked mixed dir must be skipped under resume=True")
+
+    monkeypatch.setattr(M, "_ms_snapshot", boom)
+    monkeypatch.setattr(M, "_hf_snapshot", boom)
+    assert M.download("tokenizer", source="auto", models_dir=tmp_path) == [d]
