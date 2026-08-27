@@ -330,6 +330,7 @@ class CountingFactory:
 
     def __init__(self, build_delay: float = 0.0) -> None:
         self.alias_calls: list[str] = []
+        self.fakes: dict[str, FakeTTSModel] = {}
         self._delay = build_delay
 
     def __call__(self, alias: str) -> FakeTTSModel:
@@ -338,6 +339,7 @@ class CountingFactory:
             time.sleep(self._delay)
         model = FakeTTSModel()
         model.built_for = str(alias)
+        self.fakes[str(alias)] = model
         return model
 
 
@@ -453,6 +455,95 @@ def test_get_teardown_failure_never_leaks_the_load_ticket(monkeypatch):
     t2.join(timeout=10)
     assert not t2.is_alive()                   # would hang forever if leaked
     assert ok and ok[0].built_for == "custom-voice"
+    assert svc.cached_aliases() == ("custom-voice",)
+    assert svc._loading == {}                  # white-box: no poisoned ticket
+
+
+def test_get_waiter_wakes_when_winner_install_teardown_fails(monkeypatch):
+    """A failure in the winner-install teardown must still WAKE ticket waiters.
+
+    Regression (re-review hammer: waiters stranded 51/60 rounds): the success
+    body used to pop the ticket BEFORE the winner-install teardown, so a
+    teardown failure there skipped the wake-up and left waiters parked on the
+    event forever.  The finally must be the single cleanup authority, so any
+    post-install failure wakes waiters (they re-check and proceed).
+
+    Deterministic handshake: the owner's factory blocks until the test has
+    PROVEN the waiter parked (the ticket event's ``wait`` is traced on the
+    instance) -- no sleep-based race.  join timeouts fail fast, never hang.
+    """
+    inner = CountingFactory()
+    owner_in_factory = threading.Event()
+    release_owner = threading.Event()
+    waiter_parked = threading.Event()
+
+    def gated(alias: str) -> FakeTTSModel:
+        """Hold the owner inside the factory (ticket held) until released."""
+        if alias == "custom-voice" and not release_owner.is_set():
+            owner_in_factory.set()
+            assert release_owner.wait(timeout=10)
+        return inner(alias)
+
+    svc = SynthesisService(factory=gated)      # starts EMPTY: ticket-time
+    real_unload = loader.unload                # teardown has no victim at all
+    exploded = False
+
+    def exploding_unload(model):
+        nonlocal exploded
+        if model is inner.fakes.get("base") and not exploded:
+            exploded = True                    # ONLY the winner-install pass
+            raise RuntimeError("unload exploded (winner-install teardown)")
+        real_unload(model)                     # best-effort: never raises else
+
+    monkeypatch.setattr(loader, "unload", exploding_unload)
+
+    owner_errors: list[BaseException] = []
+
+    def owner() -> None:
+        try:
+            svc.get("custom-voice")            # ticket -> load -> teardown BOOM
+        except BaseException as exc:  # noqa: BLE001 - reported, never swallowed
+            owner_errors.append(exc)
+
+    to = threading.Thread(target=owner, daemon=True)
+    to.start()
+    assert owner_in_factory.wait(timeout=10)   # ticket is installed and held
+
+    ticket = svc._loading["custom-voice"]      # white-box: trace the parking
+    real_wait = ticket.wait
+
+    def traced_wait(timeout=None):
+        waiter_parked.set()                    # from here, parking is proven
+        return real_wait(timeout)
+
+    ticket.wait = traced_wait
+
+    def waiter() -> None:
+        svc.get("custom-voice")
+
+    tw = threading.Thread(target=waiter, daemon=True)
+    tw.start()
+    assert waiter_parked.wait(timeout=10)      # parked on the ticket event
+    time.sleep(0.05)                           # let it block inside real_wait
+
+    # A third thread makes a DIFFERENT alias resident while the ticket is held:
+    # this is the victim the owner's winner-install teardown must unload (the
+    # only way that teardown has work to do in a deterministic single run).
+    tb = threading.Thread(target=lambda: svc.get("base"), daemon=True)
+    tb.start()
+    tb.join(timeout=10)
+    assert not tb.is_alive() and "base" in inner.fakes
+
+    release_owner.set()                        # factory returns -> teardown BOOM
+    to.join(timeout=10)
+    assert not to.is_alive()
+    assert exploded
+    assert len(owner_errors) == 1 and "winner-install teardown" in str(owner_errors[0])
+
+    tw.join(timeout=10)
+    assert not tw.is_alive()                   # would hang forever if unwoken
+    back = svc.get("custom-voice")             # healthy: slot usable afterwards
+    assert back.built_for == "custom-voice"
     assert svc.cached_aliases() == ("custom-voice",)
     assert svc._loading == {}                  # white-box: no poisoned ticket
 
