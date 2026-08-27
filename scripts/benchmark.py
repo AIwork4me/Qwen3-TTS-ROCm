@@ -285,7 +285,15 @@ def run_cell(
 
 
 def warmup(model: object, alias: str) -> None:
-    """Discarded cn/short generation (kernel/code-path warmup per alias)."""
+    """Discarded cn/short generation (kernel/code-path warmup per alias).
+
+    WARNING: this deliberately passes NO ``max_new_tokens``, so the model's
+    own ``generate_config.json`` default (2048) applies.  On ``base`` a
+    degenerate sampling loop can then burn ~23 minutes in this single call
+    (measured: 1396 s on gfx1151); keeping it uncapped reproduces the
+    official-default degenerate behavior as recorded evidence.  Pass
+    ``--no-warmup`` to skip it.
+    """
     method, kwargs = build_call(model, alias, TEXTS["cn"]["short"], LANG_KEYS["cn"])
     getattr(model, method)(**kwargs, do_sample=True, temperature=1.0)
 

@@ -39,7 +39,7 @@ def test_cell_summary_median_min_max():
     audios = [4.0, 4.0, 4.0]
     s = bench.cell_summary(walls, audios)
     assert s["runs"] == 3
-    assert math.isclose(s["median_rtf"], 1.5)      # median of [1.0, 1.5, 3.0]
+    assert math.isclose(s["median_rtf"], 1.5)  # median of [1.0, 1.5, 3.0]
     assert math.isclose(s["min_rtf"], 1.0)
     assert math.isclose(s["max_rtf"], 3.0)
     assert math.isclose(s["median_wall_s"], 6.0)

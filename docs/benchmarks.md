@@ -39,7 +39,8 @@ the raw values are reproduced in `evidence/benchmark.json → meta`.
 * **Warmup policy:** one cn/short generation per alias, executed then
   *discarded* (kernel/code-path warmup), before any measurement. Warmups
   cost 6.1 s (custom-voice), 4.4 s (voice-design) — and **1396 s for base**
-  (a degenerate sampling loop that ran to the token cap; see below).
+  (a degenerate sampling loop under the official default 2048-token budget:
+  the warmup deliberately omits `max_new_tokens`; see below).
 * **What counts:** `wall` is the full official call
   (`generate_custom_voice` / `generate_voice_design` / `generate_voice_clone`)
   — text encoding, decode, codec-to-waveform — via `time.perf_counter`.
@@ -89,7 +90,7 @@ Per-alias reading:
   statistically indistinguishable from custom-voice despite the extra style
   instruction.
 * **base** (`generate_voice_clone`, ICL-mode clone from the bundled synthetic
-  reference clip): consistently higher, median RTF 1.71–1.90, and pays
+  reference clip): consistently higher, median RTF 1.71–1.88, and pays
   reference encoding + longer prompt context every call. Also carries the
   degenerate-loop risk demonstrated by its discarded warmup (1396 s).
 
@@ -143,5 +144,10 @@ rows so a rerun pastes straight into this file.
 | `evidence/benchmark.json` | Machine-readable `{meta:{host,gpu,cpu,torch_version_hip,date,args,...}, results:[per-cell RTF lists + summaries]}` |
 | `scripts/benchmark.py` | Generator for both of the above |
 
-Related evidence from earlier tasks cited above: `evidence/gen-voiceclone.txt`
-(Task 13, 2048-token runaway measurement, 1392 s single call).
+Related evidence: this page's Task-13 figure of a ~23 min (1392 s) single-call
+runaway comes from that task's session record
+(`.superpowers/sdd/2026-08-27-qwen3-tts-rocm/task-13-report.md`, which used the
+official 2048-token default). This benchmark session's own equivalent is the
+raw line `[bench] warmup alias=base took=1396.0s (discarded)` in
+`evidence/benchmark-run.txt` — same uncapped default budget during warmup.
+(`evidence/gen-voiceclone.txt` holds only the post-fix, capped Task-13 rerun.)
