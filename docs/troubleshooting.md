@@ -1,0 +1,253 @@
+# Troubleshooting — Qwen3-TTS-ROCm
+
+Companion guide to [`README.md`](../README.md) /
+[`README_CN.md`](../README_CN.md). It expands **every** `ERROR:` / `WARN:` /
+`INFO:` line the project's diagnostics
+([`src/qwen3_tts_rocm/env.py`](../src/qwen3_tts_rocm/env.py)) can emit,
+plus the downloader failures, the memory playbook and the harmless console
+noise. Bilingual (中文) wording appears where the quoted diagnostic itself is
+bilingual.
+
+## Read the diagnostics first
+
+```bash
+qwen3-tts-rocm-check          # console entry point (installed by scripts/install.sh)
+```
+
+* Equivalent API: `qwen3_tts_rocm.env.rocm_check()` /
+  `qwen3_tts_rocm.env.collect()`.
+* The check is strictly read-only and has a **never-raise guarantee**: even on
+  machines without torch it degrades to plain error lines instead of a stack
+  trace.
+* Line prefixes: `ERROR:` blocks you, `WARN:` matters but continues,
+  `INFO:` is an advisory only. A bilingual summary tail reports HIP state,
+  ROCm version, GPU count/arch and warning/error counts.
+
+---
+
+## Environment errors (`ERROR:`)
+
+### E1 · `PyTorch is not installed or not importable ...`
+
+Torch is missing from the active interpreter (wrong venv, or the package was
+installed without the wheel stack).
+
+Fix — install the AMD ROCm build into **this** environment:
+
+```bash
+pip install torch --index-url https://repo.amd.com/rocm/whl-multi-arch/
+```
+
+or simply re-run `bash scripts/install.sh`, which pins the full stack
+(`torch[device-gfx1151]==2.12.0+rocm7.14.0`, `torchvision`, `torchaudio`)
+from that index.
+
+### E2 · `The installed PyTorch is NOT an AMD ROCm/HIP build ...`
+
+A CUDA or CPU-only torch shadows the ROCm one (common after adding packages
+that pull `torch` from PyPI). The emitted hint names the exact remedy — run
+the verbatim reinstall command:
+
+```bash
+pip uninstall torch && pip install torch --index-url https://repo.amd.com/rocm/whl-multi-arch/
+```
+
+Verify afterwards: `python -c "import torch; print(torch.__version__, torch.version.hip)"`
+should print `2.12.0+rocm7.14.0` and a `7.x`-series HIP value.
+
+### E3 · `AMD ROCm torch found but torch.cuda.is_available() is False`
+
+The right wheel is loaded but no HIP device is visible. As the message says,
+check:
+
+1. **Driver load** — `sudo dmesg | grep -i amdgpu`; `rocm-smi` must list the
+   iGPU. A kernel without a matching `amdgpu` DRM driver cannot expose the
+   device to userspace.
+2. **Device permissions** — see W2 below (`/dev/kfd`, groups `render` +
+   `video`, relogin).
+3. Re-run `bash scripts/verify_gpu.sh` after fixing; success prints
+   `SPIKE-GPU-OK`.
+
+If `HSA_OVERRIDE_GFX_VERSION` sneaked into your environment, also see W3 —
+it actively hurts on this hardware instead of helping.
+
+---
+
+## Warnings & advisories (`WARN:` / `INFO:`)
+
+### W1 · `GPU enumeration failed: module 'torch.cuda' has no attribute 'get_device_count'`
+
+Some ROCm wheels only ship `torch.cuda.device_count`. The probe already tries
+both names; when enumeration still fails the report stays usable (devices may
+still be found later at load time). Treat as informational unless loads then
+fail too.
+
+### W2 · `/dev/kfd exists but is not read/writable by this process`
+
+and its sharper twin: `No HIP device visible AND /dev/kfd lacks read/write
+permission for this user`.
+
+`/dev/kfd` is the ROCm userspace entry point; desktop sessions typically grant
+it to the `video` and/or `render` groups. Fix per the emitted text — join both
+groups, log out and back in (group membership is resolved at login):
+
+```bash
+sudo usermod -aG video,render "$USER"
+# relogin, then verify:
+id -nG "$USER"                 # must contain video and render
+ls -l /dev/kfd /dev/dri        # group column matches what id showed
+```
+
+The kfd gate fires twice on purpose with different wordings: once when the HIP
+stack came up but the process cannot use the device again later (model init
+may fail), and once, as "permissions are the most likely root cause", when no
+device was visible at all.
+
+### W3 · `HSA_OVERRIDE_GFX_VERSION="..." is set, but gfx1151 needs NO override on ROCm 7.x`
+
+gfx1151 is natively supported by the ROCm 7.x toolchain that ships in the AMD
+wheels. The override forces mis-targeted code objects and breaks more than it
+fixes. Remove it:
+
+```bash
+unset HSA_OVERRIDE_GFX_VERSION      # and delete any export line in shell profiles / launch scripts
+```
+
+### W4 · `CUDA_VISIBLE_DEVICES=... is set — on ROCm it applies to the HIP device order as well`
+
+Not an error: the variable keeps working under ROCm/HIP with CUDA semantics
+(commas select/order devices, `-1` hides all GPUs). Nothing to change unless
+you expected otherwise.
+
+### W5 / I · `unified-memory APU/iGPU detected — VRAM is shared with system RAM ...`
+
+Contains the standing advisory, verbatim
+(`GTT_HINT` in `env.py`):
+
+> If generation hits out-of-memory on unified-memory APUs, consider lowering
+> max_new_tokens or switching to a 0.6B model.
+
+There is no dedicated VRAM here — allocations land in the same LPDDR5X pool
+as your desktop session (GTT-style accounting), so long generations compete
+with everything else in RAM. See the OOM playbook below for the concrete
+levers.
+
+---
+
+## Out-of-memory playbook
+
+Symptoms: OOM aborts mid-generation, `MemEfficient attention` style failures,
+system-wide freezes under load. Apply the levers in this order (this is the
+GTT_HINT above, expanded):
+
+1. **Lower `max_new_tokens`.** Every service here already defaults to the
+   512-token guardrail (`demo/backend.py::DEFAULT_GEN_KWARGS`) precisely
+   because the official default of 2048 can degenerate into minutes-long
+   runs (~23 min measured once on this host) while accumulating KV cache all
+   the way. Override consciously via the demo's Advanced accordion or
+   `gen_kwargs={"max_new_tokens": N}` — smaller N bounds peak memory.
+2. **Switch to a 0.6B model.** Aliases `custom-voice-0.6b` / `base-0.6b`
+   roughly halve resident weights versus their 1.7B siblings (measured load
+   footprint ≈ 2.3 GiB vs ≈ 4.2 GiB in `evidence/load-smoke.txt`). Switch via
+   the sidebar model switcher or:
+   ```bash
+   bash scripts/run_demo.sh --alias custom-voice-0.6b
+   ```
+3. **Unload before reloading.** Exactly one model should stay resident;
+   `loader.unload(model)` / `SynthesisService.unload_all()` delete weights,
+   collect garbage and empty the caching allocator — best-effort, never
+   raises. Switching aliases inside the demo does this automatically (LRU of
+   size one); manually loading several models in one interpreter does NOT.
+4. Close other GPU-pool consumers first (browsers/compositors share the same
+   unified memory), then retry.
+
+---
+
+## Download failures
+
+The downloader (`scripts/download_models.sh`,
+`qwen3_tts_rocm.models.download`) tries **ModelScope first**, falls back to
+**hf-mirror.com**, with one retry per source per repo. When everything fails
+you get a `RuntimeError` listing every attempt plus **both manual URLs**, e.g.
+for alias `custom-voice`:
+
+```text
+Manual fix (手动下载): place the files under <models-root>/Qwen3-TTS-12Hz-1.7B-CustomVoice
+  https://modelscope.cn/models/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice
+  https://hf-mirror.com/Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice
+```
+
+Recovery options, cheapest first:
+
+* **Just re-run** `bash scripts/download_models.sh [alias]` — interrupted
+  transfers resume natively in both transports and completed repos are
+  skipped entirely.
+* **Proxy/network partition:** ModelScope is reachable from ordinary CN
+  networks (that is why it is first); if your network can reach
+  huggingface.co through `hf-mirror.com` only, keep the default auto mode.
+  Force a single channel via the API if you know which works:
+  `download("custom-voice", source="modelscope")` (or `"hfmirror"`).
+  The mirror endpoint is set around each call
+  (`HF_ENDPOINT=https://hf-mirror.com`) and restored afterwards; nothing
+  global leaks.
+* **Manual placement:** download either URL yourself and unpack so the model
+  folder sits at `<models-root>/<flattened-name>` (default models root:
+  `<repo>/models`, overridable via `$QWEN3_TTS_ROCM_MODELS_DIR`). The
+  downloader then treats the target as done and skips it on every future run.
+
+### What "already downloaded" means (`is_downloaded` semantics)
+
+A target directory counts as complete when it holds **either** `config.json`
+**or** the `.ok` marker written after a successful fetch (`models.mark_ok`).
+Consequences worth knowing:
+
+* A partially-fetched snapshot that happens to include `config.json` can be
+  mistaken for complete. If generation immediately complains about missing
+  weight files, force a clean redo: delete that model folder and re-run the
+  downloader.
+* The `.ok` marker lives *inside* the model folder; copying folders between
+  machines/checkouts preserves completion state automatically.
+
+---
+
+## flash-attn requests on ROCm
+
+Upstream prints this banner on start (harmless here):
+
+```text
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+```
+
+AMD publishes no official flash-attn ROCm wheel for this stack, so the
+manual PyTorch attention path is the supported one. The loader encodes the
+policy: on HIP GPUs it defaults to `attn_implementation="sdpa"`; explicitly
+requesting `"flash_attention_2"` raises a `RuntimeError` suggesting you omit
+the argument or pass `"sdpa"` instead. Experimental AOTriton attention paths
+(`TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1`) exist upstream but are left off
+by this project.
+
+Related informational warnings during real synthesis (from transformers'
+SDPA integration): `Flash/Mem Efficient attention on Current AMD GPU is
+still experimental...` — informational, the selected path still runs.
+
+---
+
+## Harmless console noise
+
+| Noise you will see | Meaning / action |
+|---|---|
+| `/bin/sh: 1: sox: not found` (once, early) | Printed by upstream code probing for the SoX binary at import time. Purely cosmetic: audio paths used here do not need SoX. Install `sox` if the line annoys you; functionality is identical either way |
+| `MIOpen(HIP): Warning [IsEnoughWorkspace] ...` and `a_grid_desc_m_ak_container_...` lines | MIOpen/Composable-kernel diagnostics emitted while kernels compile during warm-up — heavy only on first encounters of a shape and cached across runs afterwards. Ignore them; they are stderr chatter, not errors |
+| `Setting pad_token_id to eos_token_id...` | Normal transformers generation-config notice at the start of each generation |
+
+---
+
+## Still stuck?
+
+Re-run `qwen3-tts-rocm-check`, capture full command output including stderr
+(sox banner included — it means your log is complete), open an issue in this
+repository's tracker, and quote the diagnostic block verbatim along with
+`rocm-smi` output. See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the
+hardware-log etiquette (text logs only, no binaries or generated audio).
