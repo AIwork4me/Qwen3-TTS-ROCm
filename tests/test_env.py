@@ -43,3 +43,25 @@ def test_require_rocm_torch_raises_with_hint(monkeypatch):
 def test_cli_check_exits_zero(monkeypatch, capsys):
     monkeypatch.setitem(sys.modules, "torch", make_fake_cuda())
     assert env.rocm_check(verbose=False).hip_available is True
+
+# --- fix round 1 ---
+
+def test_collect_never_raises_when_torch_version_access_raises(monkeypatch):
+    class HostileVersion:
+        def __getattr__(self, name):
+            raise RuntimeError("simulated shim failure")  # non-AttributeError escape
+
+    fake = types.ModuleType("torch")
+    fake.cuda = types.SimpleNamespace(is_available=lambda: False, get_device_count=lambda: 0)
+    fake.version = HostileVersion()
+    monkeypatch.setitem(sys.modules, "torch", fake)
+    r = env.collect()  # must NOT raise
+    assert r.hip_available is False
+
+def test_no_apu_hint_when_cuda_ok_but_no_gpus(monkeypatch):
+    m = make_fake_cuda(unavailable=True)
+    m.cuda.is_available = lambda: True  # force cuda_ok=True while get_device_count()==0
+    monkeypatch.setitem(sys.modules, "torch", m)
+    r = env.collect()
+    assert r.gpus == []
+    assert not any("unified-memory APU" in w for w in r.warnings)

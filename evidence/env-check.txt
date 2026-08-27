@@ -12,3 +12,7 @@ exit_code=0
 INFO: unified-memory APU/iGPU detected — VRAM is shared with system RAM during generation. If generation hits out-of-memory on unified-memory APUs, consider lowering max_new_tokens or switching to a 0.6B model. (检测到统一内存的 APU/iGPU，显存与系统内存共享，生成过长可能耗尽内存).
 Summary: HIP available (可用); ROCm version: 7.14.60850; GPUs: 1 (gfx1151); warnings: 1; errors: 0 | 中文摘要：环境自检完成，HIP available (可用)，版本 7.14.60850，可见 GPU 1 块，警告 1 条，错误 0 条。
 exit_code=0
+[qwen3-tts-rocm] ROCm environment self-check (环境自检)
+INFO: unified-memory APU/iGPU detected — VRAM is shared with system RAM during generation. If generation hits out-of-memory on unified-memory APUs, consider lowering max_new_tokens or switching to a 0.6B model. (检测到统一内存的 APU/iGPU，显存与系统内存共享，生成过长可能耗尽内存).
+Summary: HIP available (可用); ROCm version: 7.14.60850; GPUs: 1 (gfx1151); warnings: 1; errors: 0 | 中文摘要：环境自检完成，HIP available (可用)，版本 7.14.60850，可见 GPU 1 块，警告 1 条，错误 0 条。
+exit_code=0

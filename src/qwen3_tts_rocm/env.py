@@ -46,7 +46,9 @@ class EnvReport:
     hip_available: bool = False          # torch built for ROCm/HIP and usable
     rocm_version: str | None = None      # torch.version.hip, e.g. "7.14.0a1"
     gpus: list[GpuInfo] = field(default_factory=list)
-    warnings: list[str] = field(default_factory=list)  # entries may start "INFO:"
+    # INFO-prefixed advisories are carried in this list by design
+    # (printed verbatim with their own prefix, unlike errors which always get ERROR:).
+    warnings: list[str] = field(default_factory=list)
     errors: list[str] = field(default_factory=list)
 
 
@@ -97,11 +99,17 @@ def collect() -> EnvReport:
         )
         return report
 
-    # torch.version.hip may be absent entirely (CUDA/CPU-only wheels) ->
-    # getattr default keeps this tolerant of missing attributes.
-    hip = getattr(getattr(torch, "version", None), "hip", None)
+    # torch.version.hip may be absent entirely (CUDA/CPU-only wheels); even merely
+    # touching it can raise on exotic torch shims/mocks (non-AttributeError from
+    # __getattr__), and str() can raise on hostile objects -> fully guarded,
+    # defaults to None (任何访问异常都按"无 HIP"处理，绝不抛出).
+    try:
+        raw_hip = getattr(getattr(torch, "version", None), "hip", None)
+        hip = str(raw_hip) if raw_hip else None
+    except Exception:  # noqa: BLE001 - diagnostics never raise
+        hip = None
     report.hip_available = hip is not None
-    report.rocm_version = str(hip) if hip else None
+    report.rocm_version = hip
 
     try:
         cuda_ok = bool(torch.cuda.is_available())
@@ -168,11 +176,15 @@ def collect() -> EnvReport:
         )
 
     # Unified-memory APU/iGPU: OOM risk factors are structural, so always advise.
+    # Requires at least one enumerated GPU (all()/any() over empty lists would
+    # otherwise fabricate an APU verdict when cuda reports OK but probes find none).
     try:
-        is_apu = any(
-            (g.arch or "").lower() in _ARCHS_KNOWN_APU or "graphics" in g.name.lower()
-            for g in gpus
-        ) or cuda_ok and all("radeon graphics" in g.name.lower() for g in gpus)
+        is_apu = bool(gpus) and (
+            any(
+                (g.arch or "").lower() in _ARCHS_KNOWN_APU or "graphics" in g.name.lower()
+                for g in gpus
+            ) or all("radeon graphics" in g.name.lower() for g in gpus)
+        )
         if is_apu:
             report.warnings.append(
                 "INFO: unified-memory APU/iGPU detected — VRAM is shared with system RAM "
