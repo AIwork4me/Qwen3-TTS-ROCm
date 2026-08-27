@@ -92,3 +92,6 @@ RUFF-REPO-CLEAN
 .                                                                        [100%]
 145 passed, 25 deselected in 6.03s
 SUMMARY: refresh-build EXIT=0 | plain-smoke graceful-error OK | entrypoint-help OK | GPU-passthrough SPIKE-GPU-OK
+--- [6c] bare-container serve proof (post cli-default fix, 21:37) ---
+docker run -d (NO args) --device kfd/dri + groups → curl :8900 = HTTP 200; /config = valid gradio 6.17.3 blocks JSON
+Closes T21-review Important finding: container Gradio bind demonstrated end-to-end.

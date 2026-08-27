@@ -483,3 +483,35 @@ def test_cached_aliases_public_view_is_tolerant():
 
     bare = SynthesisService.__new__(SynthesisService)  # __init__ skipped
     assert bare.cached_aliases() == ()  # tolerant of doubles
+
+
+def test_cli_bare_launch_defaults_to_custom_voice_and_serves(monkeypatch):
+    """Bare `docker run ...` (no args) must START SERVING, not print help.
+
+    The untouched upstream CLI keeps its help-and-exit behavior; our enhanced
+    entry point defaults --alias to custom-voice for out-of-box UX.
+    """
+    import types as _types
+
+    import qwen3_tts_rocm.cli_demo as cd
+    import qwen3_tts_rocm.demo.ui as ui_mod
+
+    seen: dict = {}
+
+    def fake_build_ui(service, header_info):
+        seen["header"] = header_info
+        return _types.SimpleNamespace(
+            queue=lambda **_kw: fake_build_ui,  # chainable
+            launch=lambda **launch_kwargs: seen.setdefault("launch", launch_kwargs),
+        )
+
+    monkeypatch.setattr(cd, "resolve_target", lambda args: ("/fake/ref", "custom-voice", "registry"))
+    monkeypatch.setattr(cd, "_build_service", lambda *a, **k: _types.SimpleNamespace(unload_all=lambda: None))
+    monkeypatch.setattr(ui_mod, "build_ui", fake_build_ui)
+    monkeypatch.setattr(ui_mod, "launch_visual_kwargs", lambda: {})
+
+    rc = cd.main([])  # bare launch
+
+    assert rc == 0
+    assert seen["header"]["alias"] == "custom-voice"
+    assert seen["launch"]["server_port"] == 8000

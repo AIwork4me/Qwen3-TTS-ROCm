@@ -254,8 +254,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if not (args.checkpoint or args.checkpoint_pos or args.alias):
-        parser.print_help()
-        return 0
+        # Enhanced-demo UX: bare launch (notably `docker run ...`) starts serving
+        # the default preset-voice model instead of printing help. Pass
+        # --help explicitly for usage; the untouched upstream CLI keeps its own
+        # help-and-exit behavior (parity-certified separately).
+        args.alias = "custom-voice"
 
     if getattr(args, "models_dir", None):
         os.environ[models.MODELS_DIR_ENV] = str(args.models_dir)
