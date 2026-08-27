@@ -1,0 +1,47 @@
+# evidence/tokenizer-codec.txt — Task 14 Qwen3TTSTokenizer encode/decode roundtrip + getters (GPU)
+# date: 2026-08-27T15:12:23+08:00
+# host: Linux 6.17.0-1032-oem, HEAD: e0649f9, branch: feat/impl-v0.1.0
+# device: AMD Radeon 8060S Graphics
+# cmd: .venv/bin/python -m pytest tests/test_tokenizer_codec.py -m 'gpu and requires_download' -v -s
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/amd/Desktop/Qwen3-TTS-ROCm
+configfile: pyproject.toml
+plugins: anyio-4.14.2
+collecting ... collected 2 items
+
+tests/test_tokenizer_codec.py::test_metadata_getters_populated /bin/sh: 1: sox: not found
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+[tokenizer] model_type='qwen3_tts_tokenizer_12hz'
+[tokenizer] get_input_sample_rate=24000
+[tokenizer] get_output_sample_rate=24000
+[tokenizer] get_encode_downsample_rate=1920
+[tokenizer] get_decode_upsample_rate=1920
+PASSED
+tests/test_tokenizer_codec.py::test_encode_decode_roundtrip_sane_and_duration_bound MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12042240, provided ptr: 0x7d93bd24a400 size: 11725824
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12042240, provided ptr: 0x7d93bd25c400 size: 11781120
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 30105600, provided ptr: 0x7d93be124a00 size: 10679808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 30105600, provided ptr: 0x7d93be12a600 size: 10707456
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 60211200, provided ptr: 0x7d93be956000 size: 17726208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 60211200, provided ptr: 0x7d93be956000 size: 17740032
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 90316800, provided ptr: 0x7d9389200000 size: 25937408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 90316800, provided ptr: 0x7d9389200000 size: 25944320
+[codec] input 2.800s @ 24000Hz -> codes_len=35 x quantizers=16; getter hop=1920 samples/step (33-37 steps tolerated); steps/s=12.50
+[timing] encode took=1.38s decode took=0.27s
+[codec] duration 2.800s -> 2.800s (ratio=1.000)
+PASSED
+
+=============================== warnings summary ===============================
+tests/test_tokenizer_codec.py::test_encode_decode_roundtrip_sane_and_duration_bound
+  /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/models/mimi/modeling_mimi.py:898: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========================= 2 passed, 1 warning in 6.39s =========================
+EXIT=0
