@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Documentation and UX pass: the README was restructured with the Quickstart
+  moved up front, plus a per-repository model size table, subset-download
+  instructions and documented first-run log expectations; the minimal usage
+  snippet now saves a wav file; `--help` output no longer renders doubled
+  BooleanOptional flags.
+
+### Fixed
+
+- Per-tab automatic model routing: generating from any demo tab now
+  auto-selects the matching model family, so a mismatched sidebar switcher
+  selection can no longer produce "does not support generate_custom_voice"
+  errors — a switch notice is shown instead.
+- First-run terminal noise: upstream import banners (SoX, flash-attn) are
+  suppressed at the file-descriptor level and sdpa experimental warnings are
+  filtered, while the loader prints a bilingual first-load expectation line;
+  escape hatches are `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` and
+  `QWEN3_TTS_ROCM_QUIET=1`.
+- CLI and script friction: `scripts/download_models.sh` gained a usage line
+  and clean unknown-alias errors, `scripts/run_demo.sh` warns when models
+  are missing before launch, a busy port yields a bilingual hint suggesting
+  `--port`, loader/download/refusal diagnostics carry troubleshooting
+  pointers, the startup banner is humanized and `scripts/install.sh` prints
+  stage banners with a NEXT hint.
+
 ## [0.1.0] - 2026-08-27
 
 First public-ready release: a thin, zero-modification shim that runs the
