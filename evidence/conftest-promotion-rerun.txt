@@ -1,0 +1,43 @@
+# evidence/conftest-promotion-rerun.txt — post-refactor validation of Tasks 11/12 suites after helper promotion
+# date: 2026-08-27T15:10:44+08:00
+# host: Linux 6.17.0-1032-oem, HEAD: 06b597c, branch: feat/impl-v0.1.0
+# cmd: .venv/bin/python -m pytest tests/test_generate_custom_voice.py tests/test_voice_design.py -m 'gpu and requires_download' -q -s
+
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+[timing] generate_custom_voice n_text=1 took=6.9s
+.Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[timing] generate_custom_voice n_text=2 took=5.8s
+.Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[timing] generate_custom_voice n_text=1 took=5.2s
+[timing] generate_custom_voice n_text=1 took=4.0s
+.Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[timing] generate_custom_voice n_text=1 took=4.2s
+[timing] generate_custom_voice n_text=1 took=3.8s
+.Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[timing] generate_voice_design n_text=1 took=3.6s
+.Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[timing] generate_voice_design n_text=2 took=4.4s
+.Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[timing] generate_voice_design n_text=1 took=3.7s
+[timing] generate_voice_design n_text=1 took=11.0s
+..
+=============================== warnings summary ===============================
+tests/test_generate_custom_voice.py::test_single
+  /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+tests/test_generate_custom_voice.py::test_single
+  /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+8 passed, 2 warnings in 61.89s (0:01:01)
+EXIT=0

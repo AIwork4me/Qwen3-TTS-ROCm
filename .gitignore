@@ -14,5 +14,9 @@ models/
 # Generated spikes evidence binaries are kept only if small; keep wav/tmp out
 *.wav
 
+# EXCEPT the bundled synthetic reference clip (Task 13): license-clean, fully
+# reproducible via scripts/make_ref_wav.py, needed by the clone/tokenizer suites.
+!src/qwen3_tts_rocm/demo/assets/ref_en.wav
+
 # OS/editor
 .DS_Store

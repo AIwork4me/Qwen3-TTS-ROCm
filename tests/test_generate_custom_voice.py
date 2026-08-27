@@ -33,10 +33,8 @@ task report.
 
 from __future__ import annotations
 
-import time
-
-import numpy as np
 import pytest
+from conftest import _distinct, _reseed, _timed_generate
 
 from qwen3_tts_rocm import loader, testing
 
@@ -46,36 +44,6 @@ TEXT = "今天的天气真不错，适合去公园散步。"
 
 _INSTRUCT_CALM = "用低沉缓慢的语气说"
 _INSTRUCT_CHEERFUL = "用非常欢快的语气说"
-
-
-def _reseed(seed: int = 1234) -> None:
-    """Reseed torch RNG before stochastic pairs (not an official kwarg -- see docstring)."""
-    import torch
-
-    torch.manual_seed(seed)
-
-
-def _timed_generate(model, **kwargs):
-    """One keyword-first generate_custom_voice call; prints an evidence timing line."""
-    t0 = time.perf_counter()
-    wavs, sr = model.generate_custom_voice(**kwargs)
-    print(
-        f"[timing] generate_custom_voice n_text={len(wavs)} "
-        f"took={time.perf_counter() - t0:.1f}s"
-    )
-    return wavs, sr
-
-
-def _distinct(a: np.ndarray, b: np.ndarray) -> bool:
-    """True iff two waveforms are demonstrably different generations.
-
-    Different shapes already prove divergent token streams; when shapes match,
-    compare element-wise over the min-length trimmed arrays (identical here).
-    """
-    if a.shape != b.shape:
-        return True
-    n = min(a.shape[-1], b.shape[-1])
-    return float(np.abs(a[..., :n] - b[..., :n]).max()) > 0.0
 
 
 @pytest.fixture(scope="module")
@@ -92,7 +60,8 @@ def test_single(cv_model):
     langs = cv_model.get_supported_languages()
     assert len(spks) >= 9 and langs
     assert "auto" in [str(lang).lower() for lang in langs]
-    wavs, sr = _timed_generate(cv_model, text=TEXT, language="Auto", speaker=spks[0])
+    wavs, sr = _timed_generate(cv_model, "generate_custom_voice",
+                               text=TEXT, language="Auto", speaker=spks[0])
     assert len(wavs) == 1
     testing.assert_wav_sane(wavs[0], sr_expected=sr, min_energy_rms=1e-3)
 
@@ -101,6 +70,7 @@ def test_batch(cv_model):
     """A two-item text list broadcasts language/speaker and yields two sane wavs."""
     wavs, sr = _timed_generate(
         cv_model,
+        "generate_custom_voice",
         text=[TEXT, TEXT],
         language="Auto",
         speaker=cv_model.get_supported_speakers()[0],
@@ -120,11 +90,11 @@ def test_instruct_changes_output(cv_model):
     """
     spk = cv_model.get_supported_speakers()[0]
     _reseed()
-    a, _ = _timed_generate(cv_model, text=TEXT, language="Auto", speaker=spk,
-                           instruct=_INSTRUCT_CALM)
+    a, _ = _timed_generate(cv_model, "generate_custom_voice", text=TEXT,
+                           language="Auto", speaker=spk, instruct=_INSTRUCT_CALM)
     _reseed()
-    b, _ = _timed_generate(cv_model, text=TEXT, language="Auto", speaker=spk,
-                           instruct=_INSTRUCT_CHEERFUL)
+    b, _ = _timed_generate(cv_model, "generate_custom_voice", text=TEXT,
+                           language="Auto", speaker=spk, instruct=_INSTRUCT_CHEERFUL)
     testing.assert_wav_sane(a[0])
     testing.assert_wav_sane(b[0])
     # Robust distinction: shape mismatch proves divergence outright; equal
@@ -141,11 +111,11 @@ def test_sampling_kwarg_passthrough_effect(cv_model):
     """
     spk = cv_model.get_supported_speakers()[0]
     _reseed()
-    lo, lo_sr = _timed_generate(cv_model, text=TEXT, language="Auto",
-                                speaker=spk, temperature=0.01)
+    lo, lo_sr = _timed_generate(cv_model, "generate_custom_voice", text=TEXT,
+                                language="Auto", speaker=spk, temperature=0.01)
     _reseed()
-    hi, hi_sr = _timed_generate(cv_model, text=TEXT, language="Auto",
-                                speaker=spk, temperature=1.9)
+    hi, hi_sr = _timed_generate(cv_model, "generate_custom_voice", text=TEXT,
+                                language="Auto", speaker=spk, temperature=1.9)
     testing.assert_wav_sane(lo[0], sr_expected=lo_sr)
     testing.assert_wav_sane(hi[0], sr_expected=hi_sr)
     assert lo[0].shape != hi[0].shape or float(abs(lo[0] - hi[0]).max()) > 0

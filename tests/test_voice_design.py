@@ -30,10 +30,8 @@ attempts policy: downgrade to sanity-only and record in the task report.
 
 from __future__ import annotations
 
-import time
-
-import numpy as np
 import pytest
+from conftest import _distinct, _reseed, _timed_generate
 
 from qwen3_tts_rocm import loader, testing
 
@@ -44,36 +42,6 @@ TEXT = "今天的天气真不错，适合去公园散步。"
 #: Natural-language timbre descriptions -- young bright/female vs old hoarse/male.
 _INSTRUCT_YOUNG_FEMALE = "年轻女性，声音清亮，语速轻快"
 _INSTRUCT_OLD_MALE = "老年男性，声音沙哑，语速缓慢"
-
-
-def _reseed(seed: int = 1234) -> None:
-    """Reseed torch RNG before stochastic pairs (not an official kwarg -- see docstring)."""
-    import torch
-
-    torch.manual_seed(seed)
-
-
-def _timed_generate(model, **kwargs):
-    """One keyword-first generate_voice_design call; prints an evidence timing line."""
-    t0 = time.perf_counter()
-    wavs, sr = model.generate_voice_design(**kwargs)
-    print(
-        f"[timing] generate_voice_design n_text={len(wavs)} "
-        f"took={time.perf_counter() - t0:.1f}s"
-    )
-    return wavs, sr
-
-
-def _distinct(a: np.ndarray, b: np.ndarray) -> bool:
-    """True iff two waveforms are demonstrably different generations.
-
-    Different shapes already prove divergent token streams; when shapes match,
-    compare element-wise over the min-length trimmed arrays.
-    """
-    if a.shape != b.shape:
-        return True
-    n = min(a.shape[-1], b.shape[-1])
-    return float(np.abs(a[..., :n] - b[..., :n]).max()) > 0.0
 
 
 @pytest.fixture(scope="module")
@@ -87,7 +55,8 @@ def vd_model(gpu):
 def test_single_sane(vd_model):
     """One text with one design instruction renders exactly one sane waveform."""
     wavs, sr = _timed_generate(
-        vd_model, text=TEXT, instruct=_INSTRUCT_YOUNG_FEMALE, language="Auto"
+        vd_model, "generate_voice_design",
+        text=TEXT, instruct=_INSTRUCT_YOUNG_FEMALE, language="Auto",
     )
     assert len(wavs) == 1
     testing.assert_wav_sane(wavs[0], sr_expected=sr)
@@ -97,6 +66,7 @@ def test_batch_of_two_sane(vd_model):
     """A two-item text list broadcasts language/instruct and yields two sane wavs."""
     wavs, sr = _timed_generate(
         vd_model,
+        "generate_voice_design",
         text=[TEXT, TEXT],
         instruct=_INSTRUCT_YOUNG_FEMALE,
         language="Auto",
@@ -109,11 +79,11 @@ def test_batch_of_two_sane(vd_model):
 def test_two_instructions_both_sane_and_distinct(vd_model):
     """Contrasting timbre descriptions each yield sane AND distinguishable audio."""
     _reseed()
-    a, _ = _timed_generate(vd_model, text=TEXT, instruct=_INSTRUCT_YOUNG_FEMALE,
-                           language="Auto")
+    a, _ = _timed_generate(vd_model, "generate_voice_design", text=TEXT,
+                           instruct=_INSTRUCT_YOUNG_FEMALE, language="Auto")
     _reseed()
-    b, _ = _timed_generate(vd_model, text=TEXT, instruct=_INSTRUCT_OLD_MALE,
-                           language="Auto")
+    b, _ = _timed_generate(vd_model, "generate_voice_design", text=TEXT,
+                           instruct=_INSTRUCT_OLD_MALE, language="Auto")
     testing.assert_wav_sane(a[0])
     testing.assert_wav_sane(b[0])
     # Robust distinction: shape mismatch proves divergence outright; equal

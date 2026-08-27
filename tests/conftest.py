@@ -10,10 +10,25 @@
 * ``model_alias`` -- parametrizable alias resolver (use with ``indirect=True``).
 * ``models_ready(*aliases)`` -- marker helper: ``@models_ready("base")`` marks
                      the test skipped while required weights are not downloaded.
+
+Plain GPU-suite helpers (Task 13 promotion; previously duplicated verbatim in
+both ``tests/test_generate_custom_voice.py`` and ``tests/test_voice_design.py``
+-- the third consumer in this suite made them shared):
+
+* ``_reseed(seed)``             -- torch RNG reset before stochastic pairs.
+* ``_timed_generate(model, method, **kwargs)`` -- one keyword-first call to
+  ``getattr(model, method)``, printing an evidence ``[timing]`` line.
+* ``_distinct(a, b)``           -- robust "two generations differ" predicate.
+
+Import them in test modules via ``from conftest import ...`` (pytest puts this
+directory on sys.path for non-package suites).
 """
 
 from __future__ import annotations
 
+import time
+
+import numpy as np
 import pytest
 
 from qwen3_tts_rocm import env, loader, models
@@ -100,3 +115,43 @@ def models_ready(*aliases: str):
             + "; run `bash scripts/download_models.sh " + " ".join(missing) + "`"
         ),
     )
+
+
+# ---------------------------------------------------------------------------
+# Plain GPU-suite helpers (Task 13 promotion of the T11/T12 duplicates)
+# ---------------------------------------------------------------------------
+
+
+def _reseed(seed: int = 1234) -> None:
+    """Reseed torch RNG before stochastic pairs (not an official kwarg)."""
+    import torch
+
+    torch.manual_seed(seed)
+
+
+def _timed_generate(model, method: str, **kwargs):
+    """One keyword-first ``getattr(model, method)(**kwargs)`` call.
+
+    Prints an evidence timing line so the teed pytest output doubles as the
+    per-call latency record; returns the official ``(wavs, sr)`` shape.
+    """
+    t0 = time.perf_counter()
+    wavs, sr = getattr(model, method)(**kwargs)
+    print(
+        f"[timing] {method} n_text={len(wavs)} "
+        f"took={time.perf_counter() - t0:.1f}s"
+    )
+    return wavs, sr
+
+
+def _distinct(a: np.ndarray, b: np.ndarray) -> bool:
+    """True iff two waveforms are demonstrably different generations.
+
+    Different shapes already prove divergent token streams; when shapes match,
+    compare element-wise over the min-length trimmed arrays (identical
+    generations would need a probability-zero coincidence to pass).
+    """
+    if a.shape != b.shape:
+        return True
+    n = min(a.shape[-1], b.shape[-1])
+    return float(np.abs(a[..., :n] - b[..., :n]).max()) > 0.0
