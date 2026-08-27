@@ -5,6 +5,10 @@ __pycache__/
 .pytest_cache/
 .ruff_cache/
 
+# Packaging artifacts (python -m build output)
+build/
+dist/
+
 # Virtual environments
 .venv/
 

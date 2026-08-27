@@ -1,0 +1,34 @@
+Qwen3-TTS-ROCm
+Copyright 2026 Qwen3-TTS-ROCm contributors
+
+This project is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+=============================================================================
+Provenance and attribution
+=============================================================================
+
+Qwen3-TTS-ROCm derives from the Qwen3-TTS work of the Alibaba Qwen team:
+
+    Upstream project:  https://github.com/QwenLM/Qwen3-TTS  (Apache-2.0)
+
+This repository is a thin, platform-specific shim that makes the upstream
+qwen-tts package run on AMD ROCm 7.14.0 (gfx1151). It contains NO modified
+upstream source code: the official qwen-tts package is installed unmodified
+from its published artifact, and all model interaction goes through the
+official public APIs. A parity test in the test suite proves the upstream
+demo runs unmodified on this stack.
+
+Model weights are NOT included in this repository. The Qwen3-TTS model
+weights are subject to Alibaba's own Qwen model license, which this project
+does not redistribute, relicense, or modify. Downloading and using the
+weights means accepting the publisher's terms at the official pages:
+
+    Hugging Face:   https://huggingface.co/Qwen
+    ModelScope:     https://modelscope.cn/organization/qwen
+
+Always check the license accompanying each specific checkpoint you download.
+The model's outputs are governed by those terms and by Alibaba's acceptable-
+use policy, not solely by this repository's Apache-2.0 code license.
+
+Third-party Python dependencies remain under their respective licenses;
+they are declared in pyproject.toml and installed unmodified.

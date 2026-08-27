@@ -1,0 +1,62 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [0.1.0] - 2026-08-27
+
+First public-ready release: a thin, zero-modification shim that runs the
+official `qwen-tts` package on AMD ROCm 7.14.0 (gfx1151), with an enhanced
+bilingual demo, GPU test suite and measured performance numbers.
+
+### Added
+
+- ROCm 7.14.0 gfx1151 support shim:
+  - environment diagnostics with a never-raise guarantee, surfaced through
+    the `qwen3-tts-rocm-check` CLI;
+  - smart-default model loader (`loader.load()` / `loader.unload()`) that
+    returns the native official Qwen3-TTS model object — all synthesis stays
+    on unmodified official APIs — with a metadata-backed version probe and a
+    silent clean refusal for unsupported combos;
+  - dual-source model downloader (Hugging Face first, ModelScope fallback,
+    per-alias auto mode) with friendly registry aliases for all six official
+    checkpoints.
+- One-command setup and launch scripts: `scripts/install.sh`
+  (`--with-models` optional), `scripts/download_models.sh`,
+  `scripts/run_demo.sh`, `scripts/verify_gpu.sh`.
+- Enhanced bilingual (中文/English) Gradio demo application with four tabs:
+  custom voice, voice design, voice cloning and generation history, backed by
+  a headless `SynthesisService` with server-side file validation.
+- pytest suite covering unit logic plus on-GPU integration: all-model
+  load/unload smoke, tokenizer encode/decode roundtrip, full custom-voice
+  matrix, voice design, voice clone workflow (incl. prompt reuse and
+  save/load) and waveform sanity helpers.
+- Upstream parity proof: GPU integration test demonstrating that the
+  upstream demo runs unmodified on this stack (thin-shim guarantee).
+- Reproducible RTF benchmark tool (`scripts/benchmark.py`) with published
+  methodology; results interpreted in `docs/benchmarks.md` with raw session
+  and JSON evidence under `evidence/`.
+- Docker image recipe and a CPU-only GitHub Actions CI pipeline
+  (ruff + `pytest -m "not gpu"`); container exposes `/dev/kfd`, `/dev/dri`
+  device passthrough for ROCm execution.
+
+### Performance
+
+- Measured real-time factors on gfx1151 (Ryzen AI Max+ PRO 395 iGPU,
+  bfloat16/sdpa): tuned voices render short/medium sentences at roughly
+  1.3–1.6× realtime median RTF; zero-shot voice cloning sits around
+  ~1.8× realtime. Full per-cell tables and caveats in `docs/benchmarks.md`.
+
+### Security
+
+- Model downloads are restricted to the two official registries with pinned
+  repository ids; no third-party mirrors, no weights in the repo or wheel.
+- Environment probing is strictly read-only and never raises (fail-safe by
+  design) — hardware discovery failures degrade to plain reports instead of
+  stack traces or partial loads.
+- Demo uploads are validated on the backend before use (moved out of the UI
+  layer so the guarantee holds for API clients too).
