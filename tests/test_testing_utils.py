@@ -48,6 +48,23 @@ def test_make_tone_custom_freq_seconds_shape():
     assert abs(peak_bin - 440.0 * wav.shape[0] / sr) < 3
 
 
+def test_make_tone_rejects_non_positive_freq_bilingually():
+    """freq <= 0 would synthesise an all-zero tone that only fails later in
+    assert_wav_sane's silence gate -- reject it at the source instead."""
+    for bad in (0, -440.0):
+        with pytest.raises(ValueError) as ei:
+            make_tone(seconds=0.1, freq=bad)
+        msg = str(ei.value)
+        assert "freq must be > 0" in msg and CHINESE.search(msg)
+
+
+def test_make_tone_valid_positive_freqs_still_pass_sanity_gate():
+    """The strict freq>0 rule must not reject small-but-legal frequencies."""
+    for good in (0.5, 1.0, 220.0, 960.0):
+        wav, sr = make_tone(seconds=0.25, freq=good)
+        assert_wav_sane(wav, sr_expected=sr)
+
+
 def test_assert_wav_sane_accepts_float64_and_list_input():
     assert_wav_sane(np.sin(np.linspace(0, 3.3, 512)) * 0.5)  # float64 ok
     assert_wav_sane([0.1, -0.2, 0.3], sr_expected=None)  # array-like coerced
@@ -174,6 +191,36 @@ def test_generate_batch_text_list(fake):
     assert_wav_sane(wavs[2], sr_expected=sr)
 
 
+def test_generate_custom_voice_speaker_list_length_mismatch_raises_valueerror(fake):
+    """An explicit speaker list whose length != len(texts) is a caller bug:
+    bilingual ValueError instead of a silent broadcast or raw IndexError."""
+    with pytest.raises(ValueError) as ei:
+        fake.generate_custom_voice(text=["a", "b"], speaker=["ryan"])
+    msg = str(ei.value)
+    assert "batch size mismatch: 2 texts vs 1 speaker" in msg
+    assert "批量大小不一致：2 条文本对 1 个说话人" in msg
+
+
+def test_generate_custom_voice_empty_speaker_list_raises_valueerror_not_indexerror(fake):
+    with pytest.raises(ValueError, match="batch size mismatch: 2 texts vs 0 speaker"):
+        fake.generate_custom_voice(text=["a", "b"], speaker=[])
+
+
+def test_generate_voice_design_instruct_list_length_mismatch_raises_valueerror(fake):
+    with pytest.raises(ValueError) as ei:
+        fake.generate_voice_design(text=["a", "b"], instruct=["calm"])
+    msg = str(ei.value)
+    assert "batch size mismatch: 2 texts vs 1 instruct" in msg
+    assert "批量大小不一致：2 条文本对 1 个指令" in msg
+
+
+def test_generate_custom_voice_matching_length_speaker_list_still_supported(fake):
+    """The strict list-length rule must not reject genuinely batched calls."""
+    wavs, sr = fake.generate_custom_voice(text=["a", "b"], speaker=["ryan", "eric"])
+    assert len(wavs) == 2 and sr == 24000
+    assert fake.calls[-1]["speaker"] == ["ryan", "eric"]
+
+
 def test_same_text_deterministic_across_calls_and_instances():
     a1 = FakeTTSModel().generate_voice_design(text="same", language="Auto",
                                              instruct="calm")
@@ -266,6 +313,44 @@ def test_create_voice_clone_prompt_item_fields_and_clone_generation(fake):
     assert sr2 == 24000 and len(via_prompt) == 1
     methods = {c["method"] for c in fake.calls}
     assert "generate_voice_clone" in methods
+
+
+def test_create_voice_clone_prompt_seed_incorporates_ref_text_and_mode(fake):
+    """Spy fidelity: identical audio with different ref_text (or mode) must
+    yield different prompt items; identical inputs stay reproducible."""
+    tone, _ = make_tone(seconds=0.05, freq=300.0)
+    a = fake.create_voice_clone_prompt(ref_audio=(tone, 24000),
+                                       ref_text="transcript A")
+    b = fake.create_voice_clone_prompt(ref_audio=(tone, 24000),
+                                       ref_text="transcript B")
+    assert not np.array_equal(a[0].ref_code, b[0].ref_code)
+    assert not np.array_equal(a[0].ref_spk_embedding, b[0].ref_spk_embedding)
+
+    a2 = fake.create_voice_clone_prompt(ref_audio=(tone, 24000),
+                                        ref_text="transcript A")
+    assert np.array_equal(a[0].ref_code, a2[0].ref_code)  # determinism preserved
+
+    xvec = fake.create_voice_clone_prompt(ref_audio=(tone, 24000),
+                                          ref_text="transcript A",
+                                          x_vector_only_mode=True)
+    assert not np.array_equal(a[0].ref_code, xvec[0].ref_code)
+
+
+def test_create_voice_clone_prompt_call_record_keeps_raw_x_vector_only_mode(fake):
+    """The spy record preserves the raw argument (list stays a list, scalar
+    stays scalar) while returned items keep the official bool() semantics."""
+    tone, _ = make_tone(seconds=0.05, freq=350.0)
+    items = fake.create_voice_clone_prompt(
+        ref_audio=[(tone, 24000), (tone, 24000)],
+        ref_text=["t1", "t2"],
+        x_vector_only_mode=[True, False],
+    )
+    assert [it.x_vector_only_mode for it in items] == [True, False]
+    assert fake.calls[-1]["x_vector_only_mode"] == [True, False]
+
+    fake.create_voice_clone_prompt(ref_audio=(tone, 24000), ref_text="t",
+                                   x_vector_only_mode=False)
+    assert fake.calls[-1]["x_vector_only_mode"] is False
 
 
 @pytest.mark.parametrize("model_alias", ["base"], indirect=True)

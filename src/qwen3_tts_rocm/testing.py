@@ -88,6 +88,10 @@ def make_tone(seconds: float = 1.0, freq: float = 220.0,
     A single sine at *freq* Hz with 0.8 amplitude and tiny edge fades (click
     suppression when written to disk).  float32 output, length
     ``round(seconds * sr)`` >= 1 sample.
+
+    ``freq`` must be finite and > 0: a zero (or negative) frequency yields an
+    all-zero waveform that would only trip :func:`assert_wav_sane`'s silence
+    gate later, so it is rejected at the source with a bilingual ValueError.
     """
     seconds = float(seconds)
     freq = float(freq)
@@ -96,8 +100,8 @@ def make_tone(seconds: float = 1.0, freq: float = 220.0,
         raise ValueError(f"seconds must be finite and > 0, got {seconds!r} (时长必须为正数)")
     if not (sample_rate > 0):
         raise ValueError(f"sr must be > 0, got {sr!r} (采样率必须为正数)")
-    if not np.isfinite(freq) or freq < 0:
-        raise ValueError(f"freq must be finite and >= 0, got {freq!r} (频率必须有限且非负)")
+    if not np.isfinite(freq) or freq <= 0:
+        raise ValueError(f"freq must be > 0 and finite, got {freq!r} (频率必须为正数)")
 
     n = max(round(seconds * sample_rate), 1)
     t = np.arange(n, dtype=np.float64) / sample_rate
@@ -275,10 +279,10 @@ class FakeTTSModel:
         languages = self._broadcast(language, len(texts))
         # Recording keeps "no instruction"/"omitted speaker" as None verbatim,
         # while synthesis needs a per-sample value -> parallel item lists.
-        speakers = self._maybe_list(speaker, len(texts))
+        speakers = self._per_sample(speaker, len(texts), "speaker", "说话人")
         speaker_items = (speakers if isinstance(speakers, list)
                          else [None] * len(texts))
-        instructs = self._maybe_list(instruct, len(texts))
+        instructs = self._per_sample(instruct, len(texts), "instruct", "指令")
         instruct_items = (instructs if isinstance(instructs, list)
                           else [None] * len(texts))
         self._validate_languages(languages)
@@ -305,7 +309,7 @@ class FakeTTSModel:
         """Official shape: natural-language style instruction controls timbre."""
         texts = self._ensure_list(text)
         languages = self._broadcast(language, len(texts))
-        instructs = self._maybe_list(instruct, len(texts))
+        instructs = self._per_sample(instruct, len(texts), "instruct", "指令")
         instruct_items = (instructs if isinstance(instructs, list)
                           else [None] * len(texts))
         self._validate_languages(languages)
@@ -372,7 +376,16 @@ class FakeTTSModel:
 
     def create_voice_clone_prompt(self, ref_audio, ref_text=None,
                                   x_vector_only_mode=False):
-        """Official shape: build prompt items; requires ref_text in ICL mode."""
+        """Official shape: build prompt items; requires ref_text in ICL mode.
+
+        Spy fidelity: each item's RNG is seeded over the full input key
+        ``(method, audio repr, ref_text, x_vector_only_mode)``, so identical
+        audio with a different transcript (or mode) yields *different* items
+        while identical invocations stay byte-reproducible.  The
+        :attr:`calls` record keeps the RAW ``x_vector_only_mode`` value (a
+        list stays a list); the returned items keep the official ``bool()``
+        semantics on their ``x_vector_only_mode`` field.
+        """
         audios = self._ensure_list(ref_audio)
         texts = ([*(t for t in ref_text)] if isinstance(ref_text, list)
                  else [ref_text] * len(audios))
@@ -394,7 +407,7 @@ class FakeTTSModel:
                     "(ICL 模式下必须提供 ref_text 参考文本)"
                 )
             rng = np.random.default_rng(self._seed("create_voice_clone_prompt",
-                                                   repr(audio)))
+                                                   repr(audio), txt, xvec))
             items.append(VoiceClonePromptItem(
                 ref_code=rng.integers(0, 16000, size=24, dtype=np.int64),
                 ref_spk_embedding=rng.standard_normal(192).astype(np.float32),
@@ -406,7 +419,9 @@ class FakeTTSModel:
             "method": "create_voice_clone_prompt",
             "ref_audio": ref_audio,
             "ref_text": ref_text,
-            "x_vector_only_mode": bool(x_vector_only_mode),
+            # RAW argument preserved for spying (list stays a list); the
+            # per-item bool() projection lives on the items themselves.
+            "x_vector_only_mode": x_vector_only_mode,
         })
         return items
 
@@ -474,6 +489,25 @@ class FakeTTSModel:
             return None
         values = cls._ensure_list(value)
         return values * count if len(values) == 1 and count > 1 else values
+
+    @classmethod
+    def _per_sample(cls, value: Any, count: int,
+                    field: str, field_zh: str) -> Any:
+        """:meth:`_maybe_list` plus a batch-size guard for explicit lists.
+
+        Scalars broadcast to *count* entries; an explicit list must already
+        carry one entry per text, otherwise the mismatch is a caller bug and
+        raises a bilingual ValueError (never a silent broadcast or a raw
+        IndexError further down the loop).
+        """
+        if value is None:
+            return None
+        if isinstance(value, list) and len(value) != count:
+            raise ValueError(
+                f"batch size mismatch: {count} texts vs {len(value)} {field} "
+                f"(批量大小不一致：{count} 条文本对 {len(value)} 个{field_zh})"
+            )
+        return cls._maybe_list(value, count)
 
     @classmethod
     def _broadcast(cls, value: Any, count: int) -> list:

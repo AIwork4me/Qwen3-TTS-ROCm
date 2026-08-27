@@ -30,7 +30,8 @@ the ``huggingface_hub.snapshot_download`` call) when ModelScope fails.  Each
 source is retried once before moving on; once every attempt fails a
 :class:`RuntimeError` lists both manual download URLs.  Already-downloaded
 targets (``config.json`` or ``.ok`` present, see :func:`is_downloaded`) are
-skipped, and each successful fetch (or skip) yields its target directory in
+skipped unless ``resume=False`` is passed, and each successful fetch (or
+skip) yields its target directory in
 the returned list, in alias order.
 
 Accepted references for :func:`resolve_path` / :func:`is_downloaded` /
@@ -322,14 +323,18 @@ def download(
         ``$QWEN3_TTS_ROCM_MODELS_DIR`` and the cwd/cache default (see
         :func:`local_dir`).  Defaults to the ambient root when omitted.
     resume:
-        Both transports resume interrupted transfers natively, so partial
-        downloads continue where they left off.  Accepted for API stability;
-        passing ``False`` currently behaves identically (reserved for a future
-        clean-restart mode).
+        ``True`` (default) keeps the already-downloaded skip: targets with
+        ``config.json`` or ``.ok`` present are not re-fetched (both transports
+        resume interrupted transfers natively, so partial downloads continue
+        where they left off).  ``False`` bypasses that skip and re-invokes the
+        transport for every requested alias -- the target directory is
+        resolved exactly the same way and ``.ok`` is rewritten after a
+        successful fetch (clean re-download / repair mode).
 
     Already-downloaded targets (:func:`is_downloaded`: ``config.json`` or
-    ``.ok`` present) are skipped without touching the network.  Returns the
-    list of target directories (downloaded or skipped) in requested order.
+    ``.ok`` present) are skipped without touching the network when
+    ``resume=True`` (the default).  Returns the list of target directories
+    (downloaded or skipped) in requested order.
     """
     names = _resolve_aliases(aliases)
     if source == "auto":
@@ -348,7 +353,8 @@ def download(
         # Only consult is_downloaded() on an existing directory: resolve_path()
         # passes existing dirs through verbatim, guaranteeing the check hits
         # the effective root instead of some unrelated env/cwd-derived location.
-        if target.is_dir() and is_downloaded(target):
+        # resume=False bypasses the skip entirely and re-invokes the transport.
+        if resume and target.is_dir() and is_downloaded(target):
             results.append(target)
             continue
         target.mkdir(parents=True, exist_ok=True)

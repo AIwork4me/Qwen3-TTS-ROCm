@@ -180,3 +180,39 @@ def test_resume_flag_accepted(monkeypatch, tmp_path):
     monkeypatch.setattr(M, "_ms_snapshot", FakeMS.snapshot_download)
     out = M.download("tokenizer", source="modelscope", models_dir=tmp_path, resume=True)
     assert len(out) == 1 and (out[0] / ".ok").exists()
+
+
+def test_resume_false_reinvokes_transport_for_downloaded_alias(monkeypatch, tmp_path):
+    """resume=False bypasses the is_downloaded skip: the transport runs again
+    for the alias (target dir resolved the same way, .ok rewritten)."""
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / ".ok").write_text("stale")
+
+    monkeypatch.setattr(M, "_ms_snapshot", FakeMS.snapshot_download)
+    FakeMS.calls.clear()
+    out = M.download("tokenizer", source="modelscope", models_dir=tmp_path,
+                     resume=False)
+    assert FakeMS.calls == [("ms", TOKENIZER_REPO)]  # exactly one invocation
+    assert out == [d]
+    # FakeMS writes "ok", then mark_ok() rewrites .ok with its own marker, so
+    # the pre-existing content is guaranteed to be gone after the re-download.
+    assert (d / ".ok").read_text() != "stale"
+
+
+def test_resume_true_keeps_downloaded_skip(monkeypatch, tmp_path):
+    import qwen3_tts_rocm.models as M
+
+    d = tmp_path / models.flatten(models.REPOS["tokenizer"])
+    d.mkdir()
+    (d / ".ok").write_text("")
+
+    def boom(*a, **k):
+        raise AssertionError("resume=True must skip an already-downloaded target")
+
+    monkeypatch.setattr(M, "_ms_snapshot", boom)
+    monkeypatch.setattr(M, "_hf_snapshot", boom)
+    assert M.download("tokenizer", source="modelscope", models_dir=tmp_path,
+                      resume=True) == [d]
