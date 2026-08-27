@@ -22,7 +22,10 @@ Step-1 gate::
 from __future__ import annotations
 
 import re
+import threading
+import time
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pytest
@@ -34,7 +37,11 @@ from qwen3_tts_rocm.demo import (
     display_map,
     format_error,
 )
-from qwen3_tts_rocm.demo.backend import DEFAULT_GEN_KWARGS, _normalize_gen_kwargs
+from qwen3_tts_rocm.demo.backend import (
+    DEFAULT_GEN_KWARGS,
+    _coerce_pair,
+    _normalize_gen_kwargs,
+)
 from qwen3_tts_rocm.testing import FakeTTSModel, make_tone
 
 CHINESE = re.compile("[\u4e00-\u9fff]")  # diagnostics must carry Chinese text
@@ -313,6 +320,93 @@ def test_unload_all_clears_cache_then_reload_recreates(monkeypatch):
     assert factory.alias_calls == ["base", "base"]
 
 
+class CountingFactory:
+    """``alias -> FakeTTSModel`` factory for concurrency hammers.
+
+    Counts every build, tags each model with the alias it was built for (so
+    torn cache state is detectable) and optionally delays the build to widen
+    the race window the way a real multi-second weight load would.
+    """
+
+    def __init__(self, build_delay: float = 0.0) -> None:
+        self.alias_calls: list[str] = []
+        self._delay = build_delay
+
+    def __call__(self, alias: str) -> FakeTTSModel:
+        self.alias_calls.append(str(alias))
+        if self._delay:
+            time.sleep(self._delay)
+        model = FakeTTSModel()
+        model.built_for = str(alias)
+        return model
+
+
+def _run_threads(n: int, worker) -> list[Any]:
+    """Start *n* barrier-synced workers, join them, return (thread errors)."""
+    barrier = threading.Barrier(n)
+    errors: list[BaseException] = []
+
+    def target(rank: int) -> None:
+        try:
+            barrier.wait(timeout=10)
+            worker(rank)
+        except BaseException as exc:  # noqa: BLE001 - reported, never swallowed
+            errors.append(exc)
+
+    threads = [threading.Thread(target=target, args=(rank,)) for rank in range(n)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=60)
+    return errors
+
+
+def test_get_hammered_from_eight_threads_loads_factory_exactly_once(monkeypatch):
+    """The cache lock must collapse same-alias races to ONE factory load.
+
+    Eight threads race ``get`` on the same alias behind a barrier; exactly one
+    multi-second model load may happen and every caller must observe the very
+    same model object (never a redundant second build).
+    """
+    monkeypatch.setattr(loader, "unload", lambda m: None)
+    factory = CountingFactory(build_delay=0.02)   # widen the race window
+    svc = SynthesisService(factory=factory)
+    results: list[Any] = []
+
+    errors = _run_threads(8, lambda _rank: results.append(svc.get("base")))
+
+    assert errors == []
+    assert factory.alias_calls == ["base"]        # ONE load, not eight
+    assert len(results) == 8 and all(m is results[0] for m in results)
+    assert svc.cached_aliases() == ("base",)
+    assert svc.current_alias == "base"
+
+
+def test_get_alternating_alias_hammer_keeps_single_slot_consistent(monkeypatch):
+    """Concurrent alias switching keeps the size-ONE slot and its contents sane.
+
+    After the hammer joins: at most one resident alias, and every model ever
+    returned was built for the alias the caller asked for (no torn state).
+    """
+    monkeypatch.setattr(loader, "unload", lambda m: None)
+    factory = CountingFactory()
+    svc = SynthesisService(factory=factory)
+    results: list[tuple[str, Any]] = []
+
+    def worker(rank: int) -> None:
+        for i in range(25):
+            alias = ("base", "custom-voice")[(rank + i) % 2]
+            results.append((alias, svc.get(alias)))
+
+    errors = _run_threads(8, worker)
+
+    assert errors == []
+    assert len(svc.cached_aliases()) <= 1          # size-ONE slot invariant
+    assert all(m.built_for == a for a, m in results)   # no torn state
+    assert set(factory.alias_calls) <= {"base", "custom-voice"}
+    assert svc.current_alias in (None, *svc.cached_aliases())
+
+
 # ---------------------------------------------------------------------------
 # Speech-tokenizer codec roundtrip (lazy, cached separately from the LRU)
 # ---------------------------------------------------------------------------
@@ -333,7 +427,10 @@ def test_codec_roundtrip_returns_meta_and_builds_tokenizer_once():
     assert meta["model_type"] == "fake_codec"
     assert meta["codes_shape"] == (12, 4)
     assert len(made) == 1                      # lazily built ONCE, then cached
-    assert made[0].encode_inputs == [(tone, tone_sr)]
+    seen_wav, seen_sr = made[0].encode_inputs[0]   # VALUE contract: official
+    assert seen_sr == tone_sr                      # astype() copies, so compare
+    assert seen_wav.dtype == np.float32            # samples, not object identity
+    assert np.array_equal(seen_wav, tone)          # (0.8 tone passes through)
 
     svc.codec_roundtrip((tone_sr, tone))       # second call reuses the tokenizer
     assert len(made) == 1
@@ -346,6 +443,70 @@ def test_codec_roundtrip_rejects_malformed_input_pairs():
         with pytest.raises(ValueError, match=r"\(sr, wav\)"):
             svc.codec_roundtrip(bad)
     assert made == []                          # never constructed a tokenizer
+
+
+# ---------------------------------------------------------------------------
+# Reference-audio normalization: _coerce_pair is a LINE-FAITHFUL port of the
+# official qwen_tts.cli.demo._normalize_audio (int rescale -> float normalize
+# -> clip -> stereo mean, in exactly that order).  Ground truth is the
+# INSTALLED upstream function, imported straight from site-packages, and the
+# comparison is bit-for-bit (array_equal) so future upstream diffs stay
+# eyeball-able at the sample level.
+# ---------------------------------------------------------------------------
+
+
+def _official_normalize():
+    """The installed official ``_normalize_audio`` (CPU-safe import)."""
+    upstream = pytest.importorskip("qwen_tts.cli.demo")
+    return upstream._normalize_audio
+
+
+def test_coerce_pair_int16_full_scale_matches_official_bit_for_bit():
+    official = _official_normalize()
+    rng = np.random.default_rng(7)
+    raw = rng.integers(-32768, 32768, size=1600, dtype=np.int16)
+    raw[0] = -32768                            # guarantee true full scale
+
+    wav, sr = _coerce_pair((16000, raw), "need (sr, wav)")
+
+    assert sr == 16000
+    assert wav.dtype == np.float32 and wav.ndim == 1
+    assert np.array_equal(wav, official(raw))          # bit-for-bit, same /32768
+    assert abs(float(np.abs(wav).max()) - 1.0) < 1e-6  # full scale -> peak 1.0
+
+
+def test_coerce_pair_loud_float_is_peak_normalized_like_official():
+    official = _official_normalize()
+    loud = (np.sin(np.linspace(0.0, 100.0, 1000)) * 2.0).astype(np.float32)
+
+    wav, _sr = _coerce_pair((24000, loud), "need (sr, wav)")
+
+    assert np.array_equal(wav, official(loud))     # divide by (max + 1e-12)
+    assert abs(float(np.abs(wav).max()) - 1.0) < 1e-6
+
+
+def test_coerce_pair_already_normalized_float_passes_through():
+    official = _official_normalize()
+    quiet = np.linspace(-0.5, 0.5, 512, dtype=np.float32)
+
+    wav, _sr = _coerce_pair((16000, quiet), "need (sr, wav)")
+
+    assert np.array_equal(wav, official(quiet))
+    assert np.array_equal(wav, quiet)              # within [-1, 1]: untouched
+
+
+def test_coerce_pair_stereo_int16_normalizes_before_channel_mean():
+    official = _official_normalize()
+    rng = np.random.default_rng(11)
+    stereo = rng.integers(-32768, 32768, size=(800, 2)).astype(np.int16)
+
+    wav, _sr = _coerce_pair((16000, stereo), "need (sr, wav)")
+
+    assert wav.ndim == 1 and wav.shape == (800,)
+    # Official op ORDER (rescale -> clip -> mean LAST) is what makes this
+    # bit-for-bit; mean-first implementations differ in float rounding.
+    assert np.array_equal(wav, official(stereo))
+    assert wav.dtype == np.float32
 
 
 def test_bundled_reference_asset_present_for_the_ui_layer():

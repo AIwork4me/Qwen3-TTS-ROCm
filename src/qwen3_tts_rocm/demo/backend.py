@@ -185,6 +185,13 @@ class SynthesisService:
         )
         # LRU slot of size ONE: alias -> officially loaded model object.
         self._cache: dict[str, Any] = {}
+        #: Guards every cache read-modify-write (see :meth:`get` for the
+        #: full concurrency policy).  The factory is never called under it.
+        self._lock = threading.Lock()
+        #: In-flight load tickets: alias -> event the ticket owner sets when
+        #: its model is installed (or its factory failed).  Losers wait here
+        #: instead of building redundant models.
+        self._loading: dict[str, threading.Event] = {}
         #: Alias whose model is currently loaded (``None`` when unloaded).
         self.current_alias: str | None = None
         # Speech tokenizer: a separate lazy singleton, outside the model LRU.
@@ -218,28 +225,73 @@ class SynthesisService:
         Loading happens lazily through *factory* on first touch; requesting a
         different alias evicts (via :func:`loader.unload`) and replaces the
         single cached entry, keeping memory flat on unified-memory APUs.
+
+        Concurrency policy -- the Gradio queue (``queue=1``) already serialises
+        the UI, this guards programmatic/threaded callers.  One
+        :class:`threading.Lock` guards every cache read-modify-write while the
+        multi-second factory call runs OUTSIDE the lock.  Racing callers of the
+        same alias never build redundant models: instead of a plain
+        double-checked load (where every racer would build and the lock would
+        pick a winner and make losers unload their redundant copy), the lock
+        hands out ONE load ticket per alias -- an in-flight reservation in
+        ``self._loading``.  Losing threads wait on the ticket owner's event,
+        then re-check the cache, so the factory runs exactly once per load
+        episode and no redundant model ever exists that would need unloading;
+        the winner's evict-then-install (under the lock) remains the only
+        mutation.  A failing factory releases the ticket and wakes the waiters,
+        who retry from the top (typically re-raising the same error).  A load
+        completing after a concurrent :meth:`unload_all` re-populates the
+        cache: the in-flight load wins over the teardown.
         """
         alias = str(alias)
-        if alias in self._cache:
+        while True:
+            with self._lock:
+                model = self._cache.get(alias)
+                if model is not None:
+                    self.current_alias = alias
+                    return model
+                event = self._loading.get(alias)
+                if event is None:            # we hold the only factory ticket
+                    event = threading.Event()
+                    self._loading[alias] = event
+                    self._teardown_locked()  # evict BEFORE loading (memory flat)
+                    break
+            event.wait()                     # loser: owner is loading; re-check
+        try:
+            model = self._factory(alias)     # OUTSIDE the lock (multi-second)
+        except BaseException:
+            with self._lock:
+                self._loading.pop(alias, None)
+                event.set()                  # wake waiters so they can retry
+            raise
+        with self._lock:
+            self._loading.pop(alias, None)
+            self._teardown_locked()          # the lock decides the winner
+            self._cache[alias] = model
             self.current_alias = alias
-            return self._cache[alias]
-        self.unload_all()
-        model = self._factory(alias)
-        self._cache[alias] = model
-        self.current_alias = alias
-        return model
+            event.set()                      # install visible before wake-up
+            return model
 
     def cached_aliases(self) -> tuple[str, ...]:
         """Public read-only view of aliases whose models are resident.
 
         Lets UI layers introspect the LRU without reaching into the private
         ``_cache`` dict; tolerant of doubles constructed via ``__new__``
-        (missing ``_cache`` simply reads as empty).
+        (missing ``_cache``/``_lock`` simply read as empty / unlocked).
         """
-        return tuple(getattr(self, "_cache", {}))
+        lock = getattr(self, "_lock", None)
+        if lock is None:
+            return tuple(getattr(self, "_cache", {}))
+        with lock:
+            return tuple(getattr(self, "_cache", {}))
 
     def unload_all(self) -> None:
         """Best-effort teardown of every cached model (尽力释放，绝不抛错)."""
+        with self._lock:
+            self._teardown_locked()
+
+    def _teardown_locked(self) -> None:
+        """Unload every resident and reset the slot; caller holds ``_lock``."""
         for model in self._cache.values():
             loader.unload(model)
         self._cache.clear()
@@ -505,8 +557,11 @@ def _as_float32(waveform: Any) -> np.ndarray:
 def _coerce_pair(pair: Any, error_message: str) -> tuple[np.ndarray, int]:
     """Validate/normalise a ``(sr, wav)`` audio pair; raises ValueError otherwise.
 
-    Returns ``(wav[float32], sr[int])`` with stereo averaged down to mono
-    (same channel rule as the official ``_normalize_audio``)."""
+    Returns ``(wav[float32], sr[int])``.  The waveform half is a LINE-FAITHFUL
+    port of the official ``qwen_tts.cli.demo._normalize_audio`` (variable names
+    kept close so future upstream diffs stay eyeball-able): integer rescale by
+    dtype range, float peak-normalisation past 1.0 (+1e-6), clip to [-1, 1],
+    stereo averaged to mono LAST -- in exactly that order."""
     reason = f"unsupported audio pair {type(pair).__name__}"
     sr = -1
     ok = False
@@ -527,9 +582,37 @@ def _coerce_pair(pair: Any, error_message: str) -> tuple[np.ndarray, int]:
         reason = f"expected a 2-element (sr, wav) tuple, got {type(pair).__name__}"
     if not ok:
         raise ValueError(f"{error_message}; got {reason}")
-    if wav_arr.ndim > 1:
-        wav_arr = np.mean(wav_arr, axis=-1)
-    return _as_float32(wav_arr), sr
+
+    # --- OFFICIAL _normalize_audio(wav, eps=1e-12, clip=True), ported as-is ---
+    eps = 1e-12
+    x = wav_arr
+
+    if np.issubdtype(x.dtype, np.integer):
+        info = np.iinfo(x.dtype)
+
+        if info.min < 0:
+            y = x.astype(np.float32) / max(abs(info.min), info.max)
+        else:
+            mid = (info.max + 1) / 2.0
+            y = (x.astype(np.float32) - mid) / mid
+
+    elif np.issubdtype(x.dtype, np.floating):
+        y = x.astype(np.float32)
+        m = np.max(np.abs(y)) if y.size else 0.0
+
+        if m <= 1.0 + 1e-6:
+            pass
+        else:
+            y = y / (m + eps)
+    else:
+        raise TypeError(f"Unsupported dtype: {x.dtype}")
+
+    y = np.clip(y, -1.0, 1.0)
+
+    if y.ndim > 1:
+        y = np.mean(y, axis=-1).astype(np.float32)
+
+    return np.asarray(y, dtype=np.float32), sr
 
 
 def _coerce_ref_pair(pair: Any, official_error: str) -> tuple[np.ndarray, int]:

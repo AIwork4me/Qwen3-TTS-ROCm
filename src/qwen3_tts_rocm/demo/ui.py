@@ -142,7 +142,7 @@ def _vram_text() -> str:
 
 def status_line(service, alias: str) -> str:
     """Sidebar status: alias, resolved load path and live memory usage."""
-    loaded = bool(getattr(service, "_cache", {}).get(str(alias)))
+    loaded = str(alias) in set(service.cached_aliases())
     mark = "loaded (已驻留)" if loaded else "not loaded yet (未加载，首次使用时懒加载)"
     return f"[{alias}] {mark}\npath: {_resolved_path_text(alias)}\n{_vram_text()}"
 
