@@ -83,6 +83,32 @@ def make_service() -> SynthesisService:
     )
 
 
+class RecordingFactory:
+    """``alias -> FakeTTSModel`` factory; remembers which aliases were built."""
+
+    def __init__(self) -> None:
+        self.alias_calls: list[str] = []
+        self.fakes: dict[str, FakeTTSModel] = {}
+
+    def __call__(self, alias: str) -> FakeTTSModel:
+        self.alias_calls.append(str(alias))
+        self.fakes[str(alias)] = FakeTTSModel()
+        return self.fakes[str(alias)]
+
+
+def make_recording_callbacks() -> tuple[dict, RecordingFactory]:
+    """Callbacks wired to a fake-backed service whose factory loads are logged.
+
+    B-4 routing evidence: the tests assert WHICH alias the tab's generate
+    callback actually sent to the model factory, not just the status text.
+    """
+    from qwen3_tts_rocm.demo.ui import build_callbacks
+
+    factory = RecordingFactory()
+    service = SynthesisService(factory=factory, tokenizer_factory=FakeTokenizer)
+    return build_callbacks(service), factory
+
+
 def tone_pair(seconds: float = 0.5) -> tuple[int, np.ndarray]:
     wav, sr = make_tone(seconds=seconds)
     return sr, wav
@@ -251,8 +277,12 @@ def test_callback_voice_design_missing_instruction_reports_error(cbs):
 
 
 def test_callback_voice_clone_xvec_only_happy_path(cbs):
+    """B-4 behavior change: the clone tab needs the base capability, so a
+    mismatched sidebar pick auto-routes to the default base alias and the
+    success status carries the auto-switch notice (was exact "Finished." only)."""
     audio, status = cbs["voice_clone"]("custom-voice", " target words ", "Auto", tone_pair(0.4), "", True, {})
-    assert status == "Finished. (生成完成)" and audio is not None
+    assert status == "已自动切换模型至 base (auto-switched model for this tab) · Finished. (生成完成)"
+    assert audio is not None
 
 
 def test_callback_voice_clone_requires_ref_audio_like_official(cbs):
@@ -287,6 +317,85 @@ def test_generation_honors_advanced_kwargs_state(cbs):
         "custom-voice", "Hello there", "Auto", "Ryan", "", {"max_new_tokens": 2048}
     )
     assert status == "Finished. (生成完成)"
+
+
+# ---------------------------------------------------------------------------
+# UX-fix B-4: per-tab automatic model routing.  The sidebar Model Switcher is
+# global but each tab calls a fixed backend capability, so every generation
+# callback resolves its alias through SynthesisService.resolve_alias FIRST and
+# reports an auto-switch notice on the success path (error paths keep
+# format_error verbatim).  Matching sidebar picks stay notice-free -- pinned by
+# the exact "Finished. (生成完成)" assertions in the tests above.
+# ---------------------------------------------------------------------------
+
+
+def test_preset_speakers_tab_routes_off_voice_design_radio():
+    """The audited failure: sidebar=VoiceDesign on Tab (2) used to raise the
+    official "voice_design ... does not support generate_custom_voice" error;
+    now the tab routes itself to custom-voice and says so in the status."""
+    cb, factory = make_recording_callbacks()
+    audio, status = cb["custom_voice"]("voice-design", " Hello there ", "Auto", "Ryan", "", {})
+    assert factory.alias_calls == ["custom-voice"]      # routed, not mis-called
+    assert status == "已自动切换模型至 custom-voice (auto-switched model for this tab) · Finished. (生成完成)"
+    assert audio is not None
+
+
+def test_voice_design_tab_routes_off_custom_voice_radio():
+    cb, factory = make_recording_callbacks()
+    audio, status = cb["voice_design"]("custom-voice", " once upon a time ", "Auto", " calm whisper ", {})
+    assert factory.alias_calls == ["voice-design"]
+    assert "已自动切换模型至 voice-design" in status and "Finished" in status
+    assert audio is not None
+
+
+def test_voice_clone_tab_routes_off_mismatched_radio():
+    cb, factory = make_recording_callbacks()
+    audio, status = cb["voice_clone"](
+        "voice-design", " target words ", "Auto", tone_pair(0.4), " ref words ", False, {}
+    )
+    assert factory.alias_calls == ["base"]
+    assert "已自动切换模型至 base" in status and "Finished" in status
+    sr_out, wav_out = audio
+    assert isinstance(sr_out, int) and wav_out.dtype == np.float32
+
+
+def test_save_voice_subtab_routes_off_mismatched_radio():
+    cb, factory = make_recording_callbacks()
+    out_path, status = cb["save_voice"]("voice-design", tone_pair(0.4), " hello ref ", xvec_only=False)
+    assert factory.alias_calls == ["base"]              # prompt-from-ref is base-kind
+    assert "已自动切换模型至 base" in status
+    assert out_path and Path(str(out_path)).exists()
+
+
+def test_load_voice_gen_subtab_routes_off_mismatched_radio(tmp_path: Path):
+    import torch
+
+    cb, factory = make_recording_callbacks()
+    payload = {"items": [{"ref_code": [[1, 2]], "ref_spk_embedding": [[0.1, 0.2]]}]}
+    voice_file = tmp_path / "voice.pt"
+    torch.save(payload, str(voice_file))
+
+    audio, status = cb["load_voice_gen"]("voice-design", str(voice_file), " new words ", "Auto", {})
+    assert factory.alias_calls == ["base"]              # load-voice-generate is base-kind
+    assert "已自动切换模型至 base" in status and audio is not None
+
+
+def test_callbacks_tolerate_stale_page_alias_after_server_restart():
+    """DESYNC case: the browser kept a pre-restart radio value that the running
+    registry no longer knows -- the tab still routes to its default, notice on."""
+    cb, factory = make_recording_callbacks()
+    audio, status = cb["custom_voice"]("pre-restart-alias", " hello ", "Auto", "Ryan", "", {})
+    assert factory.alias_calls == ["custom-voice"]
+    assert "已自动切换模型至 custom-voice" in status and audio is not None
+
+
+def test_model_switcher_label_documents_per_tab_auto_routing(app_blocks):
+    """B-4 sidebar copy: both languages name the per-tab capability matching."""
+    labels = [c.label for c in app_blocks.blocks.values() if getattr(c, "label", None)]
+    switcher = [label for label in labels if "Model Switcher" in str(label)]
+    assert len(switcher) == 1
+    assert "各页签生成时自动匹配能力" in switcher[0]
+    assert "each tab auto-selects the matching capability" in switcher[0]
 
 
 # ---------------------------------------------------------------------------

@@ -41,7 +41,9 @@ import numpy as np
 from .. import env, loader, models
 
 __all__ = [
+    "DEFAULT_FOR_KIND",
     "DEFAULT_GEN_KWARGS",
+    "KIND_OF_ALIAS",
     "HistoryStore",
     "SynthesisService",
     "display_map",
@@ -125,6 +127,32 @@ def format_error(exc: BaseException) -> str:
     """Bilingual one-line status string for the demo UI's error box."""
     tail = "（请检查输入或查看终端日志 / check input or see terminal log）"
     return f"{type(exc).__name__}: {exc}{tail}"
+
+
+# ---------------------------------------------------------------------------
+# Per-tab capability routing (UX-fix B-4)
+# ---------------------------------------------------------------------------
+
+#: Every generatable switcher alias -> the backend capability ("kind") its tab
+#: needs: Preset Speakers tab -> ``custom_voice``, Voice Design tab ->
+#: ``voice_design``, Voice Clone tabs -> ``base``.  The speech tokenizer is
+#: intentionally absent (Codec tab calls it directly, no model alias involved).
+KIND_OF_ALIAS: dict[str, str] = {
+    "custom-voice": "custom_voice",
+    "custom-voice-0.6b": "custom_voice",
+    "voice-design": "voice_design",
+    "base": "base",
+    "base-0.6b": "base",
+}
+
+#: Default alias per capability -- where a tab routes when the global sidebar
+#: pick is missing, stale (server restarted while the browser kept old state)
+#: or of a different kind than the tab's own capability.
+DEFAULT_FOR_KIND: dict[str, str] = {
+    "custom_voice": "custom-voice",
+    "voice_design": "voice-design",
+    "base": "base",
+}
 
 
 # ---------------------------------------------------------------------------
@@ -312,6 +340,31 @@ class SynthesisService:
             loader.unload(model)
         self._cache.clear()
         self.current_alias = None
+
+    # -- per-tab capability routing -------------------------------------------
+
+    def resolve_alias(self, required_kind: str, radio_alias: str | None) -> tuple[str, bool]:
+        """Route one tab's generation to the alias its capability needs.
+
+        The sidebar switcher is global while each tab calls a FIXED backend
+        capability (``required_kind``: ``"custom_voice"`` / ``"voice_design"``
+        / ``"base"``), so every tab resolves through here BEFORE calling its
+        service method.  Returns ``(alias, switched)``:
+
+        * *radio_alias* present and of the tab's own kind (incl. the 0.6B
+          sibling sizes) -> ``(radio_alias, False)`` -- used verbatim.
+        * *radio_alias* falsy, unknown (stale browser page after a server
+          restart) or of ANOTHER kind -> ``(DEFAULT_FOR_KIND[required_kind],
+          True)`` -- the tab silently self-heals; the UI layer turns
+          ``switched=True`` into the bilingual auto-switch status notice.
+
+        The *switched* flag is a UI concern only: this method never raises for
+        bad input and never touches the model LRU itself.
+        """
+        alias = str(radio_alias or "").strip()
+        if alias and KIND_OF_ALIAS.get(alias) == required_kind:
+            return alias, False
+        return DEFAULT_FOR_KIND[required_kind], True
 
     # -- choice plumbing ------------------------------------------------------
 

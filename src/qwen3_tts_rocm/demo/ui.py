@@ -61,6 +61,18 @@ _CSS = ".gradio-container {max-width: none !important;}"
 
 _STATUS_FINISHED = "Finished. (生成完成)"
 
+
+def _auto_switch_status(alias: str) -> str:
+    """B-4 success status when a tab had to route away from the sidebar pick.
+
+    The sidebar Model Switcher is global while each tab calls a fixed backend
+    capability; when the two disagree the callback resolves through
+    :meth:`~qwen3_tts_rocm.demo.backend.SynthesisService.resolve_alias` and
+    this notice replaces the plain ``Finished`` line so the silent correction
+    is visible (error paths keep :func:`format_error` verbatim).
+    """
+    return f"已自动切换模型至 {alias} (auto-switched model for this tab) · {_STATUS_FINISHED}"
+
 #: Bilingual label table for the model-switcher radio (all usable TTS aliases;
 #: the speech tokenizer entry of the registry is intentionally NOT generatable).
 _ALIAS_LABELS: dict[str, str] = {
@@ -205,7 +217,11 @@ def build_callbacks(service) -> dict[str, Any]:
     ``history_play`` / ``history_download`` / ``history_delete`` /
     ``history_id_at``.  Every callable is intentionally thin: validate nothing,
     decide nothing -- delegate to the backend and normalise failures through
-    :func:`~qwen3_tts_rocm.demo.backend.format_error`.
+    :func:`~qwen3_tts_rocm.demo.backend.format_error`.  The one decision each
+    generation callback makes (UX-fix B-4) is ALSO backend-owned: it resolves
+    the global sidebar alias against its tab's required capability via
+    ``service.resolve_alias`` first, appending the bilingual auto-switch
+    notice to the success status when routing had to move off the pick.
     """
     store = _history(service)
 
@@ -220,38 +236,43 @@ def build_callbacks(service) -> dict[str, Any]:
 
     def run_custom_voice(alias, text, language_display, speaker_display, instruct, gen_kwargs):
         try:
+            used_alias, switched = service.resolve_alias("custom_voice", alias)
             sr, wav = service.custom_voice(
-                str(alias),
+                used_alias,
                 text,
                 language_display=language_display,
                 speaker_display=speaker_display,
                 instruct=instruct,
                 gen_kwargs=dict(gen_kwargs or {}),
             )
-            _record(f"CustomVoice [{alias}] {text[:20]}", sr, wav)
-            return _wav_to_gradio_audio(wav, sr), _STATUS_FINISHED
+            _record(f"CustomVoice [{used_alias}] {text[:20]}", sr, wav)
+            status = _auto_switch_status(used_alias) if switched else _STATUS_FINISHED
+            return _wav_to_gradio_audio(wav, sr), status
         except Exception as exc:  # noqa: BLE001 - surfaced in the status box
             return None, format_error(exc)
 
     def run_voice_design(alias, text, language_display, instruct, gen_kwargs):
         try:
+            used_alias, switched = service.resolve_alias("voice_design", alias)
             sr, wav = service.voice_design(
-                str(alias),
+                used_alias,
                 text,
                 language_display=language_display,
                 instruct=instruct,
                 gen_kwargs=dict(gen_kwargs or {}),
             )
-            _record(f"VoiceDesign [{alias}] {text[:20]}", sr, wav)
-            return _wav_to_gradio_audio(wav, sr), _STATUS_FINISHED
+            _record(f"VoiceDesign [{used_alias}] {text[:20]}", sr, wav)
+            status = _auto_switch_status(used_alias) if switched else _STATUS_FINISHED
+            return _wav_to_gradio_audio(wav, sr), status
         except Exception as exc:  # noqa: BLE001
             return None, format_error(exc)
 
     def run_voice_clone(alias, text, language_display, ref_audio_value, ref_text, xvec_only, gen_kwargs):
         try:
+            used_alias, switched = service.resolve_alias("base", alias)
             pair = _audio_pair_or_none(ref_audio_value)
             sr, wav = service.voice_clone(
-                str(alias),
+                used_alias,
                 text,
                 language_display=language_display,
                 ref_audio=pair,
@@ -259,8 +280,9 @@ def build_callbacks(service) -> dict[str, Any]:
                 xvec_only=bool(xvec_only),
                 gen_kwargs=dict(gen_kwargs or {}),
             )
-            _record(f"VoiceClone [{alias}] {text[:20]}", sr, wav)
-            return _wav_to_gradio_audio(wav, sr), _STATUS_FINISHED
+            _record(f"VoiceClone [{used_alias}] {text[:20]}", sr, wav)
+            status = _auto_switch_status(used_alias) if switched else _STATUS_FINISHED
+            return _wav_to_gradio_audio(wav, sr), status
         except Exception as exc:  # noqa: BLE001
             return None, format_error(exc)
 
@@ -269,33 +291,36 @@ def build_callbacks(service) -> dict[str, Any]:
         try:
             import torch  # lazy
 
+            used_alias, switched = service.resolve_alias("base", alias)
             pair = _audio_pair_or_none(ref_audio_value)
             items = service.clone_prompt_from_ref(
-                str(alias), ref_audio=pair, ref_text=ref_text, xvec_only=bool(xvec_only)
+                used_alias, ref_audio=pair, ref_text=ref_text, xvec_only=bool(xvec_only)
             )
             fd, out_path = tempfile.mkstemp(prefix="qwen3_tts_voice_", suffix=".pt")
             os.close(fd)
             torch.save(_savable_payload(items), out_path)
-            return out_path, _STATUS_FINISHED
+            return out_path, (_auto_switch_status(used_alias) if switched else _STATUS_FINISHED)
         except Exception as exc:  # noqa: BLE001
             return None, format_error(exc)
 
     def load_voice_gen(alias, file_obj, text, language_display, gen_kwargs):
         """Official load_prompt_and_gen through backend.load_voice_file."""
         try:
+            used_alias, switched = service.resolve_alias("base", alias)
             # Backend owns validation too: a missing/unresolvable file raises
             # the official "Voice file is required" ValueError inside
             # service.load_voice_file and lands here like any other failure.
             items = service.load_voice_file(file_obj)
             sr, wav = service.voice_clone_with_prompt(
-                str(alias),
+                used_alias,
                 text,
                 language_display=language_display,
                 items=items,
                 gen_kwargs=dict(gen_kwargs or {}),
             )
-            _record(f"VoiceClone-loaded [{alias}] {text[:20]}", sr, wav)
-            return _wav_to_gradio_audio(wav, sr), _STATUS_FINISHED
+            _record(f"VoiceClone-loaded [{used_alias}] {text[:20]}", sr, wav)
+            status = _auto_switch_status(used_alias) if switched else _STATUS_FINISHED
+            return _wav_to_gradio_audio(wav, sr), status
         except Exception as exc:  # noqa: BLE001
             return None, (
                 "Failed to read or use voice file. Check file format/content.\n"
@@ -489,7 +514,10 @@ def build_ui(service, port_header_info: dict[str, Any] | None = None) -> gr.Bloc
         # ---------------- global sidebar -----------------------------------
         with gr.Sidebar() if hasattr(gr, "Sidebar") else gr.Column(scale=1) as _sidebar:
             model_radio = gr.Radio(
-                label="Model Switcher (模型切换器)",
+                label=(
+                    "Model Switcher (模型切换器 · 各页签生成时自动匹配能力 / "
+                    "each tab auto-selects the matching capability)"
+                ),
                 choices=alias_items,
                 value=radio_value,
                 interactive=True,

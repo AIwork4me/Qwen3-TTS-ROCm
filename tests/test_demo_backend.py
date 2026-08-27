@@ -724,3 +724,69 @@ def test_format_error_is_bilingual_status_string():
     message = format_error(ValueError("boom"))
     assert message.startswith("ValueError: boom")
     assert "请检查输入或查看终端日志" in message and "/ check input or see terminal log" in message
+
+
+# ---------------------------------------------------------------------------
+# UX-fix B-4: per-tab automatic model routing.  The sidebar switcher is global
+# while each tab calls a fixed backend capability, so the service owns an
+# alias->kind table plus a per-kind default and resolves BEFORE every tab
+# generation (audited failure: sidebar=VoiceDesign + Tab (2) Preset Speakers
+# used to raise the official "does not support generate_custom_voice" error).
+# ---------------------------------------------------------------------------
+
+
+def test_resolve_alias_mapping_constants_cover_every_generatable_alias():
+    """B-4 ground truth tables: alias -> kind, and one default alias per kind."""
+    from qwen3_tts_rocm.demo.backend import DEFAULT_FOR_KIND, KIND_OF_ALIAS
+
+    assert KIND_OF_ALIAS == {
+        "custom-voice": "custom_voice",
+        "custom-voice-0.6b": "custom_voice",
+        "voice-design": "voice_design",
+        "base": "base",
+        "base-0.6b": "base",
+    }
+    assert DEFAULT_FOR_KIND == {
+        "custom_voice": "custom-voice",
+        "voice_design": "voice-design",
+        "base": "base",
+    }
+
+
+def test_resolve_alias_same_kind_passthrough_keeps_the_radio_selection():
+    """A matching pick (incl. the 0.6B size) is kept verbatim, no switch."""
+    svc, _factory = make_service()
+    assert svc.resolve_alias("custom_voice", "custom-voice") == ("custom-voice", False)
+    assert svc.resolve_alias("custom_voice", "custom-voice-0.6b") == ("custom-voice-0.6b", False)
+    assert svc.resolve_alias("voice_design", "voice-design") == ("voice-design", False)
+
+
+def test_resolve_alias_cross_kind_switches_to_the_kind_default():
+    """The audited mismatch: tab kind wins over the global sidebar pick."""
+    svc, _factory = make_service()
+    assert svc.resolve_alias("custom_voice", "voice-design") == ("custom-voice", True)
+    assert svc.resolve_alias("voice_design", "custom-voice") == ("voice-design", True)
+    assert svc.resolve_alias("voice_design", "custom-voice-0.6b") == ("voice-design", True)
+
+
+def test_resolve_alias_falsy_or_unknown_alias_falls_back_to_default():
+    """None/blank/stale-page aliases (server restarted, browser kept old
+    state) fall back to the tab's default with switched=True -- never an
+    error, never a load of a nonexistent alias."""
+    svc, _factory = make_service()
+    assert svc.resolve_alias("custom_voice", None) == ("custom-voice", True)
+    assert svc.resolve_alias("voice_design", "") == ("voice-design", True)
+    assert svc.resolve_alias("base", "   ") == ("base", True)
+    assert svc.resolve_alias("custom_voice", "ghost-alias") == ("custom-voice", True)
+
+
+@pytest.mark.parametrize("radio", ["base", "base-0.6b", "custom-voice", "voice-design", None])
+def test_resolve_alias_base_family_routes_both_sizes(radio):
+    """Clone tabs need the base capability: both sizes pass through, the
+    rest (incl. falsy) route to the default base alias."""
+    svc, _factory = make_service()
+    alias, switched = svc.resolve_alias("base", radio)
+    if radio in ("base", "base-0.6b"):
+        assert (alias, switched) == (radio, False)
+    else:
+        assert (alias, switched) == ("base", True)
