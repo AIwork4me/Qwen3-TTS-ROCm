@@ -236,10 +236,17 @@ class SynthesisService:
 
         Imported lazily: merely creating a :class:`SynthesisService` (and the
         whole import path around it) must stay free of multi-GB deps so tests
-        can inject doubles first.
+        can inject doubles first.  The ``qwen_tts`` import is wrapped in the
+        loader's fd-level capture (UX-fix U3b): on a cold process the official
+        package prints its SoX ad / flash-attn banner straight to the file
+        descriptors at import time, which would otherwise leak through the
+        Codec tab.  Honors ``QWEN3_TTS_ROCM_VERBOSE_IMPORT=1`` (checked inside
+        the helper).
         """
         import torch  # lazy: ambient ROCm wheel
-        from qwen_tts import Qwen3TTSTokenizer
+
+        with loader._suppress_fd_stdout_stderr():
+            from qwen_tts import Qwen3TTSTokenizer
 
         return Qwen3TTSTokenizer.from_pretrained(
             str(models.local_dir("tokenizer")),

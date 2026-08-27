@@ -13,34 +13,8 @@
 让官方 Qwen3-TTS 语音合成在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S iGPU（`gfx1151`）上
 **零补丁**运行。一条命令安装 AMD 锁定版本的 ROCm 7.14.0 PyTorch 轮子，另一条下载
 六个官方仓库权重，第三条启动增强版双语五标签页 Gradio 演示（`http://localhost:8000`）。
-所有合成调用全部走未修改的官方 API——我们的 loader 直接交还原生模型对象，
-并且有一条上游一致性测试为此作证。
-
-## 为什么有这个项目
-
-Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-attn 内核库，而
-`gfx1151` 一类的集成显卡开箱完全无法工作。本仓库刻意**不是**那些代码的 fork——它是围绕
-**未经修改的官方 `qwen-tts` 包**的一层薄壳：环境诊断、智能默认的模型加载器、双源
-（ModelScope / hf-mirror）下载器和一个增强版演示界面，仅此而已。核心承诺见下文的
-[零修改保证](#zero-modification-guarantee)，并由专门的一致性测试强制执行；在信任本仓库
-前，若只读一节，请读这一节。
-
-<a id="zero-modification-guarantee"></a>
-
-## 零修改保证
-
-* [`loader.load()`](src/qwen3_tts_rocm/loader.py) 返回的就是**官方
-  `qwen_tts.Qwen3TTSModel.from_pretrained` 的返回值本身**——原生模型对象，绝无包装。
-  智能默认值（HIP GPU 上 `bfloat16` + `sdpa`）只通过公开的官方关键字参数施加。
-* 证据就在测试套件里：
-  [`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
-  用*我们*的 loader 加载出的模型对象构建原封不动的上游
-  `qwen_tts.cli.demo.build_demo()`，再经 Gradio 自身的事件注册表执行演示自己的回调闭包
-  ——包括一次真实的 GPU 合成。绿色通过的运行记录存档于
-  [`evidence/official-parity.txt`](evidence/official-parity.txt)。
-* 项目政策（见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与
-  [`NOTICE`](NOTICE)）：永远不内置、不补丁上游源码；`pyproject.toml`
-  原样依赖已发布的 `qwen-tts==0.1.1` 制品。
+所有合成调用全部走未修改的官方 API——
+[详见下文 Why / see Why below](#why-this-project-exists)。
 
 ## 环境要求
 
@@ -54,9 +28,23 @@ Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-att
 | 磁盘 | 约 18 GB 空闲空间，存放六个官方仓库（各自内含语音分词器副本；权重位于 `models/` 下且从不入库提交） |
 | 网络 | 可达 ModelScope（`modelscope.cn`）——默认通道在 CN 网络内直接可用；当 `huggingface.co` 被阻断时回退传输自动改走 `hf-mirror.com`，因此无需 VPN |
 
+各别名对应的六个官方仓库及近似下载体积（数字与 `scripts/download_models.sh --help` 完全一致）：
+
+| 别名 / alias | 仓库 / repo | 大小 / size |
+|---|---|---|
+| `tokenizer` | `Qwen/Qwen3-TTS-Tokenizer-12Hz` | 651M |
+| `custom-voice` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 4.3G |
+| `voice-design` | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 4.3G |
+| `base` | `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 4.3G |
+| `custom-voice-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 2.4G |
+| `base-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 2.4G |
+| — | **合计 / Total** | **≈ 18 GB** |
+
 ## 快速开始
 
 从零到会说话的浏览器标签页只需五条命令：
+
+> ⚠️ 发布前请把下方 `<OWNER>` 替换为实际 GitHub 用户名 / Replace `<OWNER>` with the real GitHub username before publishing（本地已有仓库的用户可跳过 clone / skip if you already have the repo）。
 
 ```bash
 git clone https://github.com/<OWNER>/Qwen3-TTS-ROCm.git   # placeholder — replace <OWNER> after push
@@ -66,7 +54,8 @@ bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, h
 bash scripts/run_demo.sh         # enhanced demo -> http://localhost:8000
 ```
 
-*发布前请将 `<OWNER>` 替换为你的 GitHub 用户名。*
+不必一次下齐六个：支持子集下载，例如
+`bash scripts/download_models.sh tokenizer custom-voice  # ≈5GB，够跑 Python 片段与预设音色/克隆`。
 
 说明：
 
@@ -88,7 +77,15 @@ from qwen3_tts_rocm import loader
 tts = loader.load("custom-voice")            # sdpa/bf16 defaults on gfx1151
 wavs, sr = tts.generate_custom_voice(text="你好，ROCm。", language="auto",
                                      speaker=tts.get_supported_speakers()[0])
+
+import soundfile as sf
+sf.write("hello-rocm.wav", wavs[0], sr)  # 保存 / save
 ```
+
+**预期输出 / Expected output：** 首次 `loader.load` 需要数十秒。终端只打印一行
+loader 状态提示，且只有在设置 `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` 时才会出现上游导入
+横幅；首次运行时大量的 MIOpen 内核调优日志属正常，之后会被缓存
+（见 [docs/troubleshooting.md](docs/troubleshooting.md)）。
 
 * `loader.load("custom-voice")` 把注册表别名解析到模型目录下的
   `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` 并应用 ROCm 智能默认值
@@ -173,6 +170,34 @@ bfloat16/sdpa、短句与中等长度文本、上限 `max_new_tokens=512`：
 > **退化生成警告：** 在上游默认的 `max_new_tokens=2048` 下，采样偶尔会陷入退化循环，
 > 在 iGPU 上连续渲染数分钟（实测一次失控约 23 分钟）。因此本仓库的所有服务默认启用
 > **512 token 护栏**——确有必要时再通过演示的高级折叠区或 `gen_kwargs` 有意识地覆盖。
+
+<a id="why-this-project-exists"></a>
+
+## 为什么有这个项目
+
+Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-attn 内核库，而
+`gfx1151` 一类的集成显卡开箱完全无法工作。本仓库刻意**不是**那些代码的 fork——它是围绕
+**未经修改的官方 `qwen-tts` 包**的一层薄壳：环境诊断、智能默认的模型加载器、双源
+（ModelScope / hf-mirror）下载器和一个增强版演示界面，仅此而已。核心承诺见下文的
+[零修改保证](#zero-modification-guarantee)，并由专门的一致性测试强制执行；在信任本仓库
+前，若只读一节，请读这一节。
+
+<a id="zero-modification-guarantee"></a>
+
+## 零修改保证
+
+* [`loader.load()`](src/qwen3_tts_rocm/loader.py) 返回的就是**官方
+  `qwen_tts.Qwen3TTSModel.from_pretrained` 的返回值本身**——原生模型对象，绝无包装。
+  智能默认值（HIP GPU 上 `bfloat16` + `sdpa`）只通过公开的官方关键字参数施加。
+* 证据就在测试套件里：
+  [`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
+  用*我们*的 loader 加载出的模型对象构建原封不动的上游
+  `qwen_tts.cli.demo.build_demo()`，再经 Gradio 自身的事件注册表执行演示自己的回调闭包
+  ——包括一次真实的 GPU 合成。绿色通过的运行记录存档于
+  [`evidence/official-parity.txt`](evidence/official-parity.txt)。
+* 项目政策（见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与
+  [`NOTICE`](NOTICE)）：永远不内置、不补丁上游源码；`pyproject.toml`
+  原样依赖已发布的 `qwen-tts==0.1.1` 制品。
 
 ## FAQ 与故障排查
 

@@ -12,41 +12,8 @@ Radeon 8060S iGPU (`gfx1151`) with **zero patches** to the official stack.
 One command installs AMD's pinned ROCm 7.14.0 PyTorch wheels, another
 downloads the six official checkpoints, a third launches an enhanced
 bilingual five-tab Gradio demo on `http://localhost:8000`. Every synthesis
-call stays on unmodified official APIs — our loader hands you the native
-model object — and an upstream parity test proves it.
-
-## Why this project exists
-
-Qwen3-TTS ships as a CUDA-first stack: upstream expects NVIDIA GPUs and the
-flash-attn kernel library, and nothing about `gfx1151`-class integrated
-graphics worked out of the box. This repository is deliberately *not* a fork
-of that code — it is a thin community shim around the **unmodified official
-`qwen-tts` package**: environment diagnostics, a smart-default model loader,
-a dual-source (ModelScope / hf-mirror) downloader and an enhanced demo UI,
-nothing more. The core promise is stated in the
-[zero-modification guarantee](#zero-modification-guarantee) below and is
-enforced by a dedicated parity test; if you only read one thing before
-trusting this repo, make it that section.
-
-<a id="zero-modification-guarantee"></a>
-
-## Zero-modification guarantee
-
-* [`loader.load()`](src/qwen3_tts_rocm/loader.py) returns **exactly what the
-  official `qwen_tts.Qwen3TTSModel.from_pretrained` returns** — the native
-  model object, never a wrapper. Smart defaults (`bfloat16` + `sdpa` on HIP
-  GPUs) are applied only through official, public keyword arguments.
-* Proof lives in the test suite:
-  [`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
-  builds the stock, unmodified upstream
-  `qwen_tts.cli.demo.build_demo()` around a model object loaded by *our*
-  loader, then executes the demo's own handler closures through Gradio's
-  event registry — including one real GPU synthesis. The recorded transcript
-  of the green run is archived in
-  [`evidence/official-parity.txt`](evidence/official-parity.txt).
-* Project policy (see [`CONTRIBUTING.md`](CONTRIBUTING.md) and
-  [`NOTICE`](NOTICE)): no vendored or patched upstream source, ever;
-  `pyproject.toml` depends on the published `qwen-tts==0.1.1` artifact as-is.
+call stays on unmodified official APIs —
+[详见下文 Why / see Why below](#why-this-project-exists).
 
 ## Requirements
 
@@ -60,9 +27,24 @@ trusting this repo, make it that section.
 | Disk | ~18 GB free for the six official repositories, which each bundle their own speech-tokenizer copies (weights live under `models/` and are never committed) |
 | Network | ModelScope (`modelscope.cn`) reachable — the default channel already works from CN networks; when `huggingface.co` is blocked the fallback transport routes through `hf-mirror.com`, so no VPN is required |
 
+The six official repositories behind the aliases, with their approximate
+download sizes (numbers identical to `scripts/download_models.sh --help`):
+
+| 别名 / alias | 仓库 / repo | 大小 / size |
+|---|---|---|
+| `tokenizer` | `Qwen/Qwen3-TTS-Tokenizer-12Hz` | 651M |
+| `custom-voice` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 4.3G |
+| `voice-design` | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 4.3G |
+| `base` | `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 4.3G |
+| `custom-voice-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 2.4G |
+| `base-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 2.4G |
+| — | **合计 / Total** | **≈ 18 GB** |
+
 ## Quickstart
 
 Five commands from zero to a talking browser tab:
+
+> ⚠️ 发布前请把下方 `<OWNER>` 替换为实际 GitHub 用户名 / Replace `<OWNER>` with the real GitHub username before publishing（本地已有仓库的用户可跳过 clone / skip if you already have the repo）。
 
 ```bash
 git clone https://github.com/<OWNER>/Qwen3-TTS-ROCm.git   # placeholder — replace <OWNER> after push
@@ -72,7 +54,8 @@ bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, h
 bash scripts/run_demo.sh         # enhanced demo -> http://localhost:8000
 ```
 
-*Replace `<OWNER>` with your GitHub username before publishing.*
+No need for all six up front: subset downloads are supported, e.g.
+`bash scripts/download_models.sh tokenizer custom-voice  # ≈5GB, enough for the Python snippet and preset voices / cloning`.
 
 Notes:
 
@@ -97,7 +80,16 @@ from qwen3_tts_rocm import loader
 tts = loader.load("custom-voice")            # sdpa/bf16 defaults on gfx1151
 wavs, sr = tts.generate_custom_voice(text="你好，ROCm。", language="auto",
                                      speaker=tts.get_supported_speakers()[0])
+
+import soundfile as sf
+sf.write("hello-rocm.wav", wavs[0], sr)  # 保存 / save
 ```
+
+**Expected output / 预期输出：** the first `loader.load` takes tens of seconds.
+The terminal prints one loader status line, and — only with
+`QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` — the upstream import banners; verbose
+MIOpen kernel-tuning lines on the very first run are normal and are cached
+afterwards (see [docs/troubleshooting.md](docs/troubleshooting.md)).
 
 * `loader.load("custom-voice")` resolves the registry alias to
   `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` under your models directory and
@@ -200,6 +192,41 @@ caveats and reproduce block in [`docs/benchmarks.md`](docs/benchmarks.md)).
 > minutes). Every service in this repository therefore defaults to a
 > **512-token guardrail** — override it knowingly via the demo's Advanced
 > accordion or `gen_kwargs`.
+
+<a id="why-this-project-exists"></a>
+
+## Why this project exists
+
+Qwen3-TTS ships as a CUDA-first stack: upstream expects NVIDIA GPUs and the
+flash-attn kernel library, and nothing about `gfx1151`-class integrated
+graphics worked out of the box. This repository is deliberately *not* a fork
+of that code — it is a thin community shim around the **unmodified official
+`qwen-tts` package**: environment diagnostics, a smart-default model loader,
+a dual-source (ModelScope / hf-mirror) downloader and an enhanced demo UI,
+nothing more. The core promise is stated in the
+[zero-modification guarantee](#zero-modification-guarantee) below and is
+enforced by a dedicated parity test; if you only read one thing before
+trusting this repo, make it that section.
+
+<a id="zero-modification-guarantee"></a>
+
+## Zero-modification guarantee
+
+* [`loader.load()`](src/qwen3_tts_rocm/loader.py) returns **exactly what the
+  official `qwen_tts.Qwen3TTSModel.from_pretrained` returns** — the native
+  model object, never a wrapper. Smart defaults (`bfloat16` + `sdpa` on HIP
+  GPUs) are applied only through official, public keyword arguments.
+* Proof lives in the test suite:
+  [`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
+  builds the stock, unmodified upstream
+  `qwen_tts.cli.demo.build_demo()` around a model object loaded by *our*
+  loader, then executes the demo's own handler closures through Gradio's
+  event registry — including one real GPU synthesis. The recorded transcript
+  of the green run is archived in
+  [`evidence/official-parity.txt`](evidence/official-parity.txt).
+* Project policy (see [`CONTRIBUTING.md`](CONTRIBUTING.md) and
+  [`NOTICE`](NOTICE)): no vendored or patched upstream source, ever;
+  `pyproject.toml` depends on the published `qwen-tts==0.1.1` artifact as-is.
 
 ## FAQ & troubleshooting
 

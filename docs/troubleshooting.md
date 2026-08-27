@@ -230,7 +230,9 @@ Consequences worth knowing:
 
 ## flash-attn requests on ROCm
 
-Upstream prints this banner on start (harmless here):
+Upstream prints this banner at import time (harmless here; auto-suppressed by
+the loader's fd-level capture — see "First-run log expectations" below,
+re-enable with `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1`):
 
 ```text
 ********
@@ -256,16 +258,44 @@ still experimental...` — informational, the selected path still runs.
 
 | Noise you will see | Meaning / action |
 |---|---|
-| `/bin/sh: 1: sox: not found` (once, early) | Printed by upstream code probing for the SoX binary at import time. Purely cosmetic: audio paths used here do not need SoX. Install `sox` if the line annoys you; functionality is identical either way |
+| `/bin/sh: 1: sox: not found` (once, early) | Printed by upstream code probing for the SoX binary at import time. Purely cosmetic: audio paths used here do not need SoX. Auto-suppressed by the loader's fd-level capture (see below); shows again with `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1`. Install `sox` if you want the line gone even then; functionality is identical either way |
 | `MIOpen(HIP): Warning [IsEnoughWorkspace] ...` and `a_grid_desc_m_ak_container_...` lines | MIOpen/Composable-kernel diagnostics emitted while kernels compile during warm-up — heavy only on first encounters of a shape and cached across runs afterwards. Ignore them; they are stderr chatter, not errors |
 | `Setting pad_token_id to eos_token_id...` | Normal transformers generation-config notice at the start of each generation |
+
+### First-run log expectations (首次运行日志预期)
+
+What a healthy **very first** run looks like, so a scrolling terminal is not
+mistaken for a hang:
+
+* **Hundreds of kernel-tuning lines are normal.** On the very first encounter
+  with a shape, MIOpen/Composable-kernel can emit **several hundred**
+  `MIOpen(HIP): ...` tuning lines; they are one-off and cached across all
+  later runs. 首次运行出现数百行内核调优日志属正常，之后缓存复用，不再刷屏。
+* **One bilingual expectation line from the loader.** Before the first load
+  the loader prints to stderr
+  `[qwen3-tts-rocm] 加载 <model> … 首次加载需数十秒，终端将出现大量内核日志（属正常）/ loading; verbose kernel logs are expected on first run` —
+  a quiet terminal during the following tens of seconds is expected, not a
+  freeze. loader 的这行双语提示即为此预期而设。
+* **Upstream import banners are auto-suppressed.** The official package
+  prints its SoX "not found" ad and flash-attn banner straight to the file
+  descriptors at import time; both `loader.load()` and the demo backend wrap
+  that lazy import in an fd-level capture (both fds → `/dev/null`, always
+  restored), so a default run shows neither. Escape hatch:
+  `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` keeps the import-time output visible when
+  debugging (the capture covers the import only — model loading and
+  generation output always show). 上游导入横幅（SoX 广告 / flash-attn）默认已被
+  fd 级捕获自动抑制；调试时设 `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` 可重新看到。
+* **Quieting the loader line.** `QWEN3_TTS_ROCM_QUIET=1` silences the
+  bilingual expectation announcement entirely. 设 `QWEN3_TTS_ROCM_QUIET=1`
+  可关闭 loader 的提示行。
 
 ---
 
 ## Still stuck?
 
 Re-run `qwen3-tts-rocm-check`, capture full command output including stderr
-(sox banner included — it means your log is complete), open an issue in this
-repository's tracker, and quote the diagnostic block verbatim along with
-`rocm-smi` output. See [`CONTRIBUTING.md`](../CONTRIBUTING.md) for the
-hardware-log etiquette (text logs only, no binaries or generated audio).
+(set `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` if the upstream import-time banners
+belong in your log), open an issue in this repository's tracker, and quote
+the diagnostic block verbatim along with `rocm-smi` output. See
+[`CONTRIBUTING.md`](../CONTRIBUTING.md) for the hardware-log etiquette (text
+logs only, no binaries or generated audio).
