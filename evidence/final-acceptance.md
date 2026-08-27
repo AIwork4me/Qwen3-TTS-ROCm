@@ -38,3 +38,12 @@ README/README_CN Screenshots sections updated from TODO-release placeholders to 
   2. `git remote add origin https://github.com/<OWNER>/Qwen3-TTS-ROCm.git`
   3. `git push -u origin main`
   4. `git push origin v0.1.0`
+
+## Hardening pass (post-final-review, P0-S1..S6)
+Five verified batches on feat/impl-v0.1.0 (each: implementer subagent → independent verifier subagent → gates):
+- S1 3f793ac hygiene: five-tab wording, models comment, README precision (EN+CN)
+- S2 6b74fca test-infra: make_tone/batch/fake-prompt sharp edges + downloader resume=False semantics pinned (146→156)
+- S3 a0496a6 downloader: weight-aware is_downloaded(require_weights=) + skip tightening + fallback-into-partial-dir pinned (→162)
+- S4 cc5608b+70a2dac+d420a0d backend: per-alias load-ticket thread safety (verified by adversarial interleaving analysis), official-faithful _normalize_audio port (bit-for-bit vs installed), ticket-leak window closed, success-path wake hardened (→170)
+- S5 73f2963 docs: troubleshooting aligned to weight-aware semantics + CN polish
+P0-S6 independent acceptance: 10/10 gates (ruff / 170 CPU / 24 GPU real / yaml / bash -n / build+twine PASSED / wheel payload complete / docker rebuild+SPIKE-GPU-OK+bare-serve 200 / 54 links / clean tree). Tag re-pointed to the hardened tree.
