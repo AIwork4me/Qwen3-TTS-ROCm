@@ -1,0 +1,34 @@
+# evidence/load-smoke.txt — Task 10 six-model load/unload GPU smoke
+# date: 2026-08-27T14:04:52+08:00
+# host: Linux 6.17.0-1032-oem, HEAD: d7a823a, branch: feat/impl-v0.1.0
+# device: AMD Radeon 8060S (gfx1151), torch 2.12.0+rocm7.14.0, HIP 7.14.60850
+# cmd: .venv/bin/python -m pytest tests/test_loader_all_models.py -m 'gpu and requires_download' -v -s
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.1.1, pluggy-1.6.0 -- /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python
+cachedir: .pytest_cache
+rootdir: /home/amd/Desktop/Qwen3-TTS-ROCm
+configfile: pyproject.toml
+plugins: anyio-4.14.2
+collecting ... collected 6 items
+
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[custom-voice] /bin/sh: 1: sox: not found
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+[vram] after load custom-voice: used=4262.1 MiB free=77657.9 MiB total=81920.0 MiB allocator_peak=3986.7 MiB
+PASSED
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[voice-design] [vram] after load voice-design: used=4262.1 MiB free=77657.9 MiB total=81920.0 MiB allocator_peak=3986.7 MiB
+PASSED
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[base] [vram] after load base: used=4284.1 MiB free=77635.9 MiB total=81920.0 MiB allocator_peak=4008.5 MiB
+PASSED
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[custom-voice-0.6b] [vram] after load custom-voice-0.6b: used=2334.1 MiB free=79585.9 MiB total=81920.0 MiB allocator_peak=2058.6 MiB
+PASSED
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[base-0.6b] [vram] after load base-0.6b: used=2350.1 MiB free=79569.9 MiB total=81920.0 MiB allocator_peak=2074.4 MiB
+PASSED
+tests/test_loader_all_models.py::test_tokenizer_load [vram] after load tokenizer: used=608.1 MiB free=81311.9 MiB total=81920.0 MiB allocator_peak=330.4 MiB
+PASSED
+
+============================== 6 passed in 15.53s ==============================
