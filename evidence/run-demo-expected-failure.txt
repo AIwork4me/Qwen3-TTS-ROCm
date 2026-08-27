@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/qwen3-tts-rocm-demo", line 6, in <module>
+    sys.exit(main())
+             ^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/src/qwen3_tts_rocm/cli_demo.py", line 2, in main
+    raise NotImplementedError("Task 15/16")
+NotImplementedError: Task 15/16
+RUN-DEMO-EXIT=1
