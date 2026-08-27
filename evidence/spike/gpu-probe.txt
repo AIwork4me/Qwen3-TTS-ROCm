@@ -1,0 +1,6 @@
+/tmp/spike_probe.py:10: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  o = F.scaled_dot_product_attention(q, q, q)
+torch 2.12.0+rocm7.14.0 | HIP 7.14.60850
+GPU: AMD Radeon 8060S Graphics | arch: gfx1151
+torchaudio 2.11.0+rocm7.14.0
+SPIKE-GPU-OK

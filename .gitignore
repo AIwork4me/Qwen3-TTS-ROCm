@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Virtual environments
+.venv/
+
+# Downloaded model artifacts (fetched at runtime, never committed)
+models/
+
+# Generated spikes evidence binaries are kept only if small; keep wav/tmp out
+*.wav
+
+# OS/editor
+.DS_Store

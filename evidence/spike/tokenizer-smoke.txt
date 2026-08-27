@@ -1,0 +1,930 @@
+2026-08-27 11:28:38,628 | INFO    | modelscope_hub.download | Downloading 6 files from Qwen/Qwen3-TTS-Tokenizer-12Hz@master
+Downloading:   0%|          | 0/6 [00:00<?, ?file/s]
+config.json:   0%|          | 0.00/2.34k [00:00<?, ?B/s][A
+                                                        [ADownloading:  17%|█▋        | 1/6 [00:00<00:03,  1.56file/s]
+configuration.json:   0%|          | 0.00/76.0 [00:00<?, ?B/s][A
+                                                              [A
+.gitattributes:   0%|          | 0.00/2.08k [00:00<?, ?B/s][A
+                                                           [ADownloading:  50%|█████     | 3/6 [00:00<00:00,  3.78file/s]
+README.md:   0%|          | 0.00/3.48k [00:00<?, ?B/s][A
+                                                      [A
+preprocessor_config.json:   0%|          | 0.00/234 [00:00<?, ?B/s][A
+                                                                   [A
+model.safetensors:   0%|          | 0.00/682M [00:00<?, ?B/s][A
+model.safetensors:   1%|          | 4.19M/682M [00:00<00:23, 29.2MB/s][A
+model.safetensors:   1%|          | 8.39M/682M [00:00<00:21, 31.9MB/s][A
+model.safetensors:   2%|▏         | 12.6M/682M [00:00<00:26, 25.5MB/s][A
+model.safetensors:   2%|▏         | 15.7M/682M [00:00<00:29, 22.7MB/s][A
+model.safetensors:   3%|▎         | 18.9M/682M [00:00<00:31, 21.2MB/s][A
+model.safetensors:   3%|▎         | 22.0M/682M [00:00<00:32, 20.3MB/s][A
+model.safetensors:   4%|▎         | 24.1M/682M [00:01<00:33, 19.9MB/s][A
+model.safetensors:   4%|▍         | 26.2M/682M [00:01<00:33, 19.5MB/s][A
+model.safetensors:   4%|▍         | 28.3M/682M [00:01<00:33, 19.3MB/s][A
+model.safetensors:   4%|▍         | 30.4M/682M [00:01<00:34, 19.0MB/s][A
+model.safetensors:   5%|▍         | 32.5M/682M [00:01<00:34, 18.8MB/s][A
+model.safetensors:   5%|▌         | 34.6M/682M [00:01<00:34, 18.9MB/s][A
+model.safetensors:   5%|▌         | 36.7M/682M [00:01<00:34, 18.7MB/s][A
+model.safetensors:   6%|▌         | 38.8M/682M [00:01<00:34, 18.7MB/s][A
+model.safetensors:   6%|▌         | 40.9M/682M [00:01<00:34, 18.7MB/s][A
+model.safetensors:   6%|▋         | 43.0M/682M [00:02<00:34, 18.7MB/s][A
+model.safetensors:   7%|▋         | 45.1M/682M [00:02<00:34, 18.6MB/s][A
+model.safetensors:   7%|▋         | 47.2M/682M [00:02<00:34, 18.6MB/s][A
+model.safetensors:   7%|▋         | 49.3M/682M [00:02<00:34, 18.6MB/s][A
+model.safetensors:   8%|▊         | 51.4M/682M [00:02<00:33, 18.6MB/s][A
+model.safetensors:   8%|▊         | 53.5M/682M [00:02<00:33, 18.5MB/s][A
+model.safetensors:   8%|▊         | 55.6M/682M [00:02<00:33, 18.6MB/s][A
+model.safetensors:   8%|▊         | 57.7M/682M [00:02<00:33, 18.6MB/s][A
+model.safetensors:   9%|▉         | 59.8M/682M [00:03<00:33, 18.6MB/s][A
+model.safetensors:   9%|▉         | 61.9M/682M [00:03<00:33, 18.6MB/s][A
+model.safetensors:   9%|▉         | 64.0M/682M [00:03<00:33, 18.5MB/s][A
+model.safetensors:  10%|▉         | 66.1M/682M [00:03<00:33, 18.5MB/s][A
+model.safetensors:  10%|▉         | 68.2M/682M [00:03<00:33, 18.6MB/s][A
+model.safetensors:  10%|█         | 70.3M/682M [00:03<00:33, 18.5MB/s][A
+model.safetensors:  11%|█         | 72.4M/682M [00:03<00:32, 18.6MB/s][A
+model.safetensors:  11%|█         | 74.4M/682M [00:03<00:32, 18.6MB/s][A
+model.safetensors:  11%|█         | 76.5M/682M [00:03<00:32, 18.6MB/s][A
+model.safetensors:  12%|█▏        | 78.6M/682M [00:04<00:32, 18.6MB/s][A
+model.safetensors:  12%|█▏        | 80.7M/682M [00:04<00:32, 18.5MB/s][A
+model.safetensors:  12%|█▏        | 82.8M/682M [00:04<00:32, 18.5MB/s][A
+model.safetensors:  12%|█▏        | 84.9M/682M [00:04<00:36, 16.4MB/s][A
+model.safetensors:  13%|█▎        | 88.1M/682M [00:04<00:30, 19.2MB/s][A
+model.safetensors:  13%|█▎        | 90.2M/682M [00:04<00:31, 19.0MB/s][A
+model.safetensors:  14%|█▎        | 92.3M/682M [00:04<00:31, 19.0MB/s][A
+model.safetensors:  14%|█▍        | 94.4M/682M [00:04<00:31, 18.6MB/s][A
+model.safetensors:  14%|█▍        | 96.5M/682M [00:04<00:31, 18.4MB/s][A
+model.safetensors:  14%|█▍        | 98.6M/682M [00:05<00:31, 18.5MB/s][A
+model.safetensors:  15%|█▍        | 101M/682M [00:05<00:32, 18.1MB/s] [A
+model.safetensors:  15%|█▌        | 103M/682M [00:05<00:32, 18.1MB/s][A
+model.safetensors:  15%|█▌        | 105M/682M [00:05<00:31, 18.2MB/s][A
+model.safetensors:  16%|█▌        | 107M/682M [00:05<00:31, 18.3MB/s][A
+model.safetensors:  16%|█▌        | 109M/682M [00:05<00:32, 17.9MB/s][A
+model.safetensors:  16%|█▋        | 111M/682M [00:05<00:30, 18.7MB/s][A
+model.safetensors:  17%|█▋        | 113M/682M [00:05<00:30, 18.5MB/s][A
+model.safetensors:  17%|█▋        | 115M/682M [00:06<00:30, 18.6MB/s][A
+model.safetensors:  17%|█▋        | 117M/682M [00:06<00:30, 18.4MB/s][A
+model.safetensors:  18%|█▊        | 120M/682M [00:06<00:30, 18.7MB/s][A
+model.safetensors:  18%|█▊        | 122M/682M [00:06<00:30, 18.6MB/s][A
+model.safetensors:  18%|█▊        | 124M/682M [00:06<00:30, 18.6MB/s][A
+model.safetensors:  18%|█▊        | 126M/682M [00:06<00:29, 18.6MB/s][A
+model.safetensors:  19%|█▊        | 128M/682M [00:06<00:29, 18.6MB/s][A
+model.safetensors:  19%|█▉        | 130M/682M [00:06<00:29, 18.6MB/s][A
+model.safetensors:  19%|█▉        | 132M/682M [00:06<00:29, 18.5MB/s][A
+model.safetensors:  20%|█▉        | 134M/682M [00:07<00:29, 18.6MB/s][A
+model.safetensors:  20%|█▉        | 136M/682M [00:07<00:29, 18.5MB/s][A
+model.safetensors:  20%|██        | 138M/682M [00:07<00:29, 18.6MB/s][A
+model.safetensors:  21%|██        | 141M/682M [00:07<00:29, 18.5MB/s][A
+model.safetensors:  21%|██        | 143M/682M [00:07<00:29, 18.5MB/s][A
+model.safetensors:  21%|██        | 145M/682M [00:07<00:28, 18.6MB/s][A
+model.safetensors:  22%|██▏       | 147M/682M [00:07<00:28, 18.5MB/s][A
+model.safetensors:  22%|██▏       | 149M/682M [00:07<00:28, 18.6MB/s][A
+model.safetensors:  22%|██▏       | 151M/682M [00:07<00:28, 18.5MB/s][A
+model.safetensors:  22%|██▏       | 153M/682M [00:08<00:28, 18.3MB/s][A
+model.safetensors:  23%|██▎       | 155M/682M [00:08<00:28, 18.6MB/s][A
+model.safetensors:  23%|██▎       | 157M/682M [00:08<00:28, 18.6MB/s][A
+model.safetensors:  23%|██▎       | 159M/682M [00:08<00:28, 18.6MB/s][A
+model.safetensors:  24%|██▎       | 161M/682M [00:08<00:28, 18.6MB/s][A
+model.safetensors:  24%|██▍       | 164M/682M [00:08<00:27, 18.6MB/s][A
+model.safetensors:  24%|██▍       | 166M/682M [00:08<00:27, 18.6MB/s][A
+model.safetensors:  25%|██▍       | 168M/682M [00:08<00:27, 18.6MB/s][A
+model.safetensors:  25%|██▍       | 170M/682M [00:08<00:27, 18.5MB/s][A
+model.safetensors:  25%|██▌       | 172M/682M [00:09<00:27, 18.6MB/s][A
+model.safetensors:  26%|██▌       | 174M/682M [00:09<00:27, 18.5MB/s][A
+model.safetensors:  26%|██▌       | 176M/682M [00:09<00:27, 18.6MB/s][A
+model.safetensors:  26%|██▌       | 178M/682M [00:09<00:27, 18.6MB/s][A
+model.safetensors:  26%|██▋       | 180M/682M [00:09<00:27, 18.6MB/s][A
+model.safetensors:  27%|██▋       | 182M/682M [00:09<00:26, 18.6MB/s][A
+model.safetensors:  27%|██▋       | 185M/682M [00:09<00:26, 18.6MB/s][A
+model.safetensors:  27%|██▋       | 187M/682M [00:09<00:26, 18.6MB/s][A
+model.safetensors:  28%|██▊       | 189M/682M [00:09<00:26, 18.5MB/s][A
+model.safetensors:  28%|██▊       | 191M/682M [00:10<00:26, 18.5MB/s][A
+model.safetensors:  28%|██▊       | 193M/682M [00:10<00:26, 18.6MB/s][A
+model.safetensors:  29%|██▊       | 195M/682M [00:10<00:26, 18.6MB/s][A
+model.safetensors:  29%|██▉       | 197M/682M [00:10<00:26, 18.5MB/s][A
+model.safetensors:  29%|██▉       | 199M/682M [00:10<00:26, 18.5MB/s][A
+model.safetensors:  30%|██▉       | 201M/682M [00:10<00:25, 18.6MB/s][A
+model.safetensors:  30%|██▉       | 203M/682M [00:10<00:25, 18.6MB/s][A
+model.safetensors:  30%|███       | 206M/682M [00:10<00:25, 18.6MB/s][A
+model.safetensors:  30%|███       | 208M/682M [00:10<00:25, 18.6MB/s][A
+model.safetensors:  31%|███       | 210M/682M [00:11<00:25, 18.5MB/s][A
+model.safetensors:  31%|███       | 212M/682M [00:11<00:25, 18.6MB/s][A
+model.safetensors:  31%|███▏      | 214M/682M [00:11<00:25, 18.3MB/s][A
+model.safetensors:  32%|███▏      | 216M/682M [00:11<00:25, 18.6MB/s][A
+model.safetensors:  32%|███▏      | 218M/682M [00:11<00:24, 18.6MB/s][A
+model.safetensors:  32%|███▏      | 220M/682M [00:11<00:24, 18.7MB/s][A
+model.safetensors:  33%|███▎      | 222M/682M [00:11<00:24, 18.6MB/s][A
+model.safetensors:  33%|███▎      | 224M/682M [00:11<00:24, 18.6MB/s][A
+model.safetensors:  33%|███▎      | 226M/682M [00:12<00:24, 18.6MB/s][A
+model.safetensors:  34%|███▎      | 229M/682M [00:12<00:24, 18.5MB/s][A
+model.safetensors:  34%|███▍      | 231M/682M [00:12<00:24, 18.5MB/s][A
+model.safetensors:  34%|███▍      | 233M/682M [00:12<00:24, 18.6MB/s][A
+model.safetensors:  34%|███▍      | 235M/682M [00:12<00:24, 18.5MB/s][A
+model.safetensors:  35%|███▍      | 237M/682M [00:12<00:23, 18.6MB/s][A
+model.safetensors:  35%|███▌      | 239M/682M [00:12<00:23, 18.6MB/s][A
+model.safetensors:  35%|███▌      | 241M/682M [00:12<00:23, 18.6MB/s][A
+model.safetensors:  36%|███▌      | 243M/682M [00:12<00:25, 17.4MB/s][A
+model.safetensors:  36%|███▌      | 246M/682M [00:13<00:23, 18.9MB/s][A
+model.safetensors:  36%|███▋      | 249M/682M [00:13<00:23, 18.8MB/s][A
+model.safetensors:  37%|███▋      | 251M/682M [00:13<00:23, 18.8MB/s][A
+model.safetensors:  37%|███▋      | 253M/682M [00:13<00:23, 18.7MB/s][A
+model.safetensors:  37%|███▋      | 255M/682M [00:13<00:22, 18.6MB/s][A
+model.safetensors:  38%|███▊      | 257M/682M [00:13<00:22, 18.6MB/s][A
+model.safetensors:  38%|███▊      | 259M/682M [00:13<00:22, 18.6MB/s][A
+model.safetensors:  38%|███▊      | 261M/682M [00:13<00:22, 18.6MB/s][A
+model.safetensors:  39%|███▊      | 263M/682M [00:13<00:22, 18.3MB/s][A
+model.safetensors:  39%|███▉      | 265M/682M [00:14<00:22, 18.5MB/s][A
+model.safetensors:  39%|███▉      | 267M/682M [00:14<00:22, 18.6MB/s][A
+model.safetensors:  39%|███▉      | 269M/682M [00:14<00:22, 18.7MB/s][A
+model.safetensors:  40%|███▉      | 272M/682M [00:14<00:22, 18.6MB/s][A
+model.safetensors:  40%|████      | 274M/682M [00:14<00:21, 18.6MB/s][A
+model.safetensors:  40%|████      | 276M/682M [00:14<00:21, 18.6MB/s][A
+model.safetensors:  41%|████      | 278M/682M [00:14<00:21, 18.6MB/s][A
+model.safetensors:  41%|████      | 280M/682M [00:14<00:21, 18.6MB/s][A
+model.safetensors:  41%|████▏     | 282M/682M [00:15<00:21, 18.6MB/s][A
+model.safetensors:  42%|████▏     | 284M/682M [00:15<00:21, 18.5MB/s][A
+model.safetensors:  42%|████▏     | 286M/682M [00:15<00:21, 18.6MB/s][A
+model.safetensors:  42%|████▏     | 288M/682M [00:15<00:21, 18.6MB/s][A
+model.safetensors:  43%|████▎     | 290M/682M [00:15<00:21, 18.5MB/s][A
+model.safetensors:  43%|████▎     | 293M/682M [00:15<00:21, 18.6MB/s][A
+model.safetensors:  43%|████▎     | 295M/682M [00:15<00:20, 18.6MB/s][A
+model.safetensors:  43%|████▎     | 297M/682M [00:15<00:20, 18.6MB/s][A
+model.safetensors:  44%|████▍     | 299M/682M [00:15<00:20, 18.6MB/s][A
+model.safetensors:  44%|████▍     | 301M/682M [00:16<00:20, 18.6MB/s][A
+model.safetensors:  44%|████▍     | 303M/682M [00:16<00:20, 18.6MB/s][A
+model.safetensors:  45%|████▍     | 305M/682M [00:16<00:20, 18.6MB/s][A
+model.safetensors:  45%|████▌     | 307M/682M [00:16<00:20, 18.6MB/s][A
+model.safetensors:  45%|████▌     | 309M/682M [00:16<00:20, 18.5MB/s][A
+model.safetensors:  46%|████▌     | 311M/682M [00:16<00:19, 18.6MB/s][A
+model.safetensors:  46%|████▌     | 314M/682M [00:16<00:19, 18.6MB/s][A
+model.safetensors:  46%|████▋     | 316M/682M [00:16<00:19, 18.6MB/s][A
+model.safetensors:  47%|████▋     | 318M/682M [00:16<00:19, 18.5MB/s][A
+model.safetensors:  47%|████▋     | 320M/682M [00:17<00:19, 18.6MB/s][A
+model.safetensors:  47%|████▋     | 322M/682M [00:17<00:19, 18.6MB/s][A
+model.safetensors:  47%|████▋     | 324M/682M [00:17<00:19, 18.5MB/s][A
+model.safetensors:  48%|████▊     | 326M/682M [00:17<00:19, 18.4MB/s][A
+model.safetensors:  48%|████▊     | 328M/682M [00:17<00:19, 18.6MB/s][A
+model.safetensors:  48%|████▊     | 330M/682M [00:17<00:18, 18.6MB/s][A
+model.safetensors:  49%|████▊     | 332M/682M [00:17<00:18, 18.6MB/s][A
+model.safetensors:  49%|████▉     | 334M/682M [00:17<00:18, 18.6MB/s][A
+model.safetensors:  49%|████▉     | 337M/682M [00:17<00:18, 18.6MB/s][A
+model.safetensors:  50%|████▉     | 339M/682M [00:18<00:18, 18.6MB/s][A
+model.safetensors:  50%|████▉     | 341M/682M [00:18<00:18, 18.6MB/s][A
+model.safetensors:  50%|█████     | 343M/682M [00:18<00:18, 18.6MB/s][A
+model.safetensors:  51%|█████     | 345M/682M [00:18<00:18, 18.6MB/s][A
+model.safetensors:  51%|█████     | 347M/682M [00:18<00:18, 18.5MB/s][A
+model.safetensors:  51%|█████     | 349M/682M [00:18<00:17, 18.6MB/s][A
+model.safetensors:  51%|█████▏    | 351M/682M [00:18<00:17, 18.6MB/s][A
+model.safetensors:  52%|█████▏    | 353M/682M [00:18<00:17, 18.6MB/s][A
+model.safetensors:  52%|█████▏    | 355M/682M [00:18<00:17, 18.5MB/s][A
+model.safetensors:  52%|█████▏    | 358M/682M [00:19<00:17, 18.5MB/s][A
+model.safetensors:  53%|█████▎    | 360M/682M [00:19<00:17, 18.6MB/s][A
+model.safetensors:  53%|█████▎    | 362M/682M [00:19<00:17, 18.5MB/s][A
+model.safetensors:  53%|█████▎    | 364M/682M [00:19<00:17, 18.6MB/s][A
+model.safetensors:  54%|█████▎    | 366M/682M [00:19<00:17, 18.6MB/s][A
+model.safetensors:  54%|█████▍    | 368M/682M [00:19<00:16, 18.5MB/s][A
+model.safetensors:  54%|█████▍    | 370M/682M [00:19<00:16, 18.6MB/s][A
+model.safetensors:  55%|█████▍    | 372M/682M [00:19<00:16, 18.5MB/s][A
+model.safetensors:  55%|█████▍    | 374M/682M [00:19<00:16, 18.6MB/s][A
+model.safetensors:  55%|█████▌    | 376M/682M [00:20<00:16, 18.6MB/s][A
+model.safetensors:  55%|█████▌    | 379M/682M [00:20<00:16, 18.6MB/s][A
+model.safetensors:  56%|█████▌    | 381M/682M [00:20<00:16, 18.6MB/s][A
+model.safetensors:  56%|█████▌    | 383M/682M [00:20<00:16, 18.5MB/s][A
+model.safetensors:  56%|█████▋    | 385M/682M [00:20<00:15, 18.6MB/s][A
+model.safetensors:  57%|█████▋    | 387M/682M [00:20<00:15, 18.5MB/s][A
+model.safetensors:  57%|█████▋    | 389M/682M [00:20<00:15, 18.6MB/s][A
+model.safetensors:  57%|█████▋    | 391M/682M [00:20<00:15, 18.6MB/s][A
+model.safetensors:  58%|█████▊    | 393M/682M [00:20<00:15, 18.6MB/s][A
+model.safetensors:  58%|█████▊    | 395M/682M [00:21<00:15, 18.6MB/s][A
+model.safetensors:  58%|█████▊    | 397M/682M [00:21<00:15, 18.5MB/s][A
+model.safetensors:  59%|█████▊    | 400M/682M [00:21<00:15, 18.4MB/s][A
+model.safetensors:  59%|█████▉    | 402M/682M [00:21<00:15, 18.7MB/s][A
+model.safetensors:  59%|█████▉    | 404M/682M [00:21<00:15, 18.5MB/s][A
+model.safetensors:  59%|█████▉    | 406M/682M [00:21<00:14, 18.6MB/s][A
+model.safetensors:  60%|█████▉    | 408M/682M [00:21<00:14, 18.6MB/s][A
+model.safetensors:  60%|██████    | 410M/682M [00:21<00:16, 16.7MB/s][A
+model.safetensors:  61%|██████    | 413M/682M [00:22<00:14, 19.2MB/s][A
+model.safetensors:  61%|██████    | 415M/682M [00:22<00:14, 18.9MB/s][A
+model.safetensors:  61%|██████    | 417M/682M [00:22<00:14, 18.7MB/s][A
+model.safetensors:  61%|██████▏   | 419M/682M [00:22<00:14, 18.8MB/s][A
+model.safetensors:  62%|██████▏   | 422M/682M [00:22<00:13, 18.7MB/s][A
+model.safetensors:  62%|██████▏   | 424M/682M [00:22<00:13, 18.7MB/s][A
+model.safetensors:  62%|██████▏   | 426M/682M [00:22<00:13, 18.6MB/s][A
+model.safetensors:  63%|██████▎   | 428M/682M [00:22<00:13, 18.7MB/s][A
+model.safetensors:  63%|██████▎   | 430M/682M [00:22<00:13, 18.6MB/s][A
+model.safetensors:  63%|██████▎   | 432M/682M [00:23<00:13, 18.6MB/s][A
+model.safetensors:  64%|██████▎   | 434M/682M [00:23<00:13, 18.5MB/s][A
+model.safetensors:  64%|██████▍   | 436M/682M [00:23<00:13, 18.6MB/s][A
+model.safetensors:  64%|██████▍   | 438M/682M [00:23<00:13, 18.6MB/s][A
+model.safetensors:  65%|██████▍   | 440M/682M [00:23<00:13, 18.6MB/s][A
+model.safetensors:  65%|██████▍   | 442M/682M [00:23<00:12, 18.5MB/s][A
+model.safetensors:  65%|██████▌   | 445M/682M [00:23<00:12, 18.6MB/s][A
+model.safetensors:  65%|██████▌   | 447M/682M [00:23<00:12, 18.6MB/s][A
+model.safetensors:  66%|██████▌   | 449M/682M [00:23<00:12, 18.6MB/s][A
+model.safetensors:  66%|██████▌   | 451M/682M [00:24<00:12, 18.6MB/s][A
+model.safetensors:  66%|██████▋   | 453M/682M [00:24<00:12, 18.6MB/s][A
+model.safetensors:  67%|██████▋   | 455M/682M [00:24<00:12, 18.6MB/s][A
+model.safetensors:  67%|██████▋   | 457M/682M [00:24<00:12, 18.3MB/s][A
+model.safetensors:  67%|██████▋   | 459M/682M [00:24<00:11, 18.6MB/s][A
+model.safetensors:  68%|██████▊   | 461M/682M [00:24<00:11, 18.7MB/s][A
+model.safetensors:  68%|██████▊   | 463M/682M [00:24<00:11, 18.6MB/s][A
+model.safetensors:  68%|██████▊   | 466M/682M [00:24<00:11, 18.6MB/s][A
+model.safetensors:  69%|██████▊   | 468M/682M [00:25<00:11, 18.5MB/s][A
+model.safetensors:  69%|██████▉   | 470M/682M [00:25<00:11, 18.5MB/s][A
+model.safetensors:  69%|██████▉   | 472M/682M [00:25<00:11, 18.5MB/s][A
+model.safetensors:  69%|██████▉   | 474M/682M [00:25<00:11, 18.6MB/s][A
+model.safetensors:  70%|██████▉   | 476M/682M [00:25<00:11, 18.6MB/s][A
+model.safetensors:  70%|███████   | 478M/682M [00:25<00:11, 18.5MB/s][A
+model.safetensors:  70%|███████   | 480M/682M [00:25<00:10, 18.5MB/s][A
+model.safetensors:  71%|███████   | 482M/682M [00:25<00:10, 18.6MB/s][A
+model.safetensors:  71%|███████   | 484M/682M [00:25<00:10, 18.6MB/s][A
+model.safetensors:  71%|███████▏  | 487M/682M [00:26<00:10, 18.6MB/s][A
+model.safetensors:  72%|███████▏  | 489M/682M [00:26<00:10, 18.6MB/s][A
+model.safetensors:  72%|███████▏  | 491M/682M [00:26<00:10, 18.5MB/s][A
+model.safetensors:  72%|███████▏  | 493M/682M [00:26<00:10, 18.6MB/s][A
+model.safetensors:  73%|███████▎  | 495M/682M [00:26<00:10, 18.6MB/s][A
+model.safetensors:  73%|███████▎  | 497M/682M [00:26<00:09, 18.6MB/s][A
+model.safetensors:  73%|███████▎  | 499M/682M [00:26<00:09, 18.5MB/s][A
+model.safetensors:  73%|███████▎  | 501M/682M [00:26<00:09, 18.5MB/s][A
+model.safetensors:  74%|███████▍  | 503M/682M [00:26<00:09, 18.6MB/s][A
+model.safetensors:  74%|███████▍  | 505M/682M [00:27<00:09, 18.5MB/s][A
+model.safetensors:  74%|███████▍  | 508M/682M [00:27<00:09, 18.6MB/s][A
+model.safetensors:  75%|███████▍  | 510M/682M [00:27<00:09, 18.6MB/s][A
+model.safetensors:  75%|███████▍  | 512M/682M [00:27<00:09, 18.5MB/s][A
+model.safetensors:  75%|███████▌  | 514M/682M [00:27<00:09, 18.6MB/s][A
+model.safetensors:  76%|███████▌  | 516M/682M [00:27<00:08, 18.6MB/s][A
+model.safetensors:  76%|███████▌  | 518M/682M [00:27<00:08, 18.4MB/s][A
+model.safetensors:  76%|███████▌  | 520M/682M [00:27<00:08, 18.5MB/s][A
+model.safetensors:  77%|███████▋  | 522M/682M [00:27<00:08, 18.6MB/s][A
+model.safetensors:  77%|███████▋  | 524M/682M [00:28<00:08, 18.6MB/s][A
+model.safetensors:  77%|███████▋  | 526M/682M [00:28<00:08, 18.6MB/s][A
+model.safetensors:  77%|███████▋  | 528M/682M [00:28<00:08, 18.5MB/s][A
+model.safetensors:  78%|███████▊  | 531M/682M [00:28<00:08, 18.6MB/s][A
+model.safetensors:  78%|███████▊  | 533M/682M [00:28<00:08, 18.6MB/s][A
+model.safetensors:  78%|███████▊  | 535M/682M [00:28<00:07, 18.6MB/s][A
+model.safetensors:  79%|███████▊  | 537M/682M [00:28<00:07, 18.6MB/s][A
+model.safetensors:  79%|███████▉  | 539M/682M [00:28<00:07, 18.5MB/s][A
+model.safetensors:  79%|███████▉  | 541M/682M [00:28<00:07, 18.6MB/s][A
+model.safetensors:  80%|███████▉  | 543M/682M [00:29<00:07, 18.6MB/s][A
+model.safetensors:  80%|███████▉  | 545M/682M [00:29<00:07, 18.6MB/s][A
+model.safetensors:  80%|████████  | 547M/682M [00:29<00:07, 18.5MB/s][A
+model.safetensors:  81%|████████  | 549M/682M [00:29<00:07, 18.3MB/s][A
+model.safetensors:  81%|████████  | 552M/682M [00:29<00:08, 15.6MB/s][A
+model.safetensors:  81%|████████  | 554M/682M [00:29<00:09, 13.6MB/s][A
+model.safetensors:  81%|████████▏ | 556M/682M [00:29<00:09, 12.7MB/s][A
+model.safetensors:  82%|████████▏ | 558M/682M [00:30<00:09, 12.5MB/s][A
+model.safetensors:  82%|████████▏ | 560M/682M [00:30<00:08, 14.1MB/s][A
+model.safetensors:  83%|████████▎ | 563M/682M [00:30<00:06, 17.9MB/s][A
+model.safetensors:  83%|████████▎ | 567M/682M [00:30<00:05, 19.4MB/s][A
+model.safetensors:  84%|████████▎ | 570M/682M [00:30<00:05, 20.7MB/s][A
+model.safetensors:  84%|████████▍ | 574M/682M [00:30<00:05, 21.5MB/s][A
+model.safetensors:  85%|████████▍ | 577M/682M [00:31<00:05, 20.4MB/s][A
+model.safetensors:  85%|████████▍ | 580M/682M [00:31<00:05, 19.9MB/s][A
+model.safetensors:  85%|████████▌ | 582M/682M [00:31<00:05, 19.6MB/s][A
+model.safetensors:  86%|████████▌ | 584M/682M [00:31<00:05, 19.3MB/s][A
+model.safetensors:  86%|████████▌ | 586M/682M [00:31<00:05, 19.1MB/s][A
+model.safetensors:  86%|████████▌ | 588M/682M [00:31<00:04, 19.0MB/s][A
+model.safetensors:  87%|████████▋ | 590M/682M [00:31<00:04, 18.9MB/s][A
+model.safetensors:  87%|████████▋ | 592M/682M [00:31<00:04, 18.7MB/s][A
+model.safetensors:  87%|████████▋ | 595M/682M [00:31<00:04, 18.7MB/s][A
+model.safetensors:  87%|████████▋ | 597M/682M [00:32<00:04, 18.7MB/s][A
+model.safetensors:  88%|████████▊ | 599M/682M [00:32<00:04, 18.6MB/s][A
+model.safetensors:  88%|████████▊ | 601M/682M [00:32<00:04, 18.6MB/s][A
+model.safetensors:  88%|████████▊ | 603M/682M [00:32<00:04, 18.6MB/s][A
+model.safetensors:  89%|████████▊ | 605M/682M [00:32<00:04, 18.6MB/s][A
+model.safetensors:  89%|████████▉ | 607M/682M [00:32<00:04, 18.4MB/s][A
+model.safetensors:  89%|████████▉ | 609M/682M [00:32<00:03, 18.6MB/s][A
+model.safetensors:  90%|████████▉ | 611M/682M [00:32<00:03, 18.5MB/s][A
+model.safetensors:  90%|████████▉ | 613M/682M [00:33<00:05, 12.4MB/s][A
+model.safetensors:  91%|█████████ | 619M/682M [00:33<00:03, 19.6MB/s][A
+model.safetensors:  91%|█████████ | 622M/682M [00:33<00:03, 19.1MB/s][A
+model.safetensors:  92%|█████████▏| 625M/682M [00:33<00:03, 19.1MB/s][A
+model.safetensors:  92%|█████████▏| 627M/682M [00:33<00:02, 19.0MB/s][A
+model.safetensors:  92%|█████████▏| 629M/682M [00:33<00:02, 18.9MB/s][A
+model.safetensors:  93%|█████████▎| 631M/682M [00:33<00:02, 18.7MB/s][A
+model.safetensors:  93%|█████████▎| 633M/682M [00:34<00:02, 18.5MB/s][A
+model.safetensors:  93%|█████████▎| 635M/682M [00:34<00:02, 18.8MB/s][A
+model.safetensors:  93%|█████████▎| 638M/682M [00:34<00:02, 18.7MB/s][A
+model.safetensors:  94%|█████████▎| 640M/682M [00:34<00:02, 18.7MB/s][A
+model.safetensors:  94%|█████████▍| 642M/682M [00:34<00:02, 18.6MB/s][A
+model.safetensors:  94%|█████████▍| 644M/682M [00:34<00:02, 18.6MB/s][A
+model.safetensors:  95%|█████████▍| 646M/682M [00:34<00:01, 18.6MB/s][A
+model.safetensors:  95%|█████████▍| 648M/682M [00:34<00:01, 18.6MB/s][A
+model.safetensors:  95%|█████████▌| 650M/682M [00:34<00:01, 18.6MB/s][A
+model.safetensors:  96%|█████████▌| 652M/682M [00:35<00:01, 18.4MB/s][A
+model.safetensors:  96%|█████████▌| 654M/682M [00:35<00:01, 18.6MB/s][A
+model.safetensors:  96%|█████████▌| 656M/682M [00:35<00:01, 18.6MB/s][A
+model.safetensors:  97%|█████████▋| 659M/682M [00:35<00:01, 18.6MB/s][A
+model.safetensors:  97%|█████████▋| 661M/682M [00:35<00:01, 18.6MB/s][A
+model.safetensors:  97%|█████████▋| 663M/682M [00:35<00:01, 18.2MB/s][A
+model.safetensors:  97%|█████████▋| 665M/682M [00:35<00:00, 18.7MB/s][A
+model.safetensors:  98%|█████████▊| 667M/682M [00:35<00:00, 18.5MB/s][A
+model.safetensors:  98%|█████████▊| 669M/682M [00:36<00:00, 18.7MB/s][A
+model.safetensors:  98%|█████████▊| 671M/682M [00:36<00:00, 18.1MB/s][A
+model.safetensors:  99%|█████████▊| 673M/682M [00:36<00:00, 18.8MB/s][A
+model.safetensors:  99%|█████████▉| 675M/682M [00:36<00:00, 17.2MB/s][A
+model.safetensors:  99%|█████████▉| 678M/682M [00:36<00:00, 19.1MB/s][A
+model.safetensors: 100%|█████████▉| 681M/682M [00:36<00:00, 18.9MB/s][A
+                                                                     [ADownloading: 100%|██████████| 6/6 [00:38<00:00,  7.70s/file]Downloading: 100%|██████████| 6/6 [00:38<00:00,  6.34s/file]
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/models/mimi/modeling_mimi.py:898: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{64, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 768}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+a_grid_desc_m_ak_container_{448, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{448, 384}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 11182080, provided ptr: 0x7799c920c000 size: 5273088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 11182080, provided ptr: 0x7799c9216200 size: 5300736
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+a_grid_desc_m_ak_container_{2112, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{2112, 192}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x7799c99b6400 size: 6912768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x7799c99b6400 size: 6926592
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+a_grid_desc_m_ak_container_{8384, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{8384, 128}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33546240, provided ptr: 0x7799ca5e5a00 size: 9717248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33546240, provided ptr: 0x7799ca5e7200 size: 9724160
+downloaded to models/Qwen3-TTS-Tokenizer-12Hz
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+encode ok: <class 'qwen_tts.core.tokenizer_12hz.modeling_qwen3_tts_tokenizer_v2.Qwen3TTSTokenizerV2EncoderOutput'>
+decode ok: ([array([ 0.0234375 ,  0.02893066,  0.03271484, ..., -0.02209473,
+       -0.01599121, -0.00994873], shape=(24960,), dtype=float32)], 24000)
+TOKENIZER-OK
+EXIT=0
