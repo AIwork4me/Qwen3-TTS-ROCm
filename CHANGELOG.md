@@ -28,9 +28,11 @@ bilingual demo, GPU test suite and measured performance numbers.
 - One-command setup and launch scripts: `scripts/install.sh`
   (`--with-models` optional), `scripts/download_models.sh`,
   `scripts/run_demo.sh`, `scripts/verify_gpu.sh`.
-- Enhanced bilingual (中文/English) Gradio demo application with four tabs:
-  custom voice, voice design, voice cloning and generation history, backed by
-  a headless `SynthesisService` with server-side file validation.
+- Enhanced bilingual (中文/English) Gradio demo application with five tabs:
+  voice clone (incl. a save/load voice sub-tab), preset speakers, voice
+  design, codec (encode→decode roundtrip visualization through the official
+  12Hz speech tokenizer) and generation history — backed by a headless
+  `SynthesisService` with server-side file validation.
 - pytest suite covering unit logic plus on-GPU integration: all-model
   load/unload smoke, tokenizer encode/decode roundtrip, full custom-voice
   matrix, voice design, voice clone workflow (incl. prompt reuse and

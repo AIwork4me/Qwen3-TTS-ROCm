@@ -6,8 +6,8 @@ __pycache__/
 .ruff_cache/
 
 # Packaging artifacts (python -m build output)
-build/
-dist/
+/build/
+/dist/
 
 # Virtual environments
 .venv/
