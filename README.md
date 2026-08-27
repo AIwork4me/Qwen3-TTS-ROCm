@@ -157,18 +157,19 @@ and microphone capture works over HTTPS from other LAN devices too.
 
 ### Screenshots
 
-<!-- TODO-release(v0.1.0): capture the demo screenshots listed below and embed
-     them here during the v0.1.0 release checklist (E2E task). Until those files
-     exist under docs/img/, this section intentionally stays link-free. -->
+Captured from the real gfx1151 deployment during the v0.1.0 acceptance run
+(bilingual UI, live synthesis through the Gradio queue):
 
-Planned captures *(screenshots captured in v0.1.0 release checklist; these
-files do not exist yet)*:
+| | |
+|---|---|
+| ![Voice Clone tab](docs/img/demo-clone.png) | ![Preset Speakers tab](docs/img/demo-customvoice.png) |
+| ![Voice Design tab](docs/img/demo-voicedesign.png) | ![Codec tab](docs/img/demo-codec.png) |
+| ![History tab](docs/img/demo-history.png) | *Voice Clone · Preset Speakers · Voice Design · Codec · History* |
 
-* `docs/img/demo-overview.png` — full app with the sidebar model switcher
-* `docs/img/demo-clone.png` — Voice Clone tab mid-generation
-* `docs/img/demo-design.png` — Voice Design tab
-* `docs/img/demo-codec.png` — Codec roundtrip metadata + decoded audio
-* `docs/img/demo-history.png` — History table with preview
+`demo-voicedesign.png` and `demo-history.png` show the sidebar model switcher
+mid-session: `[voice-design] loaded (已驻留)` with live VRAM/GTT readout, a
+finished 5.6 s synthesis, and the newest-first history table with preview,
+download and delete.
 
 ## Performance preview (gfx1151)
 

@@ -137,17 +137,18 @@ bash scripts/run_demo.sh --ssl-certfile cert.pem --ssl-keyfile key.pem
 
 ### 截图
 
-<!-- TODO-release(v0.1.0): capture the demo screenshots listed below and embed
-     them here during the v0.1.0 release checklist (E2E task). Until those files
-     exist under docs/img/, this section intentionally stays link-free. -->
+以下截图捕获自 v0.1.0 验收阶段在 gfx1151 真机上的运行
+（双语界面，经 Gradio 队列完成真实合成）：
 
-计划截取的画面*（截图将在 v0.1.0 发布清单中捕获；这些文件目前尚不存在）*：
+| | |
+|---|---|
+| ![Voice Clone 语音克隆](docs/img/demo-clone.png) | ![Preset Speakers 预设音色](docs/img/demo-customvoice.png) |
+| ![Voice Design 音色设计](docs/img/demo-voicedesign.png) | ![Codec 编解码器](docs/img/demo-codec.png) |
+| ![History 合成历史](docs/img/demo-history.png) | *语音克隆 · 预设音色 · 音色设计 · 编解码器 · 合成历史* |
 
-* `docs/img/demo-overview.png` —— 含侧边栏模型切换器的完整界面
-* `docs/img/demo-clone.png` —— Voice Clone 标签页生成中
-* `docs/img/demo-design.png` —— Voice Design 标签页
-* `docs/img/demo-codec.png` —— Codec 往返元信息与解码音频
-* `docs/img/demo-history.png` —— History 表格与试听
+`demo-voicedesign.png` 与 `demo-history.png` 中可见侧边栏模型切换器的会话
+状态：`[voice-design] loaded (已驻留)` 及实时显存读数、一段 5.6 秒的合成
+结果，以及按时间倒序、支持试听/下载/删除的历史列表。
 
 ## 性能速览（gfx1151）
 
