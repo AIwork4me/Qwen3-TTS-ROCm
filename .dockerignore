@@ -1,0 +1,19 @@
+# Keeps `docker build -f docker/Dockerfile .` contexts small and images clean:
+# host venvs, git history and model weights must never enter the image —
+# install.sh creates a fresh in-image .venv and models are volume-mounted.
+.git/
+.venv/
+models/
+evidence/
+docs/
+superpowers/
+.superpowers/
+.github/
+.pytest_cache/
+.ruff_cache/
+build/
+dist/
+**/__pycache__/
+*.py[cod]
+src/qwen3_tts_rocm.egg-info/
+.dockerignore

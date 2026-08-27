@@ -71,5 +71,13 @@ if (( WITH_MODELS )); then
 fi
 
 # --- 5. GPU sanity gate (prints SPIKE-GPU-OK) --------------------------------
-echo "==> [verify] running scripts/verify_gpu.sh"
-bash "$ROOT/scripts/verify_gpu.sh"
+# QWEN3_TTS_ROCM_SKIP_VERIFY=1 opts out for CONTAINER IMAGE BUILDS: there is no
+# /dev/kfd inside `docker build`, yet the image must pin the IDENTICAL wheel
+# stack via this script (single source of truth; see docker/Dockerfile). The
+# default (unset/0) keeps the gate ON for every bare-metal host.
+if [[ "${QWEN3_TTS_ROCM_SKIP_VERIFY:-0}" == "1" ]]; then
+    echo "==> [verify] skipped (QWEN3_TTS_ROCM_SKIP_VERIFY=1 — container build)"
+else
+    echo "==> [verify] running scripts/verify_gpu.sh"
+    bash "$ROOT/scripts/verify_gpu.sh"
+fi

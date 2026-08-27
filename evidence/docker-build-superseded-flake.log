@@ -1,0 +1,40 @@
+#9 194.1         File "/workspace/.venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 560, in read
+#9 194.1           with self._error_catcher():
+#9 194.1         File "/usr/lib/python3.12/contextlib.py", line 158, in __exit__
+#9 194.1           self.gen.throw(value)
+#9 194.1         File "/workspace/.venv/lib/python3.12/site-packages/pip/_vendor/urllib3/response.py", line 443, in _error_catcher
+#9 194.1           raise ReadTimeoutError(self._pool, None, "Read timed out.")
+#9 194.1       pip._vendor.urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='files.pythonhosted.org', port=443): Read timed out.
+#9 194.1       [end of output]
+#9 194.1   
+#9 194.1   note: This error originates from a subprocess, and is likely not a problem with pip.
+#9 194.1 error: subprocess-exited-with-error
+#9 194.1 
+#9 194.1 × pip subprocess to install build dependencies did not run successfully.
+#9 194.1 │ exit code: 2
+#9 194.1 ╰─> See above for output.
+#9 194.1 
+#9 194.1 note: This error originates from a subprocess, and is likely not a problem with pip.
+#9 ERROR: process "/bin/sh -c QWEN3_TTS_ROCM_SKIP_VERIFY=1 bash scripts/install.sh     && rm -rf /root/.cache/pip /root/.cache/uv" did not complete successfully: exit code: 1
+------
+ > [5/5] RUN QWEN3_TTS_ROCM_SKIP_VERIFY=1 bash scripts/install.sh     && rm -rf /root/.cache/pip /root/.cache/uv:
+194.1       [end of output]
+194.1   
+194.1   note: This error originates from a subprocess, and is likely not a problem with pip.
+194.1 error: subprocess-exited-with-error
+194.1 
+194.1 × pip subprocess to install build dependencies did not run successfully.
+194.1 │ exit code: 2
+194.1 ╰─> See above for output.
+194.1 
+194.1 note: This error originates from a subprocess, and is likely not a problem with pip.
+------
+Dockerfile:75
+--------------------
+  74 |     # ~GB of wheel downloads do not linger in image size.
+  75 | >>> RUN QWEN3_TTS_ROCM_SKIP_VERIFY=1 bash scripts/install.sh \
+  76 | >>>     && rm -rf /root/.cache/pip /root/.cache/uv
+  77 |     
+--------------------
+ERROR: failed to build: failed to solve: process "/bin/sh -c QWEN3_TTS_ROCM_SKIP_VERIFY=1 bash scripts/install.sh     && rm -rf /root/.cache/pip /root/.cache/uv" did not complete successfully: exit code: 1
+BUILD-EXIT=1

@@ -5,5 +5,4 @@ def test_package_imports_and_version():
 
 
 def test_markers_registered():
-    import pytest as _p
     assert {m.name for m in []} == set()  # placeholder never fails

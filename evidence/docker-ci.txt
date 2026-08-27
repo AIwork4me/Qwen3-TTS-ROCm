@@ -1,0 +1,94 @@
+evidence/docker-ci.txt — Task 21 validation ladder (Docker image + GitHub Actions workflow)
+Machine: gfx1151 host, linux 6.17, branch feat/impl-v0.1.0 @ cc47bf9. Date: 2026-08-27.
+No GitHub remote exists: ci.yml cannot be executed here; every check below is
+offline-equivalent validation ("authored offline" note lives in the file itself).
+
+--- [0] tool availability ------------------------------------------------------
+$ command -v docker && docker info
+/usr/bin/docker ... DOCKER-DAEMON-OK            (daemon present -> FULL build path)
+$ command -v podman                             -> not installed / unusable
+$ command -v hadolint                           -> absent  (lint fallback = shellcheck + manual)
+$ command -v shellcheck                         -> /home/amd/.local/bin/shellcheck
+
+--- [1] ci.yml offline validation ----------------------------------------------
+$ .venv/bin/python - <<pyyaml parse of .github/workflows/ci.yml>>
+name        : ci
+triggers    : ['push', 'pull_request']
+runs-on     : ubuntu-latest
+actions used: ['actions/checkout@v4', 'actions/setup-python@v5', 'actions/upload-artifact@v4']
+step order  : checkout -> setup-python 3.12 -> ruff -> pip install -e ".[dev]"
+              -> pytest -m "not gpu and not requires_download" -q
+              -> python -m build -> upload-artifact dist/
+CI-YAML-VALIDATION-OK
+(note: PyYAML reads bare `on:` as boolean True under YAML 1.1; GitHub Actions
+parses it as the string key — both sides agree on trigger semantics)
+
+--- [2] CI test step mirrored locally on this machine ---------------------------
+$ .venv/bin/python -m pytest -m "not gpu and not requires_download" -q
+145 passed, 25 deselected in 6.14s              PYTEST-CI-SELECTION-EXIT=0
+(heavier suites carry module-level `pytestmark = [gpu, requires_download]`)
+
+--- [3] ruff gate parity (`ruff check .` is CI step 1) ---------------------------
+first run: 2 PRE-EXISTING errors in Task-1/2 era files (repo-wide ruff had not
+been run since those tasks):
+    tests/test_env.py      I001 un-sorted import block
+    tests/test_scaffold.py F401 unused `import pytest as _p`
+$ ruff check --fix tests/test_env.py tests/test_scaffold.py   (mechanical only)
+$ ruff check .
+All checks passed!                                             RUFF-REPO-OK
+
+--- [4] shell syntax gate -------------------------------------------------------
+$ shellcheck scripts/install.sh scripts/run_demo.sh            SHELLCHECK-OK
+$ bash -n scripts/install.sh                                   BASHN-OK
+(install.sh gained ONE opt-out knob this task, see [5]; no pip logic touched)
+
+--- [5] docker build attempts (FULL build path, daemon present) ------------------
+attempt 1 (initial Dockerfile): FAILED at step 1 — `# syntax=docker/dockerfile:1`
+    frontend cannot be fetched: registry-1.docker.io EOF. Diagnosis:
+    Docker Hub IS BLOCKED on this network; repo.amd.com / pypi.org /
+    archive.ubuntu.com all answer 200 directly (probed). Fix: removed the
+    syntax directive (no advanced features used) — now documented in-file.
+    Base image restored canonically without touching FROM ubuntu:24.04:
+    $ docker pull docker.m.daocloud.io/library/ubuntu:24.04  (mirror probe 401 = healthy)
+    $ docker tag docker.m.daocloud.io/library/ubuntu:24.04 ubuntu:24.04
+attempt 2: FAILED at install RUN — `python3: command not found` (exit 127).
+    Root cause: noble's versioned pkg does not create /usr/bin/python3.
+    Fix: apt list uses python3 (metapackage) + python3.12-venv.
+attempt 3 (final): see below for live tail/verdict.
+
+--- [6] container smoke runs ----------------------------------------------------
+(pending build completion)
+
+--- [7] bonus GPU-passthrough attempt inside container --------------------------
+(host exposes /dev/kfd + /dev/dri → optional contract item)
+(pending)
+
+--- [6a-rerun after refresh build 19:40] plain smoke ---
+[1;91mE-001h rocSHMEM[0m Could not open libnuma. Returning	[90mNUMAWrapper@src/gda/numa_wrapper.cpp:48[0m
+[qwen3-tts-rocm] ROCm environment self-check (环境自检)
+ERROR: AMD ROCm torch found but torch.cuda.is_available() is False (检测到 AMD HIP 构建但看不到 GPU). Check amdgpu driver load, /dev/kfd permission (add yourself to the 'render' and 'video' groups) and relogin.
+Summary: HIP available (可用); ROCm version: 7.14.60850; GPUs: 0 (none); warnings: 0; errors: 1 | 中文摘要：环境自检完成，HIP available (可用)，版本 7.14.60850，可见 GPU 0 块，警告 0 条，错误 1 条。
+--- [6b] demo help (entrypoint chain) ---
+usage: qwen3-tts-rocm-demo [-h] [-c CHECKPOINT] [--alias ALIAS]
+                           [--models-dir MODELS_DIR] [--device DEVICE]
+                           [--dtype {bfloat16,bf16,float16,fp16,float32,fp32}]
+--- [7] bonus: GPU passthrough attempt (video=44 render=992) ---
+[1;91mE-001h rocSHMEM[0m Could not open libnuma. Returning	[90mNUMAWrapper@src/gda/numa_wrapper.cpp:48[0m
+GPU-IN-CONTAINER-EXIT=0
+torchaudio 2.11.0+rocm7.14.0
+SPIKE-GPU-OK
+--- [8] host-side gates after implementer infra-failure takeover ---
+
+In scripts/make_ref_wav.py line 1:
+#!/usr/bin/env python3
+^-- SC1071 (error): ShellCheck only supports sh/bash/dash/ksh/'busybox sh' scripts. Sorry!
+
+For more information:
+  https://www.shellcheck.net/wiki/SC1071 -- ShellCheck only supports sh/bash/...
+(make_ref_wav.py is python; shellcheck n/a)
+SHELLCHECK-DONE
+All checks passed!
+RUFF-REPO-CLEAN
+.                                                                        [100%]
+145 passed, 25 deselected in 6.03s
+SUMMARY: refresh-build EXIT=0 | plain-smoke graceful-error OK | entrypoint-help OK | GPU-passthrough SPIKE-GPU-OK

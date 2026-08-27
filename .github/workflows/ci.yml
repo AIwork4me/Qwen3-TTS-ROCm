@@ -1,0 +1,55 @@
+# Qwen3-TTS-ROCm CPU-only CI (lint + hermetic unit tests + packaging).
+#
+# AUTHORED OFFLINE: this repository has no GitHub remote yet; the workflow was
+# hand-validated on the dev machine (YAML parsed with pyyaml, command shapes
+# mirrored locally) and will execute for the FIRST time on the very first
+# push/PR to GitHub — treat an early red X here as a config bug, not a code
+# regression.
+#
+# Why plain PyPI `pip install -e ".[dev]"` is fine here: it pulls the CPU
+# (or CUDA-bundled) torch wheel from PyPI, NOT our pinned AMD ROCm stack from
+# repo.amd.com — which is exactly what we want on ubuntu-latest. This job never
+# synthesizes audio or touches a GPU; ROCm wheels are installed by
+# scripts/install.sh on gfx1151 hardware only.
+
+name: ci
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  lint-test-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Lint (ruff)
+        run: |
+          python -m pip install --upgrade pip ruff
+          ruff check .
+
+      # CPU torch may arrive via PyPI deps — intended and harmless for this
+      # selection (see header note); the heavy suites opt out below.
+      - name: Install package (+dev extras)
+        run: pip install -e ".[dev]"
+
+      - name: Unit tests (no GPU, no model downloads)
+        run: pytest -m "not gpu and not requires_download" -q
+
+      - name: Build sdist + wheel
+        run: |
+          python -m pip install build
+          python -m build
+
+      - name: Upload dist artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/

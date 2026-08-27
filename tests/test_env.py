@@ -1,6 +1,11 @@
 # tests/test_env.py
-import sys, types, pytest
+import sys
+import types
+
+import pytest
+
 from qwen3_tts_rocm import env
+
 
 def make_fake_cuda(unavailable=False):
     fake = types.ModuleType("torch")
