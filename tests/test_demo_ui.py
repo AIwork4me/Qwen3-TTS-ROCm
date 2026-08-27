@@ -1,11 +1,11 @@
 # tests/test_demo_ui.py
-"""Task 16: enhanced four-tab bilingual Gradio application (demo/ui.py + cli_demo).
+"""Task 16: enhanced five-tab bilingual Gradio application (demo/ui.py + cli_demo).
 
 Hermetic UI-layer coverage, zero GPU / zero weights / browser-free:
 
 * **UI shape**        -- ``build_ui(service, header_info)`` constructs a
-  ``gr.Blocks`` carrying the four product tabs (Reference clone / Speaker
-  preset / Voice Design / Codec), the History area, the official disclaimer
+  ``gr.Blocks`` carrying the five tabs (Reference clone / Speaker preset /
+  Voice Design / Codec / History), the official disclaimer
   footer verbatim and the single-GPU serialization notice (排队串行生成说明).
 * **Callback smoke**  -- ``build_callbacks(service)`` exposes module-level,
   Blocks-free callables that the tests invoke end-to-end against a
@@ -109,12 +109,13 @@ def app_blocks():
 # ---------------------------------------------------------------------------
 
 
-def test_build_ui_constructs_four_tabs(app_blocks):
+def test_build_ui_constructs_five_tabs(app_blocks):
     ids = {c.label for c in app_blocks.blocks.values() if hasattr(c, "label")}
     assert any(l and "Reference" in l for l in ids)  # clone tab
     assert any(l and "Speaker" in l for l in ids)  # preset tab
     assert any(l and "Voice Design" in l for l in ids)  # design tab
     assert any(l and "Codec" in l for l in ids)  # codec tab
+    assert any(l and "History" in l for l in ids)  # history tab
 
 
 def test_build_ui_contains_history_disclaimer_and_queue_note():

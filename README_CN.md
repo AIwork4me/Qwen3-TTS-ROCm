@@ -56,7 +56,7 @@ Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-att
 
 ## 快速开始
 
-从零到会说话的浏览器标签页只需四条命令：
+从零到会说话的浏览器标签页只需五条命令：
 
 ```bash
 git clone https://github.com/<OWNER>/Qwen3-TTS-ROCm.git   # placeholder — replace <OWNER> after push
@@ -119,9 +119,11 @@ VRAM/GTT 状态行以及高级采样参数折叠区（留空即默认值）。
 
 ### 排队串行说明
 
-启动脚本默认传入 `--concurrency 1`（上游默认队列并发 16 在此毫无意义）：生成请求严格
-逐个执行，因为单 GPU 统一内存设备同一时刻只驻留一个模型，并发合成本来也会被串行化进
-同一块算力池。同样的说明也会显示在演示页脚。除非清楚缘由，否则不要调高它。
+并发默认值位于 `qwen3-tts-rocm-demo` 入口本身（`src/qwen3_tts_rocm/cli_demo.py`
+中 `--concurrency` 默认为 1——单 GPU 排队裁决；上游默认队列并发 16 在此毫无意义），
+`scripts/run_demo.sh` 仅向其原样转发参数。因此生成请求严格逐个执行，因为单 GPU
+统一内存设备同一时刻只驻留一个模型，并发合成本来也会被串行化进同一块算力池。
+同样的说明也会显示在演示页脚。除非清楚缘由，否则不要调高它。
 
 ### 麦克风采集需要 HTTPS（或 localhost）
 

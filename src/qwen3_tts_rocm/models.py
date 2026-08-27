@@ -278,8 +278,11 @@ def _download_via(repo_id: str, target: Path, sources: Iterable[str]) -> None:
                     _ms_snapshot(repo_id, local_dir=target)
                 else:
                     _hf_snapshot(repo_id, target)
-                # mark_ok() resolves Path refs only when they already exist as a
-                # directory, so make sure the target is in place first.
+                # mark_ok() writes its .ok marker into the resolved target;
+                # the existing-directory passthrough that accepts a Path ref
+                # lives in resolve_path(), and a missing path falls through to
+                # registry lookup and raises KeyError — so the target dir must
+                # be in place before mark_ok() is called.
                 target.mkdir(parents=True, exist_ok=True)
                 mark_ok(target)
                 return

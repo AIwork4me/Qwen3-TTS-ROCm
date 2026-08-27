@@ -62,7 +62,7 @@ trusting this repo, make it that section.
 
 ## Quickstart
 
-Four commands from zero to a talking browser tab:
+Five commands from zero to a talking browser tab:
 
 ```bash
 git clone https://github.com/<OWNER>/Qwen3-TTS-ROCm.git   # placeholder — replace <OWNER> after push
@@ -134,12 +134,14 @@ sampling-parameter accordion (empty = defaults).
 
 ### Queue serialization note
 
-The launcher passes `--concurrency 1` by default (upstream's default queue
-concurrency of 16 makes no sense here): generation requests run strictly one
-at a time because the single-GPU unified-memory device keeps only one model
-resident, and concurrent synthesis would serialize into the same compute
-pool anyway. The same note is rendered visibly in the demo footer. Raise it
-only if you know why.
+The default lives in the `qwen3-tts-rocm-demo` entry point itself
+(`src/qwen3_tts_rocm/cli_demo.py`, where `--concurrency` defaults to 1 per the
+single-GPU queue ruling — upstream's default queue concurrency of 16 makes no
+sense here); `scripts/run_demo.sh` merely forwards arguments to it. Generation
+requests therefore run strictly one at a time, because the single-GPU
+unified-memory device keeps only one model resident, and concurrent synthesis
+would serialize into the same compute pool anyway. The same note is rendered
+visibly in the demo footer. Raise it only if you know why.
 
 ### Microphone capture needs HTTPS (or localhost)
 

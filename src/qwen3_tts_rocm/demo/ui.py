@@ -1,4 +1,4 @@
-"""Enhanced four-tab bilingual Gradio application (增强版双语文字演示界面).
+"""Enhanced five-tab bilingual Gradio application (增强版双语文字演示界面).
 
 Layer contract (Task 16)
 ------------------------
@@ -462,7 +462,7 @@ def _header_markdown(header_info: dict[str, Any] | None) -> str:
 
 
 def build_ui(service, port_header_info: dict[str, Any] | None = None) -> gr.Blocks:
-    """Assemble the enhanced four-tab demo application around *service*."""
+    """Assemble the enhanced five-tab demo application around *service*."""
     header_info = dict(port_header_info or {})
     default_alias = str(header_info.get("alias") or DEFAULT_ALIAS)
 
