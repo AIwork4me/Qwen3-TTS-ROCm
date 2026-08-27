@@ -407,6 +407,56 @@ def test_get_alternating_alias_hammer_keeps_single_slot_consistent(monkeypatch):
     assert svc.current_alias in (None, *svc.cached_aliases())
 
 
+def test_get_teardown_failure_never_leaks_the_load_ticket(monkeypatch):
+    """A failure AFTER the ticket is installed must not poison ``_loading``.
+
+    Regression: the ticket-time pre-load eviction (``loader.unload`` raising
+    during teardown) used to abort ``get`` with the ticket still installed --
+    every later ``get(alias)`` then waited forever on an event nobody would
+    ever set.  Both waits use join timeouts so a reopened leak window fails
+    fast instead of hanging the suite.
+    """
+    factory = CountingFactory()
+    svc = SynthesisService(factory=factory)
+    resident = svc.get("base")                 # something to evict on switch
+
+    real_unload = loader.unload
+
+    def exploding_unload(model):
+        if model is resident:                  # evict-on-switch blows up ONCE
+            raise RuntimeError("unload exploded (ticket-time teardown)")
+        real_unload(model)
+
+    monkeypatch.setattr(loader, "unload", exploding_unload)
+
+    errors: list[BaseException] = []
+
+    def failing_worker() -> None:
+        try:
+            svc.get("custom-voice")            # ticket -> teardown -> boom
+        except BaseException as exc:  # noqa: BLE001 - reported, never swallowed
+            errors.append(exc)
+
+    t1 = threading.Thread(target=failing_worker, daemon=True)
+    t1.start()
+    t1.join(timeout=10)
+    assert not t1.is_alive()
+    assert len(errors) == 1 and "ticket-time teardown" in str(errors[0])
+
+    # The ticket MUST be released: a healthy reload completes (no hang) and no
+    # stale reservation is left in _loading.
+    monkeypatch.setattr(loader, "unload", lambda m: None)
+    ok: list[Any] = []
+    t2 = threading.Thread(target=lambda: ok.append(svc.get("custom-voice")),
+                          daemon=True)
+    t2.start()
+    t2.join(timeout=10)
+    assert not t2.is_alive()                   # would hang forever if leaked
+    assert ok and ok[0].built_for == "custom-voice"
+    assert svc.cached_aliases() == ("custom-voice",)
+    assert svc._loading == {}                  # white-box: no poisoned ticket
+
+
 # ---------------------------------------------------------------------------
 # Speech-tokenizer codec roundtrip (lazy, cached separately from the LRU)
 # ---------------------------------------------------------------------------

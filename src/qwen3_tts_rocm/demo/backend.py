@@ -242,35 +242,46 @@ class SynthesisService:
         who retry from the top (typically re-raising the same error).  A load
         completing after a concurrent :meth:`unload_all` re-populates the
         cache: the in-flight load wins over the teardown.
+
+        Ticket lifetime is structurally guaranteed: the ``try``/``finally``
+        below begins BEFORE the ticket is installed, so ANY failure after
+        installation (ticket-time eviction raising, factory raising, even an
+        async ``KeyboardInterrupt``) releases the ticket and wakes the waiters
+        -- ``_loading`` can never keep a poisoned entry that would hang later
+        ``get`` calls.  The release is identity-checked so a late cleanup can
+        never cancel a newer thread's live ticket for the same alias.
         """
         alias = str(alias)
-        while True:
-            with self._lock:
-                model = self._cache.get(alias)
-                if model is not None:
-                    self.current_alias = alias
-                    return model
-                event = self._loading.get(alias)
-                if event is None:            # we hold the only factory ticket
-                    event = threading.Event()
-                    self._loading[alias] = event
-                    self._teardown_locked()  # evict BEFORE loading (memory flat)
-                    break
-            event.wait()                     # loser: owner is loading; re-check
+        ticket: threading.Event | None = None
         try:
-            model = self._factory(alias)     # OUTSIDE the lock (multi-second)
-        except BaseException:
+            while True:
+                with self._lock:
+                    model = self._cache.get(alias)
+                    if model is not None:
+                        self.current_alias = alias
+                        return model
+                    event = self._loading.get(alias)
+                    if event is None:            # we hold the only factory ticket
+                        event = threading.Event()
+                        self._loading[alias] = event
+                        ticket = event           # owned from this instant on
+                        self._teardown_locked()  # evict BEFORE loading (memory flat)
+                        break
+                event.wait()                     # loser: owner is loading; re-check
+            model = self._factory(alias)         # OUTSIDE the lock (multi-second)
             with self._lock:
                 self._loading.pop(alias, None)
-                event.set()                  # wake waiters so they can retry
-            raise
-        with self._lock:
-            self._loading.pop(alias, None)
-            self._teardown_locked()          # the lock decides the winner
-            self._cache[alias] = model
-            self.current_alias = alias
-            event.set()                      # install visible before wake-up
-            return model
+                self._teardown_locked()          # the lock decides the winner
+                self._cache[alias] = model
+                self.current_alias = alias
+                event.set()                      # install visible before wake-up
+                return model
+        finally:
+            if ticket is not None:               # owner: never leak the ticket
+                with self._lock:
+                    if self._loading.get(alias) is ticket:
+                        self._loading.pop(alias, None)
+                        ticket.set()             # wake waiters so they can retry
 
     def cached_aliases(self) -> tuple[str, ...]:
         """Public read-only view of aliases whose models are resident.
