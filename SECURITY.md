@@ -11,15 +11,11 @@
 Please **do not open a public GitHub issue** for anything you believe is a
 security problem.
 
-**Recommended channel:** use GitHub's built-in private vulnerability
-reporting — on the repository page: *Security → Advisories → New draft
-security advisory* ("Report a vulnerability"). This keeps details embargoed
-and lets maintainers collaborate and publish a fix and advisory properly.
-
-Alternative placeholder contact (email to be replaced with the maintainer's
-real address before wide publication):
-
-    security@qwen3-tts-rocm.invalid   [PLACEHOLDER — see note above]
+**Contact channel:** GitHub Private Security Advisories — this is the only
+reporting channel; there is no security-contact email for this project. On
+the repository page: *Security → Advisories → New draft security advisory*
+("Report a vulnerability"). This keeps details embargoed and lets maintainers
+collaborate and publish a fix and advisory properly.
 
 What to include, if possible:
 

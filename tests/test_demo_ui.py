@@ -508,7 +508,7 @@ def test_cli_bare_launch_defaults_to_custom_voice_and_serves(monkeypatch):
     monkeypatch.setattr(cd, "resolve_target", lambda args: ("/fake/ref", "custom-voice", "registry"))
     monkeypatch.setattr(cd, "_build_service", lambda *a, **k: _types.SimpleNamespace(unload_all=lambda: None))
     monkeypatch.setattr(ui_mod, "build_ui", fake_build_ui)
-    monkeypatch.setattr(ui_mod, "launch_visual_kwargs", lambda: {})
+    monkeypatch.setattr(ui_mod, "launch_visual_kwargs", dict)
 
     rc = cd.main([])  # bare launch
 

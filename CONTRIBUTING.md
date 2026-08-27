@@ -60,10 +60,11 @@ Ruff with `line-length = 110` (configured in `pyproject.toml`):
 
 ```bash
 ruff check .
-ruff format --check .
 ```
 
-Both must be clean before you push.
+`ruff check` (lint) is enforced locally and in CI and must be clean before
+you push. `ruff format` is recommended for new code but is not enforced
+repo-wide as of v0.1.0.
 
 ## Commit style
 
@@ -76,7 +77,7 @@ Chinese are both fine; mixed is acceptable too — keep one style per commit.
 Before opening a PR:
 
 1. `python -m pytest -m "not gpu"` passes;
-2. `ruff check .` and `ruff format --check .` pass;
+2. `ruff check .` passes;
 3. the behavior follows the zero-modification guarantee above (official API
    calls only);
 4. new user-visible behavior is covered by tests;

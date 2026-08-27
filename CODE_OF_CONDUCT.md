@@ -41,7 +41,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 ## Enforcement
 
-Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement at **conduct@qwen3-tts-rocm.invalid** *(placeholder address — replace before wide publication)*. All complaints will be reviewed and investigated promptly and fairly.
+Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the community leaders responsible for enforcement by opening a private GitHub issue that `@`-tags the maintainers, or by using GitHub's reported-content flow (the "Report" button on the offending content) where appropriate. There is no conduct-contact email for this project. All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the reporter of any incident.
 

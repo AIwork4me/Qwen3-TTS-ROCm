@@ -31,4 +31,10 @@ README/README_CN Screenshots sections updated from TODO-release placeholders to 
 ## Test totals at tag time
 - CPU gate: 146 passed / 25 deselected  ·  GPU integration: 24 passed (fresh runs)
 - Known deferred minors: see .superpowers ledger (parked, none release-blocking)
-- Owner push steps (network-restricted machine): git remote add origin https://github.com/<OWNER>/Qwen3-TTS-ROCm.git && git push -u origin main feat/impl-v0.1.0 && git push origin v0.1.0
+- Owner push steps (network-restricted machine):
+  **Before pushing, replace the `<OWNER>` placeholder in the clone commands in
+  README.md / README_CN.md with the real GitHub username.**
+  1. `git checkout main && git merge --ff-only feat/impl-v0.1.0`
+  2. `git remote add origin https://github.com/<OWNER>/Qwen3-TTS-ROCm.git`
+  3. `git push -u origin main`
+  4. `git push origin v0.1.0`

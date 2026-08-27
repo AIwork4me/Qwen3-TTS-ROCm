@@ -66,6 +66,8 @@ bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, h
 bash scripts/run_demo.sh         # enhanced demo -> http://localhost:8000
 ```
 
+*发布前请将 `<OWNER>` 替换为你的 GitHub 用户名。*
+
 说明：
 
 * `scripts/install.sh` 幂等（可安全重复执行），结尾是一次 GPU 健全性闸门，成功时打印

@@ -72,6 +72,8 @@ bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, h
 bash scripts/run_demo.sh         # enhanced demo -> http://localhost:8000
 ```
 
+*Replace `<OWNER>` with your GitHub username before publishing.*
+
 Notes:
 
 * `scripts/install.sh` is idempotent (safe to re-run) and ends with a GPU

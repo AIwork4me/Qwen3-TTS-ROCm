@@ -22,7 +22,7 @@ bilingual demo, GPU test suite and measured performance numbers.
     returns the native official Qwen3-TTS model object — all synthesis stays
     on unmodified official APIs — with a metadata-backed version probe and a
     silent clean refusal for unsupported combos;
-  - dual-source model downloader (Hugging Face first, ModelScope fallback,
+  - dual-source model downloader (ModelScope first, hf-mirror.com fallback,
     per-alias auto mode) with friendly registry aliases for all six official
     checkpoints.
 - One-command setup and launch scripts: `scripts/install.sh`
