@@ -180,8 +180,8 @@ Manual fix (手动下载): place the files under <models-root>/Qwen3-TTS-12Hz-1.
 Recovery options, cheapest first:
 
 * **Just re-run** `bash scripts/download_models.sh [alias]` — interrupted
-  transfers resume natively in both transports and completed repos are
-  skipped entirely.
+  transfers resume natively in both transports and fully-downloaded repos
+  (marker plus weights, see below) are skipped entirely.
 * **Proxy/network partition:** ModelScope is reachable from ordinary CN
   networks (that is why it is first); if your network can reach
   huggingface.co through `hf-mirror.com` only, keep the default auto mode.
@@ -193,18 +193,36 @@ Recovery options, cheapest first:
 * **Manual placement:** download either URL yourself and unpack so the model
   folder sits at `<models-root>/<flattened-name>` (default models root:
   `<repo>/models`, overridable via `$QWEN3_TTS_ROCM_MODELS_DIR`). The
-  downloader then treats the target as done and skips it on every future run.
+  downloader then treats the target as done and skips it on every future run
+  — provided the folder also holds weights (see the skip rule below); a
+  manually placed folder *without* any `*.safetensors` is re-fetched on the
+  next run.
 
 ### What "already downloaded" means (`is_downloaded` semantics)
 
-A target directory counts as complete when it holds **either** `config.json`
-**or** the `.ok` marker written after a successful fetch (`models.mark_ok`).
+There are two distinct completeness levels — don't conflate them:
+
+* **Library predicate** (`models.is_downloaded(ref)`, default): the resolved
+  directory exists and holds **either** `config.json` **or** the `.ok`
+  marker written after a successful fetch (`models.mark_ok`). This is the
+  level `loader.load()` checks to refuse loading a not-yet-downloaded model
+  instead of fetching multi-GB weights behind your back.
+* **Downloader skip rule** (`download(resume=True)`, the default): the
+  target must *additionally* hold at least one `*.safetensors` weight file
+  (`is_downloaded(..., require_weights=True)`). A config-only or
+  marker-only leftover from an interrupted fetch therefore does **not**
+  count as done — the downloader re-fetches it, and both transports resume
+  interrupted transfers natively so the fetch continues where it left off.
+
 Consequences worth knowing:
 
-* A partially-fetched snapshot that happens to include `config.json` can be
-  mistaken for complete. If generation immediately complains about missing
-  weight files, force a clean redo: delete that model folder and re-run the
-  downloader.
+* A partially-fetched snapshot that happens to include `config.json` is no
+  longer mistaken for complete by the downloader: the next
+  `bash scripts/download_models.sh [alias]` run re-fetches it automatically.
+  If a fetch still looks corrupted (e.g. truncated weights), force a clean
+  redo by deleting that model folder and re-running the downloader, or call
+  `download(..., resume=False)` from Python to bypass the skip entirely and
+  re-write every file plus the `.ok` marker.
 * The `.ok` marker lives *inside* the model folder; copying folders between
   machines/checkouts preserves completion state automatically.
 

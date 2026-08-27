@@ -13,17 +13,17 @@
 让官方 Qwen3-TTS 语音合成在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S iGPU（`gfx1151`）上
 **零补丁**运行。一条命令安装 AMD 锁定版本的 ROCm 7.14.0 PyTorch 轮子，另一条下载
 六个官方仓库权重，第三条启动增强版双语五标签页 Gradio 演示（`http://localhost:8000`）。
-所有合成调用都停留在未修改的官方 API 上——我们的 loader 直接交还原生模型对象，
+所有合成调用全部走未修改的官方 API——我们的 loader 直接交还原生模型对象，
 并且有一条上游一致性测试为此作证。
 
 ## 为什么有这个项目
 
 Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-attn 内核库，而
-`gfx1151` 一类的集成显卡开箱即不可能工作。本仓库刻意**不是**那些代码的 fork——它是围绕
+`gfx1151` 一类的集成显卡开箱完全无法工作。本仓库刻意**不是**那些代码的 fork——它是围绕
 **未经修改的官方 `qwen-tts` 包**的一层薄壳：环境诊断、智能默认的模型加载器、双源
 （ModelScope / hf-mirror）下载器和一个增强版演示界面，仅此而已。核心承诺见下文的
-[零修改保证](#zero-modification-guarantee)，并由专门的一致性测试强制执行；如果信任这个
-仓库之前只读一节，那就读那一节。
+[零修改保证](#zero-modification-guarantee)，并由专门的一致性测试强制执行；在信任本仓库
+前，若只读一节，请读这一节。
 
 <a id="zero-modification-guarantee"></a>
 
