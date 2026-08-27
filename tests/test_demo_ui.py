@@ -530,6 +530,47 @@ def test_cli_resolve_target_prefers_checkpoint_over_alias():
 
 
 # ---------------------------------------------------------------------------
+# UX-fix U3a / A-9: --help must render BooleanOptionalAction flags exactly once
+# ---------------------------------------------------------------------------
+
+
+def test_cli_help_renders_boolean_optional_flags_once():
+    """The negative spelling used to render doubled in usage AND options
+    (``--flash-attn/--no-flash-attn | --no-flash-attn/--no-flash-attn``):
+    argparse's BooleanOptionalAction appended a literal
+    ``--no-flash-attn/--no-flash-attn`` variant of the cosmetic slash pair.
+    Now no flag string appears twice within one invocation rendering."""
+    from qwen3_tts_rocm.cli_demo import build_parser
+
+    help_text = build_parser().format_help()
+    for doubled, negative in (
+        ("--no-flash-attn/--no-flash-attn", "--no-flash-attn"),
+        ("--no-share/--no-share", "--no-share"),
+        ("--no-ssl-verify/--no-ssl-verify", "--no-ssl-verify"),
+    ):
+        assert doubled not in help_text  # no doubled pair rendering
+        assert help_text.count(negative) <= 2  # once in usage + once in options
+
+
+def test_cli_boolean_optional_flags_still_parse_both_spellings():
+    """Formatting fix must not disturb the parse surface: both the positive
+    and the negative spelling of every BooleanOptionalAction flag keep working
+    (and keep their ROCm-safe defaults)."""
+    from qwen3_tts_rocm.cli_demo import build_parser
+
+    parse = build_parser().parse_args
+
+    ns = parse(["--no-flash-attn", "--share"])
+    assert ns.flash_attn is False and ns.share is True
+
+    ns = parse(["--flash-attn", "--no-share", "--no-ssl-verify"])
+    assert ns.flash_attn is True and ns.share is False and ns.ssl_verify is False
+
+    ns = parse(["--ssl-verify"])
+    assert ns.ssl_verify is True  # default stays enabled
+
+
+# ---------------------------------------------------------------------------
 # Fix round 1 regressions
 # ---------------------------------------------------------------------------
 

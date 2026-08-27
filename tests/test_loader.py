@@ -20,8 +20,10 @@ Deliberate adjustments to the task-brief fixture (documented in
 """
 
 import importlib.metadata
+import os
 import sys
 import types
+import warnings
 
 import pytest
 
@@ -172,6 +174,30 @@ def test_not_downloaded_raises_download_hint_without_touching_official(
     assert not fake_official  # from_pretrained never invoked
 
 
+def test_download_howto_leads_with_per_alias_command(fake_official, monkeypatch):
+    """UX-fix U3a / A-2 (code half): the refusal must lead with the
+    per-alias download (a single repo, e.g. 0.7-4.4GB) and only mention the
+    all-six fetch second."""
+    monkeypatch.setattr(loader.models, "is_downloaded", lambda r: False)
+    with pytest.raises(RuntimeError) as excinfo:
+        loader.load("base")
+    msg = str(excinfo.value)
+    per_alias = msg.find("bash scripts/download_models.sh base")
+    all_six = msg.find("download('all')")
+    assert 0 <= per_alias < all_six  # per-alias command comes first
+    assert "from qwen3_tts_rocm.models import download" in msg  # all-six line kept
+
+
+def test_download_howto_maps_repo_ids_to_their_alias(fake_official, monkeypatch):
+    """download_models.sh accepts aliases only: a refused flattened name or
+    full repo id still yields a runnable per-alias command."""
+    monkeypatch.setattr(loader.models, "is_downloaded", lambda r: False)
+    for ref in ("Qwen3-TTS-12Hz-1.7B-Base", "Qwen/Qwen3-TTS-12Hz-1.7B-Base"):
+        with pytest.raises(RuntimeError) as excinfo:
+            loader.load(ref)
+        assert "bash scripts/download_models.sh base" in str(excinfo.value)
+
+
 def test_unknown_alias_surfaces_registry_keyerror(fake_official, monkeypatch):
     def boom(r):
         raise KeyError("unknown model reference 'nope'")
@@ -302,3 +328,138 @@ def test_load_runs_compat_patches_first(fake_official, monkeypatch):
     monkeypatch.setattr(loader.patch, "apply_compat_patches", lambda: calls.append(1))
     loader.load("base", device="cpu")
     assert calls == [1]
+
+
+# ---------------------------------------------------------------------------
+# UX-fix U3a / B-1: loader noise governance
+# ---------------------------------------------------------------------------
+
+
+def test_suppress_fd_swallows_fd_level_writes_and_restores(capfd):
+    """True fd-level capture (os.dup/dup2): writes landing on fd 1 inside the
+    block never reach the terminal, and BOTH fds are usable again after."""
+    with loader._suppress_fd_stdout_stderr():
+        os.write(1, b"hidden-stdout")
+        os.write(2, b"hidden-stderr")
+    captured = capfd.readouterr()  # capfd decodes; fd-level writes still unseen
+    assert "hidden-stdout" not in captured.out
+    assert "hidden-stderr" not in captured.err
+
+    os.write(1, b"visible-stdout")  # restored for real writes afterwards
+    os.write(2, b"visible-stderr")
+    after = capfd.readouterr()
+    assert "visible-stdout" in after.out and "visible-stderr" in after.err
+
+
+def test_suppress_fd_restores_fds_when_body_raises(capfd):
+    """The restore MUST happen on the exception path too."""
+    with pytest.raises(RuntimeError, match="boom"), loader._suppress_fd_stdout_stderr():
+        os.write(1, b"hidden-before-boom")
+        raise RuntimeError("boom")
+    assert "hidden-before-boom" not in capfd.readouterr().out
+    os.write(1, b"restored-after-exception")
+    assert "restored-after-exception" in capfd.readouterr().out
+
+
+def test_suppress_fd_swallows_buffered_python_prints():
+    """Regression, proven in a subprocess (pytest's own capture would mask fd
+    buffering): with stdout block-buffered (non-tty), a module-level print
+    from the captured import sits in sys.stdout's userspace buffer and used to
+    flush into the RESTORED fd 1 right after the block -- leaking the upstream
+    banner anyway.  The restore must drain the buffers into /dev/null first."""
+    import subprocess
+
+    code = (
+        "import sys\n"
+        "from qwen3_tts_rocm import loader\n"
+        "with loader._suppress_fd_stdout_stderr():\n"
+        "    print('import-time-banner')\n"
+        "sys.stdout.flush()\n"
+        "print('after-block-visible')\n"
+    )
+    proc = subprocess.run(
+        [sys.executable, "-c", code], capture_output=True, text=True, timeout=120, check=False
+    )
+    assert proc.returncode == 0, proc.stderr
+    assert "import-time-banner" not in proc.stdout  # buffered banner swallowed
+    assert "after-block-visible" in proc.stdout  # normal output unaffected
+
+
+def test_verbose_import_env_keeps_fd_output_visible(monkeypatch, capfd):
+    """Escape hatch: QWEN3_TTS_ROCM_VERBOSE_IMPORT=1 skips the capture so the
+    upstream import-time output can be debugged."""
+    monkeypatch.setenv("QWEN3_TTS_ROCM_VERBOSE_IMPORT", "1")
+    with loader._suppress_fd_stdout_stderr():
+        os.write(1, b"loud-import")
+        os.write(2, b"loud-import-err")
+    after = capfd.readouterr()
+    assert "loud-import" in after.out and "loud-import-err" in after.err
+
+
+def test_load_announces_first_run_expectation_on_stderr(fake_official, capsys):
+    """One bilingual line at the start of load(): first load takes tens of
+    seconds and floods the terminal with kernel logs -- that is normal."""
+    loader.load("base", device="cpu")
+    err = capsys.readouterr().err
+    assert "首次加载" in err
+    assert "verbose kernel logs are expected on first run" in err
+    assert "/models/X" in err  # the resolved target, short form
+
+
+def test_quiet_env_suppresses_expectation_line(fake_official, capsys, monkeypatch):
+    monkeypatch.setenv("QWEN3_TTS_ROCM_QUIET", "1")
+    loader.load("base", device="cpu")
+    assert "首次加载" not in capsys.readouterr().err
+
+
+def test_fd_capture_wraps_import_only_not_from_pretrained(fake_official, capfd, monkeypatch):
+    """Real load errors must stay visible: only the lazy ``import qwen_tts``
+    is captured; anything from_pretrained writes reaches the terminal."""
+    mod_qt = types.ModuleType("qwen_tts")
+
+    class LoudFakeModel:
+        @classmethod
+        def from_pretrained(cls, ref, **kw):
+            os.write(2, b"visible-during-from-pretrained")
+            return cls()
+
+    mod_qt.Qwen3TTSModel = LoudFakeModel
+    monkeypatch.setitem(sys.modules, "qwen_tts", mod_qt)
+
+    loader.load("base", device="cpu")
+    assert "visible-during-from-pretrained" in capfd.readouterr().err
+
+
+def test_load_filters_sdpa_efficient_attention_warnings_not_others(
+    fake_official, monkeypatch
+):
+    """The two sdpa fallback UserWarnings ("Flash Efficient attention" /
+    "Mem Efficient attention") are filtered for the duration of
+    from_pretrained only; unrelated warnings still propagate."""
+    mod_qt = types.ModuleType("qwen_tts")
+
+    class WarnFakeModel:
+        @classmethod
+        def from_pretrained(cls, ref, **kw):
+            warnings.warn(
+                "Flash Efficient attention is not available, falling back.",
+                UserWarning,
+                stacklevel=2,
+            )
+            warnings.warn(
+                "Mem Efficient attention is not available, falling back.",
+                UserWarning,
+                stacklevel=2,
+            )
+            warnings.warn("Some unrelated deprecation notice", UserWarning, stacklevel=2)
+            return cls()
+
+    mod_qt.Qwen3TTSModel = WarnFakeModel
+    monkeypatch.setitem(sys.modules, "qwen_tts", mod_qt)
+
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        loader.load("base", device="cpu")
+    msgs = [str(w.message) for w in caught if w.category is UserWarning]
+    assert not any("Efficient attention" in m for m in msgs)  # both sdpa ads gone
+    assert any("unrelated deprecation" in m for m in msgs)  # everything else kept

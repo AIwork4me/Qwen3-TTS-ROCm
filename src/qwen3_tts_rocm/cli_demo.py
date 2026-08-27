@@ -109,8 +109,13 @@ def build_parser() -> argparse.ArgumentParser:
         choices=["bfloat16", "bf16", "float16", "fp16", "float32", "fp32"],
         help="Torch dtype for loading the model (default: bfloat16).",
     )
+    # NOTE: for the BooleanOptionalAction flags pass only the positive
+    # spelling -- the action derives ``--no-<flag>`` itself.  The cosmetic
+    # ``--flag/--no-flag`` slash form made argparse append a literal
+    # ``--no-flag/--no-flag`` variant that rendered doubled in --help
+    # (UX-fix U3a / A-9).
     parser.add_argument(
-        "--flash-attn/--no-flash-attn",
+        "--flash-attn",
         dest="flash_attn",
         default=False,
         action=argparse.BooleanOptionalAction,
@@ -124,7 +129,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ip", default="0.0.0.0", help="Server bind IP (default: 0.0.0.0).")
     parser.add_argument("--port", type=int, default=8000, help="Server port (default: 8000).")
     parser.add_argument(
-        "--share/--no-share",
+        "--share",
         dest="share",
         default=False,
         action=argparse.BooleanOptionalAction,
@@ -144,7 +149,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--ssl-certfile", default=None, help="SSL certificate file (optional).")
     parser.add_argument("--ssl-keyfile", default=None, help="SSL key file (optional).")
     parser.add_argument(
-        "--ssl-verify/--no-ssl-verify",
+        "--ssl-verify",
         dest="ssl_verify",
         default=True,
         action=argparse.BooleanOptionalAction,
