@@ -1,11 +1,5 @@
 # Qwen3-TTS-ROCm CPU-only CI (lint + hermetic unit tests + packaging).
 #
-# AUTHORED OFFLINE: this repository has no GitHub remote yet; the workflow was
-# hand-validated on the dev machine (YAML parsed with pyyaml, command shapes
-# mirrored locally) and will execute for the FIRST time on the very first
-# push/PR to GitHub — treat an early red X here as a config bug, not a code
-# regression.
-#
 # Why plain PyPI `pip install -e ".[dev]"` is fine here: it pulls the CPU
 # (or CUDA-bundled) torch wheel from PyPI, NOT our pinned AMD ROCm stack from
 # repo.amd.com — which is exactly what we want on ubuntu-latest. This job never
