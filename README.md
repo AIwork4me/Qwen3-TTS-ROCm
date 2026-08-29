@@ -24,12 +24,15 @@ AMD. See [Attribution](#attribution--disclaimer).
 
 | Validation | Result |
 |---|---|
-| Official model repositories | **6 / 6** downloaded, loaded, synthesized |
-| Automated tests | **228 passing** — 203 CPU + 25 on-GPU integration |
+| Official model repositories | **6 / 6 validated** — 5 TTS checkpoints + tokenizer |
+| Automated tests | **227 passing** — 202 CPU + 25 real-GPU · 1 HIP-dependent skip |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
-| Precision / attention | bfloat16 · sdpa (no flash-attn on ROCm) |
+| Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
+
+228 tests are collected in total; on an AMD ROCm host the HIP-gated CPU check
+runs as well, so the validation host itself passes 228/228 (203 CPU + 25 GPU).
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -144,7 +147,8 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 203 CPU + 25 on-GPU integration tests, including the
+* **Test suite** — 227 passing (202 CPU + 25 real-GPU integration; 228
+  collected, 1 HIP-dependent skip on CPU-only CI), including the
   upstream-parity proof below.
 
 <a id="why-this-project-exists"></a>
@@ -180,6 +184,8 @@ The loader's HIP defaults are generic, but every number and claim in this
 repository traces to the one validated configuration above. Please don't
 assume other cards work (or don't) — reports from other ROCm hardware are
 very welcome and will be listed here.
+
+**Tested another AMD GPU? [Submit a hardware validation report](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)** — measured results only, and the matrix grows.
 
 ## Performance
 
@@ -225,7 +231,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 203 CPU tests
+python -m pytest -m "not gpu and not requires_download" -q   # 202 CPU tests (203 on AMD hosts)
 python -m pytest -m "gpu" -q                  # 25 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
@@ -263,8 +269,8 @@ required"):
 
 ## Docker
 
-CPU-pull-and-run friendly build with `/dev/kfd` + `/dev/dri` passthrough for
-ROCm execution; mount your `models/` directory into the image's declared
+Reproducible Docker build with `/dev/kfd` + `/dev/dri` passthrough for ROCm
+execution; mount your `models/` directory into the image's declared
 volume:
 
 ```bash

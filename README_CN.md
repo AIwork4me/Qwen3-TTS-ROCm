@@ -22,12 +22,15 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 
 | 验证项 | 结果 |
 |---|---|
-| 官方模型仓库 | **6 / 6** 已下载、加载、合成 |
-| 自动化测试 | **228 通过** —— 203 CPU + 25 GPU 集成 |
+| 官方模型仓库 | **6 / 6 已验证** —— 5 个 TTS checkpoint + tokenizer |
+| 自动化测试 | **227 通过** —— 202 CPU + 25 真机 GPU；另 1 项 HIP 相关跳过 |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
-| 精度 / 注意力 | bfloat16 · sdpa（ROCm 无 flash-attn） |
+| 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
+
+共收集 228 项测试；在 AMD ROCm 主机上该 HIP 门控的 CPU 检查会照常执行，
+因此验证主机本身为 228/228 全通过（203 CPU + 25 GPU）。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -131,7 +134,8 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 203 CPU + 25 GPU 集成测试，含下文的上游一致性证明。
+* **测试套件** —— 227 项通过（202 CPU + 25 真机 GPU 集成；共收集 228 项，
+  仅 CPU 的 CI 上有 1 项 HIP 相关跳过），含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
 
@@ -164,6 +168,8 @@ bash scripts/run_demo.sh
 loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都只追溯到上表这一
 个已验证配置。请勿臆断其他显卡能或不能用——非常欢迎其他 ROCm 硬件的实测
 反馈，验证后会在表中列出。
+
+**在其他 AMD GPU 上跑通了？[提交硬件验证报告](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)**——只收实测结果，验证后兼容性矩阵随你扩展。
 
 ## 性能
 
@@ -203,7 +209,7 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 203 个 CPU 测试
+python -m pytest -m "not gpu and not requires_download" -q   # 202 个 CPU 测试（AMD 主机 203 个）
 python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```
@@ -237,8 +243,8 @@ python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
 
 ## Docker
 
-构建容器镜像并通过 `/dev/kfd` + `/dev/dri` 直通在 ROCm 上运行；把宿主机的
-`models/` 目录挂载进镜像声明的卷即可：
+可复现的 Docker 构建，通过 `/dev/kfd` + `/dev/dri` 直通在 ROCm 上运行；把
+宿主机的 `models/` 目录挂载进镜像声明的卷即可：
 
 ```bash
 docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .

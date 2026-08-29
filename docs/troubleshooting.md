@@ -240,7 +240,8 @@ Warning: flash-attn is not installed. Will only run the manual PyTorch version. 
 ********
 ```
 
-AMD publishes no official flash-attn ROCm wheel for this stack, so the
+The validated wheel stack (AMD's `repo.amd.com` ROCm 7.14.0 index) does not
+include flash-attn, and FlashAttention is not enabled by this project, so the
 manual PyTorch attention path is the supported one. The loader encodes the
 policy: on HIP GPUs it defaults to `attn_implementation="sdpa"`; explicitly
 requesting `"flash_attention_2"` raises a `RuntimeError` suggesting you omit

@@ -11,9 +11,9 @@ session as indicative, and cite the artifact + date alongside any number you
 quote.**
 
 Headline: for short-to-medium sentences (≤ ~18 s of audio) the tuned-voice
-models render at roughly **1.3–1.6× realtime**, i.e. a few seconds of wait for
-a few seconds of speech. The zero-shot Base (voice-clone) model lands around
-**1.7–1.9× realtime** on the same texts.
+models render at a median **RTF ≈ 1.3–1.6** (lower is better), i.e. a few
+seconds of wait for a few seconds of speech. The zero-shot Base (voice-clone)
+model lands around **RTF ≈ 1.7–1.9** on the same texts.
 
 ## Platform
 
@@ -28,7 +28,7 @@ the raw values are reproduced in `evidence/benchmark.json → meta`.
 | GPU | AMD Radeon 8060S Graphics, arch `gfx1151`; torch reports `multi_processor_count=20` (marketing count is 40 CUs; HIP exposes the value above as-is — recorded unmodified) |
 | Kernel | Linux 6.17.0-1032-oem x86_64 |
 | Torch | `2.12.0+rocm7.14.0` (AMD ROCm wheel index), `torch.version.hip = 7.14.60850` |
-| Precision / attention | `bfloat16` weights + `sdpa` (loader smart defaults); **no flash-attn on ROCm** → manual PyTorch attention path; experimental AOTriton sdpa paths left OFF this session |
+| Precision / attention | `bfloat16` weights + PyTorch `sdpa` (loader smart defaults); **FlashAttention not used in the validated stack** → manual PyTorch attention path; experimental AOTriton sdpa paths left OFF this session |
 | Python | 3.12 (`.venv` in-repo) |
 
 ## Methodology
@@ -101,8 +101,9 @@ Per-alias reading:
   above), tens of seconds for paragraphs. That is usable for interactive
   demos at sentence scale and fully fine for offline/batch synthesis; it is
   not a "many-times-realtime" experience like a discrete dGPU would give.
-  The bottleneck is memory-bandwidth-class compute over shared LPDDR5X with
-  no flash-attn path available (manual PyTorch attention on ROCm).
+  The bottleneck is memory-bandwidth-class compute over shared LPDDR5X; the
+  validated stack ships no flash-attn build, so the manual PyTorch attention
+  path runs.
 * **Honest scope note.** These numbers say nothing about *first-token* /
   perceived latency: the official API used here is non-streaming, so only
   total wall time is observable. Anything interactive adds codec/streaming

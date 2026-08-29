@@ -1,5 +1,5 @@
-# evidence/gpu-suite-2026-08-29.txt — post-docs-pass GPU suite rerun
-# date: 2026-08-29T08:36:42+0800
+# evidence/gpu-suite-2026-08-29.txt — latest on-GPU suite run (post trust-polish round 2)
+# date: 2026-08-29T10:52:53+0800
 # host: 6.17.0-1032-oem, device: AMD Radeon 8060S (gfx1151), torch 2.12.0+rocm7.14.0
 # cmd: .venv/bin/python -m pytest -m gpu -q
 
@@ -18,6 +18,6 @@ tests/test_official_demo_parity.py::test_upstream_blocks_constructed
     with gr.Blocks(theme=theme, css=css) as demo:
 
 -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
-25 passed, 203 deselected, 3 warnings in 186.37s (0:03:06)
+25 passed, 203 deselected, 3 warnings in 185.71s (0:03:05)
 
 exit=0
