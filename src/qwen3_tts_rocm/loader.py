@@ -168,9 +168,10 @@ def _announce_first_load(resolved: object) -> None:
     if os.environ.get(_QUIET_ENV) == "1":
         return
     print(
-        f"[qwen3-tts-rocm] 加载 {resolved} … 首次加载需数十秒，"
-        "终端将出现大量内核日志（属正常）/ loading; verbose kernel logs are "
-        "expected on first run",
+        f"[qwen3-tts-rocm] 加载 {resolved} … 首次加载可能较慢（取决于文件系统"
+        "缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower "
+        "on the first run (filesystem cache + one-time kernel initialization); "
+        "verbose kernel logs are expected on first run",
         file=sys.stderr,
     )
 
@@ -214,8 +215,8 @@ def resolve_attn(attn_implementation: str | None = None,
                 "FlashAttention is not enabled by this project. Suggestion: omit the "
                 f"argument (HIP GPUs get {_HIP_DEFAULT_ATTN!r} by default) or pass "
                 f"attn_implementation='{_HIP_DEFAULT_ATTN}' explicitly."
-                " | AMD 官方未提供 ROCm 版 flash-attn 轮子，建议省略该参数"
-                f"（HIP GPU 默认即 '{_HIP_DEFAULT_ATTN}'）。"
+                " | 当前已验证的 ROCm wheel 栈未包含 flash-attn（本项目未启用），"
+                f"建议省略该参数（HIP GPU 默认即 '{_HIP_DEFAULT_ATTN}'）。"
                 + _DOCS_POINTER
             )
         return attn_implementation

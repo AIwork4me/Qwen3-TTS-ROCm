@@ -1,0 +1,23 @@
+# evidence/gpu-suite-2026-08-29-final.txt — on-GPU suite after runtime-wording round (loader announcement + flash guard message)
+# date: 2026-08-29T11:39:21+0800
+# host: 6.17.0-1032-oem, device: AMD Radeon 8060S (gfx1151), torch 2.12.0+rocm7.14.0
+# cmd: .venv/bin/python -m pytest -m gpu -q
+
+.........................                                                [100%]
+=============================== warnings summary ===============================
+tests/test_generate_custom_voice.py::test_single
+  /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+tests/test_generate_custom_voice.py::test_single
+  /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+    attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+tests/test_official_demo_parity.py::test_upstream_blocks_constructed
+  /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/cli/demo.py:277: UserWarning: The parameters have been moved from the Blocks constructor to the launch() method in Gradio 6.0: theme, css. Please pass these parameters to launch() instead.
+    with gr.Blocks(theme=theme, css=css) as demo:
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+25 passed, 208 deselected, 3 warnings in 183.29s (0:03:03)
+
+exit=0

@@ -78,16 +78,32 @@ def test_flash_attn_guard(fake_official, monkeypatch):
 def test_flash_guard_message_names_rocm_wheel_gap_and_alternatives(
     fake_official, monkeypatch
 ):
-    """The error must explain WHY (no official ROCm flash-attn wheel) and what to do."""
+    """The error must explain WHY (scoped to the validated stack, not a claim
+    about ROCm support in general) and what to do instead."""
     monkeypatch.setattr(loader, "_flash_available", lambda: False)
     with pytest.raises(RuntimeError) as excinfo:
         loader.load("base", attn_implementation="flash_attention_2")
     msg = str(excinfo.value)
     assert "flash attention (flash-attn)" in msg
-    assert "ROCm" in msg  # names the missing-wheel situation
+    assert "ROCm" in msg  # names the stack situation
     assert "sdpa" in msg  # suggests the working alternative
     assert "omit" in msg.lower()
     assert "docs/troubleshooting.md" in msg  # UX-fix U2: docs pointer
+
+
+def test_flash_guard_message_makes_no_generalized_claims(
+    fake_official, monkeypatch
+):
+    """Both language segments stay scoped to the validated stack: no verdicts
+    about AMD/ROCm support at large."""
+    monkeypatch.setattr(loader, "_flash_available", lambda: False)
+    with pytest.raises(RuntimeError) as excinfo:
+        loader.load("base", attn_implementation="flash_attention_2")
+    msg = str(excinfo.value)
+    assert "validated" in msg  # scoped to the validated stack
+    for banned in ("no official", "官方未提供", "AMD does not support",
+                   "no flash-attn on ROCm"):
+        assert banned not in msg, banned
 
 
 def test_flash_attention_accepted_when_importable(fake_official, monkeypatch):
@@ -397,13 +413,23 @@ def test_verbose_import_env_keeps_fd_output_visible(monkeypatch, capfd):
 
 
 def test_load_announces_first_run_expectation_on_stderr(fake_official, capsys):
-    """One bilingual line at the start of load(): first load takes tens of
-    seconds and floods the terminal with kernel logs -- that is normal."""
+    """One bilingual line at the start of load(): the first load may be slower
+    (filesystem cache + one-time kernel init) and floods the terminal with
+    kernel logs -- that is normal. No fixed duration is promised."""
     loader.load("base", device="cpu")
     err = capsys.readouterr().err
     assert "首次加载" in err
     assert "verbose kernel logs are expected on first run" in err
     assert "/models/X" in err  # the resolved target, short form
+
+
+def test_first_load_announcement_promises_no_fixed_duration(fake_official, capsys):
+    """The announcement must not predict a wall-clock duration it cannot back."""
+    loader.load("base", device="cpu")
+    err = capsys.readouterr().err
+    assert "数十秒" not in err
+    assert "tens of seconds" not in err
+    assert "缓存" in err and "initialization" in err  # names the real causes
 
 
 def test_quiet_env_suppresses_expectation_line(fake_official, capsys, monkeypatch):
