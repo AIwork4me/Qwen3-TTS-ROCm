@@ -19,7 +19,7 @@ each file, or follow [docs/benchmarks.md](../docs/benchmarks.md) and
 | `benchmark.json` | Machine-readable RTF benchmark results (host, GPU, torch/HIP versions, per-cell RTF lists) | `scripts/benchmark.py` JSON output |
 | `benchmark-run.txt` | Raw stdout+stderr of the same benchmark session, incl. per-call `[bench]` lines and the warmup timings | `scripts/benchmark.py` piped through `tee` |
 | `official-parity.txt` | Green transcript of the upstream-parity proof: the stock upstream Gradio demo built around our loader's model object, executed through Gradio's event registry incl. one real synthesis | `pytest tests/test_official_demo_parity.py -m "gpu and requires_download" -v -s` |
-| `gpu-suite-2026-08-29.txt` | Full on-GPU suite re-run after the documentation pass: 25 passed / 0 failed in 186 s | `pytest -m gpu -q` on the validation host |
+| `gpu-suite-2026-08-29.txt` | Latest full on-GPU suite run (25 passed / 0 failed in 186 s), re-executed after the trust-polish documentation round | `pytest -m gpu -q` on the validation host |
 | `env-check.txt` | `qwen3-tts-rocm-check` environment self-check output (bilingual) on the validation host | `qwen3-tts-rocm-check` |
 | `models-dl.txt` | Six-repository download log with per-alias provenance (ModelScope primary channel proven; sizes match `scripts/download_models.sh --help`) | `bash scripts/download_models.sh <alias>` per alias |
 | `install-run.txt` | `scripts/install.sh` run record (pinned ROCm wheel stack + editable install) | `bash scripts/install.sh` |
@@ -32,7 +32,7 @@ each file, or follow [docs/benchmarks.md](../docs/benchmarks.md) and
 | `spike/spike-report.md` | Day-one feasibility spike: verdict, exact wheel stack, versions | manual probe session |
 | `spike/gpu-probe.txt` | The spike's GPU sanity probe (`SPIKE-GPU-OK`) | `/tmp/spike_probe.py` (script in report) |
 | `spike/tokenizer-smoke.txt` | The spike's tokenizer smoke (`TOKENIZER-OK`) | manual probe session |
-| `docker-build-final.txt` | Final Docker image build log (`EXIT=0`, image ≈ 2.47 GB) | `docker build` per [`docker/README.md`](../docker/README.md) |
+| `docker-build-final.txt` | Final Docker image build log (`EXIT=0`; ≈ 2 GB of ROCm wheels downloaded). Post-build `docker image inspect .Size` on the same host: 2,466,485,851 bytes (≈ 2.47 GB compressed content) — metric details in [`docker/README.md`](../docker/README.md) | `docker build` per [`docker/README.md`](../docker/README.md) |
 | `docker-ci.txt` | Docker + CI validation ladder of 2026-08-27 — the offline-equivalent checks run before the repository had a GitHub remote (superseded for CI by the live green [Actions runs](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions); kept as the Docker validation record) | `docker build` + probe script |
 
 ## Reading guide

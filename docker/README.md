@@ -13,9 +13,10 @@ docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
 ```
 
 Expect roughly 10–25 minutes: inside an image layer, `scripts/install.sh`
-downloads the pinned AMD ROCm torch wheel stack (~4 GB) from
-`repo.amd.com`, exactly like a bare-metal host does. The pip logic is not
-duplicated in the Dockerfile — it *calls* `scripts/install.sh`.
+downloads the pinned AMD ROCm torch wheel stack (≈ 2 GB of wheels, per the
+archived build log) from `repo.amd.com`, exactly like a bare-metal host does.
+The pip logic is not duplicated in the Dockerfile — it *calls*
+`scripts/install.sh`.
 
 ## Run with GPU passthrough
 
@@ -85,5 +86,10 @@ docker run --rm --entrypoint bash qwen3-tts-rocm:dev \
   `--entrypoint qwen3-tts-rocm-check` (above).
 * `HF_ENDPOINT` has deliberately no default; set `-e HF_ENDPOINT=...` per run
   if your network requires a mirror.
-* Image size lands around ~10 GB+ (ROCm wheels dominate); the pip caches are
-  cleaned within the same RUN layer to avoid double-charging the size.
+* Image size, as measured on the validation host (Docker with the containerd
+  image store): `docker image inspect` reports `.Size` ≈ 2.47 GB
+  (2,466,485,851 bytes — compressed content); `docker history` shows the
+  ROCm wheel-stack `RUN` layer at ≈ 7.06 GB unpacked; `docker image ls`
+  reports ≈ 10.2 GB disk usage for the built image. Plan for ~10 GB of
+  local disk. The pip caches are cleaned within the same RUN layer to avoid
+  double-charging the size.
