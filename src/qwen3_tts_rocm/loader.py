@@ -23,10 +23,10 @@ Smart defaults (spec §5.3)
   verbatim as a string *or* ``torch.dtype``, forwarded unchanged.
 * attention implementation resolution order: explicit ``attn_implementation``
   argument wins; if it is ``"flash_attention_2"`` and flash-attn is not
-  importable (AMD ships no official flash-attn ROCm wheel) a :class:`RuntimeError`
-  explains this and suggests omitting it or using ``"sdpa"``; otherwise a HIP
-  GPU device defaults to ``"sdpa"``, while CPU leaves attention to the official
-  default entirely.
+  importable (the validated AMD ROCm wheel stack ships no flash-attn build) a
+  :class:`RuntimeError` explains this and suggests omitting it or using
+  ``"sdpa"``; otherwise a HIP GPU device defaults to ``"sdpa"``, while CPU
+  leaves attention to the official default entirely.
 * ``device=None`` -> :func:`qwen3_tts_rocm.env.pick_device`.
 
 No implicit downloads
@@ -209,8 +209,9 @@ def resolve_attn(attn_implementation: str | None = None,
         if attn_implementation == _FLASH_KEY and not _flash_available():
             raise RuntimeError(
                 f"attn_implementation={attn_implementation!r} requested but flash "
-                "attention (flash-attn) is not importable in this environment: AMD "
-                "ROCm has no official flash-attn wheel. Suggestion: omit the "
+                "attention (flash-attn) is not importable in this environment: the "
+                "validated AMD ROCm wheel stack ships no flash-attn build, and "
+                "FlashAttention is not enabled by this project. Suggestion: omit the "
                 f"argument (HIP GPUs get {_HIP_DEFAULT_ATTN!r} by default) or pass "
                 f"attn_implementation='{_HIP_DEFAULT_ATTN}' explicitly."
                 " | AMD 官方未提供 ROCm 版 flash-attn 轮子，建议省略该参数"
