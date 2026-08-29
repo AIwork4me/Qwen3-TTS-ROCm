@@ -53,9 +53,9 @@ the raw values are reproduced in `evidence/benchmark.json → meta`.
   Nothing is tuned for speed or brevity.
 * **Token cap:** `max_new_tokens=512` (project latency guardrail). At 12 Hz
   this caps any render near ~42 s of audio while bounding degenerate loops:
-  Task 13 measured a single 2048-token runaway at ~23 min; this session's
-  discarded base warmup reproduced it almost exactly (1396 s at temperature
-  1.0). All *measured* runs in the tables completed normally.
+  an earlier session measured a single 2048-token runaway at ~23 min; this
+  session's discarded base warmup reproduced it almost exactly (1396 s at
+  temperature 1.0). All *measured* runs in the tables completed normally.
 * Each cell (alias × language × length) ran **n=2** measured generations;
   reported are the per-run RTFs, their median (headline), and best/worst
   spread. Texts: fixed inline CN/EN samples (~20 chars "short", ~60 chars
@@ -144,10 +144,9 @@ rows so a rerun pastes straight into this file.
 | `evidence/benchmark.json` | Machine-readable `{meta:{host,gpu,cpu,torch_version_hip,date,args,...}, results:[per-cell RTF lists + summaries]}` |
 | `scripts/benchmark.py` | Generator for both of the above |
 
-Related evidence: this page's Task-13 figure of a ~23 min (1392 s) single-call
-runaway comes from that task's session record
-(`.superpowers/sdd/2026-08-27-qwen3-tts-rocm/task-13-report.md`, which used the
-official 2048-token default). This benchmark session's own equivalent is the
-raw line `[bench] warmup alias=base took=1396.0s (discarded)` in
-`evidence/benchmark-run.txt` — same uncapped default budget during warmup.
-(`evidence/gen-voiceclone.txt` holds only the post-fix, capped Task-13 rerun.)
+Related evidence: the in-repo record of a runaway is the raw line
+`[bench] warmup alias=base took=1396.0s (discarded)` in
+`evidence/benchmark-run.txt` — that warmup deliberately omitted the token cap
+and ran ~23 min under the official 2048-token default, reproducing the
+degenerate-loop behavior that motivated the project-wide 512-token guardrail.
+(`evidence/gen-voiceclone.txt` holds only the post-fix, capped rerun.)

@@ -10,11 +10,11 @@ upstream `qwen-tts` source. All synthesis goes through the official public
 APIs of the unmodified package. Contributions that add local modifications to
 upstream code, or that vendor model weights into the repository, will be
 rejected. When in doubt, read the design rationale in
-`docs/superpowers/specs/2026-08-27-qwen3-tts-rocm-design.md` (the approved
+`docs/development/2026-08-27-design-spec.md` (the approved
 design doc) — it is the arbiter for "is this in scope?".
 
 The implementation plan lives at
-`docs/superpowers/plans/2026-08-27-qwen3-tts-rocm.md`; feature work should
+`docs/development/2026-08-27-implementation-plan.md`; feature work should
 reference where it fits there.
 
 ## Getting started
@@ -27,8 +27,9 @@ bash scripts/install.sh                # plus GPU check via scripts/verify_gpu.s
 bash scripts/install.sh --with-models  # also downloads the six checkpoints (~large)
 ```
 
-Model weights are fetched from official sources only (Hugging Face first,
-ModelScope fallback) and live under `models/` — they are never committed.
+Model weights are fetched from official sources only (ModelScope first,
+`hf-mirror.com` fallback for Hugging Face-hosted traffic) and live under
+`models/` — they are never committed.
 
 ## Running the tests
 
@@ -82,7 +83,7 @@ Before opening a PR:
    calls only);
 4. new user-visible behavior is covered by tests;
 5. large changes reference the relevant section of the design doc or plan
-   under `docs/superpowers/`.
+   under `docs/development/`.
 
 Hardware-dependent changes should paste a short transcript of the
 `gpu and requires_download` suite run into the PR description (no binaries,
