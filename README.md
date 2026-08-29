@@ -1,76 +1,63 @@
-# Qwen3-TTS-ROCm
+# Qwen3-TTS on AMD ROCm
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20ROCm%207.14.0-orange.svg)](https://rocm.docs.amd.com/)
-[![Hardware](https://img.shields.io/badge/hardware-gfx1151-red.svg)](https://rocm.docs.amd.com/)
+**Official Qwen3-TTS. AMD Radeon. Zero upstream patches.**
+
+Run the unmodified official [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS)
+package on AMD Ryzen AI Max+ PRO 395 / Radeon 8060S (`gfx1151`): one command
+installs AMD's pinned ROCm 7.14.0 PyTorch wheels, the next downloads the
+official checkpoints, the third opens a bilingual five-tab Gradio demo on
+`http://localhost:8000`. Every synthesis call stays on official APIs.
 
 **English** | [简体中文](README_CN.md)
 
-Run the official Qwen3-TTS text-to-speech on the AMD Ryzen AI Max+ PRO 395 /
-Radeon 8060S iGPU (`gfx1151`) with **zero patches** to the official stack.
-One command installs AMD's pinned ROCm 7.14.0 PyTorch wheels, another
-downloads the six official checkpoints, a third launches an enhanced
-bilingual five-tab Gradio demo on `http://localhost:8000`. Every synthesis
-call stays on unmodified official APIs —
-[详见下文 Why / see Why below](#why-this-project-exists).
+[![CI](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/AIwork4me/Qwen3-TTS-ROCm)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
+[![ROCm](https://img.shields.io/badge/ROCm-7.14.0-orange.svg)](https://rocm.docs.amd.com/)
+[![Hardware](https://img.shields.io/badge/hardware-gfx1151%20%7C%20Radeon%208060S-red.svg)](docs/benchmarks.md#platform)
 
-## Requirements
+Unofficial community project — not affiliated with or endorsed by Alibaba or
+AMD. See [Attribution](#attribution--disclaimer).
 
-| Component | Requirement |
+## Verified, not promised
+
+| Validation | Result |
 |---|---|
-| APU / iGPU | AMD Ryzen AI Max+ PRO 395 with Radeon 8060S Graphics — architecture `gfx1151` (Strix Halo class); developed and validated on exactly this device |
-| Memory | Unified-memory class hardware: 94 GB LPDDR5X pool shared by CPU and iGPU (~80 GiB visible to torch/HIP) |
-| Kernel | Linux with the `amdgpu` DRM driver bound to the iGPU (verify with `rocm-smi`); validated on kernel `6.17.0-1032-oem` |
-| ROCm | ROCm 7.14.0-era wheels from AMD's pip index `https://repo.amd.com/rocm/whl-multi-arch/`: `torch[device-gfx1151]==2.12.0+rocm7.14.0`, `torchvision[device-gfx1151]==0.27.0+rocm7.14.0`, `torchaudio==2.11.0+rocm7.14.0` — installed automatically by `scripts/install.sh`, you never type these by hand |
-| Python | ≥ 3.10 (validated on 3.12) |
-| Disk | ~18 GB free for the six official repositories, which each bundle their own speech-tokenizer copies (weights live under `models/` and are never committed) |
-| Network | ModelScope (`modelscope.cn`) reachable — the default channel already works from CN networks; when `huggingface.co` is blocked the fallback transport routes through `hf-mirror.com`, so no VPN is required |
+| Official model repositories | **6 / 6** downloaded, loaded, synthesized |
+| Automated tests | **228 passing** — 203 CPU + 25 on-GPU integration |
+| Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
+| GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
+| Precision / attention | bfloat16 · sdpa (no flash-attn on ROCm) |
+| Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
 
-The six official repositories behind the aliases, with their approximate
-download sizes (numbers identical to `scripts/download_models.sh --help`):
+The flagship demo tab, captured live on the validation machine:
 
-| 别名 / alias | 仓库 / repo | 大小 / size |
-|---|---|---|
-| `tokenizer` | `Qwen/Qwen3-TTS-Tokenizer-12Hz` | 651M |
-| `custom-voice` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 4.3G |
-| `voice-design` | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 4.3G |
-| `base` | `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 4.3G |
-| `custom-voice-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 2.4G |
-| `base-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 2.4G |
-| — | **合计 / Total** | **≈ 18 GB** |
+![Preset Speakers tab synthesizing on Radeon 8060S](docs/img/demo-customvoice.png)
 
-## Quickstart
+🔊 **Hear it** — [5.5 s sample (Mandarin)](evidence/demo-rest-gen-zh.wav)
+generated through the demo's REST API during the validation run recorded in
+[`evidence/demo-smoke.txt`](evidence/demo-smoke.txt).
 
-Five commands from zero to a talking browser tab:
+## Quick Start
+
+### 🚀 Try it first (~5 GB download)
+
+You do **not** need all six checkpoints to get started. The `tokenizer` +
+`custom-voice` subset (~5 GB) is enough for the Python snippet below and the
+demo's **Preset Speakers** and **Codec** tabs:
 
 ```bash
 git clone https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
 cd Qwen3-TTS-ROCm
-bash scripts/install.sh          # venv + pinned AMD ROCm wheels + editable install + GPU gate
-bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, hf-mirror fallback
-bash scripts/run_demo.sh         # enhanced demo -> http://localhost:8000
+bash scripts/install.sh                              # venv + pinned AMD ROCm wheels + GPU gate
+bash scripts/download_models.sh tokenizer custom-voice   # ~5 GB, ModelScope-first
+bash scripts/run_demo.sh                             # -> http://localhost:8000
 ```
 
-No need for all six up front: subset downloads are supported, e.g.
-`bash scripts/download_models.sh tokenizer custom-voice  # ≈5GB, enough for the Python snippet and preset voices / cloning`.
-
-Notes:
-
-* `scripts/install.sh` is idempotent (safe to re-run) and ends with a GPU
-  sanity gate that prints `SPIKE-GPU-OK` on success.
-* Model weights download to `<repo>/models/` (overridable via
-  `$QWEN3_TTS_ROCM_MODELS_DIR`). Interrupted transfers resume; already-complete
-  repos short-circuit so re-runs are cheap.
-* `scripts/install.sh --with-models` chains the download step.
-* After install, `qwen3-tts-rocm-check` runs the bilingual environment
-  self-check at any time (read-only, never raises).
-
-### Minimal Python usage
-
-The smallest program that proves the loader promise — load once through us,
-then everything else is pure official API, mirroring the upstream README
-quickstart:
+Or skip the UI — the smallest program that proves the loader promise (load
+once through us, then it's pure official API, mirroring the upstream
+quickstart):
 
 ```python
 from qwen3_tts_rocm import loader
@@ -83,171 +70,246 @@ import soundfile as sf
 sf.write("hello-rocm.wav", wavs[0], sr)  # 保存 / save
 ```
 
-**Expected output / 预期输出：** the first `loader.load` takes tens of seconds.
-The terminal prints one loader status line, and — only with
-`QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` — the upstream import banners; verbose
-MIOpen kernel-tuning lines on the very first run are normal and are cached
-afterwards (see [docs/troubleshooting.md](docs/troubleshooting.md)).
+Lighter still: `bash scripts/download_models.sh tokenizer custom-voice-0.6b`
+(~3 GB) and use the `custom-voice-0.6b` alias in the snippet.
 
-* `loader.load("custom-voice")` resolves the registry alias to
-  `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` under your models directory and
-  applies ROCm smart defaults (`device_map=auto`, `dtype=bfloat16`,
-  `attn_implementation=sdpa` on HIP). The returned `tts` is the native
-  official object; `generate_custom_voice`,
-  `get_supported_speakers()`, … are untouched official methods.
-* Language values come back from the official getters in **lowercase**
-  (`"auto"`, `"chinese"`, `"english"`, …) — pass them lowercase to the API.
-  Display casing ("Chinese") is handled inside the demo UI layer.
-* Loading never downloads multi-GB weights behind your back: if the target is
-  missing you get a `RuntimeError` that names
-  `bash scripts/download_models.sh` as the remedy.
+**What to expect:** model load time depends strongly on filesystem cache
+state — 2.2–4.9 s per in-session load on the validation host, longer when
+cold, plus one-time MIOpen kernel tuning on the very first run (cached
+afterwards). The terminal prints one loader status line; MIOpen console
+chatter on first run is normal ([troubleshooting](docs/troubleshooting.md)).
+Weights download to `models/` (override with `$QWEN3_TTS_ROCM_MODELS_DIR`);
+interrupted transfers resume, and re-runs short-circuit what's already there.
 
-## The five-tab Gradio demo
-
-`bash scripts/run_demo.sh` serves the enhanced bilingual (中文/English) demo
-application with **five tabs**, backed by a headless `SynthesisService` with
-server-side file validation:
-
-1. **Voice Clone** — reference-audio cloning, incl. a save/load voice
-   sub-tab that persists reusable `.pt` prompt files.
-2. **Preset Speakers** — pick any bundled speaker plus an optional
-   instruction, and synthesize instantly.
-3. **Voice Design** — describe the voice in natural language and generate.
-4. **Codec** — encode→decode roundtrip visualization through the official
-   12Hz speech tokenizer, with rate/steps metadata and a downloadable WAV.
-5. **History** — play, download or delete the current session's generated
-   clips.
-
-A sidebar hosts the model switcher (exactly **one** TTS model stays resident
-at a time — LRU slot of one), a live VRAM/GTT status line and an Advanced
-sampling-parameter accordion (empty = defaults).
-
-### Queue serialization note
-
-The default lives in the `qwen3-tts-rocm-demo` entry point itself
-(`src/qwen3_tts_rocm/cli_demo.py`, where `--concurrency` defaults to 1 per the
-single-GPU queue ruling — upstream's default queue concurrency of 16 makes no
-sense here); `scripts/run_demo.sh` merely forwards arguments to it. Generation
-requests therefore run strictly one at a time, because the single-GPU
-unified-memory device keeps only one model resident, and concurrent synthesis
-would serialize into the same compute pool anyway. The same note is rendered
-visibly in the demo footer. Raise it only if you know why.
-
-### Microphone capture needs HTTPS (or localhost)
-
-Per the browser security model upstream relies on, microphone input in the
-Voice Clone / Codec tabs requires a secure context: either open the page on
-the machine itself (`http://localhost:8000`) or serve the demo over TLS.
-Adapted from the upstream notes, a self-signed pair in one line:
+### Full experience (~18 GB)
 
 ```bash
-openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 \
-    -out cert.pem -subj "/CN=localhost"
-bash scripts/run_demo.sh --ssl-certfile cert.pem --ssl-keyfile key.pem
+bash scripts/download_models.sh   # all six official repositories
+bash scripts/run_demo.sh
 ```
 
-Accept your browser's one-time warning about the self-signed certificate
-and microphone capture works over HTTPS from other LAN devices too.
+| Alias | Official repository | Size |
+|---|---|---|
+| `tokenizer` | `Qwen/Qwen3-TTS-Tokenizer-12Hz` | 651M |
+| `custom-voice` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 4.3G |
+| `voice-design` | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 4.3G |
+| `base` | `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 4.3G |
+| `custom-voice-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 2.4G |
+| `base-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 2.4G |
 
-### Screenshots
+The demo starts even with a partial download; tabs whose model family is
+missing say so instead of failing mysteriously. `scripts/install.sh
+--with-models` chains install + download; `qwen3-tts-rocm-check` runs the
+bilingual environment self-check any time (read-only, never raises).
 
-Captured from the real gfx1151 deployment during the v0.1.0 acceptance run
-(bilingual UI, live synthesis through the Gradio queue):
+## What You Get
 
-| | |
-|---|---|
-| ![Voice Clone tab](docs/img/demo-clone.png) | ![Preset Speakers tab](docs/img/demo-customvoice.png) |
-| ![Voice Design tab](docs/img/demo-voicedesign.png) | ![Codec tab](docs/img/demo-codec.png) |
-| ![History tab](docs/img/demo-history.png) | *Voice Clone · Preset Speakers · Voice Design · Codec · History* |
+* **`qwen3-tts-rocm-check`** — bilingual ROCm environment self-check with a
+  never-raise guarantee.
+* **`loader.load(alias)` / `loader.unload()`** — smart defaults
+  (`device_map=auto`, `bfloat16`, `sdpa` on HIP) applied through official
+  kwargs; returns the **native official model object**, never a wrapper.
+  Loading never downloads weights behind your back — a missing model raises
+  a `RuntimeError` that names the download command.
+* **Six-alias downloader** — ModelScope-first with `hf-mirror.com` fallback
+  (works from CN networks without a VPN), resume support, per-alias or bulk.
+* **Five-tab bilingual Gradio demo** (中文/English): ① Voice Clone
+  (incl. save/load reusable voice prompts) · ② Preset Speakers ·
+  ③ Voice Design · ④ Codec roundtrip · ⑤ History. Sidebar model switcher
+  (one model resident at a time), live VRAM/GTT readout, advanced sampling
+  accordion.
+  <details>
+  <summary>All five tabs (screenshots)</summary>
 
-`demo-voicedesign.png` and `demo-history.png` show the sidebar model switcher
-mid-session: `[voice-design] loaded (已驻留)` with live VRAM/GTT readout, a
-finished 5.6 s synthesis, and the newest-first history table with preview,
-download and delete.
+  | | |
+  |---|---|
+  | ![Voice Clone tab](docs/img/demo-clone.png) | ![Preset Speakers tab](docs/img/demo-customvoice.png) |
+  | ![Voice Design tab](docs/img/demo-voicedesign.png) | ![Codec tab](docs/img/demo-codec.png) |
+  | ![History tab](docs/img/demo-history.png) | *Voice Clone · Preset Speakers · Voice Design · Codec · History* |
 
-## Performance preview (gfx1151)
+  </details>
 
-Measured median real-time factor — RTF, wall-clock seconds per second of
-generated audio, lower is better — on Ryzen AI Max+ PRO 395, bfloat16/sdpa,
-short and medium texts, capped at `max_new_tokens=512`:
-
-| Family | Median RTF range |
-|---|---|
-| Tuned voices, `custom-voice` | 1.31 – 1.51 |
-| Tuned voices, `voice-design` | 1.27 – 1.62 |
-| Zero-shot voice clone (`base`) | 1.71 – 1.88 |
-
-In other words a few seconds of wait for a few seconds of speech on an
-iGPU — usable interactive sentence-scale demos, comfortable batch workloads.
-We quote ranges, not latency promises: numbers drift with clocks, thermals,
-memory pressure and background load on shared-pool unified memory, so treat
-any single session as indicative (full per-cell tables, methodology, n=2
-caveats and reproduce block in [`docs/benchmarks.md`](docs/benchmarks.md)).
-
-> **Degenerate-generation warning:** under the upstream default
-> `max_new_tokens=2048`, sampling can rarely fall into a degenerate loop that
-> keeps rendering for minutes on the iGPU (one measured runaway ran ~23
-> minutes). Every service in this repository therefore defaults to a
-> **512-token guardrail** — override it knowingly via the demo's Advanced
-> accordion or `gen_kwargs`.
+  Demo notes: generation runs at queue concurrency 1 — the single-GPU
+  unified-memory device keeps one model resident, so concurrent synthesis
+  would serialize into the same compute pool anyway. Microphone input in the
+  clone/codec tabs needs a secure context: use `http://localhost:8000` on the
+  machine itself, or serve TLS (`bash scripts/run_demo.sh --ssl-certfile
+  cert.pem --ssl-keyfile key.pem` after a one-line `openssl` self-signed
+  pair). More in [`docs/troubleshooting.md`](docs/troubleshooting.md).
+* **512-token generation guardrail** — bounded render time; under the
+  upstream 2048 default, sampling can rarely degenerate into a minutes-long
+  loop (measured: ~23 min once). Override knowingly via the Advanced
+  accordion or `gen_kwargs`.
+* **Reproducible RTF benchmark** (`scripts/benchmark.py`) with published
+  methodology and archived raw output.
+* **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
+  ([docker/README.md](docker/README.md)).
+* **Test suite** — 203 CPU + 25 on-GPU integration tests, including the
+  upstream-parity proof below.
 
 <a id="why-this-project-exists"></a>
 
-## Why this project exists
+## Why Qwen3-TTS-ROCm?
 
-Qwen3-TTS ships as a CUDA-first stack: upstream expects NVIDIA GPUs and the
-flash-attn kernel library, and nothing about `gfx1151`-class integrated
-graphics worked out of the box. This repository is deliberately *not* a fork
-of that code — it is a thin community shim around the **unmodified official
-`qwen-tts` package**: environment diagnostics, a smart-default model loader,
-a dual-source (ModelScope / hf-mirror) downloader and an enhanced demo UI,
-nothing more. The core promise is stated in the
-[zero-modification guarantee](#zero-modification-guarantee) below and is
-enforced by a dedicated parity test; if you only read one thing before
-trusting this repo, make it that section.
+Upstream Qwen3-TTS primarily documents CUDA / FlashAttention deployment.
+This project adds a validated `gfx1151` ROCm deployment path while keeping
+the official `qwen-tts` package unmodified — a thin shim of environment
+diagnostics, a smart-default loader, a dual-source downloader and an enhanced
+demo UI. Not a fork; no vendored or patched upstream source, ever.
+
+| Capability | Upstream Qwen3-TTS | Qwen3-TTS-ROCm |
+|---|---|---|
+| Official Qwen3-TTS APIs | ✅ | ✅ (unmodified) |
+| Official model weights | ✅ | ✅ (not redistributed) |
+| gfx1151 ROCm path validated | — | ✅ |
+| One-command ROCm wheel install | — | ✅ |
+| ROCm environment self-check | — | ✅ |
+| ModelScope-first downloader | — | ✅ |
+| RTF benchmark evidence on AMD iGPU | — | ✅ |
+
+<a id="compatibility"></a>
+
+## Compatibility
+
+| GPU / Platform | Arch | ROCm | Status | Evidence |
+|---|---|---|---|---|
+| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ Verified — the only independently validated configuration | [`evidence/`](evidence/README.md) |
+| Other ROCm-capable AMD GPUs | — | — | 🧪 **Not yet validated — community testing wanted** | open an issue with your `qwen3-tts-rocm-check` output |
+
+The loader's HIP defaults are generic, but every number and claim in this
+repository traces to the one validated configuration above. Please don't
+assume other cards work (or don't) — reports from other ROCm hardware are
+very welcome and will be listed here.
+
+## Performance
+
+Measured median **RTF** — *wall-clock seconds per second of generated audio;
+lower is better* — on Ryzen AI Max+ PRO 395, bfloat16/sdpa, short/medium
+texts, capped at `max_new_tokens=512`. RTF 1.3 means roughly 1.3 seconds of
+compute for 1 second of audio.
+
+| Workload | Median RTF |
+|---|---:|
+| Custom Voice (1.7B) | 1.31 – 1.51 |
+| Voice Design (1.7B) | 1.27 – 1.62 |
+| Voice Clone, zero-shot (`base` 1.7B) | 1.71 – 1.88 |
+
+A few seconds of wait for a few seconds of speech on an iGPU — usable
+sentence-scale interactive demos, comfortable batch workloads. We quote
+ranges, not latency promises: numbers drift with clocks, thermals, memory
+pressure and background load on shared-pool unified memory. Full per-cell
+tables, methodology, n=2 caveats and the reproduce block:
+[`docs/benchmarks.md`](docs/benchmarks.md).
+
+## Validation & Reproducibility
 
 <a id="zero-modification-guarantee"></a>
 
-## Zero-modification guarantee
-
 * [`loader.load()`](src/qwen3_tts_rocm/loader.py) returns **exactly what the
   official `qwen_tts.Qwen3TTSModel.from_pretrained` returns** — the native
-  model object, never a wrapper. Smart defaults (`bfloat16` + `sdpa` on HIP
-  GPUs) are applied only through official, public keyword arguments.
-* Proof lives in the test suite:
+  model object, never a wrapper; smart defaults go through public official
+  kwargs only.
+* Proof by test:
   [`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
-  builds the stock, unmodified upstream
-  `qwen_tts.cli.demo.build_demo()` around a model object loaded by *our*
-  loader, then executes the demo's own handler closures through Gradio's
-  event registry — including one real GPU synthesis. The recorded transcript
-  of the green run is archived in
+  builds the stock, unmodified upstream `qwen_tts.cli.demo.build_demo()`
+  around a model loaded by *our* loader, then drives the demo's own handler
+  closures through Gradio's event registry — including one real GPU
+  synthesis. Green transcript:
   [`evidence/official-parity.txt`](evidence/official-parity.txt).
-* Project policy (see [`CONTRIBUTING.md`](CONTRIBUTING.md) and
-  [`NOTICE`](NOTICE)): no vendored or patched upstream source, ever;
-  `pyproject.toml` depends on the published `qwen-tts==0.1.1` artifact as-is.
+* Policy (see [`CONTRIBUTING.md`](CONTRIBUTING.md), [`NOTICE`](NOTICE)): no
+  vendored or patched upstream source; `pyproject.toml` depends on the
+  published `qwen-tts==0.1.1` artifact as-is.
 
-## FAQ & troubleshooting
+Re-run the proof yourself:
 
-Symptom → where the fix is documented. The companion guide expands every
-`ERROR:` / `WARN:` / `INFO:` line this project's diagnostics emit.
+```bash
+bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
+qwen3-tts-rocm-check                          # environment self-check
+python -m pytest -m "not gpu and not requires_download" -q   # 203 CPU tests
+python -m pytest -m "gpu" -q                  # 25 on-GPU tests (weights required)
+.venv/bin/python scripts/benchmark.py         # fresh RTF numbers
+```
 
-| Symptom or message | Fix documented in |
+Every quoted number traces to a verbatim artifact listed in
+[`evidence/README.md`](evidence/README.md).
+
+## Verified configuration
+
+Developed and validated on exactly this machine ("tested", not "minimum
+required"):
+
+| Fact | Value |
 |---|---|
-| `PyTorch is not installed or not importable` | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| APU | AMD Ryzen AI Max+ PRO 395 w/ Radeon 8060S (`gfx1151`, Strix Halo class) |
+| Memory | 94 GB LPDDR5X unified pool, ~80 GiB visible to torch/HIP |
+| Kernel | Linux 6.17.0-1032-oem with `amdgpu` DRM driver (check `rocm-smi`) |
+| ROCm / torch | 7.14.0-era wheels from `repo.amd.com`: `torch[device-gfx1151]==2.12.0+rocm7.14.0` (+torchvision/torchaudio) — installed automatically by `scripts/install.sh`, never typed by hand |
+| Python | 3.12 (`≥ 3.10` supported) |
+
+### Requirements & known constraints
+
+* **Disk** — ~5 GB for the minimal subset, ~18 GB for all six repositories
+  (weights live under `models/`, never committed).
+* **Network** — ModelScope (`modelscope.cn`) reachable; when
+  `huggingface.co` is blocked the fallback routes via `hf-mirror.com`, so no
+  VPN is needed.
+* **GPU** — validated only on `gfx1151` (see
+  [Compatibility](#compatibility)); a working `amdgpu` DRM driver and
+  `/dev/kfd` + `/dev/dri` access are required (`render`/`video` groups).
+* **Memory** — a loaded 1.7B model (bf16) used ~4.6 GiB of the unified pool
+  in our session readouts; minimum total-system-memory requirements for
+  smaller machines have **not** been measured. On a shared unified pool,
+  close memory-hungry desktop apps for best RTF.
+
+## Docker
+
+CPU-pull-and-run friendly build with `/dev/kfd` + `/dev/dri` passthrough for
+ROCm execution; mount your `models/` directory into the image's declared
+volume:
+
+```bash
+docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
+docker run --rm \
+    --device /dev/kfd --device /dev/dri \
+    --group-add video --group-add render \
+    -v "$PWD/models:/workspace/models" \
+    -p 8000:8000 \
+    qwen3-tts-rocm:dev
+```
+
+Image validation transcript:
+[`evidence/docker-build-final.txt`](evidence/docker-build-final.txt). Full
+guide — group-GID caveats, CPU-only diagnostics, smoke test without a GPU:
+[`docker/README.md`](docker/README.md).
+
+## Troubleshooting
+
+Run `qwen3-tts-rocm-check` first — then look up your symptom in
+[`docs/troubleshooting.md`](docs/troubleshooting.md), which expands every
+`ERROR:` / `WARN:` / `INFO:` line the diagnostics emit:
+
+| Symptom | Documented fix |
+|---|---|
+| `torch.cuda.is_available() is False` / `/dev/kfd` permissions | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | `The installed PyTorch is NOT an AMD ROCm/HIP build` | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| `torch.cuda.is_available() is False` / `/dev/kfd` permission complaints | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| `HSA_OVERRIDE_GFX_VERSION` warning | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| Download fails on both Hugging Face and ModelScope | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| Out-of-memory or runaway-long generations on unified memory | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| `flash_attention_2` requested but flash-attn missing | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| SoX banner / MIOpen console chatter | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| Download fails on Hugging Face *and* ModelScope | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| Out-of-memory or runaway-long generations | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| MIOpen / SoX console chatter on first run | [docs/troubleshooting.md](docs/troubleshooting.md) |
 
-Quick answers to the two most common questions:
+Quick answers: **"Is this a model?"** No — models stay in the official
+repositories and download separately; this project is glue around them.
+**"Are weights committed to git?"** Never; see `.gitignore` and
+`$QWEN3_TTS_ROCM_MODELS_DIR`.
 
-* *"Is this a model?"* No — models stay in their official repositories and
-  download separately (~18 GB total). This project is glue around them.
-* *"Does it need the weights in git?"* Never; see `.gitignore` and
-  `$QWEN3_TTS_ROCM_MODELS_DIR`.
+## Contributing
+
+Ground rules, dev setup and the PR checklist live in
+[`CONTRIBUTING.md`](CONTRIBUTING.md). Headline rule: contributions must
+preserve the zero-modification guarantee — no patched upstream source, no
+committed weights. Bugs and hardware reports go to the
+[issue tracker](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues).
+
+<a id="attribution--disclaimer"></a>
 
 ## Attribution & disclaimer
 
@@ -257,26 +319,14 @@ Quick answers to the two most common questions:
   [`NOTICE`](NOTICE)). Model weights are not redistributed here.
 * Qwen3-TTS-ROCm is an **unofficial community adaptation**; it is not
   affiliated with, endorsed by, or produced by Alibaba or AMD.
-* Short version of the upstream audio-generation disclaimer (condensed from
-  the official demo footer):
-  *Generated audio may be inaccurate or inappropriate, does not represent
-  anyone's views, and is your responsibility to use lawfully — do not create
-  unlawful, harmful, deepfake or infringing content.*
-
-  中文（同义简版，自上游页脚节选）：*音频由 AI 模型自动生成，可能不准确或不当，
-  不代表任何一方立场；请依法使用，严禁生成违法、有害、深度伪造或侵权内容。*
-
-## Contributing & contact
-
-* Ground rules, dev setup and PR checklist: [`CONTRIBUTING.md`](CONTRIBUTING.md).
-  Headline rule: contributions must preserve the thin-shim guarantee above —
-  no patched upstream source, no committed weights.
-* Bug reports and feature ideas go to this repository's issue tracker.
-* Canonical home of this project:
-  `https://github.com/AIwork4me/Qwen3-TTS-ROCm` — maintained by [@AIwork4me](https://github.com/AIwork4me).
+* Condensed from the upstream demo footer: *generated audio may be inaccurate
+  or inappropriate, does not represent anyone's views, and it is your
+  responsibility to use it lawfully — do not create unlawful, harmful,
+  deepfake or infringing content* (中文：*音频由 AI 模型自动生成，可能不准确或不当，
+  不代表任何一方立场；请依法使用，严禁生成违法、有害、深度伪造或侵权内容*).
 
 ## License
 
-Code: Apache-2.0 — see [`LICENSE`](LICENSE). Model weights remain governed
-by Alibaba's own model license (provenance and download terms in
+Code: Apache-2.0 — see [`LICENSE`](LICENSE). Model weights remain governed by
+Alibaba's own model license (provenance and download terms in
 [`NOTICE`](NOTICE)).

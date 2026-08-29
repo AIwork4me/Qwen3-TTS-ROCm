@@ -1,73 +1,59 @@
-# Qwen3-TTS-ROCm
+# Qwen3-TTS on AMD ROCm
 
-[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
-[![Platform](https://img.shields.io/badge/platform-linux%20%7C%20ROCm%207.14.0-orange.svg)](https://rocm.docs.amd.com/)
-[![Hardware](https://img.shields.io/badge/hardware-gfx1151-red.svg)](https://rocm.docs.amd.com/)
+**官方 Qwen3-TTS。AMD Radeon。零上游补丁。**
+
+在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S（`gfx1151`）上原样运行官方
+[`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS) 包：一条命令安装 AMD 锁定
+版本的 ROCm 7.14.0 PyTorch 轮子，一条下载官方权重，一条启动双语五标签页
+Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经修改的官方 API。
 
 [English](README.md) | **简体中文**
 
-> 本文件是 [`README.md`](README.md) 的逐节中文对照版本：章节一一对应、表格与数字完全一致；
-> 所有代码块原文保留。锚点在两个文件中使用相同的显式 HTML id。
+[![CI](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml)
+[![Release](https://img.shields.io/github/v/release/AIwork4me/Qwen3-TTS-ROCm)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
+[![ROCm](https://img.shields.io/badge/ROCm-7.14.0-orange.svg)](https://rocm.docs.amd.com/)
+[![Hardware](https://img.shields.io/badge/hardware-gfx1151%20%7C%20Radeon%208060S-red.svg)](docs/benchmarks.md#platform)
 
-让官方 Qwen3-TTS 语音合成在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S iGPU（`gfx1151`）上
-**零补丁**运行。一条命令安装 AMD 锁定版本的 ROCm 7.14.0 PyTorch 轮子，另一条下载
-六个官方仓库权重，第三条启动增强版双语五标签页 Gradio 演示（`http://localhost:8000`）。
-所有合成调用全部走未修改的官方 API——
-[详见下文 Why / see Why below](#why-this-project-exists)。
+非官方社区项目 —— 与阿里巴巴及 AMD 无隶属或背书关系，见[归属与免责声明](#归属与免责声明)。
 
-## 环境要求
+## 验证结果，而非承诺
 
-| 组件 | 要求 |
+| 验证项 | 结果 |
 |---|---|
-| APU / iGPU | AMD Ryzen AI Max+ PRO 395（搭载 Radeon 8060S Graphics）—— 架构 `gfx1151`（Strix Halo 级）；开发与验证均在此设备上完成 |
-| 内存 | 统一内存级硬件：CPU 与 iGPU 共享 94 GB LPDDR5X 池（torch/HIP 可见约 80 GiB） |
-| 内核 | Linux 且 iGPU 由 `amdgpu` DRM 驱动接管（用 `rocm-smi` 验证）；已在 `6.17.0-1032-oem` 内核上验证 |
-| ROCm | 来自 AMD pip 索引 `https://repo.amd.com/rocm/whl-multi-arch/` 的 ROCm 7.14.0 代际轮子：`torch[device-gfx1151]==2.12.0+rocm7.14.0`、`torchvision[device-gfx1151]==0.27.0+rocm7.14.0`、`torchaudio==2.11.0+rocm7.14.0` —— 由 `scripts/install.sh` 自动安装，无需手敲 |
-| Python | ≥ 3.10（在 3.12 上验证） |
-| 磁盘 | 约 18 GB 空闲空间，存放六个官方仓库（各自内含语音分词器副本；权重位于 `models/` 下且从不入库提交） |
-| 网络 | 可达 ModelScope（`modelscope.cn`）——默认通道在 CN 网络内直接可用；当 `huggingface.co` 被阻断时回退传输自动改走 `hf-mirror.com`，因此无需 VPN |
+| 官方模型仓库 | **6 / 6** 已下载、加载、合成 |
+| 自动化测试 | **228 通过** —— 203 CPU + 25 GPU 集成 |
+| 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
+| GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
+| 精度 / 注意力 | bfloat16 · sdpa（ROCm 无 flash-attn） |
+| 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
 
-各别名对应的六个官方仓库及近似下载体积（数字与 `scripts/download_models.sh --help` 完全一致）：
+下面是验证真机上实拍的演示标签页：
 
-| 别名 / alias | 仓库 / repo | 大小 / size |
-|---|---|---|
-| `tokenizer` | `Qwen/Qwen3-TTS-Tokenizer-12Hz` | 651M |
-| `custom-voice` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 4.3G |
-| `voice-design` | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 4.3G |
-| `base` | `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 4.3G |
-| `custom-voice-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 2.4G |
-| `base-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 2.4G |
-| — | **合计 / Total** | **≈ 18 GB** |
+![Preset Speakers 标签页在 Radeon 8060S 上合成](docs/img/demo-customvoice.png)
+
+🔊 **听一下** —— [5.5 秒中文示例](evidence/demo-rest-gen-zh.wav)，
+由验证运行中经演示 REST API 生成，过程记录见
+[`evidence/demo-smoke.txt`](evidence/demo-smoke.txt)。
 
 ## 快速开始
 
-从零到会说话的浏览器标签页只需五条命令：
+### 🚀 先跑起来（约 5 GB 下载）
+
+入门**不需要**一次下齐六个权重。`tokenizer` + `custom-voice` 子集（约 5 GB）
+足以运行下面的 Python 片段，以及演示中的**预设音色**和**编解码器**标签页：
 
 ```bash
 git clone https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
 cd Qwen3-TTS-ROCm
-bash scripts/install.sh          # venv + pinned AMD ROCm wheels + editable install + GPU gate
-bash scripts/download_models.sh  # six official checkpoints, ModelScope-first, hf-mirror fallback
-bash scripts/run_demo.sh         # enhanced demo -> http://localhost:8000
+bash scripts/install.sh                              # venv + AMD 锁定 ROCm 轮子 + GPU 闸门
+bash scripts/download_models.sh tokenizer custom-voice   # 约 5 GB，ModelScope 优先
+bash scripts/run_demo.sh                             # -> http://localhost:8000
 ```
 
-不必一次下齐六个：支持子集下载，例如
-`bash scripts/download_models.sh tokenizer custom-voice  # ≈5GB，够跑 Python 片段与预设音色/克隆`。
-
-说明：
-
-* `scripts/install.sh` 幂等（可安全重复执行），结尾是一次 GPU 健全性闸门，成功时打印
-  `SPIKE-GPU-OK`。
-* 模型权重下载到 `<repo>/models/`（可用 `$QWEN3_TTS_ROCM_MODELS_DIR` 改写）。中断可续传；
-  已完成的仓库会被短路跳过，因此重跑代价很低。
-* `scripts/install.sh --with-models` 会串联下载步骤。
-* 安装完成后，`qwen3-tts-rocm-check` 随时可做双语环境自检（只读，绝不抛异常）。
-
-### 最小 Python 示例
-
-最能证明 loader 承诺的最小程序——只经过我们加载一次，此后一切都是纯官方 API，
-与上游 README 快速开始一致：
+也可以跳过界面——最能证明 loader 承诺的最小程序（只经我们加载一次，
+之后全是纯官方 API，与上游快速开始一致）：
 
 ```python
 from qwen3_tts_rocm import loader
@@ -80,166 +66,235 @@ import soundfile as sf
 sf.write("hello-rocm.wav", wavs[0], sr)  # 保存 / save
 ```
 
-**预期输出 / Expected output：** 首次 `loader.load` 需要数十秒。终端只打印一行
-loader 状态提示，且只有在设置 `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` 时才会出现上游导入
-横幅；首次运行时大量的 MIOpen 内核调优日志属正常，之后会被缓存
-（见 [docs/troubleshooting.md](docs/troubleshooting.md)）。
+更轻的选择：`bash scripts/download_models.sh tokenizer custom-voice-0.6b`
+（约 3 GB），片段中改用 `custom-voice-0.6b` 别名即可。
 
-* `loader.load("custom-voice")` 把注册表别名解析到模型目录下的
-  `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` 并应用 ROCm 智能默认值
-  （`device_map=auto`、`dtype=bfloat16`、HIP 上 `attn_implementation=sdpa`）。
-  返回的 `tts` 就是原生官方对象；`generate_custom_voice`、
-  `get_supported_speakers()`……都是原封不动的官方方法。
-* 语言取值由官方 getter 返回时一律为**小写**
-  （`"auto"`、`"chinese"`、`"english"`……）——调用 API 时请传小写。
-  展示大小写（"Chinese"）由演示 UI 层处理。
-* 加载永远不会在背后偷偷下载多 GB 权重：目标缺失时会抛出 `RuntimeError`，
-  并指明 `bash scripts/download_models.sh` 是补救办法。
+**预期表现：** 模型加载时长与文件系统缓存状态强相关——验证真机上同会话内
+加载为 2.2–4.9 秒，冷启动更久；首次运行还有一次性的 MIOpen 内核调优
+（之后有缓存）。终端只打印一行 loader 状态提示；首见的 MIOpen 控制台刷屏
+属正常（[故障排查](docs/troubleshooting.md)）。权重下载到 `models/`
+（可用 `$QWEN3_TTS_ROCM_MODELS_DIR` 改写）；中断可续传，重跑会跳过已完成的仓库。
 
-## 五标签页 Gradio 演示
-
-`bash scripts/run_demo.sh` 提供增强版双语（中文/English）演示应用，包含**五个标签页**，
-由带服务端文件校验的无界面 `SynthesisService` 支撑：
-
-1. **语音克隆（Voice Clone）** —— 参考音频克隆，含保存/加载音色子标签页，
-   可持久化为可复用的 `.pt` 提示文件。
-2. **预设音色（Preset Speakers）** —— 任选内置说话人并附加可选指令，即刻合成。
-3. **音色设计（Voice Design）** —— 用自然语言描述想要的音色并生成。
-4. **编解码器（Codec）** —— 经官方 12Hz 语音分词器的编码→解码往返可视化，
-   附码率/步数元信息与可下载 WAV。
-5. **合成历史（History）** —— 试听、下载或删除当前会话生成的片段。
-
-侧边栏承载模型切换器（同一时刻只有**一个** TTS 模型驻留——LRU 槽位为一）、实时
-VRAM/GTT 状态行以及高级采样参数折叠区（留空即默认值）。
-
-### 排队串行说明
-
-并发默认值位于 `qwen3-tts-rocm-demo` 入口本身（`src/qwen3_tts_rocm/cli_demo.py`
-中 `--concurrency` 默认为 1——单 GPU 排队裁决；上游默认队列并发 16 在此毫无意义），
-`scripts/run_demo.sh` 仅向其原样转发参数。因此生成请求严格逐个执行，因为单 GPU
-统一内存设备同一时刻只驻留一个模型，并发合成本来也会被串行化进同一块算力池。
-同样的说明也会显示在演示页脚。除非清楚缘由，否则不要调高它。
-
-### 麦克风采集需要 HTTPS（或 localhost）
-
-依照上游所依赖的浏览器安全模型，Voice Clone / Codec 标签页中的麦克风输入需要安全上下文：
-要么在本机打开页面（`http://localhost:8000`），要么通过 TLS 提供演示。改编自上游说明，
-一行生成自签名证书对：
+### 完整体验（约 18 GB）
 
 ```bash
-openssl req -newkey rsa:2048 -nodes -keyout key.pem -x509 -days 365 \
-    -out cert.pem -subj "/CN=localhost"
-bash scripts/run_demo.sh --ssl-certfile cert.pem --ssl-keyfile key.pem
+bash scripts/download_models.sh   # 全部六个官方仓库
+bash scripts/run_demo.sh
 ```
 
-接受浏览器关于自签名证书的一次性警告后，局域网其他设备也能通过 HTTPS 使用麦克风采集。
+| 别名 | 官方仓库 | 大小 |
+|---|---|---|
+| `tokenizer` | `Qwen/Qwen3-TTS-Tokenizer-12Hz` | 651M |
+| `custom-voice` | `Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice` | 4.3G |
+| `voice-design` | `Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign` | 4.3G |
+| `base` | `Qwen/Qwen3-TTS-12Hz-1.7B-Base` | 4.3G |
+| `custom-voice-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-CustomVoice` | 2.4G |
+| `base-0.6b` | `Qwen/Qwen3-TTS-12Hz-0.6B-Base` | 2.4G |
 
-### 截图
+模型不齐时演示照常启动；缺哪一族模型，对应标签页会明确提示而不是莫名报错。
+`scripts/install.sh --with-models` 可串联安装与下载；`qwen3-tts-rocm-check`
+随时可做双语环境自检（只读，绝不抛异常）。
 
-以下截图捕获自 v0.1.0 验收阶段在 gfx1151 真机上的运行
-（双语界面，经 Gradio 队列完成真实合成）：
+## 你能得到什么
 
-| | |
-|---|---|
-| ![Voice Clone 语音克隆](docs/img/demo-clone.png) | ![Preset Speakers 预设音色](docs/img/demo-customvoice.png) |
-| ![Voice Design 音色设计](docs/img/demo-voicedesign.png) | ![Codec 编解码器](docs/img/demo-codec.png) |
-| ![History 合成历史](docs/img/demo-history.png) | *语音克隆 · 预设音色 · 音色设计 · 编解码器 · 合成历史* |
+* **`qwen3-tts-rocm-check`** —— 双语 ROCm 环境自检，绝不抛异常。
+* **`loader.load(alias)` / `loader.unload()`** —— 通过官方公开参数施加智能
+  默认值（HIP 上 `device_map=auto`、`bfloat16`、`sdpa`），返回**原生官方模型
+  对象**，绝无包装。加载绝不会在背后偷偷下载权重——模型缺失时抛出
+  `RuntimeError` 并直接给出下载命令。
+* **六别名下载器** —— ModelScope 优先、`hf-mirror.com` 回退（CN 网络免 VPN
+  可用），支持断点续传，可按别名或整批下载。
+* **五标签页双语 Gradio 演示**（中文/English）：① 语音克隆（含可保存/复用的
+  音色提示）· ② 预设音色 · ③ 音色设计 · ④ 编解码器往返 · ⑤ 合成历史。
+  侧边栏含模型切换器（同一时刻只驻留一个模型）、实时 VRAM/GTT 读数与高级
+  采样参数折叠区。
+  <details>
+  <summary>五个标签页截图</summary>
 
-`demo-voicedesign.png` 与 `demo-history.png` 中可见侧边栏模型切换器的会话
-状态：`[voice-design] loaded (已驻留)` 及实时显存读数、一段 5.6 秒的合成
-结果，以及按时间倒序、支持试听/下载/删除的历史列表。
+  | | |
+  |---|---|
+  | ![Voice Clone 语音克隆](docs/img/demo-clone.png) | ![Preset Speakers 预设音色](docs/img/demo-customvoice.png) |
+  | ![Voice Design 音色设计](docs/img/demo-voicedesign.png) | ![Codec 编解码器](docs/img/demo-codec.png) |
+  | ![History 合成历史](docs/img/demo-history.png) | *语音克隆 · 预设音色 · 音色设计 · 编解码器 · 合成历史* |
 
-## 性能速览（gfx1151）
+  </details>
 
-实测中位实时率（RTF：每生成一秒音频消耗的实际秒数，越低越好）——Ryzen AI Max+ PRO 395、
-bfloat16/sdpa、短句与中等长度文本、上限 `max_new_tokens=512`：
-
-| 模型族 | 中位 RTF 区间 |
-|---|---|
-| 定制音色，`custom-voice` | 1.31 – 1.51 |
-| 定制音色，`voice-design` | 1.27 – 1.62 |
-| 零样本声音克隆（`base`） | 1.71 – 1.88 |
-
-也就是说，在 iGPU 上等几秒得到几秒语音——句子级交互演示可用，批量离线合成更是绰绰有余。
-我们只给区间，不做绝对延迟承诺：在统一内存共享池上，数字随时钟、温度、内存压力与后台
-负载漂移，任何单次结果都只能视作指示性（完整分格表格、方法学、n=2 注意事项与复现命令见
-[`docs/benchmarks.md`](docs/benchmarks.md)）。
-
-> **退化生成警告：** 在上游默认的 `max_new_tokens=2048` 下，采样偶尔会陷入退化循环，
-> 在 iGPU 上连续渲染数分钟（实测一次失控约 23 分钟）。因此本仓库的所有服务默认启用
-> **512 token 护栏**——确有必要时再通过演示的高级折叠区或 `gen_kwargs` 有意识地覆盖。
+  演示说明：生成按队列并发 1 串行执行——单 GPU 统一内存设备只驻留一个模型，
+  并发合成本来也会被串行化进同一块算力池。克隆/编解码器标签页的麦克风输入
+  需要安全上下文：在本机用 `http://localhost:8000` 打开，或改走 TLS（先用一行
+  `openssl` 生成自签名证书对，再 `bash scripts/run_demo.sh --ssl-certfile
+  cert.pem --ssl-keyfile key.pem`）。详见
+  [`docs/troubleshooting.md`](docs/troubleshooting.md)。
+* **512 token 生成护栏** —— 限定渲染时长；上游默认 2048 下采样偶尔会退化成
+  数分钟的循环（实测一次约 23 分钟）。确有必要时再经高级折叠区或
+  `gen_kwargs` 覆盖。
+* **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
+* **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
+  （[docker/README.md](docker/README.md)）。
+* **测试套件** —— 203 CPU + 25 GPU 集成测试，含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
 
-## 为什么有这个项目
+## 为什么选择 Qwen3-TTS-ROCm？
 
-Qwen3-TTS 以 CUDA 优先的方式发布：上游假定 NVIDIA GPU 与 flash-attn 内核库，而
-`gfx1151` 一类的集成显卡开箱完全无法工作。本仓库刻意**不是**那些代码的 fork——它是围绕
-**未经修改的官方 `qwen-tts` 包**的一层薄壳：环境诊断、智能默认的模型加载器、双源
-（ModelScope / hf-mirror）下载器和一个增强版演示界面，仅此而已。核心承诺见下文的
-[零修改保证](#zero-modification-guarantee)，并由专门的一致性测试强制执行；在信任本仓库
-前，若只读一节，请读这一节。
+上游 Qwen3-TTS 的部署文档以 CUDA / FlashAttention 为主。本项目在不修改官方
+`qwen-tts` 包的前提下，补充一条经过验证的 `gfx1151` ROCm 部署路径——只是一层
+薄壳：环境诊断、智能默认加载器、双源下载器和增强版演示界面。不是 fork；
+永远不内置、不补丁上游源码。
+
+| 能力 | 上游 Qwen3-TTS | Qwen3-TTS-ROCm |
+|---|---|---|
+| 官方 Qwen3-TTS API | ✅ | ✅（未修改） |
+| 官方模型权重 | ✅ | ✅（不再分发） |
+| gfx1151 ROCm 路径已验证 | — | ✅ |
+| 一条命令安装 ROCm 轮子 | — | ✅ |
+| ROCm 环境自检 | — | ✅ |
+| ModelScope 优先下载器 | — | ✅ |
+| AMD iGPU 上的 RTF 基准证据 | — | ✅ |
+
+<a id="兼容性"></a>
+
+## 兼容性
+
+| GPU / 平台 | 架构 | ROCm | 状态 | 证据 |
+|---|---|---|---|---|
+| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ 已验证 —— 唯一经过独立验证的配置 | [`evidence/`](evidence/README.md) |
+| 其他 ROCm capable AMD GPU | — | — | 🧪 **尚未验证 —— 欢迎社区实测** | 提交 issue 并附上 `qwen3-tts-rocm-check` 输出 |
+
+loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都只追溯到上表这一
+个已验证配置。请勿臆断其他显卡能或不能用——非常欢迎其他 ROCm 硬件的实测
+反馈，验证后会在表中列出。
+
+## 性能
+
+在 Ryzen AI Max+ PRO 395、bfloat16/sdpa、短句与中等长度文本、上限
+`max_new_tokens=512` 条件下实测的**中位 RTF**——*每生成一秒音频消耗的实际
+秒数，越低越好*。RTF 1.3 的含义是：生成 1 秒音频约消耗 1.3 秒计算时间。
+
+| 工作负载 | 中位 RTF |
+|---|---:|
+| 定制音色 Custom Voice（1.7B） | 1.31 – 1.51 |
+| 音色设计 Voice Design（1.7B） | 1.27 – 1.62 |
+| 零样本语音克隆（`base` 1.7B） | 1.71 – 1.88 |
+
+在 iGPU 上等几秒得到几秒语音——句子级交互演示可用，批量离线合成更是从容。
+我们只给区间，不做绝对延迟承诺：统一内存共享池上，数字随时钟、温度、内存
+压力与后台负载漂移。完整分格表格、方法学、n=2 注意事项与复现命令见
+[`docs/benchmarks.md`](docs/benchmarks.md)。
+
+## 验证与可复现性
 
 <a id="zero-modification-guarantee"></a>
 
-## 零修改保证
-
 * [`loader.load()`](src/qwen3_tts_rocm/loader.py) 返回的就是**官方
-  `qwen_tts.Qwen3TTSModel.from_pretrained` 的返回值本身**——原生模型对象，绝无包装。
-  智能默认值（HIP GPU 上 `bfloat16` + `sdpa`）只通过公开的官方关键字参数施加。
-* 证据就在测试套件里：
-  [`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
-  用*我们*的 loader 加载出的模型对象构建原封不动的上游
-  `qwen_tts.cli.demo.build_demo()`，再经 Gradio 自身的事件注册表执行演示自己的回调闭包
-  ——包括一次真实的 GPU 合成。绿色通过的运行记录存档于
+  `qwen_tts.Qwen3TTSModel.from_pretrained` 的返回值本身**——原生模型对象，
+  绝无包装；智能默认值只通过公开的官方关键字参数施加。
+* 证明靠测试：[`tests/test_official_demo_parity.py`](tests/test_official_demo_parity.py)
+  用*我们* loader 加载出的模型对象构建原封不动的上游
+  `qwen_tts.cli.demo.build_demo()`，再经 Gradio 自身的事件注册表执行演示
+  自己的回调闭包——含一次真实 GPU 合成。绿色通过记录：
   [`evidence/official-parity.txt`](evidence/official-parity.txt)。
-* 项目政策（见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与
-  [`NOTICE`](NOTICE)）：永远不内置、不补丁上游源码；`pyproject.toml`
-  原样依赖已发布的 `qwen-tts==0.1.1` 制品。
+* 项目政策（见 [`CONTRIBUTING.md`](CONTRIBUTING.md) 与 [`NOTICE`](NOTICE)）：
+  不内置、不补丁上游源码；`pyproject.toml` 原样依赖已发布的
+  `qwen-tts==0.1.1` 制品。
 
-## FAQ 与故障排查
+自己动手复核：
 
-症状 → 修复位置。配套指南展开本项目的诊断输出的每一条 `ERROR:` / `WARN:` / `INFO:`。
+```bash
+bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
+qwen3-tts-rocm-check                          # 环境自检
+python -m pytest -m "not gpu and not requires_download" -q   # 203 个 CPU 测试
+python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
+.venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
+```
 
-| 症状或消息 | 修复文档 |
+每个引用的数字都可追溯到 [`evidence/README.md`](evidence/README.md) 中列出
+的逐字记录。
+
+## 已验证配置
+
+开发与验证均在这台机器上完成（这是"实测配置"，不是"最低要求"）：
+
+| 事实 | 数值 |
 |---|---|
-| `PyTorch is not installed or not importable` | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| APU | AMD Ryzen AI Max+ PRO 395（Radeon 8060S，`gfx1151`，Strix Halo 级） |
+| 内存 | 94 GB LPDDR5X 统一内存池，torch/HIP 可见约 80 GiB |
+| 内核 | Linux 6.17.0-1032-oem，`amdgpu` DRM 驱动（用 `rocm-smi` 确认） |
+| ROCm / torch | 来自 `repo.amd.com` 的 7.14.0 代际轮子：`torch[device-gfx1151]==2.12.0+rocm7.14.0`（含 torchvision/torchaudio）—— 由 `scripts/install.sh` 自动安装，无需手敲 |
+| Python | 3.12（支持 `≥ 3.10`） |
+
+### 需求与已知约束
+
+* **磁盘** —— 最小子集约 5 GB，六个仓库全量约 18 GB（权重位于 `models/`，
+  从不提交入库）。
+* **网络** —— 需可达 ModelScope（`modelscope.cn`）；`huggingface.co` 被阻断
+  时回退传输自动改走 `hf-mirror.com`，无需 VPN。
+* **GPU** —— 仅在 `gfx1151` 上验证过（见[兼容性](#兼容性)）；需要 `amdgpu`
+  DRM 驱动正常工作，且能访问 `/dev/kfd` + `/dev/dri`（`render`/`video` 组）。
+* **内存** —— 我们会话中驻留的 1.7B 模型（bf16）占用统一内存池约 4.6 GiB；
+  更小内存机器的最低要求**未经实测**。共享统一内存池上，关闭吃内存的桌面
+  应用可获得更好 RTF。
+
+## Docker
+
+构建容器镜像并通过 `/dev/kfd` + `/dev/dri` 直通在 ROCm 上运行；把宿主机的
+`models/` 目录挂载进镜像声明的卷即可：
+
+```bash
+docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
+docker run --rm \
+    --device /dev/kfd --device /dev/dri \
+    --group-add video --group-add render \
+    -v "$PWD/models:/workspace/models" \
+    -p 8000:8000 \
+    qwen3-tts-rocm:dev
+```
+
+镜像验证记录：[`evidence/docker-build-final.txt`](evidence/docker-build-final.txt)。
+完整指南——组 GID 注意事项、无 GPU 诊断、无 GPU 冒烟测试——见
+[`docker/README.md`](docker/README.md)。
+
+## 故障排查
+
+先运行 `qwen3-tts-rocm-check`，再到
+[`docs/troubleshooting.md`](docs/troubleshooting.md) 对症查找——该指南逐条
+展开诊断输出的每一条 `ERROR:` / `WARN:` / `INFO:`：
+
+| 症状 | 修复文档 |
+|---|---|
+| `torch.cuda.is_available() is False` / `/dev/kfd` 权限 | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | `The installed PyTorch is NOT an AMD ROCm/HIP build` | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| `torch.cuda.is_available() is False` / `/dev/kfd` 权限投诉 | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| `HSA_OVERRIDE_GFX_VERSION` 警告 | [docs/troubleshooting.md](docs/troubleshooting.md) |
 | Hugging Face 与 ModelScope 双双下载失败 | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| 统一内存上的显存不足或超长生成 | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| 请求了 `flash_attention_2` 但缺 flash-attn | [docs/troubleshooting.md](docs/troubleshooting.md) |
-| SoX 横幅 / MIOpen 控制台刷屏 | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| 显存不足或超长生成 | [docs/troubleshooting.md](docs/troubleshooting.md) |
+| 首次运行的 MIOpen / SoX 控制台刷屏 | [docs/troubleshooting.md](docs/troubleshooting.md) |
 
-两个最常见问题的快速回答：
+两个常见问题的快速回答：**"这是一个模型吗？"** 不是——模型留在官方仓库
+单独下载，本项目只是包裹它们的胶水。**"权重会提交进 git 吗？"** 永远不会；
+参见 `.gitignore` 与 `$QWEN3_TTS_ROCM_MODELS_DIR`。
 
-* *“这是一个模型吗？”* 不是——模型留在官方仓库里单独下载（合计约 18 GB）。
-  本项目只是包裹它们的一层胶水。
-* *“需要把权重提交进 git 吗？”* 永远不需要；参见 `.gitignore` 与
-  `$QWEN3_TTS_ROCM_MODELS_DIR`。
+## 参与贡献
+
+守则、开发环境搭建与 PR 清单见 [`CONTRIBUTING.md`](CONTRIBUTING.md)。头条
+规则：贡献必须维护零修改保证——不改上游源码、不入库权重。Bug 反馈与硬件
+实测请到 [issue 跟踪器](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues)。
+
+<a id="归属与免责声明"></a>
 
 ## 归属与免责声明
 
-* Qwen3-TTS 及全部模型权重出自 **阿里巴巴 Qwen 团队**的工作
-  （[上游仓库](https://github.com/QwenLM/Qwen3-TTS)，Apache-2.0；权重遵循阿里自有的
-  Qwen 模型许可——下载即接受其条款，详见 [`NOTICE`](NOTICE)）。本项目不再分发模型权重。
-* Qwen3-TTS-ROCm 是一个**非官方社区适配版**；与阿里巴巴及 AMD 无隶属、背书或出品关系。
-* 上游音频生成免责声明简版（自官方演示页脚节选浓缩）：
-  *生成的音频可能不准确或不恰当，不代表任何人的立场；如何合法使用由你自行负责——
-  禁止制造违法、有害、深度伪造或侵权内容。*
-
-  中文（同义简版，自上游页脚节选）：*音频由 AI 模型自动生成，可能不准确或不当，
-  不代表任何一方立场；请依法使用，严禁生成违法、有害、深度伪造或侵权内容。*
-
-## 参与贡献与联系
-
-* 开发环境搭建、守则与 PR 清单：[`CONTRIBUTING.md`](CONTRIBUTING.md)。头条规则：
-  贡献必须维护上文“薄壳保证”——不改上游源码、不入库权重。
-* Bug 反馈与功能建议请到本仓库的 issue 跟踪器提交。
-* 本项目的主页：`https://github.com/AIwork4me/Qwen3-TTS-ROCm` —— 维护者：[@AIwork4me](https://github.com/AIwork4me)。
+* Qwen3-TTS 及全部模型权重出自**阿里巴巴 Qwen 团队**的工作
+  （[上游仓库](https://github.com/QwenLM/Qwen3-TTS)，Apache-2.0；权重遵循
+  阿里自有的 Qwen 模型许可——下载即接受其条款，详见 [`NOTICE`](NOTICE)）。
+  本项目不再分发模型权重。
+* Qwen3-TTS-ROCm 是一个**非官方社区适配版**；与阿里巴巴及 AMD 无隶属、
+  背书或出品关系。
+* 上游演示页脚节选浓缩：*生成的音频可能不准确或不当，不代表任何人的立场；
+  如何合法使用由你自行负责——禁止制造违法、有害、深度伪造或侵权内容*
+  （English: *generated audio may be inaccurate or inappropriate, does not
+  represent anyone's views, and it is your responsibility to use it
+  lawfully*）。
 
 ## 许可证
 
-代码：Apache-2.0 —— 见 [`LICENSE`](LICENSE)。模型权重仍受阿里自有模型许可约束
-（出处与下载条款见 [`NOTICE`](NOTICE)）。
+代码：Apache-2.0 —— 见 [`LICENSE`](LICENSE)。模型权重仍受阿里自有模型许可
+约束（出处与下载条款见 [`NOTICE`](NOTICE)）。
