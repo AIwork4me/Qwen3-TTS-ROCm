@@ -89,9 +89,9 @@ bilingual demo, GPU test suite and measured performance numbers.
 ### Performance
 
 - Measured real-time factors on gfx1151 (Ryzen AI Max+ PRO 395 iGPU,
-  bfloat16/sdpa): tuned voices render short/medium sentences at roughly
-  1.3–1.6× realtime median RTF; zero-shot voice cloning sits around
-  ~1.8× realtime. Full per-cell tables and caveats in `docs/benchmarks.md`.
+  bfloat16/sdpa): tuned voices render short/medium sentences at a median
+  RTF of 1.3–1.6 (lower is better); zero-shot voice cloning measured
+  around RTF ~1.8. Full per-cell tables and caveats in `docs/benchmarks.md`.
 
 ### Security
 
