@@ -36,6 +36,7 @@ each file, or follow [docs/benchmarks.md](../docs/benchmarks.md) and
 | `spike/gpu-probe.txt` | The spike's GPU sanity probe (`SPIKE-GPU-OK`) | `/tmp/spike_probe.py` (script in report) |
 | `spike/tokenizer-smoke.txt` | The spike's tokenizer smoke (`TOKENIZER-OK`) | manual probe session |
 | `docker-build-final.txt` | Final Docker image build log (`EXIT=0`; ≈ 2 GB of ROCm wheels downloaded). Post-build `docker image inspect .Size` on the same host: 2,466,485,851 bytes (≈ 2.47 GB compressed content) — metric details in [`docker/README.md`](../docker/README.md) | `docker build` per [`docker/README.md`](../docker/README.md) |
+| `docker-gpu-gen-2026-08-30.txt` | Real in-container GPU synthesis: image rebuilt from main, container run with `/dev/kfd`+`/dev/dri` passthrough and mounted `models/`, one custom-voice REST synthesis (6.24 s WAV, `Finished`), in-container self-check `HIP available · 1 GPU (gfx1151) · models 6/6`; image content size 2,466,515,335 bytes ≈ 2.47 GB (2026-08-30) | `docker build` + `docker run` + demo REST API per [`docker/README.md`](../docker/README.md) |
 | `docker-ci.txt` | Docker + CI validation ladder of 2026-08-27 — the offline-equivalent checks run before the repository had a GitHub remote (superseded for CI by the live green [Actions runs](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions); kept as the Docker validation record) | `docker build` + probe script |
 
 ## Reading guide

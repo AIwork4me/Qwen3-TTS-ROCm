@@ -1,0 +1,40 @@
+# cmd: docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .   (from main @ a4f0acb)
+# build real: 385.55 s (base/wheel layers cached; source + package-install layers rebuilt)
+# cmd: docker run --rm -d --name qwen3-gpu-gen-test \
+#        --device /dev/kfd --device /dev/dri \
+#        --group-add $(getent group video | cut -d: -f3) --group-add $(getent group render | cut -d: -f3) \
+#        -v /home/amd/Desktop/Qwen3-TTS-ROCm/models:/workspace/models -p 8000:8000 qwen3-tts-rocm:dev
+# recorded: 2026-08-30 07:27:05 CST on validation host amd-HP-ZBook-Ultra
+
+=== 容器启动日志（截尾）===
+[1;91mE-001h rocSHMEM[0m Could not open libnuma. Returning	[90mNUMAWrapper@src/gda/numa_wrapper.cpp:48[0m
+=== 容器内自检 ===
+
+Run 'docker exec --help' for more information
+INFO: models: 6/6 downloaded (已下载模型数).
+Summary: HIP available (可用); ROCm version: 7.14.60850; GPUs: 1 (gfx1151); warnings: 0; notes: 2; errors: 0 | 中文摘要：环境自检完成，HIP available (可用)，版本 7.14.60850，可见 GPU 1 块，警告 0 条，提示 2 条，错误 0 条。
+=== in-container REAL synthesis via demo REST API (host client -> :8000) ===
+elapsed 21.0s | status: Finished. (生成完成)
+wav: 6.24s @ 24000Hz, finite=True, RMS=0.1659
+DOCKER-GPU-GEN-OK
+=== image size ===
+2466515335 bytes
+=== teardown ===
+container stopped (auto-remove)
+1
+
+=== post-run leftover check ===
+$ docker ps -a --filter name=qwen3-gpu-gen-test
+CONTAINER ID   IMAGE     COMMAND   CREATED   STATUS    PORTS     NAMES   <- empty, container auto-removed
+
+=== curator notes ===
+# boot log shows one benign startup line: rocSHMEM 'Could not open libnuma'
+# (container console chatter; synthesis unaffected).
+# A first 'docker exec --device ...' attempt was rejected (docker exec does
+# not accept --device); the plain exec succeeded - the container already has
+# GPU access from its run flags.
+# Image content size 2,466,515,335 bytes ~= 2.47 GB, matching the figure
+# quoted in docker/README.md.
+# Boot wait observed during the run (from the operator transcript, not the
+# raw log): HTTP 200 after ~5 s poll loop; the REST synthesis roundtrip
+# below additionally proves the request path end to end.
