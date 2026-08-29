@@ -12,6 +12,13 @@ body:
         the README. If a field is unknown, write "unknown" rather than
         guessing.
 
+        > **Testing a non-gfx1151 GPU?** The bundled `scripts/install.sh` is
+        > the validated **gfx1151** installation path (pinned
+        > `device-gfx1151` wheels). For another GPU architecture, use the
+        > ROCm/PyTorch stack appropriate for your device and paste the exact
+        > installation commands below. A gfx1151-wheel installation failure
+        > is **not** evidence that your GPU is unsupported.
+
   - type: input
     id: gpu-model
     attributes:
@@ -101,6 +108,21 @@ body:
         - manual pip install (repo.amd.com index)
         - Docker image
         - other (describe below)
+    validations:
+      required: true
+
+  - type: textarea
+    id: install-commands
+    attributes:
+      label: Exact ROCm / PyTorch installation commands
+      description: |
+        Paste the commands (or Dockerfile / image tag) that produced your
+        stack, so the report is reproducible — e.g.:
+        ```
+        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+        pip install -e ".[dev,demo]"
+        ```
+      render: shell
     validations:
       required: true
 
