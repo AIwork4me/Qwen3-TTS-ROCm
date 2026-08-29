@@ -9,6 +9,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Claims-consistency round: runtime messages no longer make claims the
+  project cannot back — the first-load announcement describes cache/kernel
+  causes instead of predicting "tens of seconds", and the flash-attn guard
+  error (EN+CN) is scoped to the validated wheel stack. CPU CI now runs a
+  real Python 3.10 / 3.11 / 3.12 matrix (locally verified on all three
+  before authoring), split into test/build jobs with `permissions:
+  contents: read` and actions pinned to full commit SHAs. `install.sh`
+  fails fast on an unsupported interpreter before the multi-GB ROCm wheel
+  downloads (covered by `tests/test_install_sh.py`) and no longer quotes a
+  drift-prone wheel size. The hardware-validation issue form warns
+  non-gfx1151 testers away from the gfx1151-specific installer and now
+  requires exact install commands; Docker size wording names the metric
+  behind every number (inspect `.Size` / `docker history` layer /
+  `docker system df -v`).
+
 - Public-facing trust pass (EN+CN kept in lockstep): READMEs restructured
   hero-first — verified-results table up top, a minimal ~5 GB quick start
   before the full ~18 GB download, a compatibility matrix that separates the

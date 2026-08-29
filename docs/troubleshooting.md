@@ -274,9 +274,10 @@ mistaken for a hang:
   later runs. 首次运行出现数百行内核调优日志属正常，之后缓存复用，不再刷屏。
 * **One bilingual expectation line from the loader.** Before the first load
   the loader prints to stderr
-  `[qwen3-tts-rocm] 加载 <model> … 首次加载需数十秒，终端将出现大量内核日志（属正常）/ loading; verbose kernel logs are expected on first run` —
-  a quiet terminal during the following tens of seconds is expected, not a
-  freeze. loader 的这行双语提示即为此预期而设。
+  `[qwen3-tts-rocm] 加载 <model> … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run` —
+  a quiet terminal while the model loads is expected, not a freeze; how much
+  longer the very first load takes depends on filesystem cache state and the
+  one-time kernel initialization. loader 的这行双语提示即为此预期而设。
 * **Upstream import banners are auto-suppressed.** The official package
   prints its SoX "not found" ad and flash-attn banner straight to the file
   descriptors at import time; both `loader.load()` and the demo backend wrap

@@ -88,8 +88,10 @@ docker run --rm --entrypoint bash qwen3-tts-rocm:dev \
   if your network requires a mirror.
 * Image size, as measured on the validation host (Docker with the containerd
   image store): `docker image inspect` reports `.Size` ≈ 2.47 GB
-  (2,466,485,851 bytes — compressed content); `docker history` shows the
-  ROCm wheel-stack `RUN` layer at ≈ 7.06 GB unpacked; `docker image ls`
-  reports ≈ 10.2 GB disk usage for the built image. Plan for ~10 GB of
-  local disk. The pip caches are cleaned within the same RUN layer to avoid
-  double-charging the size.
+  (2,466,485,851 bytes, matching the CONTENT SIZE column); `docker history`
+  shows the ROCm wheel-stack `RUN` layer at ≈ 7.06 GB unpacked;
+  `docker image ls` / `docker system df -v` report ≈ 10.2 GB for the image
+  (SIZE / DISK USAGE column). Actual host storage varies with the storage
+  backend and shared layers — measure with `docker system df -v`. The pip
+  caches are cleaned within the same RUN layer to avoid double-charging
+  the size.

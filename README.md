@@ -25,14 +25,15 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **227 passing** — 202 CPU + 25 real-GPU · 1 HIP-dependent skip |
+| Automated tests | **232 passing** — 207 CPU + 25 real-GPU · 1 HIP-dependent skip |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
 
-228 tests are collected in total; on an AMD ROCm host the HIP-gated CPU check
-runs as well, so the validation host itself passes 228/228 (203 CPU + 25 GPU).
+233 tests are collected in total; on an AMD ROCm host the HIP-gated CPU check
+runs as well, so the validation host itself passes 233/233 (208 CPU + 25 GPU).
+The CPU suite runs on Python 3.10 / 3.11 / 3.12 in CI.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -115,7 +116,8 @@ bilingual environment self-check any time (read-only, never raises).
   Loading never downloads weights behind your back — a missing model raises
   a `RuntimeError` that names the download command.
 * **Six-alias downloader** — ModelScope-first with `hf-mirror.com` fallback
-  (works from CN networks without a VPN), resume support, per-alias or bulk.
+  (the recorded validation host downloaded everything from a CN network
+  without a VPN; other networks may vary), resume support, per-alias or bulk.
 * **Five-tab bilingual Gradio demo** (中文/English): ① Voice Clone
   (incl. save/load reusable voice prompts) · ② Preset Speakers ·
   ③ Voice Design · ④ Codec roundtrip · ⑤ History. Sidebar model switcher
@@ -147,7 +149,7 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 227 passing (202 CPU + 25 real-GPU integration; 228
+* **Test suite** — 232 passing (207 CPU + 25 real-GPU integration; 233
   collected, 1 HIP-dependent skip on CPU-only CI), including the
   upstream-parity proof below.
 
@@ -183,7 +185,10 @@ demo UI. Not a fork; no vendored or patched upstream source, ever.
 The loader's HIP defaults are generic, but every number and claim in this
 repository traces to the one validated configuration above. Please don't
 assume other cards work (or don't) — reports from other ROCm hardware are
-very welcome and will be listed here.
+very welcome and will be listed here. Note that the bundled
+`scripts/install.sh` is the validated `gfx1151` path (pinned
+`device-gfx1151` wheels); for other architectures, use an appropriate ROCm
+PyTorch stack and report the exact install method in your validation report.
 
 **Tested another AMD GPU? [Submit a hardware validation report](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)** — measured results only, and the matrix grows.
 
@@ -231,7 +236,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 202 CPU tests (203 on AMD hosts)
+python -m pytest -m "not gpu and not requires_download" -q   # 207 CPU tests (208 on AMD hosts)
 python -m pytest -m "gpu" -q                  # 25 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
@@ -250,15 +255,16 @@ required"):
 | Memory | 94 GB LPDDR5X unified pool, ~80 GiB visible to torch/HIP |
 | Kernel | Linux 6.17.0-1032-oem with `amdgpu` DRM driver (check `rocm-smi`) |
 | ROCm / torch | 7.14.0-era wheels from `repo.amd.com`: `torch[device-gfx1151]==2.12.0+rocm7.14.0` (+torchvision/torchaudio) — installed automatically by `scripts/install.sh`, never typed by hand |
-| Python | 3.12 (`≥ 3.10` supported) |
+| Python | 3.12 on the validation host; the CPU CI matrix runs 3.10 / 3.11 / 3.12 |
 
 ### Requirements & known constraints
 
 * **Disk** — ~5 GB for the minimal subset, ~18 GB for all six repositories
   (weights live under `models/`, never committed).
 * **Network** — ModelScope (`modelscope.cn`) reachable; when
-  `huggingface.co` is blocked the fallback routes via `hf-mirror.com`, so no
-  VPN is needed.
+  `huggingface.co` is blocked the fallback routes via `hf-mirror.com`. The
+  recorded validation host completed all downloads from a CN network without
+  a VPN — other networks may vary.
 * **GPU** — validated only on `gfx1151` (see
   [Compatibility](#compatibility)); a working `amdgpu` DRM driver and
   `/dev/kfd` + `/dev/dri` access are required (`render`/`video` groups).

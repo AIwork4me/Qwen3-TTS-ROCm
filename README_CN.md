@@ -23,14 +23,15 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **227 通过** —— 202 CPU + 25 真机 GPU；另 1 项 HIP 相关跳过 |
+| 自动化测试 | **232 通过** —— 207 CPU + 25 真机 GPU；另 1 项 HIP 相关跳过 |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
 
-共收集 228 项测试；在 AMD ROCm 主机上该 HIP 门控的 CPU 检查会照常执行，
-因此验证主机本身为 228/228 全通过（203 CPU + 25 GPU）。
+共收集 233 项测试；在 AMD ROCm 主机上该 HIP 门控的 CPU 检查会照常执行，
+因此验证主机本身为 233/233 全通过（208 CPU + 25 GPU）。CPU 测试套件在
+CI 中于 Python 3.10 / 3.11 / 3.12 上运行。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -105,8 +106,9 @@ bash scripts/run_demo.sh
   默认值（HIP 上 `device_map=auto`、`bfloat16`、`sdpa`），返回**原生官方模型
   对象**，绝无包装。加载绝不会在背后偷偷下载权重——模型缺失时抛出
   `RuntimeError` 并直接给出下载命令。
-* **六别名下载器** —— ModelScope 优先、`hf-mirror.com` 回退（CN 网络免 VPN
-  可用），支持断点续传，可按别名或整批下载。
+* **六别名下载器** —— ModelScope 优先、`hf-mirror.com` 回退（记录中的验证
+  主机即在中国大陆网络环境下全程免 VPN 完成下载；其他网络环境可能有差异），
+  支持断点续传，可按别名或整批下载。
 * **五标签页双语 Gradio 演示**（中文/English）：① 语音克隆（含可保存/复用的
   音色提示）· ② 预设音色 · ③ 音色设计 · ④ 编解码器往返 · ⑤ 合成历史。
   侧边栏含模型切换器（同一时刻只驻留一个模型）、实时 VRAM/GTT 读数与高级
@@ -134,7 +136,7 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 227 项通过（202 CPU + 25 真机 GPU 集成；共收集 228 项，
+* **测试套件** —— 232 项通过（207 CPU + 25 真机 GPU 集成；共收集 233 项，
   仅 CPU 的 CI 上有 1 项 HIP 相关跳过），含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
@@ -167,7 +169,9 @@ bash scripts/run_demo.sh
 
 loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都只追溯到上表这一
 个已验证配置。请勿臆断其他显卡能或不能用——非常欢迎其他 ROCm 硬件的实测
-反馈，验证后会在表中列出。
+反馈，验证后会在表中列出。注意：仓库自带 `scripts/install.sh` 是已验证的
+`gfx1151` 安装路径（锁定 `device-gfx1151` 轮子）；测试其他架构时，请使用
+对应的 ROCm PyTorch 栈，并在验证报告中记录完整安装方式。
 
 **在其他 AMD GPU 上跑通了？[提交硬件验证报告](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)**——只收实测结果，验证后兼容性矩阵随你扩展。
 
@@ -209,7 +213,7 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 202 个 CPU 测试（AMD 主机 203 个）
+python -m pytest -m "not gpu and not requires_download" -q   # 207 个 CPU 测试（AMD 主机 208 个）
 python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```
@@ -227,14 +231,15 @@ python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
 | 内存 | 94 GB LPDDR5X 统一内存池，torch/HIP 可见约 80 GiB |
 | 内核 | Linux 6.17.0-1032-oem，`amdgpu` DRM 驱动（用 `rocm-smi` 确认） |
 | ROCm / torch | 来自 `repo.amd.com` 的 7.14.0 代际轮子：`torch[device-gfx1151]==2.12.0+rocm7.14.0`（含 torchvision/torchaudio）—— 由 `scripts/install.sh` 自动安装，无需手敲 |
-| Python | 3.12（支持 `≥ 3.10`） |
+| Python | 验证主机为 3.12；CPU CI 矩阵运行 3.10 / 3.11 / 3.12 |
 
 ### 需求与已知约束
 
 * **磁盘** —— 最小子集约 5 GB，六个仓库全量约 18 GB（权重位于 `models/`，
   从不提交入库）。
 * **网络** —— 需可达 ModelScope（`modelscope.cn`）；`huggingface.co` 被阻断
-  时回退传输自动改走 `hf-mirror.com`，无需 VPN。
+  时回退传输自动改走 `hf-mirror.com`。记录中的验证主机在中国大陆网络下全程
+  免 VPN 完成了全部下载——其他网络环境可能有差异。
 * **GPU** —— 仅在 `gfx1151` 上验证过（见[兼容性](#兼容性)）；需要 `amdgpu`
   DRM 驱动正常工作，且能访问 `/dev/kfd` + `/dev/dri`（`render`/`video` 组）。
 * **内存** —— 我们会话中驻留的 1.7B 模型（bf16）占用统一内存池约 4.6 GiB；
