@@ -55,6 +55,22 @@ fi
 
 PY=".venv/bin/python"
 
+# --- python guard: fail fast BEFORE the multi-GB ROCm wheel downloads -------
+# >>> python-version-guard (tests/test_install_sh.py re-runs this exact block)
+"$PY" - <<'PY'
+import sys
+
+MIN = (3, 10)
+v = sys.version_info
+if v < MIN:
+    raise SystemExit(
+        f"ERROR: Python {MIN[0]}.{MIN[1]}+ is required (需要 Python "
+        f"{MIN[0]}.{MIN[1]}+); detected {v.major}.{v.minor}.{v.micro}."
+    )
+print(f"==> [python] Python {v.major}.{v.minor}.{v.micro}")
+PY
+# <<< python-version-guard
+
 # --- 2. pinned AMD ROCm torch stack ----------------------------------------
 # EXACT command from Global Constraints (do not edit versions or index):
 echo "==> [torch] pinned AMD ROCm wheels from repo.amd.com (skipped fast when satisfied)"
@@ -63,7 +79,7 @@ echo "==> [torch] pinned AMD ROCm wheels from repo.amd.com (skipped fast when sa
 # --- 3. this package, editable, with dev+demo extras ------------------------
 # UX-fix U2: pip prints nothing for long stretches while unpacking the wheel
 # stack — warn the user up front so silence is not mistaken for a hang.
-echo "==> [3/4] installing project + deps (unpacking ~4GB wheels; output may be silent for a few minutes — 若长时间无输出属正常)"
+echo "==> [3/4] installing project + deps (large ROCm wheels; this may take a few minutes — 较大的 ROCm wheel 解压可能需要几分钟，若长时间无输出属正常)"
 echo "==> [package] pip install -e \".[dev,demo]\""
 $PY -m pip install --no-input -e ".[dev,demo]"
 
