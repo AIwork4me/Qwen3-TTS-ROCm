@@ -19,7 +19,8 @@ each file, or follow [docs/benchmarks.md](../docs/benchmarks.md) and
 | `benchmark.json` | Machine-readable RTF benchmark results (host, GPU, torch/HIP versions, per-cell RTF lists) | `scripts/benchmark.py` JSON output |
 | `benchmark-run.txt` | Raw stdout+stderr of the same benchmark session, incl. per-call `[bench]` lines and the warmup timings | `scripts/benchmark.py` piped through `tee` |
 | `official-parity.txt` | Green transcript of the upstream-parity proof: the stock upstream Gradio demo built around our loader's model object, executed through Gradio's event registry incl. one real synthesis | `pytest tests/test_official_demo_parity.py -m "gpu and requires_download" -v -s` |
-| `gpu-suite-2026-08-29.txt` | Latest full on-GPU suite run (25 passed / 0 failed in 186 s), re-executed after the trust-polish documentation round | `pytest -m gpu -q` on the validation host |
+| `gpu-suite-2026-08-29.txt` | Full on-GPU suite run (25 passed / 0 failed) after the trust-polish documentation round | `pytest -m gpu -q` on the validation host |
+| `gpu-suite-2026-08-29-final.txt` | Latest full on-GPU suite run (25 passed / 0 failed in 183 s), after the runtime-wording round (loader announcement + flash-attn guard message) | `pytest -m gpu -q` on the validation host |
 | `env-check.txt` | `qwen3-tts-rocm-check` environment self-check output (bilingual) on the validation host | `qwen3-tts-rocm-check` |
 | `models-dl.txt` | Six-repository download log with per-alias provenance (ModelScope primary channel proven; sizes match `scripts/download_models.sh --help`) | `bash scripts/download_models.sh <alias>` per alias |
 | `install-run.txt` | `scripts/install.sh` run record (pinned ROCm wheel stack + editable install) | `bash scripts/install.sh` |
