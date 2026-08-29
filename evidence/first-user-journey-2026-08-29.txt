@@ -1,0 +1,84 @@
+First-time user / zero-to-voice acceptance round — compiled summary record
+===========================================================================
+
+Nature: hand-compiled summary of a live acceptance test (unlike the
+machine-generated transcripts elsewhere in this directory). Every number
+below was captured verbatim from the run; the full command transcripts and
+screenshots live in the tester's scratch roots (see PROVENANCE at the end).
+
+Date: 2026-08-29
+Target: public GitHub main 8567b8ded7225013f0ccbe97c2007f41385e7428
+        (fresh public clone; dev workspace NOT reused)
+Host:   amd-HP-ZBook-Ultra - Ubuntu 24.04.4 - kernel 6.17.0-1032-oem
+        AMD Ryzen AI Max+ PRO 395 / Radeon 8060S (gfx1151), 94 GiB unified
+        memory, system Python 3.12.3 (installer selected 3.11.15 via uv)
+Isolation: HF_HOME / MODELSCOPE_CACHE / PIP_CACHE_DIR / UV_CACHE_DIR /
+        XDG_CACHE_HOME all pointed inside the test root; ROCm driver, TLS,
+        git left at host state (by design, not OS reinstall).
+
+Baseline verdict
+----------------
+SUCCESS WITH FRICTION - first WAV 22 min after clone, zero undocumented
+interventions, P0=0 P1=1 P2=5. Clean-room retest after the fixes below:
+every critical-path step green, zero interventions.
+
+Journey timings (baseline round)
+--------------------------------
+  git clone (public)                          2.8 s
+  scripts/install.sh (cold)                 373.4 s   SPIKE-GPU-OK
+  qwen3-tts-rocm-check                        1.7 s   exit 0
+  download_models.sh tokenizer custom-voice 728.0 s  (VPN-degraded network;
+                                                     4.95 GB on disk ~= ~5 GB)
+  README Python snippet, verbatim, cold       15.8 s  hello-rocm.wav
+                                                     24 kHz / 1.92 s / RMS 0.18
+  demo boot to HTTP 200                       <30 s
+Model switching (live demo, all six repos): 1.9-3.2 s per switch, VRAM
+  readout 4.9 GiB (1.7B) <-> 3.0 GiB (0.6B) - one model resident.
+Clean-room round (fixed worktree, fresh caches): install 906.8 s,
+  minimal download 364.5 s (18.7 MB/s direct CN route), snippet 14.9 s,
+  re-install 64.8 s, re-download 0.04 s (short-circuit).
+
+Network resilience observed live (ModelScope route)
+---------------------------------------------------
+Three read-timeouts + one hash-validation failure during a VPN-degraded
+window: downloader retried automatically, rejected the corrupt file via
+hash, and .incomplete byte-level resume was verified in an isolated models
+root (interrupt at 186 MiB -> rerun continued from the breakpoint).
+
+Findings -> fixes (same-commit regression tests)
+------------------------------------------------
+F1 (P1) loader.load() on a config-only partially-downloaded repo raised
+        transformers' raw OSError instead of the README-promised actionable
+        RuntimeError; guard now uses is_downloaded(require_weights=True).
+        Test: tests/test_loader.py::test_config_only_partial_repo_refuses_
+        with_download_hint
+F2 (P2) qwen3-tts-rocm-check summary counted INFO advisories as
+        "warnings"; summary now reports warnings and notes separately.
+        Tests: tests/test_env.py::test_summary_counts_only_warn_lines_as_
+        warnings, test_summary_still_counts_real_warn_lines
+F4 (P2) demo post-generation chain force-loaded the sidebar pick after
+        every generate click (surprise ~4-5 GiB resident model, LRU eviction
+        of the model the tab just used); chain now refreshes status
+        read-only. Tests: tests/test_demo_ui.py::test_generation_chains_do_
+        not_register_switch_model, test_generation_chain_followers_are_
+        status_line_lambdas
+F3/F5 (P2) README never mentioned venv activation; activation hints added
+        to both READMEs (snippet how-to + troubleshooting).
+Known quirk (not fixed, by design): passing literal 0 (instead of null/None)
+for the Advanced sampling params over the REST API surfaces the upstream
+"max_new_tokens must be greater than 0" ValueError; the UI's empty-default
+path is unaffected.
+
+Suite totals attributed to this round (transcript:
+gpu-suite-2026-08-29-firstuser.txt): 213 CPU + 25 GPU = 238/238 on this
+host; README count claims synced to this run.
+
+PROVENANCE (tester scratch, ephemeral /tmp)
+  baseline: /tmp/qwen3-tts-first-user-20260829-135559/
+    user-journey.log, install.log, dl-minimal.log, check.log, hello-run.log,
+    demo.log, screenshots/ (4 PNG: initial UI, missing-model error,
+    EN generation, history tab), friction-notes.md
+  clean room: /tmp/qwen3-tts-first-user-retest-20260829-162839/
+    journey.log, install.log, dl.log, dl-full2.log, demo2.log, hello-rocm.wav
+  docker: built + smoke-tested per docker/README.md (555 s, image 10.2 GB,
+    in-container GPU self-check: HIP available, 1 GPU gfx1151)
