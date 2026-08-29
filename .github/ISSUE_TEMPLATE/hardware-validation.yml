@@ -116,12 +116,12 @@ body:
     attributes:
       label: Exact ROCm / PyTorch installation commands
       description: |
-        Paste the commands (or Dockerfile / image tag) that produced your
-        stack, so the report is reproducible — e.g.:
-        ```
-        pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
-        pip install -e ".[dev,demo]"
-        ```
+        Paste the exact commands, Dockerfile, or image tag you actually used
+        to install your ROCm / PyTorch stack so the report is reproducible.
+
+        For gfx1151, `bash scripts/install.sh` is the validated path.
+        When validating another GPU architecture, use the ROCm / PyTorch stack
+        appropriate for that device and paste the exact commands here.
       render: shell
     validations:
       required: true
