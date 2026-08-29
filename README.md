@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="docs/hero.jpg" alt="Qwen3-TTS on AMD ROCm hero" width="100%"/>
+</p>
+
 # Qwen3-TTS on AMD ROCm
 
 **Official Qwen3-TTS. AMD Radeon. Zero upstream patches.**
