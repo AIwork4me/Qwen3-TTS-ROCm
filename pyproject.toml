@@ -1,6 +1,6 @@
 # pyproject.toml
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=77", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -9,7 +9,7 @@ version = "0.1.0"
 description = "ROCm (gfx1151) runtime adapter, model manager and enhanced Gradio demo for Qwen3-TTS"
 readme = "README.md"
 requires-python = ">=3.10"
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 authors = [{ name = "Qwen3-TTS-ROCm contributors" }]
 keywords = [
   "qwen3-tts", "tts", "text-to-speech", "speech-synthesis",
@@ -22,7 +22,6 @@ classifiers = [
   "Environment :: Console",
   "Environment :: Web Environment",
   "Intended Audience :: Developers",
-  "License :: OSI Approved :: Apache Software License",
   "Operating System :: POSIX :: Linux",
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3.10",
