@@ -3,11 +3,12 @@
 # CPU torch is installed FIRST from the PyTorch CPU index, so the dependency
 # resolution of `pip install -e ".[dev]"` (qwen-tts -> torchaudio -> torch)
 # reuses it instead of pulling the multi-gigabyte CUDA-bundled stack from
-# PyPI. Verified equivalent in a fresh venv: the CPU selection reports the
-# same "202 passed, 1 skipped, 25 deselected" (the skip is the HIP-gated
-# sdpa-default check, which needs an AMD torch build to run).
-# This job never synthesizes audio or touches a GPU; ROCm wheels are
+# PyPI. This job never synthesizes audio or touches a GPU; ROCm wheels are
 # installed by scripts/install.sh on gfx1151 hardware only.
+#
+# Supply chain: third-party actions are pinned to full commit SHAs (the
+# comment keeps the human-readable version); the workflow runs with the
+# least privileges it needs (contents: read).
 
 name: ci
 
@@ -15,19 +16,27 @@ on:
   push:
   pull_request:
 
+permissions:
+  contents: read
+
 jobs:
-  lint-test-build:
+  test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12"]
     steps:
       - name: Check out repository
-        uses: actions/checkout@v7
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v7
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
-          python-version: "3.12"
+          python-version: ${{ matrix.python-version }}
 
-      - name: Lint (ruff)
+      - name: Lint (ruff, once on 3.12)
+        if: matrix.python-version == '3.12'
         run: |
           python -m pip install --upgrade pip ruff
           ruff check .
@@ -42,13 +51,24 @@ jobs:
       - name: Unit tests (no GPU, no model downloads)
         run: pytest -m "not gpu and not requires_download" -q
 
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+
       - name: Build sdist + wheel
         run: |
           python -m pip install build
           python -m build
 
       - name: Upload dist artifacts
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: dist
           path: dist/
