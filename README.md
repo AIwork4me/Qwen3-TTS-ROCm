@@ -29,15 +29,15 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **233 / 233 on validation host** — 208 CPU + 25 real-GPU |
+| Automated tests | **238 / 238 on validation host** — 213 CPU + 25 real-GPU |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
 
-The CPU-only CI matrix passes 207 CPU tests on Python 3.10 / 3.11 / 3.12,
+The CPU-only CI matrix passes 212 CPU tests on Python 3.10 / 3.11 / 3.12,
 with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
-ROCm host that test also runs, giving 208 CPU + 25 GPU = 233 / 233.
+ROCm host that test also runs, giving 213 CPU + 25 GPU = 238 / 238.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -77,6 +77,11 @@ wavs, sr = tts.generate_custom_voice(text="你好，ROCm。", language="auto",
 import soundfile as sf
 sf.write("hello-rocm.wav", wavs[0], sr)  # 保存 / save
 ```
+
+Save it as `hello.py` and run it **inside the installer's venv**:
+`source .venv/bin/activate` once per terminal, then `python hello.py` — or
+call `.venv/bin/python hello.py` directly. The system `python` cannot see the
+package, and `qwen3-tts-rocm-check` needs the activated venv too.
 
 Lighter still: `bash scripts/download_models.sh tokenizer custom-voice-0.6b`
 (~3 GB) and use the `custom-voice-0.6b` alias in the snippet.
@@ -153,8 +158,8 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 233/233 on the validated ROCm host (208 CPU + 25
-  real-GPU); the CPU-only CI matrix passes 207 + 1 HIP-gated skip on
+* **Test suite** — 238/238 on the validated ROCm host (213 CPU + 25
+  real-GPU); the CPU-only CI matrix passes 212 + 1 HIP-gated skip on
   Python 3.10 / 3.11 / 3.12, including the upstream-parity proof below.
 
 <a id="why-this-project-exists"></a>
@@ -240,7 +245,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 207 CPU tests (208 on AMD hosts)
+python -m pytest -m "not gpu and not requires_download" -q   # 212 CPU tests (213 on AMD hosts)
 python -m pytest -m "gpu" -q                  # 25 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
@@ -300,7 +305,8 @@ guide — group-GID caveats, CPU-only diagnostics, smoke test without a GPU:
 
 ## Troubleshooting
 
-Run `qwen3-tts-rocm-check` first — then look up your symptom in
+Run `qwen3-tts-rocm-check` first (activate the venv in your terminal:
+`source .venv/bin/activate`) — then look up your symptom in
 [`docs/troubleshooting.md`](docs/troubleshooting.md), which expands every
 `ERROR:` / `WARN:` / `INFO:` line the diagnostics emit:
 

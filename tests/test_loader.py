@@ -53,7 +53,7 @@ def fake_official(monkeypatch):
     mod_qt.__version__ = "0.1.1"
     monkeypatch.setitem(sys.modules, "qwen_tts", mod_qt)
     monkeypatch.setattr(loader.models, "resolve_path", lambda r: "/models/X")
-    monkeypatch.setattr(loader.models, "is_downloaded", lambda r: True)
+    monkeypatch.setattr(loader.models, "is_downloaded", lambda r, **kw: True)
     return seen
 
 
@@ -178,7 +178,7 @@ def test_explicit_kwargs_win_over_smart_defaults(fake_official, tmp_path):
 def test_not_downloaded_raises_download_hint_without_touching_official(
     fake_official, monkeypatch
 ):
-    monkeypatch.setattr(loader.models, "is_downloaded", lambda r: False)
+    monkeypatch.setattr(loader.models, "is_downloaded", lambda r, **kw: False)
     with pytest.raises(RuntimeError) as excinfo:
         loader.load("base")
     msg = str(excinfo.value)
@@ -194,7 +194,7 @@ def test_download_howto_leads_with_per_alias_command(fake_official, monkeypatch)
     """UX-fix U3a / A-2 (code half): the refusal must lead with the
     per-alias download (a single repo, e.g. 0.7-4.4GB) and only mention the
     all-six fetch second."""
-    monkeypatch.setattr(loader.models, "is_downloaded", lambda r: False)
+    monkeypatch.setattr(loader.models, "is_downloaded", lambda r, **kw: False)
     with pytest.raises(RuntimeError) as excinfo:
         loader.load("base")
     msg = str(excinfo.value)
@@ -207,7 +207,7 @@ def test_download_howto_leads_with_per_alias_command(fake_official, monkeypatch)
 def test_download_howto_maps_repo_ids_to_their_alias(fake_official, monkeypatch):
     """download_models.sh accepts aliases only: a refused flattened name or
     full repo id still yields a runnable per-alias command."""
-    monkeypatch.setattr(loader.models, "is_downloaded", lambda r: False)
+    monkeypatch.setattr(loader.models, "is_downloaded", lambda r, **kw: False)
     for ref in ("Qwen3-TTS-12Hz-1.7B-Base", "Qwen/Qwen3-TTS-12Hz-1.7B-Base"):
         with pytest.raises(RuntimeError) as excinfo:
             loader.load(ref)
@@ -221,6 +221,28 @@ def test_unknown_alias_surfaces_registry_keyerror(fake_official, monkeypatch):
     monkeypatch.setattr(loader.models, "resolve_path", boom)
     with pytest.raises(KeyError, match="unknown"):
         loader.load("nope")
+
+
+def test_config_only_partial_repo_refuses_with_download_hint(
+    monkeypatch, tmp_path
+):
+    """Regression (2026-08 first-user journey, F1): a partially-downloaded
+    repo — config.json present, weights absent, exactly what an interrupted
+    download leaves behind — used to slip past the loader's guard (default
+    ``require_weights=False``) and surface as transformers' raw missing-weights
+    OSError.  It must produce the documented actionable RuntimeError instead,
+    before any official import is attempted (no qwen_tts fake needed: the
+    refusal fires first)."""
+    partial = tmp_path / "Qwen3-TTS-12Hz-1.7B-Base"
+    partial.mkdir()
+    (partial / "config.json").write_text("{}", encoding="utf-8")
+    # real resolve_path/is_downloaded stay in place; only the models root moves
+    monkeypatch.setattr(loader.models, "local_dir", lambda alias=None: partial)
+    with pytest.raises(RuntimeError) as excinfo:
+        loader.load("base", device="cpu")
+    msg = str(excinfo.value)
+    assert "not downloaded yet" in msg
+    assert "bash scripts/download_models.sh base" in msg
 
 
 # ---------------------------------------------------------------------------

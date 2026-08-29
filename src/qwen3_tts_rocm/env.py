@@ -239,14 +239,19 @@ def rocm_check(verbose: bool = True) -> EnvReport:
         print(warn if warn.startswith(("WARN:", "INFO:", "ERROR:")) else f"WARN: {warn}")
     state = "available (可用)" if report.hip_available else "NOT available (不可用)"
     version = report.rocm_version or "-"
-    n_warn = len(report.warnings)
+    # warnings = actionable WARN: lines only; the INFO: advisories carried in
+    # the same list are counted separately as notes so a healthy host with two
+    # advisories does not read as "2 warnings" (first-user journey, F2).
+    n_warn = sum(1 for w in report.warnings if w.startswith("WARN:"))
+    n_info = sum(1 for w in report.warnings if w.startswith("INFO:"))
     n_err = len(report.errors)
     print(
         f"Summary: HIP {state}; ROCm version: {version}; GPUs: {len(report.gpus)}"
         f" ({', '.join(g.arch or '?' for g in report.gpus) or 'none'}); "
-        f"warnings: {n_warn}; errors: {n_err}"
+        f"warnings: {n_warn}; notes: {n_info}; errors: {n_err}"
         f" | 中文摘要：环境自检完成，HIP {state}，版本 {version}，"
-        f"可见 GPU {len(report.gpus)} 块，警告 {n_warn} 条，错误 {n_err} 条。"
+        f"可见 GPU {len(report.gpus)} 块，警告 {n_warn} 条，"
+        f"提示 {n_info} 条，错误 {n_err} 条。"
     )
     # Generic docs pointer, printed ONCE after the summary rather than tacked
     # onto every line (UX-fix U2: 排障文档统一指向，避免刷屏).

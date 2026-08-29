@@ -266,7 +266,10 @@ def load(
 
     resolved = models.resolve_path(model_ref)  # KeyError lists accepted forms
     _announce_first_load(resolved)
-    if not models.is_downloaded(model_ref):
+    # require_weights=True: a config-only partial repo (the exact state an
+    # interrupted download leaves behind) must fall through to the actionable
+    # RuntimeError below, never to transformers' raw missing-weights OSError.
+    if not models.is_downloaded(model_ref, require_weights=True):
         raise RuntimeError(
             f"model {str(model_ref)!r} is not downloaded yet "
             f"(expected at {resolved}); refusing to fetch multi-GB weights "

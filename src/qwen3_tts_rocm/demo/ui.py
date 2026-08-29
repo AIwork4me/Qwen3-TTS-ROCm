@@ -779,7 +779,12 @@ Upload a previously saved voice file, then synthesize new text.
 
         def _post_generation_chain(click_event, *, sync_lang, sync_speakers):
             """Common tails: side-status + VRAM, fresh choices, history rows."""
-            click_event.then(cb["switch_model"], inputs=[model_radio], outputs=[model_status])
+            # Read-only status refresh, NOT cb["switch_model"]: the sidebar pick
+            # already loads eagerly on radio change; re-loading it here used to
+            # force-load a model the tab's generation never used (and, with the
+            # size-1 LRU, evict the one it just loaded) — most visibly after a
+            # failed generate on a tab whose capability differs from the pick.
+            click_event.then(cb["status_line"], inputs=[model_radio], outputs=[model_status])
             if sync_lang is not None:
                 click_event.then(_sync_lang_only, inputs=[model_radio], outputs=[sync_lang])
             if sync_speakers:

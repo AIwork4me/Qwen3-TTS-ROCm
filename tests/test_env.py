@@ -95,3 +95,34 @@ def test_rocm_check_prints_troubleshooting_tail_once(monkeypatch, capsys):
     out = capsys.readouterr().out
     assert out.count("docs/troubleshooting.md") == 1
     assert "更多排障步骤" in out
+
+
+# --- regression (2026-08 first-user journey, F2): summary counts -------------
+
+def test_summary_counts_only_warn_lines_as_warnings(monkeypatch, capsys):
+    """INFO advisories (unified-memory note, models line) ride in the same
+    list as real WARN: lines; the summary used to count them all as
+    "warnings", so a healthy host printed "warnings: 2" with no WARN line in
+    sight.  WARN and INFO must now be reported separately."""
+    from qwen3_tts_rocm import models
+
+    monkeypatch.setitem(sys.modules, "torch", make_fake_cuda())
+    monkeypatch.setattr(models, "is_downloaded", lambda ref, **kw: False)
+    r = env.collect()
+    # sanity: the healthy-host shape — advisories only, zero real warnings
+    assert any(w.startswith("INFO:") for w in r.warnings)
+    assert not any(w.startswith("WARN:") for w in r.warnings)
+    env.rocm_check(verbose=True)
+    out = capsys.readouterr().out
+    assert "warnings: 0" in out
+    assert f"notes: {sum(1 for w in r.warnings if w.startswith('INFO:'))}" in out
+    assert "警告 0 条" in out and "提示" in out
+
+
+def test_summary_still_counts_real_warn_lines(monkeypatch, capsys):
+    """A genuine WARN: advisory must keep incrementing the warnings counter."""
+    monkeypatch.setitem(sys.modules, "torch", make_fake_cuda(unavailable=True))
+    monkeypatch.setenv("HSA_OVERRIDE_GFX_VERSION", "11.0.0")  # emits a WARN: line
+    env.rocm_check(verbose=True)
+    out = capsys.readouterr().out
+    assert "warnings: 1" in out

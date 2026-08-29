@@ -758,3 +758,37 @@ def test_cli_port_busy_prints_bilingual_hint_and_returns_2(monkeypatch, capsys):
     assert "端口 8000 被占用" in out and "port busy" in out
     assert "--port 8001" in out  # concrete retry suggestion
     assert unloaded == ["x"]  # finally: unload_all still released the model
+
+
+# ---------------------------------------------------------------------------
+# Regression (2026-08 first-user journey, F4): the post-generation chain must
+# refresh the sidebar status READ-ONLY.  It used to chain cb["switch_model"],
+# force-loading the sidebar pick after EVERY generate click — even a failed one
+# on a tab whose capability differs from the pick — surprise-loading ~4-5 GiB
+# and, with the size-1 LRU, evicting the model the generation just used.
+# ---------------------------------------------------------------------------
+
+
+def test_generation_chains_do_not_register_switch_model(app_blocks):
+    """Exactly ONE switch_model registration may exist in the Blocks graph —
+    the sidebar radio's own change handler.  None of the four generation
+    click chains (preset / design / clone / load-voice) may force-load."""
+    entries = list(app_blocks.fns.values())
+    names = [getattr(dep.fn, "__name__", "") for dep in entries]
+    assert names.count("switch_model") == 1
+    # The survivor is the eager sidebar-load (radio change), registered before
+    # every generation handler.
+    assert names.index("switch_model") < names.index("_gen_cv")
+
+
+def test_generation_chain_followers_are_status_line_lambdas(app_blocks):
+    """Each generation click chain still refreshes the status box: the entry
+    right after every generation handler is the read-only status_line lambda,
+    never the service.get-backed switch_model closure."""
+    entries = list(app_blocks.fns.values())
+    names = [getattr(dep.fn, "__name__", "") for dep in entries]
+    for gen in ("_gen_cv", "_gen_vd", "_gen_clone", "_gen_loaded"):
+        follower = entries[names.index(gen) + 1]
+        assert getattr(follower.fn, "__name__", "") != "switch_model"
+        assert "status_line" in str(getattr(follower.fn, "__closure__", None) or ()) or \
+            getattr(follower.fn, "__qualname__", "") == "build_callbacks.<locals>.<lambda>"

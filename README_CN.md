@@ -23,15 +23,15 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 233 / 233 全通过** —— 208 CPU + 25 真机 GPU |
+| 自动化测试 | **验证主机 238 / 238 全通过** —— 213 CPU + 25 真机 GPU |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
 
-CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 207 项 CPU 测试；另有
+CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 212 项 CPU 测试；另有
 1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
-该项也会执行，因此最终为 208 CPU + 25 GPU = 233 / 233 全通过。
+该项也会执行，因此最终为 213 CPU + 25 GPU = 238 / 238 全通过。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -69,6 +69,11 @@ wavs, sr = tts.generate_custom_voice(text="你好，ROCm。", language="auto",
 import soundfile as sf
 sf.write("hello-rocm.wav", wavs[0], sr)  # 保存 / save
 ```
+
+把它存成 `hello.py`，并**在安装脚本的 venv 里运行**：每个终端先执行一次
+`source .venv/bin/activate`，再 `python hello.py`；或直接用
+`.venv/bin/python hello.py`。系统 `python` 看不到本包；
+`qwen3-tts-rocm-check` 同样需要先激活 venv。
 
 更轻的选择：`bash scripts/download_models.sh tokenizer custom-voice-0.6b`
 （约 3 GB），片段中改用 `custom-voice-0.6b` 别名即可。
@@ -136,8 +141,8 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 233/233 全通过（208 CPU + 25 真机 GPU）；
-  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 207 项 + 1 项 HIP 门控
+* **测试套件** —— 验证主机 238/238 全通过（213 CPU + 25 真机 GPU）；
+  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 212 项 + 1 项 HIP 门控
   跳过，含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
@@ -214,7 +219,7 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 207 个 CPU 测试（AMD 主机 208 个）
+python -m pytest -m "not gpu and not requires_download" -q   # 212 个 CPU 测试（AMD 主机 213 个）
 python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```
@@ -268,7 +273,8 @@ docker run --rm \
 
 ## 故障排查
 
-先运行 `qwen3-tts-rocm-check`，再到
+先运行 `qwen3-tts-rocm-check`（终端需先激活 venv：`source .venv/bin/activate`），
+再到
 [`docs/troubleshooting.md`](docs/troubleshooting.md) 对症查找——该指南逐条
 展开诊断输出的每一条 `ERROR:` / `WARN:` / `INFO:`：
 
