@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Public-facing trust pass (EN+CN kept in lockstep): READMEs restructured
+  hero-first — verified-results table up top, a minimal ~5 GB quick start
+  before the full ~18 GB download, a compatibility matrix that separates the
+  validated gfx1151 configuration from unvalidated hardware, collapsed
+  five-tab screenshots and a curated generated audio sample linked from the
+  hero. Internal development documents (design spec, implementation plan,
+  acceptance record) consolidated under `docs/development/`; superseded
+  Docker logs and an internal test-infra note removed from `evidence/`, with
+  `evidence/README.md` added as a reproducibility index. Stale pre-remote
+  notes removed from the CI workflow header; `pyproject.toml` gained
+  keywords, classifiers and project URLs. GPU suite re-run green on the
+  validation host after the changes (transcript:
+  `evidence/gpu-suite-2026-08-29.txt`).
+
 - Documentation and UX pass: the README was restructured with the Quickstart
   moved up front, plus a per-repository model size table, subset-download
   instructions and documented first-run log expectations; the minimal usage
