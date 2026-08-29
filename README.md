@@ -25,15 +25,15 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **232 passing** — 207 CPU + 25 real-GPU · 1 HIP-dependent skip |
+| Automated tests | **233 / 233 on validation host** — 208 CPU + 25 real-GPU |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
 
-233 tests are collected in total; on an AMD ROCm host the HIP-gated CPU check
-runs as well, so the validation host itself passes 233/233 (208 CPU + 25 GPU).
-The CPU suite runs on Python 3.10 / 3.11 / 3.12 in CI.
+The CPU-only CI matrix passes 207 CPU tests on Python 3.10 / 3.11 / 3.12,
+with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
+ROCm host that test also runs, giving 208 CPU + 25 GPU = 233 / 233.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -149,9 +149,9 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 232 passing (207 CPU + 25 real-GPU integration; 233
-  collected, 1 HIP-dependent skip on CPU-only CI), including the
-  upstream-parity proof below.
+* **Test suite** — 233/233 on the validated ROCm host (208 CPU + 25
+  real-GPU); the CPU-only CI matrix passes 207 + 1 HIP-gated skip on
+  Python 3.10 / 3.11 / 3.12, including the upstream-parity proof below.
 
 <a id="why-this-project-exists"></a>
 

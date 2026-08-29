@@ -23,15 +23,15 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **232 通过** —— 207 CPU + 25 真机 GPU；另 1 项 HIP 相关跳过 |
+| 自动化测试 | **验证主机 233 / 233 全通过** —— 208 CPU + 25 真机 GPU |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
 
-共收集 233 项测试；在 AMD ROCm 主机上该 HIP 门控的 CPU 检查会照常执行，
-因此验证主机本身为 233/233 全通过（208 CPU + 25 GPU）。CPU 测试套件在
-CI 中于 Python 3.10 / 3.11 / 3.12 上运行。
+CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 207 项 CPU 测试；另有
+1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
+该项也会执行，因此最终为 208 CPU + 25 GPU = 233 / 233 全通过。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -136,8 +136,9 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 232 项通过（207 CPU + 25 真机 GPU 集成；共收集 233 项，
-  仅 CPU 的 CI 上有 1 项 HIP 相关跳过），含下文的上游一致性证明。
+* **测试套件** —— 验证主机 233/233 全通过（208 CPU + 25 真机 GPU）；
+  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 207 项 + 1 项 HIP 门控
+  跳过，含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
 
