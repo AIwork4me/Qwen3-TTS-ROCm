@@ -1,0 +1,55 @@
+name: Feature request
+description: Suggest an improvement or new capability for Qwen3-TTS-ROCm
+title: "[feature] <short summary>"
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep in mind the project's ground rule: this repository stays a thin,
+        zero-modification shim around the official `qwen-tts` package.
+        Features that require patching upstream are out of scope by design.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: What are you trying to do, and what currently blocks you?
+    validations:
+      required: true
+
+  - type: textarea
+    id: benefit
+    attributes:
+      label: Proposed benefit
+      description: What would this unlock, and for whom?
+    validations:
+      required: true
+
+  - type: input
+    id: target
+    attributes:
+      label: Target hardware / workflow
+      description: e.g. "gfx1151 APU, batch synthesis of long texts" or "all ROCm GPUs, demo UI"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: upstream-status
+    attributes:
+      label: Does upstream Qwen3-TTS already support this on CUDA?
+      description: Helps decide whether this belongs in the shim or upstream
+      options:
+        - "No — upstream lacks it too"
+        - "Yes — port/adapt it for ROCm"
+        - "Not sure"
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Workarounds you tried, or other projects that solve this
+    validations:
+      required: false

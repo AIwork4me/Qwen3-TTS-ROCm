@@ -1,0 +1,217 @@
+name: Hardware validation report
+description: Report measured Qwen3-TTS results on an AMD GPU/APU + ROCm combination to grow the compatibility matrix
+title: "[hw-validation] <GPU model> · ROCm <version> · <pass/partial/fail>"
+labels: ["hardware-validation"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping expand the Qwen3-TTS-ROCm compatibility matrix!
+        Please report **measured results only** — everything below is
+        public and becomes the evidence trail for the compatibility table in
+        the README. If a field is unknown, write "unknown" rather than
+        guessing.
+
+  - type: input
+    id: gpu-model
+    attributes:
+      label: GPU / APU model
+      description: Exact marketing name, e.g. "Radeon 8060S (Ryzen AI Max+ PRO 395)" or "Radeon RX 7900 XTX"
+    validations:
+      required: true
+
+  - type: input
+    id: gfx-target
+    attributes:
+      label: GPU architecture / gfx target
+      description: "`rocminfo | grep gfx` or `rocm-smi` — e.g. gfx1151, gfx1100"
+      placeholder: gfx1151
+    validations:
+      required: true
+
+  - type: input
+    id: rocm-version
+    attributes:
+      label: ROCm version
+      description: As reported by the installed wheel stack, e.g. 7.14.0
+      placeholder: "7.14.0"
+    validations:
+      required: true
+
+  - type: input
+    id: torch-version
+    attributes:
+      label: torch version
+      description: Output of `python -c "import torch; print(torch.__version__)"`
+      placeholder: 2.12.0+rocm7.14.0
+    validations:
+      required: true
+
+  - type: input
+    id: torch-hip
+    attributes:
+      label: torch.version.hip
+      description: Output of `python -c "import torch; print(torch.version.hip)"`
+      placeholder: "7.14.60850"
+    validations:
+      required: true
+
+  - type: input
+    id: python-version
+    attributes:
+      label: Python version
+      description: Output of `python --version` inside the environment you ran
+      placeholder: 3.12.3
+    validations:
+      required: true
+
+  - type: input
+    id: distro
+    attributes:
+      label: Linux distribution
+      description: e.g. Ubuntu 24.04, Fedora 42 — `cat /etc/os-release | grep PRETTY_NAME`
+      placeholder: Ubuntu 24.04
+    validations:
+      required: true
+
+  - type: input
+    id: kernel
+    attributes:
+      label: Kernel version
+      description: Output of `uname -r`
+      placeholder: 6.17.0-1032-oem
+    validations:
+      required: true
+
+  - type: input
+    id: memory
+    attributes:
+      label: System RAM / unified memory
+      description: Output of `free -h`; for APUs note that VRAM is shared with this pool
+      placeholder: 94 GiB (unified, ~80 GiB visible to HIP)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: install-method
+    attributes:
+      label: Install method
+      options:
+        - scripts/install.sh (recommended)
+        - manual pip install (repo.amd.com index)
+        - Docker image
+        - other (describe below)
+    validations:
+      required: true
+
+  - type: input
+    id: qwen-tts-version
+    attributes:
+      label: qwen-tts version
+      description: Output of `pip show qwen-tts | grep Version` — the validated series is 0.1.x
+      placeholder: 0.1.1
+    validations:
+      required: true
+
+  - type: dropdown
+    id: models-tested
+    attributes:
+      label: Model repositories tested
+      description: Select every alias you actually downloaded and ran
+      multiple: true
+      options:
+        - tokenizer
+        - custom-voice
+        - voice-design
+        - base (voice clone)
+        - custom-voice-0.6b
+        - base-0.6b
+    validations:
+      required: true
+
+  - type: dropdown
+    id: synthesis-paths
+    attributes:
+      label: Synthesis paths tested
+      description: Select every path you actually generated audio through
+      multiple: true
+      options:
+        - Custom voice / preset speakers (generate_custom_voice)
+        - Voice design (generate_voice_design)
+        - Voice clone (generate_voice_clone)
+        - Tokenizer encode→decode roundtrip
+    validations:
+      required: true
+
+  - type: dropdown
+    id: overall-result
+    attributes:
+      label: Overall result
+      description: Judge by end-to-end audio output on this hardware, not by install success
+      options:
+        - "✅ pass — synthesis works end to end"
+        - "🟡 partial — works with caveats (describe below)"
+        - "❌ fail — describe the exact failure below"
+    validations:
+      required: true
+
+  - type: textarea
+    id: env-check-output
+    attributes:
+      label: qwen3-tts-rocm-check output
+      description: |
+        Run after install and paste the full output (it is read-only):
+        ```
+        qwen3-tts-rocm-check
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: gpu-probe
+    attributes:
+      label: GPU probe output
+      description: |
+        Run and paste the full output:
+        ```
+        python - <<'PY'
+        import torch
+        print("torch:", torch.__version__)
+        print("hip:", torch.version.hip)
+        print("cuda_available:", torch.cuda.is_available())
+        if torch.cuda.is_available():
+            print("device:", torch.cuda.get_device_name(0))
+        PY
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: details
+    attributes:
+      label: Console output / exact failure / caveats
+      description: >-
+        For partial or fail results, paste the exact error and the command
+        that produced it. Success stories: RTF numbers from
+        `scripts/benchmark.py` are very welcome.
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: links
+    attributes:
+      label: Optional links (screenshots, audio samples, benchmark JSON)
+      description: Drag files here or paste URLs. Do not attach model weights.
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: I confirm these results were measured on real hardware and are not inferred from architecture similarity.
+          required: true
+        - label: I attached (or pasted) the diagnostic output requested above.
+          required: true

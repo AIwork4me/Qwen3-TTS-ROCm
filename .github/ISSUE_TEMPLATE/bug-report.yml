@@ -1,0 +1,105 @@
+name: Bug report
+description: Something in Qwen3-TTS-ROCm is broken or behaves unexpectedly
+title: "[bug] <short summary>"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug! Please fill in the details
+        below — the diagnostic output is usually the fastest path to a fix.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: What is broken, in one or two sentences?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact commands or demo clicks, in order, from a known state.
+      placeholder: |
+        1. bash scripts/install.sh
+        2. bash scripts/download_models.sh tokenizer custom-voice
+        3. bash scripts/run_demo.sh
+        4. ...
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What should have happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+      description: Paste the exact error / console output here (not a screenshot of text).
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: env-check-output
+    attributes:
+      label: qwen3-tts-rocm-check output
+      description: |
+        Read-only environment self-check:
+        ```
+        qwen3-tts-rocm-check
+        ```
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: GPU model, ROCm version, OS + kernel, Python version, torch version
+      placeholder: |
+        GPU: Radeon 8060S (gfx1151)
+        ROCm: 7.14.0 / torch 2.12.0+rocm7.14.0
+        OS: Ubuntu 24.04, kernel 6.17.0-1032-oem
+        Python: 3.12.3
+    validations:
+      required: true
+
+  - type: input
+    id: model-alias
+    attributes:
+      label: Model alias involved (if any)
+      description: One of tokenizer / custom-voice / voice-design / base / custom-voice-0.6b / base-0.6b, or "n/a"
+      placeholder: custom-voice
+    validations:
+      required: false
+
+  - type: dropdown
+    id: clean-install
+    attributes:
+      label: Does the issue reproduce from a clean install?
+      description: Fresh clone + `bash scripts/install.sh` in a new terminal
+      options:
+        - "Yes"
+        - "No"
+        - "Not checked"
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Additional logs
+      description: Demo terminal output, `dmesg` GPU lines, etc. Set `QWEN3_TTS_ROCM_VERBOSE_IMPORT=1` if the import-time output matters.
+      render: shell
+    validations:
+      required: false
