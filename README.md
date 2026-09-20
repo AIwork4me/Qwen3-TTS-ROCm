@@ -66,7 +66,7 @@ intentionally not claimed**.
 | Multilingual matrix — all 10 officially supported languages, end to end | 1.7B CustomVoice + VoiceDesign + Base | ✅ E2E validated | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
 | Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base | ✅ scoped — **execution-only smoke** (prep → 12 steps → save → reload → sane synthesis; no quality claims) | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
 | Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently ignores `instruct`) — pinned by tests | Task 0 audit: [`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
-| vLLM-Omni serving | — | 🚫 not claimed — feasibility work not started | [Roadmap](#roadmap-not-yet-validated) |
+| vLLM-Omni serving | — | 🟡 partial — offline feasibility proven only: one documented offline example on gfx1151, single configuration, isolated venv (no serving, no perf/quality claims) | [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt) · [roadmap](#roadmap-not-yet-validated) |
 | True streaming inference | — | 🚫 not claimed — no Radeon measurements exist | [Roadmap](#roadmap-not-yet-validated) |
 
 Conceptual boundary worth stating plainly (the demo and docs honour it):
@@ -362,20 +362,32 @@ tables, methodology, n=2 caveats and the reproduce block:
 
 ## Roadmap (not yet validated)
 
-Nothing in this section is validated, measured or claimed — these are the
-next rungs of the ladder, each gated on evidence before any ✅ appears
-anywhere for it. Upstream features are listed here when they exist upstream
-but have **no Radeon evidence yet**.
+Nothing in this section is claimed beyond its evidence-linked status lines —
+these are the rungs of the ladder, each gated on evidence before any ✅
+appears anywhere for it. Upstream features are listed here when they exist
+upstream but have **no Radeon evidence yet** (or, for vLLM-Omni, only the
+single-configuration feasibility check linked below).
 
 ### vLLM-Omni on ROCm
 
 The official stack ships a vLLM-Omni serving path for Qwen3-TTS; it is a
-CUDA-oriented deployment and has not been run on this project's validated
-ROCm stack. Plan, strictly in order — feasibility first, no skipping rungs:
+CUDA-oriented deployment. Plan, strictly in order — feasibility first, no
+skipping rungs:
 
 1. **Feasibility validation** — determine whether vLLM-Omni builds and
    imports on the pinned ROCm wheel stack at all (it may need kernels or
    wheels this stack does not carry). Output: a go/no-go with evidence.
+   **Status 2026-09-21: GO** — checked per upstream's own install docs
+   (`vllm==0.28.0+rocm723` wheel + `vllm-omni==0.28.0` +
+   `onnxruntime-rocm`, installed in an isolated gitignored venv, validated
+   `.venv` untouched). The wheel embeds compiled `gfx1151` code objects and
+   the documented smallest offline example
+   (`end2end.py --query-type CustomVoice`, byte-unmodified) produced a
+   finite, non-silent 6.0 s / 24 kHz WAV on gfx1151 twice — see
+   [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt)
+   / [`.json`](evidence/vllm-omni-feasibility-2026-09-21.json).
+   Scope: one example, single configuration, isolated venv — nothing more
+   is claimed.
 2. If feasible: **PyTorch / `qwen-tts` ROCm path re-used as the baseline**
    (this repository's proven path) as the reference point for correctness.
 3. **vLLM-Omni offline inference** on gfx1151 — single-request correctness

@@ -58,7 +58,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 多语言矩阵 —— 全部 10 种官方支持语言端到端 | 1.7B CustomVoice + VoiceDesign + Base | ✅ 端到端已验证 | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
 | 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base | ✅ 限定范围 —— **仅执行冒烟验证**（准备 → 12 步 → 保存 → 重载 → 合成健全；无质量结论） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
 | CustomVoice 的指令控制 instruct | 0.6B | 🚫 上游未暴露（封装对 0.6B 静默忽略 `instruct`）—— 由测试钉住 | 任务 0 审计：[`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
-| vLLM-Omni 服务 | — | 🚫 不声明 —— 可行性工作尚未开始 | 见[路线图](#路线图尚未验证) |
+| vLLM-Omni 服务 | — | 🟡 部分验证 —— 仅证明离线可行：gfx1151 上跑通一个官方文档离线示例，单一配置，独立 venv（不声明服务、性能或质量） | [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt) · [路线图](#路线图尚未验证) |
 | 真流式推理 | — | 🚫 不声明 —— 不存在任何 Radeon 实测数据 | 见[路线图](#路线图尚未验证) |
 
 有一个概念边界值得直说（演示与文档均遵守）：**CustomVoice 是预设/
@@ -325,19 +325,27 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 
 ## 路线图（尚未验证）
 
-本节内容**均未验证、未实测、不予声明** —— 它们是阶梯的下一级横档，每一级
-都必须先有证据，任何 ✅ 才可能出现。上游已有、但在 Radeon 上尚无证据的
-特性也列在这里。
+本节内容**只按带证据链接的状态行声明，不做任何超出证据的结论** ——
+它们是阶梯的横档，每一级都必须先有证据，任何 ✅ 才可能出现。上游已有、
+但在 Radeon 上尚无证据的特性也列在这里（vLLM-Omni 除外 —— 它仅有下方
+链接的单一配置可行性检查）。
 
 ### vLLM-Omni 在 ROCm 上
 
 官方技术栈为 Qwen3-TTS 提供了 vLLM-Omni 服务路径；它是面向 CUDA 的部署
-方案，从未在本项目已验证的 ROCm 技术栈上运行过。计划严格按顺序推进 ——
-先做可行性，不跳级：
+方案。计划严格按顺序推进 —— 先做可行性，不跳级：
 
 1. **可行性验证** —— 先弄清 vLLM-Omni 在锁定的 ROCm 轮子技术栈上能否
    构建和导入（可能需要该栈不具备的内核或轮子）。产出：带证据的 go/no-go
-   结论。
+   结论。**2026-09-21 状态：GO** —— 按上游自己的安装文档执行
+   （`vllm==0.28.0+rocm723` 轮子 + `vllm-omni==0.28.0` +
+   `onnxruntime-rocm`，装在独立的 gitignored venv 中，已验证的 `.venv`
+   未改动）。该轮子内嵌编译好的 `gfx1151` 代码对象；官方文档最小的离线
+   示例（`end2end.py --query-type CustomVoice`，逐字节未修改）在
+   gfx1151 上两次运行均产出有限、非静音的 6.0 s / 24 kHz WAV —— 见
+   [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt)
+   / [`.json`](evidence/vllm-omni-feasibility-2026-09-21.json)。
+   范围：一个示例、单一配置、独立 venv —— 不声明其他任何结论。
 2. 若可行：**以本仓库已验证的 PyTorch / `qwen-tts` ROCm 路径为基线**，
    作为正确性参照。
 3. **vLLM-Omni 离线推理**（gfx1151）—— 先做单请求正确性对照（相对

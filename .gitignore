@@ -31,3 +31,4 @@ voices/
 # OS/editor
 .DS_Store
 .superpowers/
+.work-vllm/

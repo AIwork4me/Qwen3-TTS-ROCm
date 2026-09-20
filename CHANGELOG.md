@@ -170,6 +170,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Verified
 
+- vLLM-Omni offline-inference feasibility check on gfx1151 (roadmap rung 1):
+  **FEASIBLE — single configuration only**. Installed upstream's documented
+  ROCm path (`vllm==0.28.0+rocm723` from `wheels.vllm.ai` + `vllm-omni==0.28.0`
+  + `onnxruntime-rocm`) in an isolated gitignored `.work-vllm/` venv (the
+  validated `.venv` was not touched); the wheel embeds compiled `gfx1151`
+  code objects, and the documented offline example
+  (`end2end.py --query-type CustomVoice`, byte-unmodified, model loaded from
+  the repo's `models/` dir via an HF cache symlink) produced a finite,
+  non-silent 6.0 s / 24 kHz WAV in two consecutive runs
+  (`PYTHON_EXIT_CODE=0`). README/README_CN roadmap row upgraded 🚫 → 🟡
+  (offline feasibility proven only; no serving, perf or quality claims) —
+  `evidence/vllm-omni-feasibility-2026-09-21.{txt,json}`.
 - Filed upstream issue [QwenLM/Qwen3-TTS#372](https://github.com/QwenLM/Qwen3-TTS/issues/372):
   `finetuning/sft_12hz.py` hard-codes `attn_implementation="flash_attention_2"`, failing
   out-of-the-box on ROCm; requests a CLI-selectable attention implementation or an
