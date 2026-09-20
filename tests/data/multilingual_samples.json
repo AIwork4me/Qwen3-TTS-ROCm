@@ -1,0 +1,32 @@
+{
+  "samples": [
+    {"language": "Chinese",     "text": "秋风吹过湖面，带来一丝清凉的气息。"},
+    {"language": "English",     "text": "The blue kite rises slowly over the quiet harbor."},
+    {"language": "Japanese",    "text": "春の朝、小鳥たちが窓の外で楽しそうに鳴いています。"},
+    {"language": "Korean",      "text": "가을 바람이 불면 단풍잎이 조용히 흔들립니다."},
+    {"language": "German",      "text": "Der schnelle Zug hält morgen am kleinen Bahnhof."},
+    {"language": "French",      "text": "La lumière du matin traverse les grandes fenêtres."},
+    {"language": "Russian",     "text": "Утренний дождь оставил капли на зелёных листьях."},
+    {"language": "Portuguese",  "text": "O barco pequeno volta ao porto antes do pôr do sol."},
+    {"language": "Spanish",     "text": "El café de la esquina abre temprano todos los días."},
+    {"language": "Italian",     "text": "La piazza vecchia è silenziosa nel primo pomeriggio."}
+  ],
+  "voice_design_descriptions": {
+    "Chinese": "年轻女性，声音清亮，语速轻快",
+    "English": "A calm middle-aged male voice, warm and unhurried",
+    "Japanese": "若い女性の明るく澄んだ声、やや速いテンポ",
+    "Korean": "젊은 남성의 차분하고 낮은 목소리",
+    "German": "Eine freundliche junge Frauenstimme, klar und lebhaft",
+    "French": "Une voix féminine douce et posée, débit modéré",
+    "Russian": "Молодой мужской голос, спокойный и чистый",
+    "Portuguese": "Uma voz masculina madura, grave e tranquila",
+    "Spanish": "Una voz femenina joven, brillante y amable",
+    "Italian": "Una voce maschile matura, calda e pacata"
+  },
+  "cross_lingual_clone_pairs": [
+    {"ref_language": "English",  "target_language": "Chinese"},
+    {"ref_language": "Chinese",  "target_language": "English"},
+    {"ref_language": "Japanese", "target_language": "English"},
+    {"ref_language": "French",   "target_language": "Chinese"}
+  ]
+}

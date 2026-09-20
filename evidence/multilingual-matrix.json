@@ -1,0 +1,754 @@
+{
+  "meta": {
+    "timestamp": "2026-09-20T21:46:57+08:00",
+    "gpu_name": "AMD Radeon 8060S Graphics",
+    "gfx": "gfx1151",
+    "torch_version": "2.12.0+rocm7.14.0",
+    "rocm_hip_version": "7.14.60850",
+    "qwen_tts_version": "0.1.1",
+    "git_head": "fb8bc60cc9c3d868e352520281ffec0d55f5f59e",
+    "upstream_qwen3_tts_sha": "022e286b98fbec7e1e916cb940cdf532cd9f488e",
+    "manifest": "/home/amd/Desktop/Qwen3-TTS-ROCm/tests/data/multilingual_samples.json",
+    "manifest_languages": [
+      "Chinese",
+      "English",
+      "Japanese",
+      "Korean",
+      "German",
+      "French",
+      "Russian",
+      "Portuguese",
+      "Spanish",
+      "Italian"
+    ],
+    "clone_pairs": [
+      {
+        "ref_language": "English",
+        "target_language": "Chinese"
+      },
+      {
+        "ref_language": "Chinese",
+        "target_language": "English"
+      },
+      {
+        "ref_language": "Japanese",
+        "target_language": "English"
+      },
+      {
+        "ref_language": "French",
+        "target_language": "Chinese"
+      }
+    ],
+    "max_new_tokens": 512,
+    "claim": "end-to-end generation completed on Radeon (waveform sanity: finite, non-silent, valid sample rate, bounded duration); NOT a pronunciation-quality claim; cross-lingual clone coverage is representative (4 pairs), not exhaustive",
+    "cross_lingual_clone_transcript_rule": "ref_text passed to create_voice_clone_prompt is exactly the manifest sentence used to synthesize the reference audio via generate_custom_voice",
+    "supported_languages_runtime": [
+      "auto",
+      "chinese",
+      "english",
+      "french",
+      "german",
+      "italian",
+      "japanese",
+      "korean",
+      "portuguese",
+      "russian",
+      "spanish"
+    ],
+    "sections": {
+      "custom_voice": {
+        "model_alias": "custom-voice",
+        "model_repo": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "load_seconds": 4.444,
+        "supported_languages": [
+          "auto",
+          "chinese",
+          "english",
+          "french",
+          "german",
+          "italian",
+          "japanese",
+          "korean",
+          "portuguese",
+          "russian",
+          "spanish"
+        ]
+      },
+      "clone_reference_audio": {
+        "model_alias": "custom-voice",
+        "model_repo": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+        "load_seconds": 4.444,
+        "supported_languages": [
+          "auto",
+          "chinese",
+          "english",
+          "french",
+          "german",
+          "italian",
+          "japanese",
+          "korean",
+          "portuguese",
+          "russian",
+          "spanish"
+        ],
+        "note": "reference audio for the cross-lingual clone pairs, synthesized on custom-voice (transcript rule: ref_text == the exact manifest sentence)"
+      },
+      "voice_design": {
+        "model_alias": "voice-design",
+        "model_repo": "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign",
+        "load_seconds": 1.962,
+        "supported_languages": [
+          "auto",
+          "chinese",
+          "english",
+          "french",
+          "german",
+          "italian",
+          "japanese",
+          "korean",
+          "portuguese",
+          "russian",
+          "spanish"
+        ]
+      },
+      "cross_lingual_clone": {
+        "model_alias": "base",
+        "model_repo": "Qwen/Qwen3-TTS-12Hz-1.7B-Base",
+        "load_seconds": 1.984,
+        "supported_languages": [
+          "auto",
+          "chinese",
+          "english",
+          "french",
+          "german",
+          "italian",
+          "japanese",
+          "korean",
+          "portuguese",
+          "russian",
+          "spanish"
+        ]
+      }
+    }
+  },
+  "results": {
+    "custom_voice": [
+      {
+        "section": "custom_voice",
+        "language": "Chinese",
+        "language_id": "chinese",
+        "wall_s": 7.517,
+        "audio_s": 4.64,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.09391,
+          "duration_s": 4.64
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "English",
+        "language_id": "english",
+        "wall_s": 3.653,
+        "audio_s": 2.96,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.085743,
+          "duration_s": 2.96
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "Japanese",
+        "language_id": "japanese",
+        "wall_s": 5.2,
+        "audio_s": 4.16,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.116498,
+          "duration_s": 4.16
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "Korean",
+        "language_id": "korean",
+        "wall_s": 4.496,
+        "audio_s": 3.6,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.12635,
+          "duration_s": 3.6
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "German",
+        "language_id": "german",
+        "wall_s": 3.641,
+        "audio_s": 2.88,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.155835,
+          "duration_s": 2.88
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "French",
+        "language_id": "french",
+        "wall_s": 4.191,
+        "audio_s": 3.28,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.125481,
+          "duration_s": 3.28
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "Russian",
+        "language_id": "russian",
+        "wall_s": 3.647,
+        "audio_s": 2.96,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.094888,
+          "duration_s": 2.96
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "Portuguese",
+        "language_id": "portuguese",
+        "wall_s": 3.909,
+        "audio_s": 3.28,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.098449,
+          "duration_s": 3.28
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "Spanish",
+        "language_id": "spanish",
+        "wall_s": 4.992,
+        "audio_s": 4.0,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.11854,
+          "duration_s": 4.0
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "custom_voice",
+        "language": "Italian",
+        "language_id": "italian",
+        "wall_s": 3.972,
+        "audio_s": 3.28,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.097081,
+          "duration_s": 3.28
+        },
+        "pass": true,
+        "error": null
+      }
+    ],
+    "clone_reference_audio": [
+      {
+        "section": "clone_reference_audio",
+        "language": "English",
+        "language_id": "english",
+        "wall_s": 3.884,
+        "audio_s": 3.12,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.098616,
+          "duration_s": 3.12
+        },
+        "pass": true,
+        "error": null,
+        "role": "clone_reference"
+      },
+      {
+        "section": "clone_reference_audio",
+        "language": "Chinese",
+        "language_id": "chinese",
+        "wall_s": 4.47,
+        "audio_s": 3.52,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.123503,
+          "duration_s": 3.52
+        },
+        "pass": true,
+        "error": null,
+        "role": "clone_reference"
+      },
+      {
+        "section": "clone_reference_audio",
+        "language": "Japanese",
+        "language_id": "japanese",
+        "wall_s": 5.228,
+        "audio_s": 4.16,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.07614,
+          "duration_s": 4.16
+        },
+        "pass": true,
+        "error": null,
+        "role": "clone_reference"
+      },
+      {
+        "section": "clone_reference_audio",
+        "language": "French",
+        "language_id": "french",
+        "wall_s": 3.873,
+        "audio_s": 3.04,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.144874,
+          "duration_s": 3.04
+        },
+        "pass": true,
+        "error": null,
+        "role": "clone_reference"
+      }
+    ],
+    "voice_design": [
+      {
+        "section": "voice_design",
+        "language": "Chinese",
+        "language_id": "chinese",
+        "wall_s": 4.97,
+        "audio_s": 4.0,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.069565,
+          "duration_s": 4.0
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "English",
+        "language_id": "english",
+        "wall_s": 5.196,
+        "audio_s": 4.16,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.078484,
+          "duration_s": 4.16
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "Japanese",
+        "language_id": "japanese",
+        "wall_s": 7.172,
+        "audio_s": 5.12,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.067068,
+          "duration_s": 5.12
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "Korean",
+        "language_id": "korean",
+        "wall_s": 6.902,
+        "audio_s": 4.96,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.063538,
+          "duration_s": 4.96
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "German",
+        "language_id": "german",
+        "wall_s": 3.552,
+        "audio_s": 2.88,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.051983,
+          "duration_s": 2.88
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "French",
+        "language_id": "french",
+        "wall_s": 3.672,
+        "audio_s": 2.96,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.20783,
+          "duration_s": 2.96
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "Russian",
+        "language_id": "russian",
+        "wall_s": 6.004,
+        "audio_s": 4.72,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.068638,
+          "duration_s": 4.72
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "Portuguese",
+        "language_id": "portuguese",
+        "wall_s": 6.517,
+        "audio_s": 5.04,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.04508,
+          "duration_s": 5.04
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "Spanish",
+        "language_id": "spanish",
+        "wall_s": 4.455,
+        "audio_s": 3.52,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.078782,
+          "duration_s": 3.52
+        },
+        "pass": true,
+        "error": null
+      },
+      {
+        "section": "voice_design",
+        "language": "Italian",
+        "language_id": "italian",
+        "wall_s": 8.177,
+        "audio_s": 5.84,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.060999,
+          "duration_s": 5.84
+        },
+        "pass": true,
+        "error": null
+      }
+    ],
+    "cross_lingual_clone": [
+      {
+        "section": "cross_lingual_clone",
+        "language": "Chinese",
+        "language_id": "chinese",
+        "wall_s": 5.963,
+        "audio_s": 4.16,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.097642,
+          "duration_s": 4.16
+        },
+        "pass": true,
+        "error": null,
+        "ref_language": "English",
+        "ref_language_id": "english",
+        "prompt_s": 0.547,
+        "generate_s": 5.416,
+        "ref_text": "The blue kite rises slowly over the quiet harbor."
+      },
+      {
+        "section": "cross_lingual_clone",
+        "language": "English",
+        "language_id": "english",
+        "wall_s": 5.638,
+        "audio_s": 3.36,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.077612,
+          "duration_s": 3.36
+        },
+        "pass": true,
+        "error": null,
+        "ref_language": "Chinese",
+        "ref_language_id": "chinese",
+        "prompt_s": 0.435,
+        "generate_s": 5.203,
+        "ref_text": "秋风吹过湖面，带来一丝清凉的气息。"
+      },
+      {
+        "section": "cross_lingual_clone",
+        "language": "English",
+        "language_id": "english",
+        "wall_s": 4.962,
+        "audio_s": 3.52,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.085509,
+          "duration_s": 3.52
+        },
+        "pass": true,
+        "error": null,
+        "ref_language": "Japanese",
+        "ref_language_id": "japanese",
+        "prompt_s": 0.194,
+        "generate_s": 4.768,
+        "ref_text": "春の朝、小鳥たちが窓の外で楽しそうに鳴いています。"
+      },
+      {
+        "section": "cross_lingual_clone",
+        "language": "Chinese",
+        "language_id": "chinese",
+        "wall_s": 6.185,
+        "audio_s": 3.92,
+        "checks": {
+          "finite": true,
+          "non_silent": true,
+          "valid_sr": true,
+          "bounded_duration": true,
+          "rms": 0.110993,
+          "duration_s": 3.92
+        },
+        "pass": true,
+        "error": null,
+        "ref_language": "French",
+        "ref_language_id": "french",
+        "prompt_s": 0.18,
+        "generate_s": 6.005,
+        "ref_text": "La lumière du matin traverse les grandes fenêtres."
+      }
+    ]
+  },
+  "summary": {
+    "sections": {
+      "custom_voice": {
+        "cells": 10,
+        "passed": 10
+      },
+      "clone_reference_audio": {
+        "cells": 4,
+        "passed": 4
+      },
+      "voice_design": {
+        "cells": 10,
+        "passed": 10
+      },
+      "cross_lingual_clone": {
+        "cells": 4,
+        "passed": 4
+      }
+    },
+    "matrix_cells_total": 24,
+    "matrix_cells_passed": 24,
+    "reference_cells_total": 4,
+    "reference_cells_passed": 4,
+    "all_passed": true,
+    "per_language": [
+      {
+        "language": "Chinese",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": [
+          {
+            "ref_language": "English",
+            "ref_code": "en",
+            "pass": true
+          },
+          {
+            "ref_language": "French",
+            "ref_code": "fr",
+            "pass": true
+          }
+        ]
+      },
+      {
+        "language": "English",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": [
+          {
+            "ref_language": "Chinese",
+            "ref_code": "zh",
+            "pass": true
+          },
+          {
+            "ref_language": "Japanese",
+            "ref_code": "ja",
+            "pass": true
+          }
+        ]
+      },
+      {
+        "language": "Japanese",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "Korean",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "German",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "French",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "Russian",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "Portuguese",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "Spanish",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      },
+      {
+        "language": "Italian",
+        "custom_voice": true,
+        "voice_design": true,
+        "cross_lingual_clone": []
+      }
+    ],
+    "wall_seconds_total": 152.6
+  }
+}

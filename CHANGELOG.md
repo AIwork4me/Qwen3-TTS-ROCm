@@ -33,6 +33,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   row now reads "6 / 6 load-validated"; documented boundary note that 0.6B
   CustomVoice has no instruction control upstream (the installed wrapper
   accepts and nulls `instruct` for 0.6B).
+- Multilingual Radeon validation matrix (P0 capability parity, Task 2):
+  new harness `scripts/validate_languages.py` + authored fixture
+  `tests/data/multilingual_samples.json` exercising every officially
+  supported language end to end on the Radeon GPU — 10 CustomVoice + 10
+  VoiceDesign cells + 4 representative cross-lingual clone pairs (1.7B
+  models, one resident at a time, every generation keyword-first with
+  `max_new_tokens=512`). Manifest language names resolve case-insensitively
+  onto the installed package's `get_supported_languages()` identifiers
+  (recorded per row); drift in either direction is a hard error, never a
+  silent skip. The only capability claim is "end-to-end generation
+  completed on Radeon" from waveform sanity (finite, non-silent, valid
+  sample rate, bounded duration) — no pronunciation-quality claims
+  anywhere; cross-lingual clone coverage is stated as representative
+  (4 pairs), not exhaustive. The cross-lingual transcript rule is
+  structural: `ref_text` is exactly the manifest sentence synthesized into
+  the reference audio. 13 CPU unit tests pin the pure helpers. Archived
+  run: `evidence/multilingual-matrix.json` + verbatim transcript
+  `evidence/multilingual-matrix.txt` (24/24 matrix cells + 4/4 reference
+  generations passed, 147.5 s wall). README / README_CN gained the
+  "Multilingual capability matrix" section rendered from that evidence.
 
 ## [Unreleased]
 

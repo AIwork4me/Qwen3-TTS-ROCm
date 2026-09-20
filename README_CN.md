@@ -43,6 +43,32 @@ GPU 上真实合成并通过健全性断言；基准测试 = 已存档的 RTF �
 
 注意：0.6B CustomVoice 在上游没有指令控制能力；演示与文档均如实反映该边界。
 
+### 多语言能力矩阵
+
+每一个官方支持的语言都在 Radeon GPU 上完成了端到端验证（10 次
+CustomVoice + 10 次 VoiceDesign 生成，外加 4 对代表性跨语言克隆，经由
+1.7B Base 模型；同一时刻只驻留一个模型）。复现命令：
+`.venv/bin/python scripts/validate_languages.py 2>&1 | tee evidence/multilingual-matrix.txt`
+（运行记录：`evidence/multilingual-matrix.txt`，机器可读逐行数据：
+`evidence/multilingual-matrix.json`）。
+
+| 语言 | 定制音色 CustomVoice | 音色设计 VoiceDesign | 跨语言克隆 |
+|---|---|---|---|
+| 中文 Chinese | ✅ | ✅ | ✅（参考：en、fr） |
+| 英语 English | ✅ | ✅ | ✅（参考：zh、ja） |
+| 日语 Japanese | ✅ | ✅ | — |
+| 韩语 Korean | ✅ | ✅ | — |
+| 德语 German | ✅ | ✅ | — |
+| 法语 French | ✅ | ✅ | — |
+| 俄语 Russian | ✅ | ✅ | — |
+| 葡萄牙语 Portuguese | ✅ | ✅ | — |
+| 西班牙语 Spanish | ✅ | ✅ | — |
+| 意大利语 Italian | ✅ | ✅ | — |
+
+✅ = 已在 Radeon 上完成端到端生成（波形健全性：有限值、非静音、有效
+采样率、时长有界）——见 `evidence/multilingual-matrix.json`。这不是
+发音质量声明。跨语言克隆覆盖为代表性抽样（4 对），并非穷举。
+
 CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 215 项 CPU 测试；另有
 1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
 该项也会执行，因此最终为 216 CPU + 34 GPU = 250 / 250 全通过。

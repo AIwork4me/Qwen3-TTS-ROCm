@@ -50,6 +50,35 @@ Generate = real synthesis asserted sane on GPU; Benchmark = archived RTF run):
 Note: 0.6B CustomVoice has no instruction control upstream; the demo and
 docs reflect that boundary.
 
+### Multilingual capability matrix
+
+Every officially supported language, exercised end to end on the Radeon GPU
+(10 CustomVoice + 10 VoiceDesign generations + 4 representative
+cross-lingual clone pairs via the 1.7B Base model; one model resident at a
+time). Reproduce with
+`.venv/bin/python scripts/validate_languages.py 2>&1 | tee evidence/multilingual-matrix.txt`
+(transcript: `evidence/multilingual-matrix.txt`, machine-readable rows:
+`evidence/multilingual-matrix.json`).
+
+| Language | CustomVoice | VoiceDesign | Clone (cross-lingual) |
+|---|---|---|---|
+| Chinese | ✅ | ✅ | ✅ (ref: en, fr) |
+| English | ✅ | ✅ | ✅ (ref: zh, ja) |
+| Japanese | ✅ | ✅ | — |
+| Korean | ✅ | ✅ | — |
+| German | ✅ | ✅ | — |
+| French | ✅ | ✅ | — |
+| Russian | ✅ | ✅ | — |
+| Portuguese | ✅ | ✅ | — |
+| Spanish | ✅ | ✅ | — |
+| Italian | ✅ | ✅ | — |
+
+✅ = end-to-end generation completed on Radeon (waveform sanity: finite,
+non-silent, valid sample rate, bounded duration) — see
+`evidence/multilingual-matrix.json`. This is NOT a pronunciation-quality
+claim. Cross-lingual clone coverage is representative (4 pairs), not
+exhaustive.
+
 The CPU-only CI matrix passes 215 CPU tests on Python 3.10 / 3.11 / 3.12,
 with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
 ROCm host that test also runs, giving 216 CPU + 34 GPU = 250 / 250.
