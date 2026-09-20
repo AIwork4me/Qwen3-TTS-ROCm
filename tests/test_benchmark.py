@@ -53,3 +53,59 @@ def test_md_row_shape_is_markdown_ready():
     cells = [c.strip() for c in row.split("|")][1:-1]
     assert cells[:4] == ["custom-voice", "cn", "short", "2"]
     assert cells[4:] == ["1.50", "1.00", "2.00", "15.00"]
+
+
+class _FakeCVModel:
+    """Just enough official surface for build_call's custom-voice branch."""
+
+    def get_supported_speakers(self):
+        return ["aiden", "vivian"]
+
+
+def test_build_call_widened_alias_set():
+    """0.6B aliases resolve to their family's official entry point (Task 1)."""
+    text, lang = "你好", "Chinese"
+    method, kwargs = bench.build_call(_FakeCVModel(), "custom-voice-0.6b", text, lang)
+    assert method == "generate_custom_voice"
+    assert kwargs == {"text": text, "language": lang, "speaker": "aiden"}
+
+    method, kwargs = bench.build_call(_FakeCVModel(), "custom-voice", text, lang)
+    assert method == "generate_custom_voice"
+    assert kwargs["speaker"] == "aiden"
+
+    method, kwargs = bench.build_call(object(), "base-0.6b", "Hello", "English")
+    assert method == "generate_voice_clone"
+    assert kwargs["text"] == "Hello" and kwargs["language"] == "English"
+    assert kwargs["ref_text"] == bench.BASE_REF_TEXT
+    wav, sr = kwargs["ref_audio"]
+    assert sr > 0 and wav.ndim == 1  # bundled clip read through the official tuple
+
+    method, kwargs = bench.build_call(object(), "voice-design", text, lang)
+    assert method == "generate_voice_design"
+    assert kwargs["instruct"] == bench.VOICE_DESIGN_INSTRUCT
+
+
+def test_build_call_unknown_alias_lists_all_five():
+    """Typos fail loudly BEFORE any load, naming the full supported set."""
+    try:
+        bench.build_call(_FakeCVModel(), "custom-voice-06b", "x", "Chinese")
+    except KeyError as exc:
+        for name in ("custom-voice", "custom-voice-0.6b", "voice-design",
+                     "base", "base-0.6b"):
+            assert name in str(exc)
+    else:  # pragma: no cover - the raise is the contract
+        raise AssertionError("unknown alias must raise KeyError")
+
+
+def test_with_alias_metrics_rounding_and_none_peak():
+    """Per-alias metrics attach rounded to every cell; None peak stays None."""
+    cell = bench.with_alias_metrics({"alias": "base-0.6b"},
+                                    load_seconds=12.3456,
+                                    peak_alloc_gb=2.71828)
+    assert cell["load_seconds"] == 12.346
+    assert cell["peak_alloc_gb"] == 2.718
+
+    cpu_cell = bench.with_alias_metrics({"alias": "base-0.6b"},
+                                        load_seconds=5.0, peak_alloc_gb=None)
+    assert cpu_cell["load_seconds"] == 5.0
+    assert cpu_cell["peak_alloc_gb"] is None  # absence stays visible, not 0

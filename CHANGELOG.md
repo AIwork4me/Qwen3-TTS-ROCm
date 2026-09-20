@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-09-20
+
+### Added
+
+- 0.6B end-to-end capability validation on the Radeon 8060S (P0 capability
+  parity, Task 1): new on-GPU test suites for `custom-voice-0.6b`
+  (metadata surface, single/batch generation, sampling-kwarg passthrough,
+  and the pinned `instruct` boundary — accepted but silently ignored by the
+  installed wrapper for 0.6B, per the Task 0 ground-truth audit) and
+  `base-0.6b` (ref-text cloning, x-vector-only cloning, reusable
+  `create_voice_clone_prompt`, official-demo-format save/load roundtrip
+  parity, batch cloning). The suite grows to 250/250 on the validation host
+  (216 CPU + 34 real-GPU); CPU-only CI passes 215 + 1 HIP-gated skip.
+- `scripts/benchmark.py`: the 0.6B aliases (`custom-voice-0.6b`,
+  `base-0.6b`) are benchmarked through their family's official entry
+  points; per-alias `load_seconds` (timed `loader.load`) and
+  `peak_alloc_gb` (torch peak allocation across the alias's run, reset
+  after load) are printed, stored under `meta.per_alias`, and attached to
+  every per-cell record; JSON `meta` now also records `git_head` and the
+  audited upstream `upstream_qwen3_tts_sha`. Archived 0.6B evidence run:
+  `evidence/benchmark-06b-2026-09-20.json` + verbatim transcript
+  `evidence/benchmark-06b-2026-09-20.txt`.
+- README / README_CN: per-checkpoint validation-level matrix (Load /
+  E2E Generate / Benchmark) directly under the verified-results table,
+  separating load validation from functional validation; the model-repo
+  row now reads "6 / 6 load-validated"; documented boundary note that 0.6B
+  CustomVoice has no instruction control upstream (the installed wrapper
+  accepts and nulls `instruct` for 0.6B).
+
 ## [Unreleased]
 
 ### Changed

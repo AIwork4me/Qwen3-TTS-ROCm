@@ -28,16 +28,31 @@ AMD. See [Attribution](#attribution--disclaimer).
 
 | Validation | Result |
 |---|---|
-| Official model repositories | **6 / 6 validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **238 / 238 on validation host** — 213 CPU + 25 real-GPU |
+| Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
+| Automated tests | **250 / 250 on validation host** — 216 CPU + 34 real-GPU |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
 
-The CPU-only CI matrix passes 212 CPU tests on Python 3.10 / 3.11 / 3.12,
+Per-checkpoint validation level (load = loads through `loader.load`; E2E
+Generate = real synthesis asserted sane on GPU; Benchmark = archived RTF run):
+
+| Model | Load | E2E Generate | Benchmark |
+|---|---|---|---|
+| 1.7B CustomVoice | ✅ | ✅ | ✅ |
+| 1.7B VoiceDesign | ✅ | ✅ | ✅ |
+| 1.7B Base (clone) | ✅ | ✅ | ✅ |
+| 0.6B CustomVoice | ✅ | ✅ | ✅ (see `evidence/benchmark-06b-2026-09-20.json`) |
+| 0.6B Base (clone) | ✅ | ✅ | ✅ (same) |
+| 12Hz Tokenizer | ✅ | codec ✅ | n/a |
+
+Note: 0.6B CustomVoice has no instruction control upstream; the demo and
+docs reflect that boundary.
+
+The CPU-only CI matrix passes 215 CPU tests on Python 3.10 / 3.11 / 3.12,
 with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
-ROCm host that test also runs, giving 213 CPU + 25 GPU = 238 / 238.
+ROCm host that test also runs, giving 216 CPU + 34 GPU = 250 / 250.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -158,8 +173,8 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 238/238 on the validated ROCm host (213 CPU + 25
-  real-GPU); the CPU-only CI matrix passes 212 + 1 HIP-gated skip on
+* **Test suite** — 250/250 on the validated ROCm host (216 CPU + 34
+  real-GPU); the CPU-only CI matrix passes 215 + 1 HIP-gated skip on
   Python 3.10 / 3.11 / 3.12, including the upstream-parity proof below.
 
 <a id="why-this-project-exists"></a>
@@ -245,8 +260,8 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 212 CPU tests (213 on AMD hosts)
-python -m pytest -m "gpu" -q                  # 25 on-GPU tests (weights required)
+python -m pytest -m "not gpu and not requires_download" -q   # 215 CPU tests (216 on AMD hosts)
+python -m pytest -m "gpu" -q                  # 34 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
 

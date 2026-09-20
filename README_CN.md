@@ -22,16 +22,30 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 
 | 验证项 | 结果 |
 |---|---|
-| 官方模型仓库 | **6 / 6 已验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 238 / 238 全通过** —— 213 CPU + 25 真机 GPU |
+| 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
+| 自动化测试 | **验证主机 250 / 250 全通过** —— 216 CPU + 34 真机 GPU |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
 
-CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 212 项 CPU 测试；另有
+逐 checkpoint 验证层级（加载 = 经 `loader.load` 完成加载；端到端合成 =
+GPU 上真实合成并通过健全性断言；基准测试 = 已存档的 RTF 实测）：
+
+| 模型 | 加载 | 端到端合成 | 基准测试 |
+|---|---|---|---|
+| 1.7B 定制音色 CustomVoice | ✅ | ✅ | ✅ |
+| 1.7B 音色设计 VoiceDesign | ✅ | ✅ | ✅ |
+| 1.7B Base（克隆） | ✅ | ✅ | ✅ |
+| 0.6B 定制音色 CustomVoice | ✅ | ✅ | ✅（见 `evidence/benchmark-06b-2026-09-20.json`） |
+| 0.6B Base（克隆） | ✅ | ✅ | ✅（同上） |
+| 12Hz 分词器 Tokenizer | ✅ | 编解码 ✅ | 不适用 |
+
+注意：0.6B CustomVoice 在上游没有指令控制能力；演示与文档均如实反映该边界。
+
+CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 215 项 CPU 测试；另有
 1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
-该项也会执行，因此最终为 213 CPU + 25 GPU = 238 / 238 全通过。
+该项也会执行，因此最终为 216 CPU + 34 GPU = 250 / 250 全通过。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -141,8 +155,8 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 238/238 全通过（213 CPU + 25 真机 GPU）；
-  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 212 项 + 1 项 HIP 门控
+* **测试套件** —— 验证主机 250/250 全通过（216 CPU + 34 真机 GPU）；
+  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 215 项 + 1 项 HIP 门控
   跳过，含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
@@ -219,8 +233,8 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 212 个 CPU 测试（AMD 主机 213 个）
-python -m pytest -m "gpu" -q                  # 25 个 GPU 测试（需权重）
+python -m pytest -m "not gpu and not requires_download" -q   # 215 个 CPU 测试（AMD 主机 216 个）
+python -m pytest -m "gpu" -q                  # 34 个 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```
 

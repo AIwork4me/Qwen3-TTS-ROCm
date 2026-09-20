@@ -34,10 +34,17 @@ Usage::
     .venv/bin/python scripts/benchmark.py                 # defaults below
     .venv/bin/python scripts/benchmark.py --no-warmup \
         --aliases custom-voice,base --max-new-tokens 256
+    .venv/bin/python scripts/benchmark.py --aliases custom-voice-0.6b,base-0.6b \
+        --json-out evidence/benchmark-06b-<date>.json     # the 0.6B pair
 
 Outputs: markdown-ready table rows on stdout AND a JSON document (default
-``evidence/benchmark.json``) with {meta:{host,gpu,torch_version_hip,date,args},
-results:[per-cell records incl. per-run RTF lists]}.
+``evidence/benchmark.json``) with {meta:{host,gpu,torch_version_hip,date,args,
+git_head,upstream_qwen3_tts_sha,per_alias},results:[per-cell records incl.
+per-run RTF lists]}.  Per-alias metrics -- ``load_seconds`` (the timed
+``loader.load(alias)``) and ``peak_alloc_gb`` (torch's peak allocated GiB
+across the alias's whole run, reset right after load) -- are printed per
+alias, stored under meta.per_alias, and attached to every cell of that alias
+(``None`` when no CUDA device is visible).
 
 Note for tests: importing this module is intentionally LIGHTWEIGHT (stdlib
 only at import time); torch/qwen_tts/loader are imported lazily inside
@@ -59,11 +66,13 @@ __all__ = [
     "BASE_REF_TEXT",
     "LANG_KEYS",
     "TEXTS",
+    "UPSTREAM_QWEN3_TTS_SHA",
     "VOICE_DESIGN_INSTRUCT",
     "cell_summary",
     "main",
     "md_row",
     "rtf_of",
+    "with_alias_metrics",
 ]
 
 # ---------------------------------------------------------------------------
@@ -96,7 +105,18 @@ VOICE_DESIGN_INSTRUCT = "用平静自然的语气说话"
 #: the clip is speech-like babble, not a real human recording).
 BASE_REF_TEXT = "This tiny synthetic voice was cloned for automated testing."
 
-#: Default alias list (registry aliases from qwen3_tts_rocm.models.ALIASES).
+#: Upstream QwenLM/Qwen3-TTS HEAD SHA at the Task 0 ground-truth audit
+#: (2026-09-20; evidence/ground-truth-2026-09-20.md).  Recorded verbatim into
+#: the JSON meta so every archived benchmark names the upstream it measured
+#: against without re-deriving it at run time.
+UPSTREAM_QWEN3_TTS_SHA = "022e286b98fbec7e1e916cb940cdf532cd9f488e"
+
+#: Default alias list (registry aliases from qwen3_tts_rocm.models.ALIASES):
+#: the three 1.7B entry points.  The 0.6B checkpoints are fully supported via
+#: ``--aliases custom-voice-0.6b,base-0.6b`` (see build_call); they are not in
+#: the default because the default run mirrors the published 1.7B numbers in
+#: docs/benchmarks.md, and the 0.6B pair has its own archived evidence run
+#: (evidence/benchmark-06b-2026-09-20.json).
 DEFAULT_ALIASES = "custom-voice,voice-design,base"
 
 DEFAULT_MAX_NEW_TOKENS = 512
@@ -148,6 +168,43 @@ def md_row(alias: str, lang_key: str, length_key: str, summary: dict) -> str:
     )
 
 
+def with_alias_metrics(cell: dict, *, load_seconds: float,
+                       peak_alloc_gb: float | None) -> dict:
+    """Attach the per-alias metrics to one result *cell* (pure rounding only).
+
+    ``load_seconds`` is the timed ``loader.load(alias)``; ``peak_alloc_gb`` is
+    torch's peak allocated GiB across that alias's whole run.  ``None`` for
+    the peak (CPU host / probe failure) is recorded verbatim so the absence
+    stays visible instead of masquerading as a measurement.  Mutates and
+    returns *cell* so callers can append it in one expression.
+    """
+    cell["load_seconds"] = round(float(load_seconds), 3)
+    cell["peak_alloc_gb"] = (None if peak_alloc_gb is None
+                             else round(float(peak_alloc_gb), 3))
+    return cell
+
+
+def reset_peak_gpu_memory() -> None:
+    """Zero torch's peak-allocation counter; a no-op without a CUDA device.
+
+    Guarded by ``torch.cuda.is_available()`` (lazy import inside) so CPU unit
+    tests of the pure helpers stay lightweight.
+    """
+    import torch
+
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
+
+def peak_alloc_gb() -> float | None:
+    """Peak GPU bytes allocated (GiB) since the last reset; ``None`` off-GPU."""
+    import torch
+
+    if not torch.cuda.is_available():
+        return None
+    return torch.cuda.max_memory_allocated() / 2**30
+
+
 # ---------------------------------------------------------------------------
 # Environment metadata (guarded, mirrors src/qwen3_tts_rocm/env.py probes).
 # ---------------------------------------------------------------------------
@@ -167,6 +224,27 @@ def _gpu_description() -> str:
         return f"{props.name} ({arch}, multi_processor_count={cus}, torch-visible memory {vram_gib:.1f} GiB)"
     except Exception as exc:  # noqa: BLE001 - diagnostics never block the bench
         return f"probe failed: {exc}"
+
+
+def _git_head() -> str:
+    """``git rev-parse HEAD`` of the repo the script runs in; never raises.
+
+    Falls back to ``"unknown"`` outside a git checkout or when git is absent,
+    so the benchmark never dies on provenance probing.
+    """
+    import subprocess
+
+    try:
+        out = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            capture_output=True, text=True, timeout=10, check=False,
+            cwd=Path(__file__).resolve().parent,
+        )
+        if out.returncode == 0:
+            return out.stdout.strip()
+    except Exception:  # noqa: BLE001,S110 - provenance probes never block the bench
+        pass
+    return "unknown"
 
 
 def collect_meta(args: argparse.Namespace, aliases: list[str]) -> dict:
@@ -201,6 +279,8 @@ def collect_meta(args: argparse.Namespace, aliases: list[str]) -> dict:
         "gpu": _gpu_description(),
         "torch_version_hip": f"{torch.__version__} (HIP {getattr(torch.version, 'hip', None)})",
         "date": datetime.now(timezone.utc).astimezone().isoformat(timespec="seconds"),
+        "git_head": _git_head(),
+        "upstream_qwen3_tts_sha": UPSTREAM_QWEN3_TTS_SHA,
         "args": {
             **vars(args),
             "json_out": str(args.json_out),
@@ -238,17 +318,24 @@ def _load_base_ref_audio() -> tuple[object, int]:
 def build_call(model: object, alias: str, text: str, language: str) -> tuple[str, dict]:
     """Resolve (official-method-name, kwargs) for *alias*; keyword-first calls.
 
+    Each alias maps to its family's ONLY supported official entry point
+    (size variants of the same family share it): ``custom-voice`` and
+    ``custom-voice-0.6b`` -> ``generate_custom_voice``; ``voice-design`` ->
+    ``generate_voice_design``; ``base`` and ``base-0.6b`` ->
+    ``generate_voice_clone`` (the Base models reject the other two).
+
     Raises KeyError for unknown aliases so typos fail loudly before any load.
     """
     common = {"text": text, "language": language}
-    if alias == "custom-voice":
+    if alias in ("custom-voice", "custom-voice-0.6b"):
         return "generate_custom_voice", {**common, "speaker": model.get_supported_speakers()[0]}
     if alias == "voice-design":
         return "generate_voice_design", {**common, "instruct": VOICE_DESIGN_INSTRUCT}
-    if alias == "base":
+    if alias in ("base", "base-0.6b"):
         wav, sr = _load_base_ref_audio()
         return "generate_voice_clone", {**common, "ref_audio": (wav, sr), "ref_text": BASE_REF_TEXT}
-    raise KeyError(f"unknown alias {alias!r}; benchmark supports: custom-voice, voice-design, base")
+    raise KeyError(f"unknown alias {alias!r}; benchmark supports: custom-voice, "
+                   f"custom-voice-0.6b, voice-design, base, base-0.6b")
 
 
 def run_cell(
@@ -369,11 +456,17 @@ def main(argv: list[str] | None = None) -> int:
 
     results: list[dict] = []
     rows: list[str] = []
+    per_alias: dict[str, dict] = {}  # alias -> {load_seconds, peak_alloc_gb}
     for alias in aliases:
         print(f"[bench] loading alias={alias} ...", flush=True)
         t0 = time.perf_counter()
         model = loader.load(alias)
-        print(f"[bench] loaded alias={alias} took={time.perf_counter() - t0:.1f}s", flush=True)
+        load_seconds = time.perf_counter() - t0
+        print(f"[bench] loaded alias={alias} took={load_seconds:.1f}s", flush=True)
+        # Peak counter reset AFTER load: the high-water mark then reflects the
+        # alias's whole measured run (warmup + cells), not the load itself.
+        reset_peak_gpu_memory()
+        alias_results: list[dict] = []
         try:
             if args.warmup:
                 tw = time.perf_counter()
@@ -387,7 +480,7 @@ def main(argv: list[str] | None = None) -> int:
                     method, summary = run_cell(
                         model, alias, lang_key, length_key, args.max_new_tokens, args.runs
                     )
-                    results.append(
+                    alias_results.append(
                         {
                             "alias": alias,
                             "method": method,
@@ -399,8 +492,27 @@ def main(argv: list[str] | None = None) -> int:
                     )
                     rows.append(md_row(alias, lang_key, length_key, summary))
         finally:
+            # Peak read at alias end (before unload drops the weights): the
+            # high-water mark of the whole run. None on a CPU-only host.
+            peak = peak_alloc_gb()
+            per_alias[alias] = {
+                "load_seconds": round(load_seconds, 3),
+                "peak_alloc_gb": None if peak is None else round(peak, 3),
+            }
+            peak_repr = "n/a (no CUDA device)" if peak is None else f"{peak:.2f} GiB"
+            print(
+                f"[bench] alias={alias} load_seconds={load_seconds:.1f} "
+                f"peak_alloc_gb={peak_repr}",
+                flush=True,
+            )
+            for cell in alias_results:
+                with_alias_metrics(cell, load_seconds=load_seconds,
+                                   peak_alloc_gb=peak)
+            results.extend(alias_results)
             print(f"[bench] unloading alias={alias}", flush=True)
             loader.unload(model)
+
+    meta["per_alias"] = per_alias
 
     print(MD_HEADER)
     print(MD_SEP)
