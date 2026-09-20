@@ -25,11 +25,11 @@ Usage:
 
 Aliases (approx. download size):
   tokenizer           651M    audio codec — required by every demo/pipeline
-  custom-voice        4.3G    reference-voice cloning (1.7B)
+  custom-voice        4.3G    preset/custom-speaker voice generation (1.7B)
   voice-design        4.3G    text-described voice creation (1.7B)
-  base                4.3G    base TTS (1.7B)
-  custom-voice-0.6b   2.4G    smaller custom-voice
-  base-0.6b           2.4G    smaller base
+  base                4.3G    zero-shot voice cloning + fine-tuning base (1.7B)
+  custom-voice-0.6b   2.4G    smaller custom-voice (no instruct control upstream)
+  base-0.6b           2.4G    smaller base (zero-shot cloning + fine-tuning)
 
 Environment:
   QWEN3_TTS_ROCM_MODELS_DIR   override the models root (default: <repo>/models)

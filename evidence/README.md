@@ -43,11 +43,35 @@ each file, or follow [docs/benchmarks.md](../docs/benchmarks.md) and
 | `benchmark-06b-2026-09-20.json` | Machine-readable 0.6B RTF benchmark (2026-09-20): both 0.6B checkpoints, 4 cells x 2 runs each, median RTF 1.03–1.30 (`custom-voice-0.6b`, load 4.0 s, peak 2.80 GiB) and 1.19–1.26 (`base-0.6b`, load 1.5 s, peak 3.10 GiB); per-cell records carry RTF/wall/audio lists plus `load_seconds`/`peak_alloc_gb`; meta carries `git_head` + audited upstream SHA | `scripts/benchmark.py --aliases custom-voice-0.6b,base-0.6b --json-out ...` |
 | `benchmark-06b-2026-09-20.txt` | Verbatim stdout+stderr transcript of the same 0.6B benchmark session (per-call `[bench]` lines, load/warmup/peak timings, markdown table, `exit_code=0`) | same command piped through `tee` |
 | `multilingual-matrix.json` | Machine-readable multilingual capability matrix (2026-09-20): all 10 officially supported languages exercised end to end on the Radeon GPU — 10 CustomVoice + 10 VoiceDesign cells + 4 representative cross-lingual clone pairs (plus the 4 clone-reference generations), every cell `pass: true` from waveform sanity (finite, non-silent, valid sample rate, bounded duration); rows carry the resolved runtime `language_id`, wall/audio timings and checks; meta carries git HEAD, audited upstream SHA, per-section model alias and the runtime `get_supported_languages()` list. NOT a pronunciation-quality claim; clone coverage representative, not exhaustive (24/24 matrix cells, 147.5 s) | `scripts/validate_languages.py` JSON output |
-| `multilingual-matrix.txt` | Verbatim stdout+stderr transcript of the same multilingual validation run (env header, per-cell `[cv]`/`[vd]`/`[cv-ref]`/`[clone]` lines, summary table, caption, `RESULT: PASS`, `RUN_EXIT=0`) | same command piped through `tee` |
+| `multilingual-matrix.txt` | Verbatim stdout+stderr transcript of the same multilingual validation run (commented env header — timestamp, GPU, torch/HIP/qwen-tts versions, git HEAD, upstream SHA, manifest, `max_new_tokens=512`, claim wording; `[phase]` load/unload lines; per-cell `[cv]`/`[vd]`/`[cv-ref]`/`[clone]` lines; summary table + caption; closing `[summary] matrix cells: 24/24 …` / `[summary] RESULT: PASS` / `[evidence] wrote …` lines — no shell exit-code token is recorded, the run's success marker is the `[summary] RESULT: PASS` line) | same command piped through `tee` |
 | `voice-workflow-2026-09-20.json` | Machine-readable three-phase timings for the Voice Design → reusable-voice workflow (2026-09-20): `design_s=5.469` / `prompt_s=0.307` / `reuse_s_1=5.283` / `reuse_s_2=6.417` — the phases recorded SEPARATELY, never collapsed; every generation `max_new_tokens=512`; meta carries the env header (Radeon 8060S `gfx1151`, torch `2.12.0+rocm7.14.0`, hip `7.14.60850`, qwen-tts `0.1.1`), git HEAD `2a90229…` and the audited upstream SHA `022e286b…` | written by the walk-through python block of the same driver run |
 | `voice-workflow-2026-09-20.txt` | Verbatim transcript of the same session in two machine-generated parts: the GPU workflow suite (`tests/test_voice_workflow.py -m gpu -v -s`, 4 passed / `PYTEST_EXIT=0` — design+preview, two-sentence reuse, official-payload save/load roundtrip, official schema) and, behind a marked separator, the appended design → save → load → reuse×2 walk-through (`[walk]` lines ending `WALK-OK`, `WALK_EXIT=0`); the walk persists into a throwaway temp voices dir so the repo tree stays clean | `pytest … \| tee` + `python - <<'PY' … >>` from the evidence driver shell run |
 | `finetune-smoke-2026-09-20.json` | Machine-readable fine-tuning execution-smoke facts (2026-09-20): the OFFICIAL upstream fine-tuning workflow run end-to-end on the Radeon GPU — self-generated 12-utterance dataset, `prepare_data.py` AS-IS (exit 0), 12 optimizer steps of `sft_12hz.py` on 1.7B Base bf16 (wall 19.0 s, peak 18.02 GiB, loss lines quoted verbatim), per-epoch checkpoints, reload via `Qwen3TTSModel.from_pretrained` + sane `generate_custom_voice` synthesis (24 kHz, 3.52 s, non-silent). Scope guard inside: execution validation only — explicitly NOT speaker-similarity/convergence/quality claims. Also records the verbatim flash-attn `ImportError` of the AS-IS run, the exact one-line disclosed `sdpa` deviation applied inside the gitignored `.upstream` clone, its restore (`status --porcelain` empty), and the network-forced pinned-content bootstrap (github.com:443 blocked; SHA verified via api.github.com, content via codeload, commit object SHA-identical to the pinned upstream SHA) | read from the structured run facts; every value traces to the `.txt` transcript |
 | `finetune-smoke-2026-09-20.txt` | Verbatim phase-marked transcript of the same fine-tuning smoke (phases 4.1–4.6): upstream pin attempts, pinned-content bootstrap proofs (37-blob hash match, tree match, commit-SHA reproduction), `finetuning/` inspection recorded BEFORE any run, dataset generation `[render]`/`[utt]` lines, `prepare-exit=0` + `SCHEMA-OK`, the AS-IS flash-attn failure traceback, the one-line diff, `Epoch … Loss` lines, launcher CUDA stats, `RELOAD-AND-SYNTHESIS-OK`, zero-patch audit (`[status lines: 0]`). Note: MIOpen `*_grid_desc` kernel-tuning lines were filtered from the live stream of phases 4.4–4.6 by the recorded `grep -v` in each command itself (nothing was edited after the fact) | every command piped through `tee` from the Task 4 driver shell |
+
+### Errata — two labels inside `finetune-smoke-2026-09-20.txt` (transcript left unedited)
+
+Per the no-hand-edit policy the transcript stays byte-for-byte as captured,
+so the corrections live here instead. The underlying facts were verified in
+[`docs/superpowers/reports/task-4-verification.md`](../docs/superpowers/reports/task-4-verification.md):
+
+1. **Line 108** — `porcelain-exit=0 (empty output above = pristine)`. The
+   `git status --porcelain` listing directly above (lines 71–107) is NOT
+   empty: that invocation ran mid-bootstrap, after the reconstructed blobs
+   had been staged but before the commit object was finalized, so it lists
+   the 37 staged `A` files. The genuine pristine proofs are the later
+   checks: `status --porcelain | wc -l` → `0` once HEAD was reconstructed
+   (line ~194), the PHASE 4.5/4.6 closeout (`[status lines: 0]`, HEAD back
+   at the pinned SHA), and the PHASE 4.10 final verification block
+   (`wc -l` → 0, `diff --stat` → 0).
+2. **Line 1546** — `as-is-run-exit=0`. That exit code belongs to the
+   `… | tail -40` pipeline wrapper around the command, not to the training
+   script: the AS-IS run itself FAILED, with the flash-attn `ImportError`
+   quoted verbatim in the lines above the label (capturing that failure was
+   the phase's stated purpose). The failed AS-IS run is real, intended
+   evidence; the subsequent 12-step training ran only after the single
+   disclosed `sdpa` line was applied inside the gitignored clone (and the
+   clone was restored pristine afterwards).
 
 ## Reading guide
 

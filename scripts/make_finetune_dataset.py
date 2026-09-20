@@ -171,8 +171,10 @@ def main(argv: list[str] | None = None) -> int:
 
     report_lines = [
         f"manifest: {args.manifest}",
-        f"speaker: {args.speaker}  language-mode: {args.language_mode}  "
-        f"max_new_tokens: {MAX_NEW_TOKENS}  reseed-per-render: {_RESEED}",
+        (
+            f"speaker: {args.speaker}  language-mode: {args.language_mode}  "
+            f"max_new_tokens: {MAX_NEW_TOKENS}  reseed-per-render: {_RESEED}"
+        ),
     ]
 
     # 1) shared reference clip (ref_audio for every training sample)

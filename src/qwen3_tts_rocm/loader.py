@@ -65,7 +65,7 @@ import warnings
 from importlib.util import find_spec
 from typing import TYPE_CHECKING
 
-from . import env, models, patch
+from . import compat, env, models
 
 if TYPE_CHECKING:  # editors only; never executed (lazy-import discipline)
     from qwen_tts import Qwen3TTSModel
@@ -262,7 +262,7 @@ def load(
         wavs, sr = model.generate_custom_voice(text="Hi", language="English",
                                                speaker="Cherry")
     """
-    patch.apply_compat_patches()
+    compat.apply_compat_patches()
 
     resolved = models.resolve_path(model_ref)  # KeyError lists accepted forms
     _announce_first_load(resolved)

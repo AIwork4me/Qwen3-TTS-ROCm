@@ -122,6 +122,49 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `docs/finetuning-rocm.md` (PROVEN/NOT-PROVEN lists, reproduction
   commands); README / README_CN capability rows mark fine-tuning as
   ✅-scoped execution-only.
+- Repository alignment with the North Star (P0 capability parity, Task 5):
+  README / README_CN now open with the North Star sentence ("Official
+  Qwen3-TTS on AMD Radeon — capability by capability, benchmark by
+  benchmark, with zero upstream patches." / CN mirror) followed by a
+  consolidated four-state capability matrix (✅ Radeon E2E validated · 🟡
+  partial-load-only · ⬜ not validated · 🚫 not exposed upstream or
+  intentionally not claimed) covering CustomVoice 1.7B/0.6B, VoiceDesign
+  1.7B, Voice Clone 1.7B, Base 0.6B, reusable clone prompts,
+  Design→Clone→Reuse, the 12Hz tokenizer, the multilingual matrix,
+  fine-tuning (execution-only smoke), vLLM-Omni (🚫 roadmap) and true
+  streaming (🚫 roadmap) — every ✅ cell links its evidence file, no
+  percentage scores; the existing per-checkpoint and multilingual matrices
+  kept as detail views. Conceptual boundary fixed in
+  `scripts/download_models.sh` help (CustomVoice was misfiled as
+  "reference-voice cloning": it is preset/custom-speaker generation; Base
+  is the zero-shot-cloning + fine-tuning family) and stated explicitly in
+  both READMEs. Stale suite counts recomputed honestly and identically in
+  EN/CN: validation host 252 CPU + 38 GPU = 290/290; the CPU-only CI
+  matrix runs the same 252 CPU tests with 1 HIP-gated skip (previously
+  contradictory 215/243/216/244/34 figures). A clearly-labelled
+  "Roadmap (not yet validated)" section was added to both READMEs: the
+  vLLM-Omni-on-ROCm ladder (feasibility first, online serving only when
+  upstream supports the required path, no concurrency assumptions on the
+  single-GPU iGPU) and true streaming with its required measurements
+  (time to first audio, chunk cadence, total RTF, buffer underrun,
+  long-text behaviour), noting explicitly that upstream's "97 ms" figure
+  is NOT a Radeon number. `src/qwen3_tts_rocm/patch.py` renamed to
+  `compat.py` (module docstring now describes what it actually is — a
+  version advisory plus a deliberately-empty reserved patch point; the
+  old name overstated it) with all internal imports/tests updated and no
+  compatibility shim (the only importers were `loader.py` and the test
+  suite); full CPU + GPU suites re-run green after the rename.
+  `evidence/README.md` gained an errata note for two misleading labels in
+  the fine-tuning transcript (line 108's "pristine" label follows a
+  mid-bootstrap staged listing; line 1546's `as-is-run-exit=0` is the
+  `| tail -40` pipe's exit, not the failed run's) and its
+  multilingual-transcript row no longer mentions a `RUN_EXIT=0` token the
+  transcript does not contain — transcripts themselves stay byte-for-byte
+  unedited per the no-hand-edit policy. Task 1–4 verifier reports copied
+  verbatim to `docs/superpowers/reports/`; final program report at
+  `docs/p0-parity-report.md`. Two latent `ruff` errors in
+  `scripts/make_finetune_dataset.py` fixed (missing executable bit,
+  unparenthesized implicit concatenation) so CI's lint job passes.
 
 ## [Unreleased]
 

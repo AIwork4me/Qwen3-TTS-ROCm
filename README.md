@@ -6,6 +6,16 @@
 
 **Official Qwen3-TTS. AMD Radeon. Zero upstream patches.**
 
+> ### North Star
+>
+> **Official Qwen3-TTS on AMD Radeon — capability by capability, benchmark by benchmark, with zero upstream patches.**
+>
+> Every capability claim marked ✅ below was exercised end to end on the
+> real Radeon 8060S (`gfx1151`) validation host through unmodified official
+> `qwen-tts` APIs and links the verbatim evidence transcript that proves it.
+> What is not proven is labelled as such. No percentage scores, no
+> generalization beyond the validated configuration.
+
 Run the unmodified official [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS)
 package on AMD Ryzen AI Max+ PRO 395 / Radeon 8060S (`gfx1151`): one command
 installs AMD's pinned ROCm 7.14.0 PyTorch wheels, the next downloads the
@@ -34,6 +44,36 @@ AMD. See [Attribution](#attribution--disclaimer).
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
+
+### Capability matrix (Radeon 8060S · `gfx1151`)
+
+One row per capability, each green cell linked to the verbatim artifact that
+proves it. States: ✅ **Radeon E2E validated** (real synthesis / real run on
+the validation host, asserted sane) · 🟡 **partial — load-only** (loads, no
+functional validation) · ⬜ **not validated** · 🚫 **not exposed upstream or
+intentionally not claimed**.
+
+| Capability | Model | Radeon status | Evidence |
+|---|---|---|---|
+| CustomVoice generation (preset / custom speakers) | 1.7B | ✅ E2E validated | [`gen-customvoice.txt`](evidence/gen-customvoice.txt) · RTF in [`benchmark.json`](evidence/benchmark.json) |
+| CustomVoice generation | 0.6B | ✅ E2E validated | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
+| VoiceDesign (text-described voice creation) | 1.7B | ✅ E2E validated | [`gen-voicedesign.txt`](evidence/gen-voicedesign.txt) · RTF in [`benchmark.json`](evidence/benchmark.json) |
+| Voice Clone — zero-shot cloning from reference audio | 1.7B Base | ✅ E2E validated | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · RTF in [`benchmark.json`](evidence/benchmark.json) |
+| Base family (zero-shot cloning + fine-tuning base) | 0.6B | ✅ E2E validated | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
+| Reusable clone prompt (`create_voice_clone_prompt` → save → load → reuse) | 1.7B & 0.6B Base | ✅ E2E validated | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) |
+| Design → Clone → Reuse (Voice Studio one-click flow) | VoiceDesign 1.7B + Base | ✅ E2E validated | [`voice-workflow-2026-09-20.txt`](evidence/voice-workflow-2026-09-20.txt) · [`voice-workflow-2026-09-20.json`](evidence/voice-workflow-2026-09-20.json) |
+| 12Hz tokenizer codec (encode → decode roundtrip) | Tokenizer-12Hz | ✅ E2E validated | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
+| Multilingual matrix — all 10 officially supported languages, end to end | 1.7B CustomVoice + VoiceDesign + Base | ✅ E2E validated | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
+| Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base | ✅ scoped — **execution-only smoke** (prep → 12 steps → save → reload → sane synthesis; no quality claims) | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
+| Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently ignores `instruct`) — pinned by tests | Task 0 audit: [`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
+| vLLM-Omni serving | — | 🚫 not claimed — feasibility work not started | [Roadmap](#roadmap-not-yet-validated) |
+| True streaming inference | — | 🚫 not claimed — no Radeon measurements exist | [Roadmap](#roadmap-not-yet-validated) |
+
+Conceptual boundary worth stating plainly (the demo and docs honour it):
+**CustomVoice is preset-speaker / custom-voice generation** — it does not
+clone from reference audio. **Base is the zero-shot voice-cloning and
+fine-tuning family.** The per-checkpoint and multilingual tables below are
+detail views of the same evidence.
 
 Per-checkpoint validation level (load = loads through `loader.load`; E2E
 Generate = real synthesis asserted sane on GPU; Benchmark = archived RTF run):
@@ -73,7 +113,8 @@ time). Reproduce with
 | Spanish | ✅ | ✅ | — |
 | Italian | ✅ | ✅ | — |
 
-✅ = end-to-end generation completed on Radeon (waveform sanity: finite,
+✅ = end-to-end generation completed on the validated Radeon 8060S
+(`gfx1151`) host (waveform sanity: finite,
 non-silent, valid sample rate, bounded duration) — see
 `evidence/multilingual-matrix.json`. This is NOT a pronunciation-quality
 claim. Cross-lingual clone coverage is representative (4 pairs), not
@@ -124,9 +165,10 @@ per sentence. Reproduce with
 (transcript: `evidence/voice-workflow-2026-09-20.txt`, machine-readable
 timings: `evidence/voice-workflow-2026-09-20.json`).
 
-The CPU-only CI matrix passes 243 CPU tests on Python 3.10 / 3.11 / 3.12,
-with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
-ROCm host that test also runs, giving 252 CPU + 38 GPU = 290 / 290.
+The CPU-only CI matrix runs the same 252 CPU tests on Python 3.10 / 3.11 /
+3.12, with 1 HIP-gated test skipped because no AMD GPU is present on the
+runner. On the validated ROCm host that test also runs, giving 252 CPU +
+38 GPU = 290 / 290.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -249,8 +291,9 @@ bilingual environment self-check any time (read-only, never raises).
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
 * **Test suite** — 290/290 on the validated ROCm host (252 CPU + 38
-  real-GPU); the CPU-only CI matrix passes 215 + 1 HIP-gated skip on
-  Python 3.10 / 3.11 / 3.12, including the upstream-parity proof below.
+  real-GPU); the CPU-only CI matrix runs the same 252 CPU tests with
+  1 HIP-gated skip on Python 3.10 / 3.11 / 3.12, including the
+  upstream-parity proof below.
 
 <a id="why-this-project-exists"></a>
 
@@ -312,6 +355,59 @@ pressure and background load on shared-pool unified memory. Full per-cell
 tables, methodology, n=2 caveats and the reproduce block:
 [`docs/benchmarks.md`](docs/benchmarks.md).
 
+<a id="roadmap-not-yet-validated"></a>
+
+## Roadmap (not yet validated)
+
+Nothing in this section is validated, measured or claimed — these are the
+next rungs of the ladder, each gated on evidence before any ✅ appears
+anywhere for it. Upstream features are listed here when they exist upstream
+but have **no Radeon evidence yet**.
+
+### vLLM-Omni on ROCm
+
+The official stack ships a vLLM-Omni serving path for Qwen3-TTS; it is a
+CUDA-oriented deployment and has not been run on this project's validated
+ROCm stack. Plan, strictly in order — feasibility first, no skipping rungs:
+
+1. **Feasibility validation** — determine whether vLLM-Omni builds and
+   imports on the pinned ROCm wheel stack at all (it may need kernels or
+   wheels this stack does not carry). Output: a go/no-go with evidence.
+2. If feasible: **PyTorch / `qwen-tts` ROCm path re-used as the baseline**
+   (this repository's proven path) as the reference point for correctness.
+3. **vLLM-Omni offline inference** on gfx1151 — single-request correctness
+   versus the PyTorch path first; performance later.
+4. **Performance characterization** — RTF, load time, memory, under the same
+   published-methodology discipline as [`docs/benchmarks.md`](docs/benchmarks.md).
+5. **Online serving** — only when upstream supports the required serving
+   path on a ROCm-compatible runtime; not attempted before that exists.
+6. **Concurrency testing** — the validated device is a single-GPU
+   unified-memory iGPU; concurrent-request behaviour must be measured, not
+   assumed.
+7. **Production guidance** — only after all of the above, and scoped to the
+   validated configuration.
+
+### True streaming inference
+
+Upstream documents streaming generation with a "97 ms"-class first-audio
+figure. **That number is upstream's, measured on upstream's stack — it is
+NOT a Radeon number**, and no streaming latency has been measured on this
+project's hardware. Before any streaming claim can appear here, the
+following must be measured on the validated gfx1151 host:
+
+* **time to first audio** — wall time from request to the first audible
+  chunk;
+* **chunk cadence** — inter-chunk gap distribution (underrun-safe or not);
+* **total RTF** — end-to-end real-time factor for the same text, compared
+  against the non-streaming baseline;
+* **buffer-underrun behaviour** — does playback ever starve on sustained
+  generation;
+* **long-text behaviour** — how cadence and memory hold up over long inputs.
+
+Until those measurements exist and are archived under
+[`evidence/`](evidence/README.md), streaming stays 🚫 in the capability
+matrix.
+
 ## Validation & Reproducibility
 
 <a id="zero-modification-guarantee"></a>
@@ -336,8 +432,8 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 243 CPU tests (244 on AMD hosts)
-python -m pytest -m "gpu" -q                  # 34 on-GPU tests (weights required)
+python -m pytest -m "not gpu and not requires_download" -q   # 252 CPU tests (1 HIP-gated skip without an AMD GPU)
+python -m pytest -m "gpu" -q                  # 38 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
 

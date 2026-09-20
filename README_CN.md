@@ -2,6 +2,15 @@
 
 **官方 Qwen3-TTS。AMD Radeon。零上游补丁。**
 
+> ### 北极星（North Star）
+>
+> **AMD Radeon 上的官方 Qwen3-TTS —— 能力逐项验证、基准逐项实测、零上游补丁。**
+>
+> 下文每一个标注 ✅ 的能力结论，都是在真实 Radeon 8060S（`gfx1151`）
+> 验证主机上、经未经修改的官方 `qwen-tts` API 端到端跑出来的，并附上
+> 证明它的逐字运行记录链接。未验证的内容会如实标注。不打百分比分数，
+> 不做超出已验证配置的泛化。
+
 在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S（`gfx1151`）上原样运行官方
 [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS) 包：一条命令安装 AMD 锁定
 版本的 ROCm 7.14.0 PyTorch 轮子，一条下载官方权重，一条启动双语六标签页
@@ -28,6 +37,34 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
+
+### 能力矩阵（Radeon 8060S · `gfx1151`）
+
+一行一项能力，每个绿色单元格都链接到证明它的逐字存档。状态含义：
+✅ **Radeon 端到端已验证**（验证主机上真实合成 / 真实运行，且通过健全性
+断言）· 🟡 **部分验证 —— 仅加载**（能加载，无功能验证）· ⬜ **未验证** ·
+🚫 **上游未暴露或本项目有意不声明**。
+
+| 能力 | 模型 | Radeon 状态 | 证据 |
+|---|---|---|---|
+| 定制音色生成 CustomVoice（预设/自选说话人） | 1.7B | ✅ 端到端已验证 | [`gen-customvoice.txt`](evidence/gen-customvoice.txt) · RTF 见 [`benchmark.json`](evidence/benchmark.json) |
+| 定制音色生成 CustomVoice | 0.6B | ✅ 端到端已验证 | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
+| 音色设计 VoiceDesign（按文字描述创建音色） | 1.7B | ✅ 端到端已验证 | [`gen-voicedesign.txt`](evidence/gen-voicedesign.txt) · RTF 见 [`benchmark.json`](evidence/benchmark.json) |
+| 语音克隆 —— 参考音频零样本克隆 | 1.7B Base | ✅ 端到端已验证 | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · RTF 见 [`benchmark.json`](evidence/benchmark.json) |
+| Base 家族（零样本克隆 + 微调基座） | 0.6B | ✅ 端到端已验证 | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
+| 可复用克隆提示（`create_voice_clone_prompt` → 保存 → 加载 → 复用） | 1.7B 与 0.6B Base | ✅ 端到端已验证 | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) |
+| 设计 → 克隆 → 复用（音色工坊一键流程） | VoiceDesign 1.7B + Base | ✅ 端到端已验证 | [`voice-workflow-2026-09-20.txt`](evidence/voice-workflow-2026-09-20.txt) · [`voice-workflow-2026-09-20.json`](evidence/voice-workflow-2026-09-20.json) |
+| 12Hz 分词器编解码（编码 → 解码往返） | Tokenizer-12Hz | ✅ 端到端已验证 | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
+| 多语言矩阵 —— 全部 10 种官方支持语言端到端 | 1.7B CustomVoice + VoiceDesign + Base | ✅ 端到端已验证 | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
+| 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base | ✅ 限定范围 —— **仅执行冒烟验证**（准备 → 12 步 → 保存 → 重载 → 合成健全；无质量结论） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
+| CustomVoice 的指令控制 instruct | 0.6B | 🚫 上游未暴露（封装对 0.6B 静默忽略 `instruct`）—— 由测试钉住 | 任务 0 审计：[`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
+| vLLM-Omni 服务 | — | 🚫 不声明 —— 可行性工作尚未开始 | 见[路线图](#路线图尚未验证) |
+| 真流式推理 | — | 🚫 不声明 —— 不存在任何 Radeon 实测数据 | 见[路线图](#路线图尚未验证) |
+
+有一个概念边界值得直说（演示与文档均遵守）：**CustomVoice 是预设/
+定制说话人音色生成** —— 它不从参考音频克隆。**Base 才是零样本语音克隆
+与微调的家族。** 下方的逐 checkpoint 表和多语言表是同一批证据的细化
+视图。
 
 逐 checkpoint 验证层级（加载 = 经 `loader.load` 完成加载；端到端合成 =
 GPU 上真实合成并通过健全性断言；基准测试 = 已存档的 RTF 实测）：
@@ -65,9 +102,10 @@ CustomVoice + 10 次 VoiceDesign 生成，外加 4 对代表性跨语言克隆�
 | 西班牙语 Spanish | ✅ | ✅ | — |
 | 意大利语 Italian | ✅ | ✅ | — |
 
-✅ = 已在 Radeon 上完成端到端生成（波形健全性：有限值、非静音、有效
-采样率、时长有界）——见 `evidence/multilingual-matrix.json`。这不是
-发音质量声明。跨语言克隆覆盖为代表性抽样（4 对），并非穷举。
+✅ = 已在经过验证的 Radeon 8060S（`gfx1151`）主机上完成端到端生成（波形
+健全性：有限值、非静音、有效采样率、时长有界）——见
+`evidence/multilingual-matrix.json`。这不是发音质量声明。跨语言克隆覆盖为
+代表性抽样（4 对），并非穷举。
 
 ### 音色设计 → 可复用音色（音色工坊 Voice Studio）
 
@@ -108,9 +146,9 @@ wav, sr, gen_s = voice_workflow.reuse_voice(  # 任意新句子，同一音色
 （运行记录：`evidence/voice-workflow-2026-09-20.txt`，机器可读计时：
 `evidence/voice-workflow-2026-09-20.json`）。
 
-CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 215 项 CPU 测试；另有
-1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
-该项也会执行，因此最终为 252 CPU + 38 GPU = 290 / 290 全通过。
+CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上运行的是同样这 252 项 CPU 测试，
+其中 1 项 HIP 环境门控测试因 CI 机器没有 AMD GPU 而跳过。在实际 ROCm
+验证主机上该项也会执行，因此最终为 252 CPU + 38 GPU = 290 / 290 全通过。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -222,8 +260,8 @@ bash scripts/run_demo.sh
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
 * **测试套件** —— 验证主机 290/290 全通过（252 CPU + 38 真机 GPU）；
-  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 215 项 + 1 项 HIP 门控
-  跳过，含下文的上游一致性证明。
+  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上运行同样这 252 项 CPU 测试，
+  其中 1 项 HIP 门控跳过，含下文的上游一致性证明。
 
 <a id="why-this-project-exists"></a>
 
@@ -279,6 +317,52 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 压力与后台负载漂移。完整分格表格、方法学、n=2 注意事项与复现命令见
 [`docs/benchmarks.md`](docs/benchmarks.md)。
 
+<a id="路线图尚未验证"></a>
+
+## 路线图（尚未验证）
+
+本节内容**均未验证、未实测、不予声明** —— 它们是阶梯的下一级横档，每一级
+都必须先有证据，任何 ✅ 才可能出现。上游已有、但在 Radeon 上尚无证据的
+特性也列在这里。
+
+### vLLM-Omni 在 ROCm 上
+
+官方技术栈为 Qwen3-TTS 提供了 vLLM-Omni 服务路径；它是面向 CUDA 的部署
+方案，从未在本项目已验证的 ROCm 技术栈上运行过。计划严格按顺序推进 ——
+先做可行性，不跳级：
+
+1. **可行性验证** —— 先弄清 vLLM-Omni 在锁定的 ROCm 轮子技术栈上能否
+   构建和导入（可能需要该栈不具备的内核或轮子）。产出：带证据的 go/no-go
+   结论。
+2. 若可行：**以本仓库已验证的 PyTorch / `qwen-tts` ROCm 路径为基线**，
+   作为正确性参照。
+3. **vLLM-Omni 离线推理**（gfx1151）—— 先做单请求正确性对照（相对
+   PyTorch 路径），性能放后。
+4. **性能表征** —— RTF、加载时间、内存，沿用
+   [`docs/benchmarks.md`](docs/benchmarks.md) 的公开方法学纪律。
+5. **在线服务** —— 仅当上游在 ROCm 兼容运行时上支持所需服务路径后才
+   尝试；在那之前不动。
+6. **并发测试** —— 已验证设备是单 GPU 统一内存 iGPU；并发请求行为必须
+   实测，不能假设。
+7. **生产指导** —— 在以上全部完成之后才给出，且限定于已验证配置。
+
+### 真流式推理
+
+上游文档给出流式生成及「97 ms」量级的首音频指标。**该数字是上游自己、
+在上游自己的技术栈上测的 —— 它不是 Radeon 数字**；本项目硬件上没有任何
+流式延迟实测。在流式结论可以写进本 README 之前，必须在已验证的 gfx1151
+主机上完成以下测量：
+
+* **首音频时间（time to first audio）** —— 从请求发出到第一个可听分片的
+  墙钟时间；
+* **分片节奏（chunk cadence）** —— 相邻分片间隔的分布（是否安全、无欠载）；
+* **总 RTF** —— 同一段文本的端到端实时率，并与非流式基线对照；
+* **缓冲欠载行为（buffer underrun）** —— 持续生成下播放是否会出现饥饿；
+* **长文本行为** —— 长输入下节奏与内存的保持情况。
+
+在这些测量完成并存档到 [`evidence/`](evidence/README.md) 之前，流式在
+能力矩阵中保持 🚫。
+
 ## 验证与可复现性
 
 <a id="zero-modification-guarantee"></a>
@@ -300,8 +384,8 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 215 个 CPU 测试（AMD 主机 216 个）
-python -m pytest -m "gpu" -q                  # 34 个 GPU 测试（需权重）
+python -m pytest -m "not gpu and not requires_download" -q   # 252 项 CPU 测试（无 AMD GPU 时 1 项 HIP 门控跳过）
+python -m pytest -m "gpu" -q                  # 38 项 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```
 

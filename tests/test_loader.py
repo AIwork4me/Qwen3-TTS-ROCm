@@ -1,4 +1,4 @@
-"""Task 6: smart-default loader + compat-patch layer (TDD step 1).
+"""Task 6: smart-default loader + compat & version-advisory layer (TDD step 1).
 
 Hermetic by design: ``sys.modules["qwen_tts"]`` is replaced with a fake
 official module before every ``load()`` call (so the lazy import inside
@@ -286,37 +286,38 @@ def test_unload_skips_empty_cache_on_cpu_build(monkeypatch):
 
 
 # ---------------------------------------------------------------------------
-# patch.py: apply_compat_patches + loose guarded version advisory
+# compat.py (renamed from patch.py): apply_compat_patches + loose guarded
+# version advisory
 # ---------------------------------------------------------------------------
 
 
-def test_patch_list_empty_today():
-    from qwen3_tts_rocm import patch
+def test_compat_list_empty_today():
+    from qwen3_tts_rocm import compat
 
-    assert patch.PATCHES == []
+    assert compat.PATCHES == []
 
 
-def test_patch_matching_version_is_silent(fake_official, recwarn):
-    from qwen3_tts_rocm import patch
+def test_compat_matching_version_is_silent(fake_official, recwarn):
+    from qwen3_tts_rocm import compat
 
-    patch.apply_compat_patches()
+    compat.apply_compat_patches()
     version_warnings = [w for w in recwarn.list if "0.1" in str(w.message)]
     assert version_warnings == []
 
 
-def test_patch_unknown_version_warns_but_does_not_raise(fake_official, monkeypatch):
+def test_compat_unknown_version_warns_but_does_not_raise(fake_official, monkeypatch):
     sys.modules["qwen_tts"].__version__ = "0.2.0"
-    from qwen3_tts_rocm import patch
+    from qwen3_tts_rocm import compat
 
     with pytest.warns(UserWarning, match="0\\.1"):
-        patch.apply_compat_patches()
+        compat.apply_compat_patches()
 
 
-def test_patch_case_a_no_module_no_metadata_warns_version_none(monkeypatch):
+def test_compat_case_a_no_module_no_metadata_warns_version_none(monkeypatch):
     """Case A: fresh interpreter with qwen_tts absent AND the distribution
     unresolvable -> advisory fires and official_version() is None.  The probe
     must NOT import the (heavy, banner-printing) real package."""
-    from qwen3_tts_rocm import patch
+    from qwen3_tts_rocm import compat
 
     monkeypatch.delitem(sys.modules, "qwen_tts", raising=False)
 
@@ -324,32 +325,32 @@ def test_patch_case_a_no_module_no_metadata_warns_version_none(monkeypatch):
         raise importlib.metadata.PackageNotFoundError(name)
 
     monkeypatch.setattr(importlib.metadata, "version", missing)
-    assert patch.official_version() is None
+    assert compat.official_version() is None
     with pytest.warns(UserWarning, match="__version__"):
-        patch.apply_compat_patches()
+        compat.apply_compat_patches()
 
 
-def test_patch_case_b_versionless_module_falls_back_to_dist_metadata(
+def test_compat_case_b_versionless_module_falls_back_to_dist_metadata(
     fake_official, monkeypatch, recwarn
 ):
     """Case B: module in sys.modules without __version__ but the installed
     distribution metadata knows it -> metadata value wins silently.  Mirrors
     this host's ground truth (real qwen-tts==0.1.1 exposes no __version__)."""
     del sys.modules["qwen_tts"].__version__
-    from qwen3_tts_rocm import patch
+    from qwen3_tts_rocm import compat
 
     monkeypatch.setattr(importlib.metadata, "version", lambda name: "0.1.1")
-    assert patch.official_version() == "0.1.1"
-    patch.apply_compat_patches()
+    assert compat.official_version() == "0.1.1"
+    compat.apply_compat_patches()
     assert [w for w in recwarn.list if "qwen" in str(w.message).lower()] == []
 
 
-def test_patch_case_c_loaded_module_attr_wins_without_touching_metadata(
+def test_compat_case_c_loaded_module_attr_wins_without_touching_metadata(
     fake_official, monkeypatch
 ):
     """Case C: qwen_tts already loaded WITH __version__ -> that attr is used
     directly; the metadata layer is never consulted at all."""
-    from qwen3_tts_rocm import patch
+    from qwen3_tts_rocm import compat
 
     sys.modules["qwen_tts"].__version__ = "0.1.5"
 
@@ -357,13 +358,13 @@ def test_patch_case_c_loaded_module_attr_wins_without_touching_metadata(
         raise AssertionError("importlib.metadata.version must not be called")
 
     monkeypatch.setattr(importlib.metadata, "version", explode)
-    assert patch.official_version() == "0.1.5"
-    patch.apply_compat_patches()  # stays inside the validated series: silent
+    assert compat.official_version() == "0.1.5"
+    compat.apply_compat_patches()  # stays inside the validated series: silent
 
 
 def test_load_runs_compat_patches_first(fake_official, monkeypatch):
     calls = []
-    monkeypatch.setattr(loader.patch, "apply_compat_patches", lambda: calls.append(1))
+    monkeypatch.setattr(loader.compat, "apply_compat_patches", lambda: calls.append(1))
     loader.load("base", device="cpu")
     assert calls == [1]
 

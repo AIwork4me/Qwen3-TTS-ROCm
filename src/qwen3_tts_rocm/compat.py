@@ -1,12 +1,20 @@
-"""Compatibility-patch layer between this adapter and the official ``qwen_tts``
-package (官方包兼容层).
+"""Compatibility and version-advisory layer between this adapter and the
+official ``qwen_tts`` package (兼容与版本提示层; renamed from ``patch.py`` --
+the old name overstated what this module does).
 
-Design contract (zero-modification promise): we never vendor nor subclass the
-official implementation -- any behaviour adjustment that turns out to be
-necessary gets registered here as one callable in :data:`PATCHES` and applied
-by :func:`apply_compat_patches`, which ``loader.load()`` runs *before*
-touching the official loader boundary.  Today the list is deliberately empty:
-official ``qwen-tts`` 0.1.x works unmodified on ROCm/HIP.
+What this module actually is:
+
+* **A version advisory.** :func:`apply_compat_patches` probes the effective
+  ``qwen_tts`` version and warns (never raises) when it falls outside the
+  validated ``"0.1."`` series.  That is the whole active behaviour today.
+* **A reserved -- and EMPTY -- patch point.** :data:`PATCHES` exists so that a
+  future behavioural adjustment, should one ever become necessary, has one
+  obvious registered home instead of being scattered through call sites.
+  ``loader.load()`` runs :func:`apply_compat_patches` before touching the
+  official loader boundary.  The list is deliberately empty and stays empty
+  as long as the zero-modification promise holds: official ``qwen-tts``
+  0.1.x works unmodified on ROCm/HIP, and no patch has ever been needed.
+  Nothing in this module vendors, subclasses or monkey-patches upstream code.
 
 Version advisory
 ----------------
