@@ -154,7 +154,7 @@ Output: `evidence/ground-truth-2026-09-20.md`, committed as its own
 - `create_voice_clone_prompt` on 0.6B and reuse across at least two sentences;
 - batch if officially supported;
 - save/load prompt roundtrip if the official data structures are identical to 1.7B's
-  (mirroring the existing 1.7B roundtrip test);
+  (reusing the existing 1.7B voice-clone test patterns);
 - sane generated audio.
 
 ### 1C. Performance
@@ -205,8 +205,9 @@ upstream support turns out narrower, document the actual coverage.
 
 ### 2D. Cross-lingual Voice Clone — representative
 
-Small representative matrix (~4 pairs, e.g. en→zh, zh→en, ja→en, fr→zh) chosen from
-upstream capabilities; reference audio from our own validated generation pipeline.
+Small representative matrix — the default set is exactly 4 pairs: en→zh, zh→en,
+ja→en, fr→zh (a pair may be substituted only with a documented reason, e.g. reference
+generation failure); reference audio from our own validated generation pipeline.
 Explicitly stated as representative, not exhaustive.
 
 ### 2E. Machine-readable report
@@ -232,7 +233,7 @@ suite still green; no upstream patches.
 
 ### 3A. Headless backend API
 
-A thin workflow module (e.g. `src/qwen3_tts_rocm/voice_workflow.py`) composing only
+A thin workflow module, `src/qwen3_tts_rocm/voice_workflow.py`, composing only
 official APIs:
 
 ```
@@ -323,7 +324,8 @@ upstream's exact reload path. A training job that merely saves files is not enou
 
 ### 4E. Documentation
 
-`docs/finetuning-rocm.md` distinguishing:
+`docs/finetuning-rocm.md` distinguishing, plus machine-readable + transcript evidence
+at `evidence/finetune-smoke-<date>.{json,txt}`:
 
 **PROVEN:** preprocessing works; training runs N steps; checkpoint saves; checkpoint
 reloads; inference produces sane audio.
