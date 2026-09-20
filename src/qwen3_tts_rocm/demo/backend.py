@@ -34,11 +34,12 @@ import threading
 import time
 from collections import OrderedDict
 from collections.abc import Mapping
+from pathlib import Path
 from typing import Any
 
 import numpy as np
 
-from .. import env, loader, models
+from .. import env, loader, models, voice_workflow
 
 __all__ = [
     "DEFAULT_FOR_KIND",
@@ -179,6 +180,23 @@ _CODEC_PAIR_REQUIRED = (
     "Audio input must be a (sr, wav) pair (音频输入必须是 (采样率, 波形) 二元组)"
 )
 
+# Voice Studio (⑥ 音色工坊) strings -- same bilingual style as above.
+_VOICE_NAME_REQUIRED = "Voice name is required (必须填写音色名称)."
+_VOICE_NAME_INVALID = (
+    "Voice name must be a plain file name without separators "
+    "(音色名称只能是纯文件名，不能包含路径分隔符)."
+)
+_STUDIO_ID_UNKNOWN = (
+    "Unknown studio voice id (未找到该设计音色，请先点击 Design): {!r}"
+)
+_STUDIO_VOICE_NOT_SAVED = (
+    "Saved voice {!r} not found under {} (该名称的音色不存在，请先保存)"
+)
+
+#: Saved-voice persistence directory name (relative to the working directory
+#: when the service is built without an explicit ``voices_dir``).
+_VOICES_DIRNAME = "voices"
+
 
 def _require_filled(value: object, error: str) -> str:
     """Raise *error* (ValueError) unless *value* is a non-blank string."""
@@ -203,9 +221,16 @@ class SynthesisService:
             by :meth:`codec_roundtrip`; defaults to the official
             ``Qwen3TTSTokenizer.from_pretrained(models.local_dir("tokenizer"),
             device_map=pick_device(), dtype=bfloat16)`` built lazily ONCE.
+        voices_dir: directory the Voice Studio persists reusable voices under;
+            ``None`` (default) resolves lazily to ``<cwd>/voices``.  Tests
+            inject a tmp_path so no artifact ever lands in the real tree.
     """
 
-    def __init__(self, factory=None, tokenizer_factory=None) -> None:
+    #: How many in-session designed voices the studio keeps (FIFO past it).
+    studio_cap = 8
+
+    def __init__(self, factory=None, tokenizer_factory=None,
+                 voices_dir=None) -> None:
         self._factory = factory if factory is not None else loader.load
         self._tokenizer_factory = (
             tokenizer_factory if tokenizer_factory is not None
@@ -227,6 +252,20 @@ class SynthesisService:
         #: Shared generation history for the UI layer (合成历史, wavs live here
         #: ONLY -- the UI never keeps its own copy of a waveform on disk).
         self.history = HistoryStore()
+        #: Voice Studio per-session designed voices: id -> DesignResult
+        #: (designed-but-unsaved voices; PERSISTENT ones live as .pt files
+        #: under :attr:`voices_dir`).
+        self._studio: OrderedDict[str, Any] = OrderedDict()
+        self._studio_seq = 0
+        self._voices_dir = voices_dir
+
+    @property
+    def voices_dir(self) -> Path:
+        """Directory persistent Voice Studio voices live under (lazy default
+        ``<cwd>/voices``, created on demand by :meth:`voice_studio_save`)."""
+        if self._voices_dir is None:
+            self._voices_dir = Path.cwd() / _VOICES_DIRNAME
+        return Path(self._voices_dir)
 
     # -- model LRU ----------------------------------------------------------
 
@@ -556,6 +595,110 @@ class SynthesisService:
                 )
             )
         return items
+
+    # -- Voice Studio (⑥ 音色工坊): design -> preview -> save -> reuse -------
+
+    def voice_studio_design(self, alias: str, text: str,
+                            language_display: str = "Auto",
+                            description: str | None = None,
+                            gen_kwargs: Mapping[str, Any] | None = None,
+                           ) -> tuple[str, int, np.ndarray, dict[str, float]]:
+        """One-click designed voice: official preview + reusable prompt items.
+
+        Composes the official model split through
+        :func:`qwen3_tts_rocm.voice_workflow.design_voice`: the preview is
+        generated on the tab's VoiceDesign alias, then the prompt items are
+        minted on the Base alias.  The lazy ``prompt_model`` factory means the
+        size-1 model LRU evicts the VoiceDesign weights exactly when the
+        prompt phase begins (never two models resident for the service).
+
+        Returns ``(voice_id, sr, wav, timings)``; *voice_id* addresses the
+        per-session DesignResult for :meth:`voice_studio_save`, and *timings*
+        carries the SEPARATE ``design_s`` / ``prompt_s`` wall seconds (never
+        collapsed into one number).
+        """
+        stripped = _require_filled(text, _TEXT_REQUIRED)
+        design = _require_filled(description, _DESIGN_REQUIRED)
+
+        used_alias, _switched = self.resolve_alias("voice_design", alias)
+        vd_model = self.get(used_alias)
+        language = lookup_display(self._language_choices(vd_model),
+                                  language_display, "Auto")
+        prompt_alias = DEFAULT_FOR_KIND["base"]
+        result = voice_workflow.design_voice(
+            vd_model,
+            text=stripped,
+            language=language,
+            description=design,
+            prompt_model=lambda: self.get(prompt_alias),
+            **_normalize_gen_kwargs(gen_kwargs),
+        )
+        with self._lock:
+            self._studio_seq += 1
+            voice_id = f"voice-{self._studio_seq}"
+            self._studio[voice_id] = result
+            while len(self._studio) > self.studio_cap:
+                self._studio.popitem(last=False)      # FIFO eviction
+        preview_wav, preview_sr = result.preview
+        return voice_id, int(preview_sr), _as_float32(preview_wav), dict(result.timings)
+
+    def voice_studio_save(self, voice_id: str, name: str) -> str:
+        """Persist a designed voice under :attr:`voices_dir` as ``<name>.pt``.
+
+        The file is the official demo payload plus the design-provenance
+        sidecar (see :func:`qwen3_tts_rocm.voice_workflow.save_voice`); the
+        name must be a plain file name (no separators, no ``..``).
+        """
+        cleaned = _require_filled(name, _VOICE_NAME_REQUIRED)
+        if "/" in cleaned or "\\" in cleaned or ".." in cleaned:
+            raise ValueError(_VOICE_NAME_INVALID)
+        with self._lock:
+            result = self._studio.get(str(voice_id))
+        if result is None:
+            raise ValueError(_STUDIO_ID_UNKNOWN.format(voice_id))
+
+        path = self.voices_dir / f"{cleaned}.pt"
+        voice_workflow.save_voice(result, path)
+        return str(path)
+
+    def voice_studio_list(self) -> list[str]:
+        """Saved voice names (stems of the ``.pt`` files), sorted."""
+        root = self.voices_dir
+        if not root.is_dir():
+            return []
+        return sorted(p.stem for p in root.glob("*.pt") if p.is_file())
+
+    def voice_studio_generate(self, alias: str, name: str, text: str,
+                              language_display: str = "Auto",
+                              gen_kwargs: Mapping[str, Any] | None = None,
+                             ) -> tuple[int, np.ndarray, float]:
+        """Regenerate *text* with a SAVED voice on the Base model.
+
+        Loads the official payload through
+        :func:`qwen3_tts_rocm.voice_workflow.load_voice`, then runs
+        :func:`qwen3_tts_rocm.voice_workflow.reuse_voice` on the tab's Base
+        alias.  Returns ``(sr, wav, generate_s)`` with the reuse-phase wall
+        seconds recorded separately from the design-phase timings.
+        """
+        stripped = _require_filled(text, _TARGET_TEXT_REQUIRED)
+        cleaned = _require_filled(name, _VOICE_NAME_REQUIRED)
+        path = self.voices_dir / f"{cleaned}.pt"
+        if not path.is_file():
+            raise ValueError(_STUDIO_VOICE_NOT_SAVED.format(cleaned, self.voices_dir))
+        result = voice_workflow.load_voice(path)
+
+        used_alias, _switched = self.resolve_alias("base", alias)
+        model = self.get(used_alias)
+        language = lookup_display(self._language_choices(model),
+                                  language_display, "Auto")
+        wav, sr, generate_s = voice_workflow.reuse_voice(
+            model,
+            prompt_items=result.prompt_items,
+            text=stripped,
+            language=language,
+            **_normalize_gen_kwargs(gen_kwargs),
+        )
+        return int(sr), _as_float32(wav), float(generate_s)
 
     # -- codec roundtrip --------------------------------------------------------
 

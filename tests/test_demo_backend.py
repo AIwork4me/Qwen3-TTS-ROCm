@@ -790,3 +790,186 @@ def test_resolve_alias_base_family_routes_both_sizes(radio):
         assert (alias, switched) == (radio, False)
     else:
         assert (alias, switched) == ("base", True)
+
+
+# ---------------------------------------------------------------------------
+# Voice Studio (⑥ 音色工坊): design -> preview -> save -> reuse over the
+# official model split.  The service composes ONLY official calls through
+# qwen3_tts_rocm.voice_workflow: generate_voice_design on the tab's
+# VoiceDesign alias, then create_voice_clone_prompt / generate_voice_clone on
+# Base (the official wrapper hard-gates each on tts_model_type).  The lazy
+# prompt-model factory keeps the size-1 LRU honest: VoiceDesign is evicted
+# exactly when the prompt phase begins.
+# ---------------------------------------------------------------------------
+
+
+def make_studio_service(tmp_path) -> tuple[SynthesisService, RecordingFactory]:
+    """Fake-backed service with the voices dir pinned to *tmp_path*."""
+    factory = RecordingFactory()
+    return SynthesisService(factory=factory, voices_dir=tmp_path), factory
+
+
+def test_voice_studio_design_composes_official_split_with_transcript_rule(tmp_path):
+    svc, factory = make_studio_service(tmp_path)
+
+    voice_id, sr, wav, timings = svc.voice_studio_design(
+        "voice-design", " hello studio ", "Auto", "bright female",
+    )
+
+    assert isinstance(voice_id, str) and voice_id.startswith("voice-")
+    assert isinstance(sr, int) and sr == 24000
+    assert isinstance(wav, np.ndarray) and wav.dtype == np.float32 and wav.ndim == 1
+    # Official model split: preview on VoiceDesign, prompt items on Base.
+    assert factory.alias_calls == ["voice-design", "base"]
+
+    design_call = factory.fakes["voice-design"].calls[-1]
+    assert design_call["method"] == "generate_voice_design"
+    assert design_call["text"] == ["hello studio"]        # stripped exactly once
+    assert design_call["instruct"] == ["bright female"]
+    assert design_call["gen_kwargs"] == {"max_new_tokens": 512}
+
+    prompt_call = factory.fakes["base"].calls[-1]
+    assert prompt_call["method"] == "create_voice_clone_prompt"
+    at_wav, at_sr = prompt_call["ref_audio"]              # OFFICIAL (wav, sr)
+    assert at_sr == sr and np.asarray(at_wav).size == wav.size
+    # Transcript rule: ref_text IS the design text (never re-typed).
+    assert prompt_call["ref_text"] == "hello studio"
+
+    # Three-phase evidence discipline: design and prompt timed SEPARATELY.
+    assert timings["design_s"] > 0.0 and timings["prompt_s"] > 0.0
+
+
+def test_voice_studio_design_validates_before_any_model_touch(tmp_path):
+    svc, factory = make_studio_service(tmp_path)
+    with pytest.raises(ValueError, match="Text is required"):
+        svc.voice_studio_design("voice-design", "  ", "Auto", "bright female")
+    with pytest.raises(ValueError, match="Voice design instruction is required"):
+        svc.voice_studio_design("voice-design", "words", "Auto", "   ")
+    assert factory.alias_calls == []                      # not even loaded
+
+
+def test_voice_studio_design_routes_off_mismatched_radio(tmp_path):
+    svc, factory = make_studio_service(tmp_path)
+    _vid, _sr, _wav, _timings = svc.voice_studio_design(
+        "base", "hello studio", "Auto", "bright female",
+    )
+    assert factory.alias_calls == ["voice-design", "base"]  # voice_design kind wins
+
+
+def test_voice_studio_save_persists_official_payload_and_lists(tmp_path):
+    import torch
+
+    svc, _factory = make_studio_service(tmp_path)
+    voice_id, _sr, _wav, _t = svc.voice_studio_design(
+        "voice-design", "hello studio", "Auto", "bright female",
+    )
+    assert svc.voice_studio_list() == []                  # nothing saved yet
+
+    path = svc.voice_studio_save(voice_id, " my voice ")
+
+    assert str(path).endswith("my voice.pt") and (tmp_path / "my voice.pt").is_file()
+    assert svc.voice_studio_list() == ["my voice"]
+
+    # The .pt payload keeps the OFFICIAL item schema plus the meta sidecar.
+    payload = torch.load(str(path), map_location="cpu", weights_only=True)
+    assert set(payload["items"][0].keys()) == {
+        "ref_code", "ref_spk_embedding", "x_vector_only_mode",
+        "icl_mode", "ref_text",
+    }
+    assert payload["items"][0]["ref_text"] == "hello studio"
+    # Language is the RESOLVED official raw identifier ("Auto" -> "auto"),
+    # exactly like every other service generation method.
+    assert payload["voice_meta"] == {
+        "description": "bright female", "language": "auto",
+        "ref_text": "hello studio",
+    }
+
+
+def test_voice_studio_save_rejects_bad_names_and_unknown_ids(tmp_path):
+    svc, _factory = make_studio_service(tmp_path)
+    voice_id, *_ = svc.voice_studio_design(
+        "voice-design", "hello studio", "Auto", "bright female",
+    )
+
+    with pytest.raises(ValueError, match="Unknown studio voice id") as exc:
+        svc.voice_studio_save("voice-999", "whatever")
+    assert CHINESE.search(str(exc.value))
+    with pytest.raises(ValueError, match="plain file name"):
+        svc.voice_studio_save(voice_id, "a/b")
+    with pytest.raises(ValueError, match="plain file name"):
+        svc.voice_studio_save(voice_id, "..")
+    with pytest.raises(ValueError, match="Voice name is required"):
+        svc.voice_studio_save(voice_id, "   ")
+    assert svc.voice_studio_list() == []                  # nothing was written
+
+
+def test_voice_studio_generate_loads_saved_voice_and_reuses_on_base(tmp_path):
+    svc, factory = make_studio_service(tmp_path)
+    voice_id, *_ = svc.voice_studio_design(
+        "voice-design", "hello studio", "Auto", "bright female",
+    )
+    svc.voice_studio_save(voice_id, "my_voice")
+
+    sr, wav, generate_s = svc.voice_studio_generate(
+        "base", "my_voice", " new sentence ", "Auto",
+    )
+    assert isinstance(sr, int) and sr == 24000
+    assert isinstance(wav, np.ndarray) and wav.dtype == np.float32
+    assert isinstance(generate_s, float) and generate_s > 0.0  # reuse timed apart
+
+    model = factory.fakes["base"]
+    call = model.calls[-1]
+    assert call["method"] == "generate_voice_clone"
+    assert call["text"] == ["new sentence"]
+    assert call["voice_clone_prompt"] is not None          # reloaded items
+    assert call["gen_kwargs"] == {"max_new_tokens": 512}
+    # The designed voice generalises: a SECOND, different sentence too.
+    _sr2, wav2, gen2 = svc.voice_studio_generate(
+        "base", "my_voice", "another different sentence", "Auto",
+    )
+    assert gen2 > 0.0 and wav2.size > 0
+
+    with pytest.raises(ValueError, match="not found") as exc:
+        svc.voice_studio_generate("base", "ghost", "words", "Auto")
+    assert CHINESE.search(str(exc.value))
+
+
+def test_voice_studio_generate_routes_off_mismatched_radio(tmp_path):
+    svc, factory = make_studio_service(tmp_path)
+    voice_id, *_ = svc.voice_studio_design(
+        "voice-design", "hello studio", "Auto", "bright female",
+    )
+    svc.voice_studio_save(voice_id, "my_voice")
+
+    # A mismatched (voice-design) sidebar pick still routes the reuse phase
+    # to the base capability -- and the LRU serves the ALREADY-resident base
+    # model without a reload (no new factory call).
+    n_factory_before = len(factory.alias_calls)
+    sr, wav, _gen_s = svc.voice_studio_generate(
+        "voice-design", "my_voice", "words", "Auto",
+    )
+    assert sr == 24000 and wav.dtype == np.float32
+    assert len(factory.alias_calls) == n_factory_before     # cached, not reloaded
+    assert svc.current_alias == "base"                      # base kind won
+    assert factory.fakes["base"].calls[-1]["method"] == "generate_voice_clone"
+
+
+def test_voice_studio_store_caps_fifo_and_voices_dir_defaults(tmp_path):
+    svc, _factory = make_studio_service(tmp_path)
+    ids = [
+        svc.voice_studio_design("voice-design", f"text {i}", "Auto", "d")[0]
+        for i in range(svc.studio_cap + 1)
+    ]
+    with pytest.raises(ValueError, match="Unknown studio voice id"):
+        svc.voice_studio_save(ids[0], "evicted")          # oldest was evicted
+    svc.voice_studio_save(ids[-1], "kept")                # newest still there
+    assert svc.voice_studio_list() == ["kept"]
+
+    # Lazy default: a service built without voices_dir resolves to
+    # <cwd>/voices on first touch; LISTING is side-effect free (no mkdir --
+    # only an actual save ever creates the directory, on demand).
+    bare = SynthesisService(factory=lambda a: FakeTTSModel())
+    assert bare.voices_dir == Path.cwd() / "voices"
+    before = set(Path.cwd().glob("voices"))
+    assert isinstance(bare.voice_studio_list(), list)
+    assert set(Path.cwd().glob("voices")) == before

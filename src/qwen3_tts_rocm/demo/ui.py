@@ -1,4 +1,4 @@
-"""Enhanced five-tab bilingual Gradio application (增强版双语文字演示界面).
+"""Enhanced six-tab bilingual Gradio application (增强版双语文字演示界面).
 
 Layer contract (Task 16)
 ------------------------
@@ -20,9 +20,12 @@ Layer contract (Task 16)
   module scope; both appear lazily inside the few callbacks that touch files.
 
 Tabs (design doc §5.5): Voice Clone (reference audio, incl. the official
-Save/Load Voice sub-tab), Preset Speakers, Voice Design, Codec roundtrip, and
-the generation History area (play / download / delete for the CURRENT
-session's clips; waveforms live ONLY inside the service's HistoryStore).
+Save/Load Voice sub-tab), Preset Speakers, Voice Design, Codec roundtrip, the
+generation History area (play / download / delete for the CURRENT session's
+clips; waveforms live ONLY inside the service's HistoryStore), and Voice
+Studio (音色工坊) -- the first-class describe -> preview -> save -> reuse
+workflow over :mod:`qwen3_tts_rocm.voice_workflow`, with no download/re-upload
+hop anywhere in the flow.
 """
 
 from __future__ import annotations
@@ -212,8 +215,10 @@ def build_callbacks(service) -> dict[str, Any]:
     """Return the Blocks-free callback dict wired to *service*.
 
     Keys: ``custom_voice``, ``voice_design``, ``voice_clone``, ``save_voice``,
-    ``load_voice_gen``, ``codec``, ``switch_model``, ``status_line``,
-    ``refresh_choices``, ``build_gen_kwargs``, ``history_refresh`` /
+    ``load_voice_gen``, ``codec``, ``voice_studio_design`` /
+    ``voice_studio_save`` / ``voice_studio_list`` / ``voice_studio_generate``,
+    ``switch_model``, ``status_line``, ``refresh_choices``,
+    ``build_gen_kwargs``, ``history_refresh`` /
     ``history_play`` / ``history_download`` / ``history_delete`` /
     ``history_id_at``.  Every callable is intentionally thin: validate nothing,
     decide nothing -- delegate to the backend and normalise failures through
@@ -343,6 +348,64 @@ def build_callbacks(service) -> dict[str, Any]:
         except Exception as exc:  # noqa: BLE001
             return None, format_error(exc), None
 
+    # -- Voice Studio (⑥ 音色工坊): design -> preview -> save -> reuse ------
+
+    def run_voice_studio_design(alias, text, language_display, description, gen_kwargs):
+        """One click: designed preview + reusable prompt items in-session.
+
+        No download/re-upload hop: the preview AND the reusable voice come
+        from the same click; the returned voice id addresses the in-session
+        store until the user saves it under a name.
+        """
+        try:
+            used_alias, switched = service.resolve_alias("voice_design", alias)
+            voice_id, sr, wav, timings = service.voice_studio_design(
+                used_alias,
+                text,
+                language_display=language_display,
+                description=description,
+                gen_kwargs=dict(gen_kwargs or {}),
+            )
+            _record(f"VoiceStudio-design [{used_alias}] {str(text)[:20]}", sr, wav)
+            status = _auto_switch_status(used_alias) if switched else _STATUS_FINISHED
+            timing_text = (
+                f"design {timings.get('design_s', 0.0):.1f}s · "
+                f"prompt {timings.get('prompt_s', 0.0):.1f}s"
+            )
+            return _wav_to_gradio_audio(wav, sr), status, voice_id, timing_text
+        except Exception as exc:  # noqa: BLE001
+            return None, format_error(exc), "", ""
+
+    def voice_studio_save(voice_id, name):
+        """Persist the designed voice under voices/; refresh the dropdown."""
+        try:
+            path = service.voice_studio_save(voice_id, name)
+            names = service.voice_studio_list()
+            saved = str(name).strip()
+            return (
+                f"Saved {path} (已保存，可在下方复用).",
+                gr.update(choices=names, value=saved if saved in names else None),
+            )
+        except Exception as exc:  # noqa: BLE001
+            return format_error(exc), gr.update()
+
+    def run_voice_studio_generate(alias, name, text, language_display, gen_kwargs):
+        """Regenerate arbitrary new text with a SAVED voice (Base model)."""
+        try:
+            used_alias, switched = service.resolve_alias("base", alias)
+            sr, wav, generate_s = service.voice_studio_generate(
+                used_alias,
+                name,
+                text,
+                language_display=language_display,
+                gen_kwargs=dict(gen_kwargs or {}),
+            )
+            _record(f"VoiceStudio-reuse [{used_alias}] {name!s}", sr, wav)
+            status = _auto_switch_status(used_alias) if switched else _STATUS_FINISHED
+            return _wav_to_gradio_audio(wav, sr), status, f"{generate_s:.1f}s"
+        except Exception as exc:  # noqa: BLE001
+            return None, format_error(exc), ""
+
     # -- sidebar --------------------------------------------------------------
 
     def switch_model(alias):
@@ -409,6 +472,10 @@ def build_callbacks(service) -> dict[str, Any]:
         "save_voice": save_voice,
         "load_voice_gen": load_voice_gen,
         "codec": run_codec,
+        "voice_studio_design": run_voice_studio_design,
+        "voice_studio_save": voice_studio_save,
+        "voice_studio_list": service.voice_studio_list,
+        "voice_studio_generate": run_voice_studio_generate,
         "switch_model": switch_model,
         "status_line": lambda alias: status_line(service, alias),
         "refresh_choices": refresh_choices,
@@ -487,7 +554,7 @@ def _header_markdown(header_info: dict[str, Any] | None) -> str:
 
 
 def build_ui(service, port_header_info: dict[str, Any] | None = None) -> gr.Blocks:
-    """Assemble the enhanced five-tab demo application around *service*."""
+    """Assemble the enhanced six-tab demo application around *service*."""
     header_info = dict(port_header_info or {})
     default_alias = str(header_info.get("alias") or DEFAULT_ALIAS)
 
@@ -753,6 +820,100 @@ Upload a previously saved voice file, then synthesize new text.
                             hist_download = gr.File(label="Download WAV (下载 wav)")
                     del_btn = gr.Button("Delete Selected (删除所选)", variant="stop")
 
+                # ============ ⑥ Voice Studio ==============================
+                with gr.Tab("⑥ Voice Studio (音色工坊)"):
+                    gr.Markdown(
+                        "Describe a voice in natural language, preview it, save "
+                        "it as the OFFICIAL reusable voice file, then regenerate "
+                        "any new text with it -- all in this tab, no download/"
+                        "re-upload hop (用自然语言描述音色，试听后保存为官方可复用音色"
+                        "文件，再随时用它合成任意新文本；全程无需下载再上传)。"
+                    )
+                    vs_voice_id = gr.State("")
+                    with gr.Row():
+                        with gr.Column(scale=2):
+                            vs_text = gr.Textbox(
+                                label=(
+                                    "Design Text (设计文本 · 逐字成为该音色的参考文本"
+                                    " / becomes the voice's exact transcript)"
+                                ),
+                                lines=3,
+                                value="今天的天气真不错，适合去公园散步。",
+                            )
+                            vs_instruct = gr.Textbox(
+                                label="Voice Description (音色描述)",
+                                lines=2,
+                                value="年轻女性，声音清亮，语速轻快",
+                            )
+                            with gr.Row():
+                                vs_lang = gr.Dropdown(
+                                    label="Language (语种)",
+                                    choices=["Auto"],
+                                    value="Auto",
+                                    interactive=True,
+                                    allow_custom_value=True,  # pre-load typing/REST
+                                )
+                                btn_vs_design = gr.Button(
+                                    "Design Voice (设计音色)",
+                                    variant="primary",
+                                )
+                            vs_name = gr.Textbox(
+                                label=(
+                                    "Voice Name (音色名称，保存后可反复使用，"
+                                    "e.g. bright_female)"
+                                ),
+                                lines=1,
+                                placeholder="bright_female",
+                            )
+                            btn_vs_save = gr.Button(
+                                "Save Voice (保存音色)", variant="primary"
+                            )
+                        with gr.Column(scale=3):
+                            vs_preview = gr.Audio(label="Preview Audio (设计试听)")
+                            vs_design_status = gr.Textbox(
+                                label="Status (状态)", lines=2
+                            )
+                            vs_timing = gr.Textbox(
+                                label="Design Timings (设计耗时)",
+                                lines=1,
+                                interactive=False,
+                            )
+                    with gr.Row():
+                        with gr.Column(scale=2):
+                            vs_saved = gr.Dropdown(
+                                label="Saved Voice (已保存音色)",
+                                choices=[],
+                                value=None,
+                                interactive=True,
+                                allow_custom_value=True,
+                            )
+                            vs_target = gr.Textbox(
+                                label="Target Text (待合成文本)",
+                                lines=3,
+                                placeholder="Enter text to synthesize (输入要合成的文本).",
+                            )
+                            vs_lang2 = gr.Dropdown(
+                                label="Language (语种)",
+                                choices=["Auto"],
+                                value="Auto",
+                                interactive=True,
+                                allow_custom_value=True,  # pre-load typing/REST
+                            )
+                            btn_vs_gen = gr.Button(
+                                "Generate with Saved Voice (用已保存音色合成)",
+                                variant="primary",
+                            )
+                        with gr.Column(scale=3):
+                            vs_audio = gr.Audio(label="Output Audio (合成结果)")
+                            vs_gen_status = gr.Textbox(
+                                label="Status (状态)", lines=2
+                            )
+                            vs_gen_timing = gr.Textbox(
+                                label="Generate Time (合成耗时)",
+                                lines=1,
+                                interactive=False,
+                            )
+
         # ---------------- event wiring ---------------------------------------
         def _choice_updates(langs, spks):
             lang_update = gr.update(choices=langs, value=langs[0]) if langs else gr.update()
@@ -903,6 +1064,52 @@ Upload a previously saved voice file, then synthesize new text.
             inputs=[selected_id],
             outputs=[history_table],
         ).then(lambda: (None, None), None, outputs=[hist_audio, hist_download])
+
+        # ---- ⑥ voice studio ----------------------------------------------------
+        def _gen_vs_design(radio_v, text_v, lang_v, desc_v, *_raw_kw):
+            return cb["voice_studio_design"](
+                radio_v, text_v, lang_v, desc_v, cb["build_gen_kwargs"](*_raw_kw)
+            )
+
+        _post_generation_chain(
+            btn_vs_design.click(
+                _gen_vs_design,
+                inputs=[model_radio, vs_text, vs_lang, vs_instruct, *kwargs_inputs],
+                outputs=[vs_preview, vs_design_status, vs_voice_id, vs_timing],
+                api_name="voice_studio_design",
+            ),
+            sync_lang=vs_lang,
+            sync_speakers=False,
+        )
+
+        btn_vs_save.click(
+            cb["voice_studio_save"],
+            inputs=[vs_voice_id, vs_name],
+            outputs=[vs_design_status, vs_saved],
+            api_name="voice_studio_save",
+        )
+
+        def _gen_vs_reuse(radio_v, name_v, target_v, lang_v, *_raw_kw):
+            return cb["voice_studio_generate"](
+                radio_v, name_v, target_v, lang_v, cb["build_gen_kwargs"](*_raw_kw)
+            )
+
+        _post_generation_chain(
+            btn_vs_gen.click(
+                _gen_vs_reuse,
+                inputs=[model_radio, vs_saved, vs_target, vs_lang2, *kwargs_inputs],
+                outputs=[vs_audio, vs_gen_status, vs_gen_timing],
+                api_name="voice_studio_generate",
+            ),
+            sync_lang=vs_lang2,
+            sync_speakers=False,
+        )
+
+        demo.load(
+            lambda: gr.update(choices=cb["voice_studio_list"]()),
+            None,
+            outputs=[vs_saved],
+        )
 
         # ---------------- footer -----------------------------------------------
         gr.Markdown(CONCURRENCY_NOTE)

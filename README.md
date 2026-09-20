@@ -9,7 +9,7 @@
 Run the unmodified official [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS)
 package on AMD Ryzen AI Max+ PRO 395 / Radeon 8060S (`gfx1151`): one command
 installs AMD's pinned ROCm 7.14.0 PyTorch wheels, the next downloads the
-official checkpoints, the third opens a bilingual five-tab Gradio demo on
+official checkpoints, the third opens a bilingual six-tab Gradio demo on
 `http://localhost:8000`. Every synthesis call stays on official APIs.
 
 **English** | [简体中文](README_CN.md)
@@ -29,7 +29,7 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **250 / 250 on validation host** — 216 CPU + 34 real-GPU |
+| Automated tests | **282 / 282 on validation host** — 244 CPU + 38 real-GPU |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
@@ -79,9 +79,54 @@ non-silent, valid sample rate, bounded duration) — see
 claim. Cross-lingual clone coverage is representative (4 pairs), not
 exhaustive.
 
-The CPU-only CI matrix passes 215 CPU tests on Python 3.10 / 3.11 / 3.12,
+### Voice Design → reusable voice (Voice Studio)
+
+The official demo never wired its own capabilities end to end: you could
+design a voice in one tab and clone from uploaded audio in another, but
+turning a *described* voice into a *reusable* one meant a manual
+download/re-upload hop. `qwen3_tts_rocm.voice_workflow` closes that gap using
+ONLY the three official APIs — `generate_voice_design`,
+`create_voice_clone_prompt`, `generate_voice_clone` — on unmodified
+`loader.load` objects, with the official model split (design runs on the
+VoiceDesign checkpoint; prompt creation and reuse run on Base — the official
+wrapper hard-gates each call on `tts_model_type`):
+
+```python
+from qwen3_tts_rocm import loader, voice_workflow
+
+vd, bc = loader.load("voice-design"), loader.load("base")
+res = voice_workflow.design_voice(            # preview + reusable prompt items
+    vd, prompt_model=bc, text="今天的天气真不错，适合去公园散步。",
+    language="Auto", description="年轻女性，声音清亮，语速轻快")
+voice_workflow.save_voice(res, "voices/bright.pt")   # official payload + meta
+loader.unload(vd)                             # Base alone remains resident
+res2 = voice_workflow.load_voice("voices/bright.pt")
+wav, sr, gen_s = voice_workflow.reuse_voice(  # any new sentence, same voice
+    bc, prompt_items=res2.prompt_items, text="晚风轻轻吹过湖面。", language="Auto")
+```
+
+The transcript rule is enforced by construction: the `ref_text` inside every
+prompt item is exactly the text that generated the reference audio (one
+variable feeds both official calls). Saved voices are official-demo files —
+the `"items"` key is byte-format-identical to the upstream demo's
+`{"items": [asdict(item) ...]}` payload, so the stock demo can load them too;
+a `voice_meta` sidecar in the same `.pt` keeps the description/language/
+ref_text provenance.
+
+The demo's **⑥ Voice Studio (音色工坊)** tab runs this as a first-class
+one-click flow — describe → preview → save → reuse — with no download or
+re-upload anywhere (the saved-voice dropdown replaces the file round-trip).
+Three-phase latency on the validation host (Radeon 8060S, bf16, every
+generation `max_new_tokens=512`, phases recorded separately — never
+collapsed): **design ≈ 5.5 s · prompt creation ≈ 0.3 s · reuse ≈ 5.3–6.4 s**
+per sentence. Reproduce with
+`.venv/bin/python -m pytest tests/test_voice_workflow.py -m gpu -v -s`
+(transcript: `evidence/voice-workflow-2026-09-20.txt`, machine-readable
+timings: `evidence/voice-workflow-2026-09-20.json`).
+
+The CPU-only CI matrix passes 243 CPU tests on Python 3.10 / 3.11 / 3.12,
 with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
-ROCm host that test also runs, giving 216 CPU + 34 GPU = 250 / 250.
+ROCm host that test also runs, giving 244 CPU + 38 GPU = 282 / 282.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -171,13 +216,14 @@ bilingual environment self-check any time (read-only, never raises).
 * **Six-alias downloader** — ModelScope-first with `hf-mirror.com` fallback
   (the recorded validation host downloaded everything from a CN network
   without a VPN; other networks may vary), resume support, per-alias or bulk.
-* **Five-tab bilingual Gradio demo** (中文/English): ① Voice Clone
+* **Six-tab bilingual Gradio demo** (中文/English): ① Voice Clone
   (incl. save/load reusable voice prompts) · ② Preset Speakers ·
-  ③ Voice Design · ④ Codec roundtrip · ⑤ History. Sidebar model switcher
-  (one model resident at a time), live VRAM/GTT readout, advanced sampling
-  accordion.
+  ③ Voice Design · ④ Codec roundtrip · ⑤ History · ⑥ Voice Studio
+  (音色工坊 — describe → preview → save → reuse, no download/re-upload hop).
+  Sidebar model switcher (one model resident at a time), live VRAM/GTT
+  readout, advanced sampling accordion.
   <details>
-  <summary>All five tabs (screenshots)</summary>
+  <summary>Tab screenshots (①–⑤)</summary>
 
   | | |
   |---|---|
@@ -202,7 +248,7 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 250/250 on the validated ROCm host (216 CPU + 34
+* **Test suite** — 282/282 on the validated ROCm host (244 CPU + 38
   real-GPU); the CPU-only CI matrix passes 215 + 1 HIP-gated skip on
   Python 3.10 / 3.11 / 3.12, including the upstream-parity proof below.
 
@@ -289,7 +335,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 215 CPU tests (216 on AMD hosts)
+python -m pytest -m "not gpu and not requires_download" -q   # 243 CPU tests (244 on AMD hosts)
 python -m pytest -m "gpu" -q                  # 34 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```

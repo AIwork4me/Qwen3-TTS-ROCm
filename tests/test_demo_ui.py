@@ -612,7 +612,7 @@ def test_speaker_dropdown_accepts_custom_value_pre_seed():
     assert labeled[0].allow_custom_value is True
 
     lang_dd = [c for c in app.blocks.values() if getattr(c, "label", None) == "Language (语种)"]
-    assert len(lang_dd) == 4  # clone/save-load/cv/vd
+    assert len(lang_dd) == 6  # clone/save-load/cv/vd + studio design/reuse
     assert all(dd.allow_custom_value for dd in lang_dd)
 
 
@@ -792,3 +792,119 @@ def test_generation_chain_followers_are_status_line_lambdas(app_blocks):
         assert getattr(follower.fn, "__name__", "") != "switch_model"
         assert "status_line" in str(getattr(follower.fn, "__closure__", None) or ()) or \
             getattr(follower.fn, "__qualname__", "") == "build_callbacks.<locals>.<lambda>"
+
+
+# ---------------------------------------------------------------------------
+# ⑥ Voice Studio (音色工坊): describe -> preview -> save -> reuse with NO
+# download/re-upload hop.  The studio callbacks are Blocks-free like every
+# other key in build_callbacks; the UI-shape tests pin that the tab wires
+# them and that the flow crosses no gr.File boundary.
+# ---------------------------------------------------------------------------
+
+
+def make_studio_service(tmp_path: Path) -> SynthesisService:
+    return SynthesisService(
+        factory=lambda alias: FakeTTSModel(),
+        tokenizer_factory=FakeTokenizer,
+        voices_dir=tmp_path,
+    )
+
+
+def test_build_ui_constructs_voice_studio_tab(app_blocks):
+    """⑥ appears after ⑤ History with the bilingual studio labels."""
+    ids = [str(c.label) for c in app_blocks.blocks.values() if hasattr(c, "label")]
+    assert any("Voice Studio" in l and "音色工坊" in l for l in ids)
+    assert any("Voice Description" in l for l in ids)
+    assert any("Saved Voice" in l for l in ids)
+    assert any("Design Timings" in l for l in ids)
+
+
+def test_build_ui_voice_studio_adds_no_file_components(app_blocks):
+    """The no-hop guarantee, structurally: the studio flow crosses NO file
+    boundary -- the four pre-existing gr.File components (save-voice output,
+    prompt upload, codec download, history download) are still exactly four,
+    so the studio save/generate path runs purely through the in-session id
+    and the saved-name dropdown."""
+    files = [c for c in app_blocks.blocks.values() if type(c).__name__ == "File"]
+    assert len(files) == 4
+
+
+def test_callback_voice_studio_design_save_generate_roundtrip(tmp_path: Path):
+    from qwen3_tts_rocm.demo.ui import build_callbacks
+
+    svc = make_studio_service(tmp_path)
+    cb = build_callbacks(svc)
+
+    audio, status, voice_id, timing_text = cb["voice_studio_design"](
+        "voice-design", " hello studio ", "Auto", "bright female", {}
+    )
+    assert status == "Finished. (生成完成)"
+    assert voice_id.startswith("voice-")
+    sr, wav = audio
+    assert isinstance(sr, int) and wav.dtype == np.float32
+    assert "design" in timing_text and "prompt" in timing_text  # phases apart
+
+    save_status, dropdown_update = cb["voice_studio_save"](voice_id, " my_voice ")
+    assert save_status.startswith("Saved") and "已保存" in save_status
+    assert dropdown_update.get("choices") == ["my_voice"]
+    assert cb["voice_studio_list"]() == ["my_voice"]
+
+    audio2, status2, gen_timing = cb["voice_studio_generate"](
+        "base", "my_voice", " new sentence ", "Auto", {}
+    )
+    assert status2 == "Finished. (生成完成)" and audio2 is not None
+    assert gen_timing.endswith("s")                        # reuse timed apart
+    calls = svc.get("base").calls
+    assert calls[-1]["method"] == "generate_voice_clone"
+    assert calls[-1]["voice_clone_prompt"] is not None
+
+
+def test_callback_voice_studio_design_reports_error_not_raise(tmp_path: Path):
+    from qwen3_tts_rocm.demo.ui import build_callbacks
+
+    cb = build_callbacks(make_studio_service(tmp_path))
+    audio, status, voice_id, timing = cb["voice_studio_design"](
+        "voice-design", "   ", "Auto", "bright female", {}
+    )
+    assert audio is None and voice_id == "" and timing == ""
+    assert "Text is required" in status and CHINESE.search(status)
+
+    save_status, upd = cb["voice_studio_save"]("voice-404", "name")
+    assert "Unknown studio voice id" in save_status and CHINESE.search(save_status)
+    assert not upd.get("choices")                          # dropdown untouched
+
+
+def test_callback_voice_studio_generate_missing_voice_reports_error(tmp_path: Path):
+    from qwen3_tts_rocm.demo.ui import build_callbacks
+
+    cb = build_callbacks(make_studio_service(tmp_path))
+    audio, status, gen_timing = cb["voice_studio_generate"](
+        "base", "ghost", "words", "Auto", {}
+    )
+    assert audio is None and gen_timing == ""
+    assert "not found" in status and CHINESE.search(status)
+
+
+def test_voice_studio_design_tab_routes_off_mismatched_radio(tmp_path: Path):
+    """B-4 routing for the studio: a base sidebar pick auto-switches to the
+    tab's own VoiceDesign capability for the design phase."""
+    factory = RecordingFactory()
+    service = SynthesisService(factory=factory, tokenizer_factory=FakeTokenizer,
+                               voices_dir=tmp_path)
+    from qwen3_tts_rocm.demo.ui import build_callbacks
+
+    cb = build_callbacks(service)
+    _audio, status, _vid, _t = cb["voice_studio_design"](
+        "base", "hello studio", "Auto", "bright female", {}
+    )
+    assert factory.alias_calls == ["voice-design", "base"]
+    assert "已自动切换模型至 voice-design" in status and "Finished" in status
+
+
+def test_voice_studio_generation_records_into_history(tmp_path: Path):
+    from qwen3_tts_rocm.demo.ui import build_callbacks
+
+    cb = build_callbacks(make_studio_service(tmp_path))
+    cb["voice_studio_design"]("voice-design", "hello studio", "Auto", "bright female", {})
+    rows = cb["history_refresh"]()
+    assert len(rows) == 1 and "VoiceStudio-design" in rows[0][1]

@@ -1,0 +1,18 @@
+{
+  "design_s": 5.469,
+  "prompt_s": 0.307,
+  "reuse_s_1": 5.283,
+  "reuse_s_2": 6.417,
+  "meta": {
+    "timestamp": "2026-09-20T22:41:42+08:00",
+    "gpu_name": "AMD Radeon 8060S Graphics",
+    "gfx": "gfx1151",
+    "torch_version": "2.12.0+rocm7.14.0",
+    "rocm_hip_version": "7.14.60850",
+    "qwen_tts_version": "0.1.1",
+    "git_head": "2a902291c4a60ca1ca9d64ef9bc39c9a860259e5",
+    "upstream_qwen3_tts_sha": "022e286b98fbec7e1e916cb940cdf532cd9f488e",
+    "max_new_tokens": 512,
+    "note": "three phases recorded separately; walk-through persists into a throwaway temp voices dir so the repo tree stays clean"
+  }
+}

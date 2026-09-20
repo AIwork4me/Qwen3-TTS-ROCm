@@ -4,7 +4,7 @@
 
 在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S（`gfx1151`）上原样运行官方
 [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS) 包：一条命令安装 AMD 锁定
-版本的 ROCm 7.14.0 PyTorch 轮子，一条下载官方权重，一条启动双语五标签页
+版本的 ROCm 7.14.0 PyTorch 轮子，一条下载官方权重，一条启动双语六标签页
 Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经修改的官方 API。
 
 [English](README.md) | **简体中文**
@@ -23,7 +23,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 250 / 250 全通过** —— 216 CPU + 34 真机 GPU |
+| 自动化测试 | **验证主机 282 / 282 全通过** —— 244 CPU + 38 真机 GPU |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
@@ -69,9 +69,48 @@ CustomVoice + 10 次 VoiceDesign 生成，外加 4 对代表性跨语言克隆�
 采样率、时长有界）——见 `evidence/multilingual-matrix.json`。这不是
 发音质量声明。跨语言克隆覆盖为代表性抽样（4 对），并非穷举。
 
+### 音色设计 → 可复用音色（音色工坊 Voice Studio）
+
+官方演示从未把自己的能力串成完整链路：一个标签页能设计音色，另一个
+标签页能克隆上传的音频，但要把一个「描述出来」的音色变成「可复用」
+的音色，就得手动下载再上传。`qwen3_tts_rocm.voice_workflow` 只用三个
+官方 API —— `generate_voice_design`、`create_voice_clone_prompt`、
+`generate_voice_clone` —— 在未经修改的 `loader.load` 对象上补齐了这条
+链路，并遵循官方的模型分工（设计在 VoiceDesign 权重上运行；提示构建
+与复用在 Base 权重上运行——官方封装按 `tts_model_type` 硬性校验）：
+
+```python
+from qwen3_tts_rocm import loader, voice_workflow
+
+vd, bc = loader.load("voice-design"), loader.load("base")
+res = voice_workflow.design_voice(            # 预览 + 可复用提示项
+    vd, prompt_model=bc, text="今天的天气真不错，适合去公园散步。",
+    language="Auto", description="年轻女性，声音清亮，语速轻快")
+voice_workflow.save_voice(res, "voices/bright.pt")   # 官方载荷 + 元信息
+loader.unload(vd)                             # 仅保留 Base 驻留
+res2 = voice_workflow.load_voice("voices/bright.pt")
+wav, sr, gen_s = voice_workflow.reuse_voice(  # 任意新句子，同一音色
+    bc, prompt_items=res2.prompt_items, text="晚风轻轻吹过湖面。", language="Auto")
+```
+
+逐字稿规则由构造保证：每个提示项里的 `ref_text` 恰好就是生成参考音频
+的那段文本（同一个变量喂给两次官方调用）。保存的音色就是官方演示文件
+——`"items"` 键与上游演示的 `{"items": [asdict(item) ...]}` 载荷字节
+格式一致，原版演示也能加载；同一 `.pt` 内的 `voice_meta` 附带信息保留
+描述/语言/逐字稿来源。
+
+演示界面的 **⑥ Voice Studio（音色工坊）** 标签页把这条链路做成了一键
+流程 —— 描述 → 试听 → 保存 → 复用 —— 全程没有任何下载或重新上传（已
+保存音色下拉框取代了文件往返）。验证主机（Radeon 8060S，bf16，每次生
+成 `max_new_tokens=512`，三个阶段分别计时、绝不合并）上的实测延迟：
+**设计 ≈ 5.5 秒 · 提示构建 ≈ 0.3 秒 · 复用 ≈ 5.3–6.4 秒/句**。复现命令：
+`.venv/bin/python -m pytest tests/test_voice_workflow.py -m gpu -v -s`
+（运行记录：`evidence/voice-workflow-2026-09-20.txt`，机器可读计时：
+`evidence/voice-workflow-2026-09-20.json`）。
+
 CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 215 项 CPU 测试；另有
 1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
-该项也会执行，因此最终为 216 CPU + 34 GPU = 250 / 250 全通过。
+该项也会执行，因此最终为 244 CPU + 38 GPU = 282 / 282 全通过。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -154,12 +193,13 @@ bash scripts/run_demo.sh
 * **六别名下载器** —— ModelScope 优先、`hf-mirror.com` 回退（记录中的验证
   主机即在中国大陆网络环境下全程免 VPN 完成下载；其他网络环境可能有差异），
   支持断点续传，可按别名或整批下载。
-* **五标签页双语 Gradio 演示**（中文/English）：① 语音克隆（含可保存/复用的
-  音色提示）· ② 预设音色 · ③ 音色设计 · ④ 编解码器往返 · ⑤ 合成历史。
+* **六标签页双语 Gradio 演示**（中文/English）：① 语音克隆（含可保存/复用的
+  音色提示）· ② 预设音色 · ③ 音色设计 · ④ 编解码器往返 · ⑤ 合成历史 ·
+  ⑥ 音色工坊 Voice Studio（描述 → 试听 → 保存 → 复用，全程无下载再上传）。
   侧边栏含模型切换器（同一时刻只驻留一个模型）、实时 VRAM/GTT 读数与高级
   采样参数折叠区。
   <details>
-  <summary>五个标签页截图</summary>
+  <summary>标签页截图（①–⑤）</summary>
 
   | | |
   |---|---|
@@ -181,7 +221,7 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 250/250 全通过（216 CPU + 34 真机 GPU）；
+* **测试套件** —— 验证主机 282/282 全通过（244 CPU + 38 真机 GPU）；
   CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 215 项 + 1 项 HIP 门控
   跳过，含下文的上游一致性证明。
 

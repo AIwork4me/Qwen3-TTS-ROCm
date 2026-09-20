@@ -217,12 +217,18 @@ def assert_wav_sane(wav: Any, sr_expected: int | None = None,
 
 @dataclass(frozen=True)
 class VoiceClonePromptItem:
-    """Mirror of the official prompt item's observable fields."""
+    """Mirror of the official prompt item's observable fields.
+
+    Field order and names follow the official ``qwen_tts.VoiceClonePromptItem``
+    exactly (ref_code / ref_spk_embedding / x_vector_only_mode / icl_mode /
+    ref_text), so payloads saved from fake items expose the official schema.
+    """
 
     ref_code: Any                      # int codec codes (fake: synthetic ints)
     ref_spk_embedding: Any             # speaker embedding vector (fake: float32)
     x_vector_only_mode: bool           # True -> embedding-only clone mode
     icl_mode: bool                     # True -> ref_text/ref_code conditioning
+    ref_text: Any = None               # reference transcript (official 5th field)
 
 
 class FakeTTSModel:
@@ -413,6 +419,7 @@ class FakeTTSModel:
                 ref_spk_embedding=rng.standard_normal(192).astype(np.float32),
                 x_vector_only_mode=xvec,
                 icl_mode=not xvec,
+                ref_text=txt,
             ))
 
         self.calls.append({

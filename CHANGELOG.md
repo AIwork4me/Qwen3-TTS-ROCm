@@ -53,6 +53,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `evidence/multilingual-matrix.txt` (24/24 matrix cells + 4/4 reference
   generations passed, 147.5 s wall). README / README_CN gained the
   "Multilingual capability matrix" section rendered from that evidence.
+- First-class Voice Design → reusable-voice workflow (P0 capability parity,
+  Task 3): new `qwen3_tts_rocm.voice_workflow` composes ONLY the three
+  official inference APIs (`generate_voice_design`,
+  `create_voice_clone_prompt`, `generate_voice_clone`) on unmodified
+  `loader.load` objects into describe → preview → save → reuse, honouring
+  the official model split (the wrapper hard-gates design on the
+  VoiceDesign checkpoint and prompt/reuse on Base — probe-proven, so
+  `design_voice` takes the Base object as `prompt_model`). The transcript
+  rule is enforced by construction: one `text` local feeds both the
+  generation and the `ref_text`. Saved voices are official-demo-compatible
+  `.pt` files (the `"items"` key is byte-format-identical to upstream's
+  `{"items": [asdict(item) ...]}` payload) plus an in-file `voice_meta`
+  sidecar that survives `torch.load(..., weights_only=True)` on the
+  installed torch 2.12 (the pinned persistence variant; no sibling .json
+  needed). The demo gained the ⑥ Voice Studio (音色工坊) tab — one-click
+  design/preview/save/reuse with NO download/re-upload hop (the
+  saved-voices dropdown replaces the file round-trip; tabs ①–⑤ untouched) —
+  backed by new `SynthesisService.voice_studio_design` /
+  `voice_studio_save` / `voice_studio_list` / `voice_studio_generate`
+  methods (official split preserved through the size-1 model LRU: the
+  VoiceDesign weights are evicted exactly when the prompt phase begins).
+  `FakeTTSModel`'s prompt-item double gained the official fifth field
+  `ref_text` (schema-faithful mirror). Suite grows to 282/282 on the
+  validation host (244 CPU + 38 real-GPU: +15 CPU demo/backend/UI tests,
+  +4 GPU workflow tests). Archived evidence with the three phases timed
+  SEPARATELY: `evidence/voice-workflow-2026-09-20.json` (design 5.47 s,
+  prompt 0.31 s, reuse 5.28 s / 6.42 s; every generation
+  `max_new_tokens=512`) + verbatim transcript
+  `evidence/voice-workflow-2026-09-20.txt`. README / README_CN gained the
+  "Voice Design → reusable voice (Voice Studio)" section.
 
 ## [Unreleased]
 
