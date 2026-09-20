@@ -1,0 +1,271 @@
+{
+  "streaming_exposed": false,
+  "api_surface": {
+    "package": "qwen-tts",
+    "version": "0.1.1",
+    "wrapper_file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py",
+    "mechanism": "blocking call, complete waveforms returned at completion",
+    "description": "All three official generate_* methods are plain blocking functions returning Tuple[List[np.ndarray], int]; none is a generator and none takes a chunk callback or streamer. non_streaming_mode=False only re-frames prompt construction (simulated streaming TEXT input) per the installed docstrings, and the codec decode is a single full-sequence call -- no incremental audio delivery exists in the official Python API.",
+    "methods": {
+      "generate_custom_voice": {
+        "signature": "(self, text: Union[str, List[str]], speaker: Union[str, List[str]], language: Union[str, List[str]] = None, instruct: Union[str, List[str], NoneType] = None, non_streaming_mode: bool = True, **kwargs) -> Tuple[List[numpy.ndarray], int]",
+        "is_generator_function": false,
+        "non_streaming_mode_doc_verbatim": [
+          "Using non-streaming text input, this option currently only simulates streaming text input when set to `false`,",
+          "rather than enabling true streaming input or streaming generation."
+        ]
+      },
+      "generate_voice_clone": {
+        "signature": "(self, text: Union[str, List[str]], language: Union[str, List[str]] = None, ref_audio: Union[str, numpy.ndarray, Tuple[numpy.ndarray, int], List[Union[str, numpy.ndarray, Tuple[numpy.ndarray, int]]], NoneType] = None, ref_text: Union[str, List[Optional[str]], NoneType] = None, x_vector_only_mode: Union[bool, List[bool]] = False, voice_clone_prompt: Union[Dict[str, Any], List[qwen_tts.inference.qwen3_tts_model.VoiceClonePromptItem], NoneType] = None, non_streaming_mode: bool = False, **kwargs) -> Tuple[List[numpy.ndarray], int]",
+        "is_generator_function": false,
+        "non_streaming_mode_doc_verbatim": [
+          "Using non-streaming text input, this option currently only simulates streaming text input when set to `false`,",
+          "rather than enabling true streaming input or streaming generation."
+        ]
+      },
+      "generate_voice_design": {
+        "signature": "(self, text: Union[str, List[str]], instruct: Union[str, List[str]], language: Union[str, List[str]] = None, non_streaming_mode: bool = True, **kwargs) -> Tuple[List[numpy.ndarray], int]",
+        "is_generator_function": false,
+        "non_streaming_mode_doc_verbatim": [
+          "Using non-streaming text input, this option currently only simulates streaming text input when set to `false`,",
+          "rather than enabling true streaming input or streaming generation."
+        ]
+      }
+    },
+    "codec_decode_signature": "(self, encoded) -> Tuple[List[numpy.ndarray], int]",
+    "key_lines": [
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py",
+        "line": 732,
+        "text": "def generate_custom_voice("
+      },
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py",
+        "line": 470,
+        "text": "def generate_voice_clone("
+      },
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py",
+        "line": 637,
+        "text": "def generate_voice_design("
+      },
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py",
+        "line": 727,
+        "text": "wavs, fs = self.model.speech_tokenizer.decode([{\"audio_codes\": c} for c in talker_codes_list])"
+      },
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/core/models/modeling_qwen3_tts.py",
+        "line": 2272,
+        "text": "talker_result = self.talker.generate("
+      },
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/core/models/modeling_qwen3_tts.py",
+        "line": 2292,
+        "text": "return talker_codes_list, talker_hidden_states_list"
+      },
+      {
+        "file": "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_tokenizer.py",
+        "line": 259,
+        "text": "def decode("
+      }
+    ]
+  },
+  "scenarios": [
+    {
+      "name": "short_non_streaming_mode_true",
+      "text_len_chars": 17,
+      "non_streaming_mode": true,
+      "max_new_tokens": 512,
+      "sample_rate": 24000,
+      "runs": [
+        {
+          "ttfb_s": 4.0181,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 4.0181,
+          "audio_s": 3.28,
+          "rtf": 1.225,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 78720
+        },
+        {
+          "ttfb_s": 3.7237,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 3.7237,
+          "audio_s": 3.04,
+          "rtf": 1.2249,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 72960
+        }
+      ]
+    },
+    {
+      "name": "short_non_streaming_mode_false",
+      "text_len_chars": 17,
+      "non_streaming_mode": false,
+      "max_new_tokens": 512,
+      "sample_rate": 24000,
+      "runs": [
+        {
+          "ttfb_s": 3.3921,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 3.3921,
+          "audio_s": 2.72,
+          "rtf": 1.2471,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 65280
+        },
+        {
+          "ttfb_s": 3.9036,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 3.9036,
+          "audio_s": 3.2,
+          "rtf": 1.2199,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 76800
+        }
+      ]
+    },
+    {
+      "name": "long_non_streaming_mode_true",
+      "text_len_chars": 205,
+      "non_streaming_mode": true,
+      "max_new_tokens": 768,
+      "sample_rate": 24000,
+      "runs": [
+        {
+          "ttfb_s": 79.1506,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 79.1506,
+          "audio_s": 58.88,
+          "rtf": 1.3443,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 1413120
+        },
+        {
+          "ttfb_s": 70.1412,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 70.1412,
+          "audio_s": 53.52,
+          "rtf": 1.3106,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 1284480
+        }
+      ]
+    },
+    {
+      "name": "long_non_streaming_mode_false",
+      "text_len_chars": 205,
+      "non_streaming_mode": false,
+      "max_new_tokens": 768,
+      "sample_rate": 24000,
+      "runs": [
+        {
+          "ttfb_s": 71.8074,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 71.8074,
+          "audio_s": 56.08,
+          "rtf": 1.2804,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 1345920
+        },
+        {
+          "ttfb_s": 66.2019,
+          "chunk_count": 1,
+          "cadence_s": {
+            "n_inter_arrivals": 0,
+            "median": null,
+            "p90": null,
+            "min": null,
+            "max": null
+          },
+          "total_wall_s": 66.2019,
+          "audio_s": 51.84,
+          "rtf": 1.277,
+          "underrun_events": 0,
+          "starved_s": 0.0,
+          "total_samples": 1244160
+        }
+      ]
+    }
+  ],
+  "conclusion": "Non-streaming API: incremental audio delivery is NOT exposed in qwen-tts 0.1.1. Every measured run returned the complete waveform as a single delivery at call completion -- TTFB equals total wall on every run, chunk cadence is undefined (1 chunk), and the simulated real-time consumer never starves after playback start only because 100% of the audio already exists when playback begins. non_streaming_mode=False changes prompt framing only (simulated streaming TEXT input per the installed docstring) and left delivery semantics unchanged in every measured run.",
+  "env": {
+    "gpu": "AMD Radeon 8060S Graphics",
+    "gfx": "gfx1151",
+    "torch": "2.12.0+rocm7.14.0",
+    "hip": "7.14.60850",
+    "cuda_available": true,
+    "qwen_tts": "0.1.1"
+  },
+  "meta": {
+    "date": "2026-09-21",
+    "captured_at_utc": "2026-09-20T22:23:45+00:00",
+    "git_head": "1b9c197ab21e531daad4e0b07dcdfc3c2d3eed26",
+    "upstream_sha": "022e286b98fbec7e1e916cb940cdf532cd9f488e",
+    "alias": "custom-voice",
+    "runs_per_scenario": 2,
+    "sampling_kwargs": {
+      "do_sample": true,
+      "temperature": 1.0
+    },
+    "dtype_attn_device": "loader.load defaults: bfloat16 + sdpa on cuda:0",
+    "warmup_policy": "one discarded cn/short generation"
+  }
+}

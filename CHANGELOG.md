@@ -170,6 +170,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Verified
 
+- True-streaming probe on gfx1151 (2026-09-21, Step D): the installed
+  official `qwen-tts` 0.1.1 Python API exposes **no incremental-audio
+  path** — all three generate_* entry points are blocking functions
+  returning the complete waveform list at completion (their own
+  docstrings state `non_streaming_mode=False` "only simulates streaming
+  text input … rather than enabling true streaming input or streaming
+  generation"). Measured on the CustomVoice 1.7B path via the new
+  `scripts/streaming_probe.py` (4 scenarios x 2 runs: short 17 / long
+  205 chars, both `non_streaming_mode` values): every run delivered
+  exactly one audio chunk at return — TTFB == total wall (short
+  3.4–4.0 s, RTF 1.22–1.25; long 66–79 s wall for 52–59 s audio,
+  RTF 1.28–1.34), cadence undefined, 0 underruns only because the whole
+  buffer exists at playback start. README/README_CN streaming row stays
+  🚫 with the measured finding replacing "no measurements exist";
+  upstream's 97 ms figure remains explicitly not-a-Radeon-number —
+  `evidence/streaming-2026-09-21.{txt,json}`.
 - vLLM-Omni offline-inference feasibility check on gfx1151 (roadmap rung 1):
   **FEASIBLE — single configuration only**. Installed upstream's documented
   ROCm path (`vllm==0.28.0+rocm723` from `wheels.vllm.ai` + `vllm-omni==0.28.0`

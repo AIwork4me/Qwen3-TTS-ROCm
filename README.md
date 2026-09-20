@@ -67,7 +67,7 @@ intentionally not claimed**.
 | Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base | ✅ scoped — **execution-only smoke** (prep → 12 steps → save → reload → sane synthesis; no quality claims) | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
 | Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently ignores `instruct`) — pinned by tests | Task 0 audit: [`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni serving | — | 🟡 partial — offline feasibility proven only: one documented offline example on gfx1151, single configuration, isolated venv (no serving, no perf/quality claims) | [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt) · [roadmap](#roadmap-not-yet-validated) |
-| True streaming inference | — | 🚫 not claimed — no Radeon measurements exist | [Roadmap](#roadmap-not-yet-validated) |
+| True streaming inference | — | 🚫 not exposed upstream — measured 2026-09-21 on gfx1151: qwen-tts 0.1.1's official Python API delivers audio only at completion (exactly 1 chunk every run; TTFB == total wall) | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [roadmap](#true-streaming-inference) |
 
 Conceptual boundary worth stating plainly (the demo and docs honour it):
 **CustomVoice is preset-speaker / custom-voice generation** — it does not
@@ -406,9 +406,35 @@ skipping rungs:
 
 Upstream documents streaming generation with a "97 ms"-class first-audio
 figure. **That number is upstream's, measured on upstream's stack — it is
-NOT a Radeon number**, and no streaming latency has been measured on this
-project's hardware. Before any streaming claim can appear here, the
-following must be measured on the validated gfx1151 host:
+NOT a Radeon number**, and it must never appear here as one.
+
+**Finding 2026-09-21 (measured, archived):** the installed official
+`qwen-tts` 0.1.1 Python API exposes **no incremental-audio path**. All
+three official entry points (`generate_custom_voice`,
+`generate_voice_design`, `generate_voice_clone`) are plain blocking
+functions that return the complete waveform list at call completion —
+none is a generator, none documents a chunk callback or streamer
+parameter (the model-internal talker `generate` is invoked with a fixed
+keyword set, so no streamer-style kwarg is forwarded), and the codec
+decode is one full-sequence call. The wrapper's own docstrings say
+`non_streaming_mode=False` "only simulates streaming text input … rather
+than enabling true streaming input or streaming generation" (machine-
+captured signatures and verbatim quotes with file:line references in the
+archive). Measured on the validated CustomVoice 1.7B path on gfx1151 with
+[`scripts/streaming_probe.py`](scripts/streaming_probe.py) — 2 runs per
+scenario, both `non_streaming_mode` values, short (17 chars) and long
+(205 chars) texts: **every run delivered exactly one audio chunk, at
+return**. Time to first audio therefore equals total wall on every run
+(3.4–4.0 s and RTF 1.22–1.25 short; 66–79 s wall for 52–59 s of audio
+and RTF 1.28–1.34 long), chunk cadence is undefined (single delivery),
+and the simulated real-time consumer logs 0 underruns only because 100%
+of the audio already exists when playback starts. Full data:
+[`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) /
+[`.json`](evidence/streaming-2026-09-21.json).
+
+Streaming stays 🚫 in the capability matrix until upstream ships a
+genuine incremental-delivery API. When that exists, the five measurements
+below will be re-taken with the same probe on the validated gfx1151 host:
 
 * **time to first audio** — wall time from request to the first audible
   chunk;
@@ -419,9 +445,9 @@ following must be measured on the validated gfx1151 host:
   generation;
 * **long-text behaviour** — how cadence and memory hold up over long inputs.
 
-Until those measurements exist and are archived under
-[`evidence/`](evidence/README.md), streaming stays 🚫 in the capability
-matrix.
+Until those measurements exist for a real incremental path and are
+archived under [`evidence/`](evidence/README.md), streaming stays 🚫 in
+the capability matrix.
 
 ## Validation & Reproducibility
 

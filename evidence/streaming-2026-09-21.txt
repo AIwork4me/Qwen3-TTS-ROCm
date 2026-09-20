@@ -1,0 +1,726 @@
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+== Step D true-streaming probe ==
+# date=2026-09-20T22:18:30+00:00
+# git_head=1b9c197ab21e531daad4e0b07dcdfc3c2d3eed26
+# upstream_qwen3_tts_sha=022e286b98fbec7e1e916cb940cdf532cd9f488e
+# args: alias=custom-voice runs=2
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+# api: qwen-tts 0.1.1 @ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py
+# api: generate_custom_voice: generator=False non_streaming_mode_doc=['Using non-streaming text input, this option currently only simulates streaming text input when set to `false`,', 'rather than enabling true streaming input or streaming generation.']
+# api: generate_voice_clone: generator=False non_streaming_mode_doc=['Using non-streaming text input, this option currently only simulates streaming text input when set to `false`,', 'rather than enabling true streaming input or streaming generation.']
+# api: generate_voice_design: generator=False non_streaming_mode_doc=['Using non-streaming text input, this option currently only simulates streaming text input when set to `false`,', 'rather than enabling true streaming input or streaming generation.']
+# api: qwen3_tts_model.py:732: def generate_custom_voice(
+# api: qwen3_tts_model.py:470: def generate_voice_clone(
+# api: qwen3_tts_model.py:637: def generate_voice_design(
+# api: qwen3_tts_model.py:727: wavs, fs = self.model.speech_tokenizer.decode([{"audio_codes": c} for c in talker_codes_list])
+# api: modeling_qwen3_tts.py:2272: talker_result = self.talker.generate(
+# api: modeling_qwen3_tts.py:2292: return talker_codes_list, talker_hidden_states_list
+# api: qwen3_tts_tokenizer.py:259: def decode(
+[probe] loading alias=custom-voice ...
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[probe] loaded alias=custom-voice took=2.6s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14450688, provided ptr: 0x7878814f2400 size: 12413952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14450688, provided ptr: 0x787881504400 size: 12469248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36126720, provided ptr: 0x7878826ac600 size: 12400128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36126720, provided ptr: 0x7878826b2200 size: 12427776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 72253440, provided ptr: 0x78783c200000 size: 21166848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 72253440, provided ptr: 0x787881cd0000 size: 21180672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 108380160, provided ptr: 0x787816000000 size: 31098368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 108380160, provided ptr: 0x787881fc4000 size: 31105280
+[probe] warmup took=6.0s (discarded)
+[probe] scenario=short_non_streaming_mode_true chars=17 max_new_tokens=512
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14106624, provided ptr: 0x7878814da400 size: 12315648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14106624, provided ptr: 0x7878814ec400 size: 12370944
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35266560, provided ptr: 0x78788263ca00 size: 12154368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35266560, provided ptr: 0x787882642600 size: 12182016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 70533120, provided ptr: 0x787814200000 size: 20675328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 70533120, provided ptr: 0x787881c9c400 size: 20689152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x78780e000000 size: 30361088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x787881f6a000 size: 30368000
+[probe]   run=1/2 ttfb=4.02s chunks=1 wall=4.02s audio=3.28s rtf=1.23 underruns=0 starved=0.00s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13074432, provided ptr: 0x787881492400 size: 12020736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13074432, provided ptr: 0x7878814a4400 size: 12076032
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x7878824b0a00 size: 11417088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x7878824b6600 size: 11444736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65372160, provided ptr: 0x78780ea00000 size: 19200768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65372160, provided ptr: 0x787881bc4400 size: 19214592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x78780cc00000 size: 28149248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x787881e5c000 size: 28156160
+[probe]   run=2/2 ttfb=3.72s chunks=1 wall=3.72s audio=3.04s rtf=1.22 underruns=0 starved=0.00s
+[probe] scenario=short_non_streaming_mode_false chars=17 max_new_tokens=512
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 11698176, provided ptr: 0x787881432400 size: 11627520
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 11698176, provided ptr: 0x787881444400 size: 11682816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 29245440, provided ptr: 0x787881ea4a00 size: 10434048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 29245440, provided ptr: 0x787881eaec00 size: 10461696
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 58490880, provided ptr: 0x78788269b000 size: 17234688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 58490880, provided ptr: 0x78788269b000 size: 17248512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 87736320, provided ptr: 0x7877c8e00000 size: 25200128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 87736320, provided ptr: 0x7877c8e00000 size: 25207040
+[probe]   run=1/2 ttfb=3.39s chunks=1 wall=3.39s audio=2.72s rtf=1.25 underruns=0 starved=0.00s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x7878814c2400 size: 12217344
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x7878814d4400 size: 12272640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x7878825b8a00 size: 11908608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x7878825be600 size: 11936256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x7877c9000000 size: 20183808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x787881c54400 size: 20197632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7877ba000000 size: 29623808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x787881f10000 size: 29630720
+[probe]   run=2/2 ttfb=3.90s chunks=1 wall=3.90s audio=3.20s rtf=1.22 underruns=0 starved=0.00s
+[probe] scenario=long_non_streaming_mode_true chars=205 max_new_tokens=768
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7877a3200000 size: 37776384
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7877a3200000 size: 37831680
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 258048000, provided ptr: 0x787797600000 size: 75806208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 258048000, provided ptr: 0x787797600000 size: 75833856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 516096000, provided ptr: 0x787785800000 size: 147979008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 516096000, provided ptr: 0x787785800000 size: 147992832
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 774144000, provided ptr: 0x78776ac00000 size: 221316608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 774144000, provided ptr: 0x787778200000 size: 221323520
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 111820800, provided ptr: 0x7877a0e00000 size: 40233984
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 111820800, provided ptr: 0x7877a0e00000 size: 40289280
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 279552000, provided ptr: 0x787796c00000 size: 81950208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 279552000, provided ptr: 0x787796c00000 size: 81977856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 559104000, provided ptr: 0x78777e400000 size: 160267008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 559104000, provided ptr: 0x78777e400000 size: 160280832
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 838656000, provided ptr: 0x787768600000 size: 239748608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 838656000, provided ptr: 0x787768600000 size: 239755520
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{192, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{192, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{384, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{384, 1024}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+a_grid_desc_m_ak_container_{704, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{704, 768}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 55394304, provided ptr: 0x787881100000 size: 24112128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 55394304, provided ptr: 0x787881100000 size: 24167424
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+a_grid_desc_m_ak_container_{5184, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{5184, 384}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 138485760, provided ptr: 0x78779ee00000 size: 41645568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 138485760, provided ptr: 0x78779ee00000 size: 41673216
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+a_grid_desc_m_ak_container_{25792, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{25792, 192}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 276971520, provided ptr: 0x787795200000 size: 79657728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 276971520, provided ptr: 0x787795200000 size: 79671552
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+a_grid_desc_m_ak_container_{103104, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{103104, 128}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 415457280, provided ptr: 0x787782e00000 size: 118834688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 415457280, provided ptr: 0x787782e00000 size: 118841600
+[probe]   run=1/2 ttfb=79.15s chunks=1 wall=79.15s audio=58.88s rtf=1.34 underruns=0 starved=0.00s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32342016, provided ptr: 0x7878828e2000 size: 17525760
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32342016, provided ptr: 0x7878828e2000 size: 17581056
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 80855040, provided ptr: 0x787816400000 size: 25179648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 80855040, provided ptr: 0x787816400000 size: 25207296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 161710080, provided ptr: 0x7877b7000000 size: 46725888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 161710080, provided ptr: 0x7877b7000000 size: 46739712
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 242565120, provided ptr: 0x7877a2a00000 size: 69436928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 242565120, provided ptr: 0x7877b2a00000 size: 69443840
+[probe]   run=2/2 ttfb=70.14s chunks=1 wall=70.14s audio=53.52s rtf=1.31 underruns=0 starved=0.00s
+[probe] scenario=long_non_streaming_mode_false chars=205 max_new_tokens=768
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43352064, provided ptr: 0x787815e00000 size: 20671488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43352064, provided ptr: 0x787882622800 size: 20726784
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 108380160, provided ptr: 0x7877b7e00000 size: 33043968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 108380160, provided ptr: 0x7877b7e00000 size: 33071616
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 216760320, provided ptr: 0x7877a8000000 size: 62454528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 216760320, provided ptr: 0x7877a8000000 size: 62468352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 325140480, provided ptr: 0x78777a600000 size: 93029888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 325140480, provided ptr: 0x78777a600000 size: 93036800
+[probe]   run=1/2 ttfb=71.81s chunks=1 wall=71.81s audio=56.08s rtf=1.28 underruns=0 starved=0.00s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25116672, provided ptr: 0x787881100000 size: 15461376
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25116672, provided ptr: 0x787881100000 size: 15516672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62791680, provided ptr: 0x7877b5200000 size: 20018688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62791680, provided ptr: 0x787881100000 size: 20046336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 125583360, provided ptr: 0x7877ad600000 size: 36403968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 125583360, provided ptr: 0x7877ad600000 size: 36417792
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 188375040, provided ptr: 0x78778ba00000 size: 53954048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 188375040, provided ptr: 0x78778ba00000 size: 53960960
+[probe]   run=2/2 ttfb=66.20s chunks=1 wall=66.20s audio=51.84s rtf=1.28 underruns=0 starved=0.00s
+[probe] unloading model
+[probe] streaming_exposed=False
+[probe] wrote evidence/streaming-2026-09-21.json

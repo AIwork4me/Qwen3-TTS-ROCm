@@ -59,7 +59,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base | ✅ 限定范围 —— **仅执行冒烟验证**（准备 → 12 步 → 保存 → 重载 → 合成健全；无质量结论） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
 | CustomVoice 的指令控制 instruct | 0.6B | 🚫 上游未暴露（封装对 0.6B 静默忽略 `instruct`）—— 由测试钉住 | 任务 0 审计：[`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni 服务 | — | 🟡 部分验证 —— 仅证明离线可行：gfx1151 上跑通一个官方文档离线示例，单一配置，独立 venv（不声明服务、性能或质量） | [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt) · [路线图](#路线图尚未验证) |
-| 真流式推理 | — | 🚫 不声明 —— 不存在任何 Radeon 实测数据 | 见[路线图](#路线图尚未验证) |
+| 真流式推理 | — | 🚫 上游未暴露 —— 2026-09-21 在 gfx1151 上实测：qwen-tts 0.1.1 官方 Python API 仅在调用完成时一次性返回音频（每次运行恰 1 个分片；首音频时间 == 总墙钟） | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [路线图](#真流式推理) |
 
 有一个概念边界值得直说（演示与文档均遵守）：**CustomVoice 是预设/
 定制说话人音色生成** —— 它不从参考音频克隆。**Base 才是零样本语音克隆
@@ -361,9 +361,31 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 ### 真流式推理
 
 上游文档给出流式生成及「97 ms」量级的首音频指标。**该数字是上游自己、
-在上游自己的技术栈上测的 —— 它不是 Radeon 数字**；本项目硬件上没有任何
-流式延迟实测。在流式结论可以写进本 README 之前，必须在已验证的 gfx1151
-主机上完成以下测量：
+在上游自己的技术栈上测的 —— 它不是 Radeon 数字**，永远不得在本项目中
+当作 Radeon 数字使用。
+
+**2026-09-21 实测结论（已存档）：** 本地安装的官方 `qwen-tts` 0.1.1
+Python API **不存在增量音频通路**。三个官方入口
+（`generate_custom_voice` / `generate_voice_design` / `generate_voice_clone`）
+都是普通阻塞函数，在调用完成时一次性返回完整波形列表 —— 无一为生成器，
+也未提供任何分片回调或 streamer 参数（模型内部的 talker `generate`
+以固定关键字集合被调用，streamer 类 kwarg 不会被转发）；编解码
+（codec decode）是对完整序列的单次调用。封装层自带文档字符串明确写道：`non_streaming_mode=False`
+「仅模拟流式文本输入……而非启用真正的流式输入或流式生成」（签名与
+逐字引文及 file:line 证据均由脚本机采，见存档）。在已验证的
+CustomVoice 1.7B 路径上用
+[`scripts/streaming_probe.py`](scripts/streaming_probe.py) 于 gfx1151
+实测 —— 每个场景 2 次、`non_streaming_mode` 两种取值、短文本（17 字）
+与长文本（205 字）各测：**每一次运行都在返回时刻一次性交付唯一一个
+音频分片**。因此首音频时间在每次运行中都等于总墙钟（短文本 3.4–4.0 s、
+RTF 1.22–1.25；长文本 66–79 s 墙钟产出 52–59 s 音频、RTF 1.28–1.34），
+分片节奏无定义（单次交付），而模拟实时消费者的 0 次欠载仅仅是因为
+播放开始时音频已 100% 存在。完整数据：
+[`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) /
+[`.json`](evidence/streaming-2026-09-21.json)。
+
+在上游提供真正的增量交付 API 之前，流式在能力矩阵中保持 🚫。届时将用
+同一探针在已验证的 gfx1151 主机上重新完成以下五项测量：
 
 * **首音频时间（time to first audio）** —— 从请求发出到第一个可听分片的
   墙钟时间；
@@ -372,8 +394,8 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 * **缓冲欠载行为（buffer underrun）** —— 持续生成下播放是否会出现饥饿；
 * **长文本行为** —— 长输入下节奏与内存的保持情况。
 
-在这些测量完成并存档到 [`evidence/`](evidence/README.md) 之前，流式在
-能力矩阵中保持 🚫。
+在面向真正增量通路的这些测量完成并存档到
+[`evidence/`](evidence/README.md) 之前，流式在能力矩阵中保持 🚫。
 
 ## 验证与可复现性
 
