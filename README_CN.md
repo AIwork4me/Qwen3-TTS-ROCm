@@ -23,7 +23,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 282 / 282 全通过** —— 244 CPU + 38 真机 GPU |
+| 自动化测试 | **验证主机 290 / 290 全通过** —— 252 CPU + 38 真机 GPU |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
@@ -110,7 +110,7 @@ wav, sr, gen_s = voice_workflow.reuse_voice(  # 任意新句子，同一音色
 
 CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上均通过 215 项 CPU 测试；另有
 1 项 HIP 环境门控测试因 CI 无 AMD GPU 而跳过。在实际 ROCm 验证主机上，
-该项也会执行，因此最终为 244 CPU + 38 GPU = 282 / 282 全通过。
+该项也会执行，因此最终为 252 CPU + 38 GPU = 290 / 290 全通过。
 
 下面是验证真机上实拍的演示标签页：
 
@@ -221,7 +221,7 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 282/282 全通过（244 CPU + 38 真机 GPU）；
+* **测试套件** —— 验证主机 290/290 全通过（252 CPU + 38 真机 GPU）；
   CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上通过 215 项 + 1 项 HIP 门控
   跳过，含下文的上游一致性证明。
 
@@ -243,6 +243,7 @@ bash scripts/run_demo.sh
 | ROCm 环境自检 | — | ✅ |
 | ModelScope 优先下载器 | — | ✅ |
 | AMD iGPU 上的 RTF 基准证据 | — | ✅ |
+| 官方微调工作流（SFT）在 ROCm 上 | ✅（文档面向 CUDA + FlashAttention） | ✅ 限定为**仅执行验证（冒烟）**：数据准备 → 12 步训练 → checkpoint 保存 → 重载 → 合成通过健全性检查（不涉及音色相似度/收敛/质量结论）。含一项已披露的临时变通：上游硬编码的 `flash_attention_2` → `sdpa`，仅在 gitignored 的 `.upstream` 克隆内改动并已还原。详见 [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
 
 <a id="兼容性"></a>
 

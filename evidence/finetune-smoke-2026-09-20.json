@@ -1,0 +1,118 @@
+{
+  "task": "Task 4 — ROCm fine-tuning smoke (official Qwen3-TTS workflow, execution validation only)",
+  "date": "2026-09-20",
+  "goal": "EXECUTION VALIDATION, not convergence. No quality claims anywhere.",
+  "transcript": "evidence/finetune-smoke-2026-09-20.txt",
+  "environment": {
+    "gpu": "AMD RYZEN AI MAX+ PRO 395 w/ Radeon 8060S (gfx1151)",
+    "gpu_runtime_name": "AMD Radeon 8060S Graphics",
+    "rocm_hip": "7.14.60850",
+    "torch": "2.12.0+rocm7.14.0",
+    "qwen_tts_version": "0.1.1",
+    "python": "3.12.3",
+    "kernel": "6.17.0-1032-oem"
+  },
+  "upstream": {
+    "repo": "QwenLM/Qwen3-TTS",
+    "pinned_sha": "022e286b98fbec7e1e916cb940cdf532cd9f488e",
+    "sha_moved_from_task0": false,
+    "sha_verification": "re-verified 2026-09-20T23:2x and 00:03 via https://api.github.com/repos/QwenLM/Qwen3-TTS/commits/HEAD (git ls-remote itself failed: github.com:443 unreachable from this host at run time, see transcript lines 1-21; api.github.com/codeload.github.com remained reachable)",
+    "acquisition_deviation": {
+      "what": "git clone replaced by pinned-content bootstrap: codeload tarball at the pinned SHA + git objects rebuilt from api.github.com metadata",
+      "why": "github.com:443 connect-timeout / GnuTLS -110 for every clone and ls-remote attempt (5+2 failures recorded verbatim, transcript lines 1-21 and background log); api.github.com (same SHA confirmed) and codeload.github.com stayed reachable",
+      "authenticity_proof": "all 37 blobs re-hashed (git hash-object) and matched the api.github.com recursive tree listing (transcript line 47); write-tree reproduced tree 33e4644dc5a698874fa035630d1878aa453b564c exactly (line 55); raw commit object rebuilt from the API's verification.payload (+0800, epoch 1773729521, gpgsig) hashes to the pinned SHA 022e286b... exactly, so git rev-parse HEAD == pinned SHA (lines 137-141 region); fsck clean",
+      "clone_behavior": "behaves as a shallow repo at the pinned commit; 'git checkout -- .' and 'git status --porcelain' work for the zero-patch audit"
+    }
+  },
+  "dataset_4a": {
+    "manifest": "tests/data/finetune_manifest.json",
+    "generator": "scripts/make_finetune_dataset.py",
+    "output_dir": ".work-finetune/data/ (gitignored)",
+    "utterances": 12,
+    "languages": "6 Chinese + 6 English, all original texts distinct from tests/data/multilingual_samples.json",
+    "speech_source": "SELF-GENERATED ONLY: rendered by the official Qwen3-TTS-12Hz-1.7B-CustomVoice model via qwen3_tts_rocm.loader.load('custom-voice'), speaker 'serena'",
+    "discipline": "torch.manual_seed(1234) before each render; max_new_tokens=512; transcript == manifest text used to generate; every wav passed assert_wav_sane before manifesting",
+    "shared_ref_audio": ".work-finetune/data/ref_speaker.wav (one extra self-generated clip; upstream README: same ref_audio for all samples)",
+    "durations_s": [3.04, 2.96, 2.4, 2.4, 2.08, 3.6, 3.6, 3.6, 3.52, 3.44, 3.12, 3.2],
+    "generation_wall_seconds": 62.0,
+    "transcript_lines": "248-1460"
+  },
+  "preparation_4b": {
+    "entry_point": ".upstream/Qwen3-TTS/finetuning/prepare_data.py (upstream, AS-IS, unmodified)",
+    "command": "prepare_data.py --device cuda:0 --tokenizer_model_path models/Qwen3-TTS-Tokenizer-12Hz --input_jsonl .work-finetune/data/train_raw.jsonl --output_jsonl .work-finetune/data/train_with_codes.jsonl",
+    "exit_code": 0,
+    "output": ".work-finetune/data/train_with_codes.jsonl — 12 lines, each with audio/text/ref_audio + audio_codes (26-45 codec frames x 16)",
+    "transcript_lines": "1462-1501"
+  },
+  "training_4c": {
+    "entry_point": ".upstream/Qwen3-TTS/finetuning/sft_12hz.py (upstream; single disclosed deviation below)",
+    "model": "Qwen3-TTS-12Hz-1.7B-Base (models/Qwen3-TTS-12Hz-1.7B-Base; the preferred 1.7B — no 0.6B fallback needed)",
+    "precision": "bfloat16 (hard-coded: Accelerator mixed_precision='bf16' + torch_dtype=torch.bfloat16)",
+    "args": "--batch_size 2 --lr 2e-5 --num_epochs 2 --speaker_name smoke_speaker (batch_size/lr are the script's own defaults)",
+    "seq_limits": "no length-limit args exist in the upstream script; observed sequences: 26-45 codec frames (x16 codebooks) and 13-55 text chars per sample; collate pads to batch max + 8",
+    "optimizer_steps": 12,
+    "optimizer_steps_note": "upstream sft_12hz.py calls optimizer.step()/zero_grad() on EVERY microbatch (lines 120-121 are not gated on accelerator.sync_gradients despite gradient_accumulation_steps=4), so 12 samples / batch 2 = 6 optimizer steps per epoch x 2 epochs; 12 falls in the brief's 3-50 window",
+    "wall_time_seconds_train_only": 19.0,
+    "wall_time_seconds_full_process": 24.3,
+    "peak_memory": {
+      "torch_cuda_max_memory_allocated_gib": 18.024,
+      "torch_cuda_max_memory_reserved_gib": 18.486,
+      "source": "torch.cuda.max_memory_allocated read in-process by .work-finetune/run_sft_launcher.py, which imports the upstream module and calls its train() verbatim"
+    },
+    "loss_values_verbatim": [
+        "Epoch 0 | Step 0 | Loss: 13.6470",
+        "Epoch 1 | Step 0 | Loss: 15.0211"
+    ],
+    "loss_note": "printed verbatim by the upstream script's own logging (step%10==0); no interpretation offered",
+    "checkpoints": [
+      ".work-finetune/runs/smoke/checkpoint-epoch-0",
+      ".work-finetune/runs/smoke/checkpoint-epoch-1"
+    ],
+    "transcript_lines": "1503-1624"
+  },
+  "flash_attention_outcome": {
+    "as_is_run": "sft_12hz.py run completely AS-IS first; failed at model init with (verbatim, transcript line 1545): ImportError: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.",
+    "ruling_applied": "orchestrator ruling: minimal disclosed deviation INSIDE the gitignored .upstream clone only",
+    "deviation_diff": "finetuning/sft_12hz.py line 51: attn_implementation=\"flash_attention_2\", -> attn_implementation=\"sdpa\", (exactly one line; full git diff in transcript lines 1553-1567)",
+    "restore": "git -C .upstream/Qwen3-TTS checkout -- . after training+reload; git status --porcelain EMPTY and rev-parse HEAD == pinned SHA (transcript lines 1647-1654)",
+    "recommended_action": "file an upstream issue asking for a CLI-selectable attn_implementation (hard-coded flash_attention_2 blocks all flash-attn-less stacks, incl. the whole validated AMD ROCm wheel stack); to be done by the human owner"
+  },
+  "reload_4d": {
+    "path": "official: Qwen3TTSModel.from_pretrained(checkpoint dir, bf16) — invoked through qwen3_tts_rocm.loader.load (HIP smart default attn 'sdpa'; the README example's literal flash_attention_2 would fail identically to the training attempt above)",
+    "checkpoint": ".work-finetune/runs/smoke/checkpoint-epoch-1",
+    "config_after_conversion": "tts_model_type=custom_voice; talker_config.spk_id={'smoke_speaker': 3000}; spk_is_dialect={'smoke_speaker': False}",
+    "supported_speakers_after_reload": ["smoke_speaker"],
+    "synthesis": "generate_custom_voice(text='The morning ferry crosses the bay in twenty minutes.' (manifest en01), speaker='smoke_speaker', language='English', max_new_tokens=512)",
+    "synthesis_wall_seconds": 6.1,
+    "waveform_checks": {
+      "assert_wav_sane": true,
+      "all_finite": true,
+      "sample_rate_hz": 24000,
+      "duration_s": 3.52,
+      "duration_bounds_s": [0.5, 60],
+      "abs_peak": 0.2158,
+      "rms": 0.03778
+    },
+    "output_wav": ".work-finetune/runs/smoke/reload_synth_en01.wav",
+    "transcript_lines": "1626-1645"
+  },
+  "commands_and_exits": [
+    {"cmd": "git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD", "exit": "failed x6 (github.com:443 blocked; verbatim in transcript)"},
+    {"cmd": "curl api.github.com/repos/QwenLM/Qwen3-TTS/commits/HEAD", "exit": 0, "result": "pinned SHA confirmed unchanged"},
+    {"cmd": "curl codeload .../tar.gz/022e286b... -> /tmp/q3tts.tar.gz", "exit": 0},
+    {"cmd": "tar -xzf + git hash-object verification of 37 blobs vs API tree", "exit": 0},
+    {"cmd": "git init/add/write-tree/commit reconstruction in .upstream/Qwen3-TTS", "exit": 0, "result": "rev-parse HEAD == 022e286b98fbec7e1e916cb940cdf532cd9f488e"},
+    {"cmd": ".venv/bin/python scripts/make_finetune_dataset.py", "exit": 0},
+    {"cmd": ".upstream/Qwen3-TTS/finetuning/prepare_data.py --device cuda:0 ...", "exit": 0},
+    {"cmd": ".upstream/Qwen3-TTS/finetuning/sft_12hz.py ... (AS-IS, attempt 1)", "exit": "failed by design: ImportError FlashAttention2 (verbatim captured)"},
+    {"cmd": "single-line sdpa override applied inside gitignored .upstream clone", "exit": 0},
+    {"cmd": ".venv/bin/python .work-finetune/run_sft_launcher.py --num_epochs 2 ...", "exit": 0},
+    {"cmd": ".venv/bin/python .work-finetune/reload_check.py", "exit": 0},
+    {"cmd": "git -C .upstream/Qwen3-TTS checkout -- .", "exit": 0},
+    {"cmd": "git -C .upstream/Qwen3-TTS status --porcelain", "exit": 0, "result": "empty (zero-patch audit)"}
+  ],
+  "scope_guard": {
+    "proven": "official workflow executes end-to-end on the validated ROCm stack: prep -> 12-step training -> per-epoch checkpoint save -> official-path reload -> sane synthesis",
+    "not_proven": ["speaker similarity quality", "convergence quality", "optimal hyperparameters", "long-run stability", "multi-speaker training", "production scalability"]
+  }
+}

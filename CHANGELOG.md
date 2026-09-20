@@ -83,6 +83,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `max_new_tokens=512`) + verbatim transcript
   `evidence/voice-workflow-2026-09-20.txt`. README / README_CN gained the
   "Voice Design → reusable voice (Voice Studio)" section.
+- Fine-tuning execution-validation smoke on ROCm (P0 capability parity,
+  Task 4): the OFFICIAL upstream `finetuning/` workflow
+  (`prepare_data.py` → `sft_12hz.py` → per-epoch checkpoint →
+  `Qwen3TTSModel.from_pretrained` reload → `generate_custom_voice`)
+  proven to execute end-to-end on the Radeon GPU. New
+  `scripts/make_finetune_dataset.py` + authored manifest
+  `tests/data/finetune_manifest.json` build a SELF-GENERATED corpus
+  (12 original utterances — 6 Chinese + 6 English, distinct from the
+  multilingual samples — plus one shared reference clip, all rendered by
+  the official 1.7B CustomVoice model with `torch.manual_seed(1234)`
+  before each render and `max_new_tokens=512`; transcript == manifest
+  text by construction) in exactly upstream's JSONL schema; 8 CPU tests
+  pin its pure helpers. Training smoke: 1.7B Base bf16, batch 2 / lr 2e-5
+  (upstream defaults), 2 epochs = 12 optimizer steps (upstream steps per
+  microbatch), wall 19.0 s, peak `torch.cuda.max_memory_allocated`
+  18.02 GiB, loss lines quoted verbatim with no interpretation; reload
+  synthesis of a manifest sentence is finite, 24 kHz, 3.52 s, non-silent
+  (`assert_wav_sane` PASS). Scope is EXECUTION VALIDATION ONLY — no
+  speaker-similarity / convergence / hyperparameter / stability /
+  multi-speaker / scalability claims anywhere (NOT-PROVEN list in the
+  doc). Upstream defects + deviations disclosed: (1) `sft_12hz.py`
+  hard-codes `flash_attention_2`, which fails at init on the
+  flash-attn-less ROCm stack (verbatim ImportError captured); a
+  single-line `sdpa`
+  override was applied INSIDE the gitignored `.upstream` clone, diff
+  recorded, clone restored pristine afterwards (`git status --porcelain`
+  empty at the pinned SHA — zero-patch audit); upstream issue filing
+  noted as a human-owner action. (2) `github.com:443` was unreachable at
+  run time, so the pinned clone was bootstrapped from codeload + the
+  GitHub API with the commit object reconstructed SHA-identically to the
+  pinned upstream SHA (authenticity by git content-addressing; procedure
+  in the transcript). Scratch lives in gitignored `.upstream/` and
+  `.work-finetune/` (plus `voices/`); NOTHING upstream or checkpoint
+  shaped enters the commit. Archived evidence:
+  `evidence/finetune-smoke-2026-09-20.json` + phase-marked verbatim
+  transcript `evidence/finetune-smoke-2026-09-20.txt`; new reference doc
+  `docs/finetuning-rocm.md` (PROVEN/NOT-PROVEN lists, reproduction
+  commands); README / README_CN capability rows mark fine-tuning as
+  ✅-scoped execution-only.
 
 ## [Unreleased]
 

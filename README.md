@@ -29,7 +29,7 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **282 / 282 on validation host** — 244 CPU + 38 real-GPU |
+| Automated tests | **290 / 290 on validation host** — 252 CPU + 38 real-GPU |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
@@ -126,7 +126,7 @@ timings: `evidence/voice-workflow-2026-09-20.json`).
 
 The CPU-only CI matrix passes 243 CPU tests on Python 3.10 / 3.11 / 3.12,
 with 1 HIP-gated test skipped because no AMD GPU is present. On the validated
-ROCm host that test also runs, giving 244 CPU + 38 GPU = 282 / 282.
+ROCm host that test also runs, giving 252 CPU + 38 GPU = 290 / 290.
 
 The flagship demo tab, captured live on the validation machine:
 
@@ -248,7 +248,7 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 282/282 on the validated ROCm host (244 CPU + 38
+* **Test suite** — 290/290 on the validated ROCm host (252 CPU + 38
   real-GPU); the CPU-only CI matrix passes 215 + 1 HIP-gated skip on
   Python 3.10 / 3.11 / 3.12, including the upstream-parity proof below.
 
@@ -271,6 +271,7 @@ demo UI. Not a fork; no vendored or patched upstream source, ever.
 | ROCm environment self-check | — | ✅ |
 | ModelScope-first downloader | — | ✅ |
 | RTF benchmark evidence on AMD iGPU | — | ✅ |
+| Official fine-tuning workflow (SFT) on ROCm | ✅ (CUDA + FlashAttention docs) | ✅ scoped — **execution-only smoke** (prep → 12 steps → checkpoint save → reload → sane synthesis; no quality/convergence claims). One disclosed workaround: upstream's hard-coded `flash_attention_2` → `sdpa`, applied inside a gitignored clone, restored pristine. See [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
 
 <a id="compatibility"></a>
 

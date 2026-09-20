@@ -1,0 +1,1715 @@
+=== PHASE 4.1: PIN + CLONE UPSTREAM (no vendoring) — 2026-09-20T23:22:00+08:00 ===
+$ git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD
+error: RPC failed; curl 28 SSL connection timeout
+fatal: expected flush after ref listing
+exit=128
+--- retry ls-remote (transient SSL timeout above), attempts recorded verbatim ---
+$ git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD  (attempt 1)
+fatal: unable to access 'https://github.com/QwenLM/Qwen3-TTS/': GnuTLS recv error (-110): The TLS connection was non-properly terminated.
+exit=0 (attempt 1 failed), sleeping 15s
+$ git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD  (attempt 2)
+fatal: unable to access 'https://github.com/QwenLM/Qwen3-TTS/': Recv failure: Connection timed out
+exit=0 (attempt 2 failed), sleeping 15s
+$ git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD  (attempt 3)
+fatal: unable to access 'https://github.com/QwenLM/Qwen3-TTS/': GnuTLS recv error (-110): The TLS connection was non-properly terminated.
+exit=0 (attempt 3 failed), sleeping 15s
+$ git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD  (attempt 4)
+fatal: unable to access 'https://github.com/QwenLM/Qwen3-TTS/': Failed to connect to github.com port 443 after 132692 ms: Couldn't connect to server
+exit=0 (attempt 4 failed), sleeping 15s
+$ git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD  (attempt 5)
+fatal: unable to access 'https://github.com/QwenLM/Qwen3-TTS/': GnuTLS recv error (-110): The TLS connection was non-properly terminated.
+exit=0 (attempt 5 failed), sleeping 15s
+
+=== PHASE 4.1b: github.com:443 BLOCKED from this host — pinned-content bootstrap fallback — 2026-09-21T00:03:04+08:00 ===
+Context: Task 0 verified 'git ls-remote https://github.com/QwenLM/Qwen3-TTS HEAD' reachable earlier today.
+During Task 4 (23:22 local) github.com:443 became consistently unreachable from this host:
+(connect timeouts / GnuTLS -110), while api.github.com, codeload.github.com and
+objects.githubusercontent.com stayed reachable. Recorded above: 1 initial + 5 retried
+ls-remote failures, plus 2 clone attempts failing after ~134s connect timeouts.
+
+$ curl -sS --max-time 20 https://api.github.com/repos/QwenLM/Qwen3-TTS/commits/HEAD   # SHA re-verification
+HEAD sha: 022e286b98fbec7e1e916cb940cdf532cd9f488e
+commit message: fix finetuning bug
+exit=0
+
+$ curl -sSL -o /tmp/q3tts.tar.gz https://codeload.github.com/QwenLM/Qwen3-TTS/tar.gz/022e286b98fbec7e1e916cb940cdf532cd9f488e && sha256sum /tmp/q3tts.tar.gz
+c7129dc1399dac840ccd99ef62ebef82849378b9a5486f553b1264e59e1012e1  /tmp/q3tts.tar.gz
+exit=0
+
+Decision (deviation from Step 4.1 'git clone', disclosed): bootstrap .upstream/Qwen3-TTS from the
+codeload tarball AT THE PINNED SHA + git metadata from api.github.com, reconstructing the commit
+object so that 'git rev-parse HEAD' == pinned SHA (git SHA-equality = content authenticity proof).
+If the reconstructed HEAD SHA does NOT equal the pinned SHA, STOP and report instead.
+
+--- bootstrap: extract tarball, verify every blob against api.github.com tree listing ---
+tar-extract exit=0
+file count: 37
+blob-check: 37 blobs, 0 mismatches (each tarball file hashed with git hash-object and compared to the api.github.com tree listing)
+blob-verify exit=0
+
+--- reconstruct git repo: index -> write-tree -> commit-tree with upstream metadata ---
+git init exit=0
+git add exit=0
+write-tree: 33e4644dc5a698874fa035630d1878aa453b564c
+expected  : 33e4644dc5a698874fa035630d1878aa453b564c
+TREE MATCH
+tz +00:00 ->  (no match)
+tz +08:00 ->  (no match)
+tz -08:00 ->  (no match)
+tz +01:00 ->  (no match)
+tz -05:00 ->  (no match)
+tz +09:00 ->  (no match)
+tz +05:30 ->  (no match)
+tz +02:00 ->  (no match)
+tz -03:00 ->  (no match)
+tz +07:00 ->  (no match)
+
+$ git -C .upstream/Qwen3-TTS rev-parse HEAD
+HEAD
+$ git -C .upstream/Qwen3-TTS log --oneline -1
+$ git -C .upstream/Qwen3-TTS status --porcelain
+A  .github/.DS_Store
+A  .github/ISSUE_TEMPLATE/bug_report.yml
+A  .github/ISSUE_TEMPLATE/config.yml
+A  .github/workflows/inactive.yaml
+A  .github/workflows/translate.yaml
+A  .gitignore
+A  LICENSE
+A  MANIFEST.in
+A  README.md
+A  assets/Qwen3_TTS.pdf
+A  examples/test_model_12hz_base.py
+A  examples/test_model_12hz_custom_voice.py
+A  examples/test_model_12hz_voice_design.py
+A  examples/test_tokenizer_12hz.py
+A  finetuning/README.md
+A  finetuning/dataset.py
+A  finetuning/prepare_data.py
+A  finetuning/sft_12hz.py
+A  pyproject.toml
+A  qwen_tts/__init__.py
+A  qwen_tts/__main__.py
+A  qwen_tts/cli/demo.py
+A  qwen_tts/core/__init__.py
+A  qwen_tts/core/models/__init__.py
+A  qwen_tts/core/models/configuration_qwen3_tts.py
+A  qwen_tts/core/models/modeling_qwen3_tts.py
+A  qwen_tts/core/models/processing_qwen3_tts.py
+A  qwen_tts/core/tokenizer_12hz/configuration_qwen3_tts_tokenizer_v2.py
+A  qwen_tts/core/tokenizer_12hz/modeling_qwen3_tts_tokenizer_v2.py
+A  qwen_tts/core/tokenizer_25hz/configuration_qwen3_tts_tokenizer_v1.py
+A  qwen_tts/core/tokenizer_25hz/modeling_qwen3_tts_tokenizer_v1.py
+A  qwen_tts/core/tokenizer_25hz/vq/assets/mel_filters.npz
+A  qwen_tts/core/tokenizer_25hz/vq/core_vq.py
+A  qwen_tts/core/tokenizer_25hz/vq/speech_vq.py
+A  qwen_tts/core/tokenizer_25hz/vq/whisper_encoder.py
+A  qwen_tts/inference/qwen3_tts_model.py
+A  qwen_tts/inference/qwen3_tts_tokenizer.py
+porcelain-exit=0 (empty output above = pristine)
+$ ls .upstream/Qwen3-TTS/finetuning/
+total 36
+drwxrwxr-x 2 amd amd 4096  3月 17  2026 .
+drwxrwxr-x 8 amd amd 4096  9月 21 00:03 ..
+-rw-rw-r-- 1 amd amd 8664  3月 17  2026 dataset.py
+-rw-rw-r-- 1 amd amd 2410  3月 17  2026 prepare_data.py
+-rw-rw-r-- 1 amd amd 3165  3月 17  2026 README.md
+-rw-rw-r-- 1 amd amd 6885  3月 17  2026 sft_12hz.py
+
+--- commit-tree rejects missing parent objects; writing RAW commit object via 'git hash-object -t commit' ---
+NO TIMEZONE REPRODUCED THE PINNED COMMIT SHA
+commit-reconstruction exit=1
+
+$ git -C .upstream/Qwen3-TTS rev-parse HEAD
+HEAD
+$ git -C .upstream/Qwen3-TTS log --format='%H | %an <%ae> %ad | %cn <%ce> %cd | %s' --date=iso -1
+$ git -C .upstream/Qwen3-TTS status --porcelain   (expect EMPTY for zero-patch audit)
+A  .github/.DS_Store
+A  .github/ISSUE_TEMPLATE/bug_report.yml
+A  .github/ISSUE_TEMPLATE/config.yml
+A  .github/workflows/inactive.yaml
+A  .github/workflows/translate.yaml
+A  .gitignore
+A  LICENSE
+A  MANIFEST.in
+A  README.md
+A  assets/Qwen3_TTS.pdf
+A  examples/test_model_12hz_base.py
+A  examples/test_model_12hz_custom_voice.py
+A  examples/test_model_12hz_voice_design.py
+A  examples/test_tokenizer_12hz.py
+A  finetuning/README.md
+A  finetuning/dataset.py
+A  finetuning/prepare_data.py
+A  finetuning/sft_12hz.py
+A  pyproject.toml
+A  qwen_tts/__init__.py
+A  qwen_tts/__main__.py
+A  qwen_tts/cli/demo.py
+A  qwen_tts/core/__init__.py
+A  qwen_tts/core/models/__init__.py
+A  qwen_tts/core/models/configuration_qwen3_tts.py
+A  qwen_tts/core/models/modeling_qwen3_tts.py
+A  qwen_tts/core/models/processing_qwen3_tts.py
+A  qwen_tts/core/tokenizer_12hz/configuration_qwen3_tts_tokenizer_v2.py
+A  qwen_tts/core/tokenizer_12hz/modeling_qwen3_tts_tokenizer_v2.py
+A  qwen_tts/core/tokenizer_25hz/configuration_qwen3_tts_tokenizer_v1.py
+A  qwen_tts/core/tokenizer_25hz/modeling_qwen3_tts_tokenizer_v1.py
+A  qwen_tts/core/tokenizer_25hz/vq/assets/mel_filters.npz
+A  qwen_tts/core/tokenizer_25hz/vq/core_vq.py
+A  qwen_tts/core/tokenizer_25hz/vq/speech_vq.py
+A  qwen_tts/core/tokenizer_25hz/vq/whisper_encoder.py
+A  qwen_tts/inference/qwen3_tts_model.py
+A  qwen_tts/inference/qwen3_tts_tokenizer.py
+[status lines: 37]
+
+--- API verification.payload exposes exact headers (tz +0800, epoch 1773729521) + gpgsig; rebuilding raw object ---
+variant message+nl -> c03498c7b6879d2d1b45ff67f84ca468ad19579c
+variant message-nl -> 71641ebea497f42309b442dc6175d5a50fed3aac
+reconstruction exit=1
+
+$ git -C .upstream/Qwen3-TTS rev-parse HEAD
+HEAD
+$ git -C .upstream/Qwen3-TTS log --format='%H | %an <%ae> %ad | %cn <%ce> %cd | %s' --date=iso -1
+$ git -C .upstream/Qwen3-TTS cat-file commit HEAD | head -6
+$ git -C .upstream/Qwen3-TTS status --porcelain | wc -l   (expect 0)
+37
+$ git -C .upstream/Qwen3-TTS fsck --no-dangling 2>&1 | head -5
+notice: HEAD points to an unborn branch (main)
+notice: No default references
+
+--- serialization found (gpgsig with trailing continuation, message without trailing \n) — finalize repo ---
+hash-object -w: 022e286b98fbec7e1e916cb940cdf532cd9f488e
+pinned target : 022e286b98fbec7e1e916cb940cdf532cd9f488e
+
+$ git -C .upstream/Qwen3-TTS rev-parse HEAD
+022e286b98fbec7e1e916cb940cdf532cd9f488e
+$ git -C .upstream/Qwen3-TTS log --format='%H | %an <%ae> %ad | %cn <%ce> %cd | %s' --date=iso -1
+$ git -C .upstream/Qwen3-TTS cat-file commit HEAD (first 5 lines)
+tree 33e4644dc5a698874fa035630d1878aa453b564c
+parent 6cafe5582caea83df269c36b1ce62d953a9cc66b
+author Xiong Wang <wangxiongts@163.com> 1773729521 +0800
+committer GitHub <noreply@github.com> 1773729521 +0800
+gpgsig -----BEGIN PGP SIGNATURE-----
+$ git -C .upstream/Qwen3-TTS status --porcelain | wc -l   (expect 0 = pristine for zero-patch audit)
+0
+$ git -C .upstream/Qwen3-TTS diff --stat HEAD | wc -l   (expect 0)
+0
+--- fix: .git/shallow must list the boundary commit (HEAD), not the absent parent ---
+$ git -C .upstream/Qwen3-TTS log --format='%H | %an <%ae> %ad | %cn <%ce> %cd | %s' --date=iso -1
+022e286b98fbec7e1e916cb940cdf532cd9f488e | Xiong Wang <wangxiongts@163.com> 2026-03-17 14:38:41 +0800 | GitHub <noreply@github.com> 2026-03-17 14:38:41 +0800 | fix finetuning bug
+exit=0
+$ git -C .upstream/Qwen3-TTS status --porcelain | wc -l   (expect 0)
+0
+$ git -C .upstream/Qwen3-TTS fsck 2>&1 | grep -v '^dangling' | head -4
+fsck-exit=0
+
+=== PHASE 4.2: UPSTREAM finetuning/ INSPECTION (BEFORE ANY RUN) — 2026-09-21T00:06:03+08:00 ===
+Pinned tree .upstream/Qwen3-TTS @ 022e286b98fbec7e1e916cb940cdf532cd9f488e
+$ ls -la .upstream/Qwen3-TTS/finetuning/
+total 36
+drwxrwxr-x 2 amd amd 4096  3月 17  2026 .
+drwxrwxr-x 8 amd amd 4096  9月 21 00:03 ..
+-rw-rw-r-- 1 amd amd 8664  3月 17  2026 dataset.py
+-rw-rw-r-- 1 amd amd 2410  3月 17  2026 prepare_data.py
+-rw-rw-r-- 1 amd amd 3165  3月 17  2026 README.md
+-rw-rw-r-- 1 amd amd 6885  3月 17  2026 sft_12hz.py
+
+Ground-truth §4 re-verified against the pinned tree:
+ - exactly 4 files: README.md 3165B, dataset.py 8664B, prepare_data.py 2410B, sft_12hz.py 6885B —
+   wait: dataset.py on disk is 8664B (ground truth said 8664 via API 'size' field;
+   API size is the blob's git size which can differ from on-disk stat) — sha below is authoritative:
+$ git -C .upstream/Qwen3-TTS ls-tree HEAD finetuning/
+100644 blob 49df2754ad8c5650b142f75121bdd0ff6a25a350	finetuning/README.md
+100644 blob f7c1cbe7a79537c8ec5a3a91bdc725d59e253543	finetuning/dataset.py
+100644 blob 7e646108fc7cfdd043f85c4ec9b13e9643a5a5e4	finetuning/prepare_data.py
+100644 blob c1f3f4684f3f53927a660f06e58beb6a4107f89a	finetuning/sft_12hz.py
+
+(a) DATA-PREPARATION entry point (README §2 + prepare_data.py argparse, verbatim args):
+    python prepare_data.py --device cuda:0 --tokenizer_model_path <tok> --input_jsonl train_raw.jsonl --output_jsonl train_with_codes.jsonl
+    input JSONL schema: one object per line with keys audio/text/ref_audio (dataset.py __getitem__
+    also reads item['audio_codes'] AFTER prepare_data adds it; librosa.load(sr=None,mono=True);
+    extract_mels asserts sr==24000)
+(b) TRAINING entry point (README §3 + sft_12hz.py argparse, verbatim args):
+    python sft_12hz.py --init_model_path <base> --output_model_path output --train_jsonl train_with_codes.jsonl
+    [--batch_size 2] [--lr 2e-5] [--num_epochs 3] [--speaker_name speaker_test]
+    hard-coded: Accelerator(grad accum 4, bf16, tensorboard); from_pretrained(..., torch_dtype=bfloat16,
+    attn_implementation="flash_attention_2") at sft_12hz.py:51; optimizer.step() runs per MICROBATCH
+    (lines 120-121 are NOT gated on accelerator.sync_gradients — only grad-clip is), so with 12 samples
+    and batch_size=2 each epoch = 6 optimizer steps; loss prints only when step%10==0 (i.e. step 0 here);
+    checkpoint-epoch-N written per epoch (copytree of init dir + custom_voice config rewrite +
+    model.safetensors with speaker row 3000 = first-batch speaker embedding)
+(c) RELOAD path (README §4 verbatim): Qwen3TTSModel.from_pretrained("output/checkpoint-epoch-2",
+    device_map="cuda:0", dtype=torch.bfloat16, attn_implementation="flash_attention_2") then
+    tts.generate_custom_voice(text=..., speaker="speaker_test") — README example passes flash_attention_2;
+    on this ROCm stack the validated attn is sdpa (see loader docs); deviation disclosed in docs.
+
+Layout MATCHES ground-truth §4 — no delta. Proceeding.
+
+=== PHASE 4.3: SELF-GENERATED DATASET (4A) — manifest + generator, all speech rendered by the official model ===
+$ git -C . status --porcelain   (pre-generation repo state)
+ M .gitignore
+?? evidence/finetune-smoke-2026-09-20.txt
+?? scripts/make_finetune_dataset.py
+?? tests/data/finetune_manifest.json
+?? tests/test_finetune_dataset.py
+
+$ .venv/bin/python scripts/make_finetune_dataset.py   (defaults: shipped manifest, .work-finetune/data, speaker=serena)
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18923520, provided ptr: 0x7dc4d58be400 size: 13691904
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18923520, provided ptr: 0x7dc4d58d0400 size: 13747200
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47308800, provided ptr: 0x7dc4d6323a00 size: 15595008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47308800, provided ptr: 0x7dc4d6323a00 size: 15622656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 94617600, provided ptr: 0x7dc45a200000 size: 27556608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 94617600, provided ptr: 0x7dc45a200000 size: 27570432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 141926400, provided ptr: 0x7dc3fac00000 size: 40683008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 141926400, provided ptr: 0x7dc3fac00000 size: 40689920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13074432, provided ptr: 0x7dc4d5492400 size: 12020736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13074432, provided ptr: 0x7dc4d54a4400 size: 12076032
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x7dc4d64b0a00 size: 11417088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x7dc4d64b6600 size: 11444736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65372160, provided ptr: 0x7dc459400000 size: 19200768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65372160, provided ptr: 0x7dc4d5bc4400 size: 19214592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x7dc414c00000 size: 28149248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x7dc4d5e5c000 size: 28156160
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12730368, provided ptr: 0x7dc4d547a400 size: 11922432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12730368, provided ptr: 0x7dc4d548c400 size: 11977728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 31825920, provided ptr: 0x7dc4d642ca00 size: 11171328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 31825920, provided ptr: 0x7dc4d6432600 size: 11198976
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63651840, provided ptr: 0x7dc459800000 size: 18709248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63651840, provided ptr: 0x7dc4d5b7c400 size: 18723072
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 95477760, provided ptr: 0x7dc414c00000 size: 27411968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 95477760, provided ptr: 0x7dc4d5e02000 size: 27418880
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{64, 1024}
+b_grid_desc_n_bk_container_{1024, 1024}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{64, 1024}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+a_grid_desc_m_ak_container_{1024, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{1024, 384}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x7dc4d5d0ca00 size: 9451008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x7dc4d5d0ca00 size: 9478656
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+a_grid_desc_m_ak_container_{4864, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4864, 192}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51609600, provided ptr: 0x7dc4d6413000 size: 15268608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51609600, provided ptr: 0x7dc4d6413000 size: 15282432
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+a_grid_desc_m_ak_container_{19264, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{19264, 128}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x7dc4d6618e00 size: 22251008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x7dc4d6618e00 size: 22257920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{128, 3072}
+b_grid_desc_n_bk_container_{768, 3072}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{128, 768}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+a_grid_desc_m_ak_container_{896, 1536}
+b_grid_desc_n_bk_container_{384, 1536}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{896, 384}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x7dc4d5d34600 size: 8467968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x7dc4d5d3a200 size: 8495616
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+a_grid_desc_m_ak_container_{4224, 768}
+b_grid_desc_n_bk_container_{192, 768}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{4224, 192}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x7dc4d6f7a200 size: 13302528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x7dc4d6f7d200 size: 13316352
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+a_grid_desc_m_ak_container_{16704, 384}
+b_grid_desc_n_bk_container_{128, 384}
+e_grid_desc_mblock_mperblock_nblock_nperblock_container_{16704, 128}
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7dc3fd600000 size: 19301888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7dc415400000 size: 19308800
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x7dc4d5756400 size: 12708864
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x7dc4d5768400 size: 12764160
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x7dc4d6a68a00 size: 13137408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x7dc4d6a6e600 size: 13165056
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x7dc3fbc00000 size: 22641408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x7dc3fbc00000 size: 22655232
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x7dc3f8800000 size: 33310208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x7dc3f8800000 size: 33317120
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15138816, provided ptr: 0x7dc4d5732400 size: 12610560
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15138816, provided ptr: 0x7dc4d5744400 size: 12665856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x7dc4d69d8a00 size: 12891648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x7dc4d69de600 size: 12919296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 75694080, provided ptr: 0x7dc3f8600000 size: 22149888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 75694080, provided ptr: 0x7dc3f8600000 size: 22163712
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x7dc3f6400000 size: 32572928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x7dc3f6400000 size: 32579840
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14794752, provided ptr: 0x7dc4d570e400 size: 12512256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14794752, provided ptr: 0x7dc4d5720400 size: 12567552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36986880, provided ptr: 0x7dc4d6948a00 size: 12645888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36986880, provided ptr: 0x7dc4d694e600 size: 12673536
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 73973760, provided ptr: 0x7dc3f8600000 size: 21658368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 73973760, provided ptr: 0x7dc3f8600000 size: 21672192
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 110960640, provided ptr: 0x7dc3f3a00000 size: 31835648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 110960640, provided ptr: 0x7dc3f5c00000 size: 31842560
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13418496, provided ptr: 0x7dc4d54aa400 size: 12119040
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13418496, provided ptr: 0x7dc4d54bc400 size: 12174336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33546240, provided ptr: 0x7dc4d6534a00 size: 11662848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33546240, provided ptr: 0x7dc4d653a600 size: 11690496
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7dc3f4600000 size: 19692288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7dc4d5c0c400 size: 19706112
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100638720, provided ptr: 0x7dc3f2800000 size: 28886528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100638720, provided ptr: 0x7dc4d5eb6000 size: 28893440
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x7dc4d54c2400 size: 12217344
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x7dc4d54d4400 size: 12272640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x7dc4d65b8a00 size: 11908608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x7dc4d65be600 size: 11936256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x7dc3f3600000 size: 20183808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x7dc4d5c54400 size: 20197632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7dc3f1600000 size: 29623808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7dc4d5f10000 size: 29630720
+[ref] rendering shared reference clip: This short clip defines the target speaker for fine-tuning.
+[render] took=7.2s sr=24000 lang=English chars=59
+[utt] zh01 (Chinese): 清晨的露水挂在竹叶上闪闪发光。
+[render] took=3.8s sr=24000 lang=Chinese chars=15
+[utt] zh02 (Chinese): 图书馆今天下午有一场读书分享会。
+[render] took=3.7s sr=24000 lang=Chinese chars=16
+[utt] zh03 (Chinese): 外婆在院子里种了许多茉莉花。
+[render] took=3.5s sr=24000 lang=Chinese chars=14
+[utt] zh04 (Chinese): 这班列车将停靠三个沿海城市。
+[render] took=2.9s sr=24000 lang=Chinese chars=14
+[utt] zh05 (Chinese): 弟弟把作业本忘在了教室里。
+[render] took=3.0s sr=24000 lang=Chinese chars=13
+[utt] zh06 (Chinese): 山间的小溪一年四季都在流淌。
+[render] took=4.5s sr=24000 lang=Chinese chars=14
+[utt] en01 (English): The morning ferry crosses the bay in twenty minutes.
+[render] took=4.4s sr=24000 lang=English chars=52
+[utt] en02 (English): She keeps a small notebook beside the kitchen window.
+[render] took=4.4s sr=24000 lang=English chars=53
+[utt] en03 (English): Our neighbor plays the piano every Sunday evening.
+[render] took=4.5s sr=24000 lang=English chars=50
+[utt] en04 (English): The bakery on Miller Street opens at seven sharp.
+[render] took=4.4s sr=24000 lang=English chars=49
+[utt] en05 (English): A narrow trail leads up to the old stone bridge.
+[render] took=4.0s sr=24000 lang=English chars=48
+[utt] en06 (English): The children collected shells along the northern shore.
+[render] took=4.1s sr=24000 lang=English chars=55
+[done] 12 records -> /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/train_raw.jsonl
+[done] shared ref_audio -> /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav
+	Command being timed: ".venv/bin/python scripts/make_finetune_dataset.py"
+	User time (seconds): 132.00
+	System time (seconds): 2.38
+	Percent of CPU this job got: 216%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 1:01.98
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 4872596
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 0
+	Minor (reclaiming a frame) page faults: 1768701
+	Voluntary context switches: 27468
+	Involuntary context switches: 27000
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 1289328
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
+generator-exit=0
+
+$ ls -la .work-finetune/data/
+total 1988
+drwxrwxr-x 2 amd amd   4096  9月 21 00:07 .
+drwxrwxr-x 3 amd amd   4096  9月 21 00:06 ..
+-rw-rw-r-- 1 amd amd    548  9月 21 00:07 dataset_report.txt
+-rw-rw-r-- 1 amd amd 211244  9月 21 00:06 ref_speaker.wav
+-rw-rw-r-- 1 amd amd   2677  9月 21 00:07 train_raw.jsonl
+-rw-rw-r-- 1 amd amd 172844  9月 21 00:06 utt_en01.wav
+-rw-rw-r-- 1 amd amd 172844  9月 21 00:06 utt_en02.wav
+-rw-rw-r-- 1 amd amd 169004  9月 21 00:06 utt_en03.wav
+-rw-rw-r-- 1 amd amd 165164  9月 21 00:07 utt_en04.wav
+-rw-rw-r-- 1 amd amd 149804  9月 21 00:07 utt_en05.wav
+-rw-rw-r-- 1 amd amd 153644  9月 21 00:07 utt_en06.wav
+-rw-rw-r-- 1 amd amd 145964  9月 21 00:06 utt_zh01.wav
+-rw-rw-r-- 1 amd amd 142124  9月 21 00:06 utt_zh02.wav
+-rw-rw-r-- 1 amd amd 115244  9月 21 00:06 utt_zh03.wav
+-rw-rw-r-- 1 amd amd 115244  9月 21 00:06 utt_zh04.wav
+-rw-rw-r-- 1 amd amd  99884  9月 21 00:06 utt_zh05.wav
+-rw-rw-r-- 1 amd amd 172844  9月 21 00:06 utt_zh06.wav
+
+$ cat .work-finetune/data/dataset_report.txt
+manifest: /home/amd/Desktop/Qwen3-TTS-ROCm/tests/data/finetune_manifest.json
+speaker: serena  language-mode: explicit  max_new_tokens: 512  reseed-per-render: 1234
+zh01	Chinese	3.04s	utt_zh01.wav
+zh02	Chinese	2.96s	utt_zh02.wav
+zh03	Chinese	2.40s	utt_zh03.wav
+zh04	Chinese	2.40s	utt_zh04.wav
+zh05	Chinese	2.08s	utt_zh05.wav
+zh06	Chinese	3.60s	utt_zh06.wav
+en01	English	3.60s	utt_en01.wav
+en02	English	3.60s	utt_en02.wav
+en03	English	3.52s	utt_en03.wav
+en04	English	3.44s	utt_en04.wav
+en05	English	3.12s	utt_en05.wav
+en06	English	3.20s	utt_en06.wav
+
+$ cat .work-finetune/data/train_raw.jsonl
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh01.wav", "text": "清晨的露水挂在竹叶上闪闪发光。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh02.wav", "text": "图书馆今天下午有一场读书分享会。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh03.wav", "text": "外婆在院子里种了许多茉莉花。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh04.wav", "text": "这班列车将停靠三个沿海城市。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh05.wav", "text": "弟弟把作业本忘在了教室里。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh06.wav", "text": "山间的小溪一年四季都在流淌。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_en01.wav", "text": "The morning ferry crosses the bay in twenty minutes.", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_en02.wav", "text": "She keeps a small notebook beside the kitchen window.", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_en03.wav", "text": "Our neighbor plays the piano every Sunday evening.", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_en04.wav", "text": "The bakery on Miller Street opens at seven sharp.", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_en05.wav", "text": "A narrow trail leads up to the old stone bridge.", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_en06.wav", "text": "The children collected shells along the northern shore.", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav"}
+
+=== PHASE 4.4: OFFICIAL DATA PREPARATION (4B) — upstream prepare_data.py AS-IS — 2026-09-21T00:07:23+08:00 ===
+$ (cd .upstream/Qwen3-TTS/finetuning && $PWD/../../.venv/bin/python prepare_data.py --device cuda:0 --tokenizer_model_path <models/Qwen3-TTS-Tokenizer-12Hz> --input_jsonl <.work-finetune/data/train_raw.jsonl> --output_jsonl <.work-finetune/data/train_with_codes.jsonl>)
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+warning: xnack 'Off' was requested for a processor that does not support it!
+warning: xnack 'Off' was requested for a processor that does not support it!
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/models/mimi/modeling_mimi.py:898: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+prepare-exit=0
+
+$ wc -l .work-finetune/data/train_with_codes.jsonl && head -c 600 .work-finetune/data/train_with_codes.jsonl
+12 .work-finetune/data/train_with_codes.jsonl
+{"audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/utt_zh01.wav", "text": "清晨的露水挂在竹叶上闪闪发光。", "ref_audio": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/data/ref_speaker.wav", "audio_codes": [[1995, 1159, 1840, 22, 76, 1412, 641, 1202, 993, 266, 743, 990, 1110, 1484, 1772, 1435], [387, 468, 709, 1558, 1191, 1367, 562, 1274, 1673, 147, 1552, 436, 1411, 482, 1165, 1490], [631, 616, 1509, 1735, 401, 710, 235, 21, 1337, 1235, 1351, 892, 135, 324, 950, 413], [130, 2, 1728, 729, 1716, 1715, 1809, 700, 1820, 1052, 913, 708, 731, 635, 39, 1393], [209, 446, 
+$ python -c 'check schema: every line has audio/text/ref_audio/audio_codes, codes are 16-wide lists'
+utt_zh01.wav: 38 codec frames x16, text chars=15
+utt_zh02.wav: 37 codec frames x16, text chars=16
+utt_zh03.wav: 30 codec frames x16, text chars=14
+utt_zh04.wav: 30 codec frames x16, text chars=14
+utt_zh05.wav: 26 codec frames x16, text chars=13
+utt_zh06.wav: 45 codec frames x16, text chars=14
+utt_en01.wav: 45 codec frames x16, text chars=52
+utt_en02.wav: 45 codec frames x16, text chars=53
+utt_en03.wav: 44 codec frames x16, text chars=50
+utt_en04.wav: 43 codec frames x16, text chars=49
+utt_en05.wav: 39 codec frames x16, text chars=48
+utt_en06.wav: 40 codec frames x16, text chars=55
+SCHEMA-OK: 12 lines, all with audio_codes (t x 16)
+schema-check exit=0
+
+=== PHASE 4.5: TRAINING SMOKE (4C) — attempt 1: upstream sft_12hz.py COMPLETELY AS-IS — 2026-09-21T00:07:49+08:00 ===
+Config: 1.7B Base, batch_size=2 (script default), lr=2e-5 (default), num_epochs=2, speaker_name=smoke_speaker
+$ (cd .upstream/Qwen3-TTS/finetuning && $REPO/.venv/bin/python sft_12hz.py --init_model_path <models/Qwen3-TTS-12Hz-1.7B-Base> --output_model_path <.work-finetune/runs/smoke> --train_jsonl <.work-finetune/data/train_with_codes.jsonl> --num_epochs 2 --speaker_name smoke_speaker) 2>&1 | tail -40
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+Traceback (most recent call last):
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.upstream/Qwen3-TTS/finetuning/sft_12hz.py", line 161, in <module>
+    train()
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.upstream/Qwen3-TTS/finetuning/sft_12hz.py", line 48, in train
+    qwen3tts = Qwen3TTSModel.from_pretrained(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py", line 112, in from_pretrained
+    model = AutoModel.from_pretrained(pretrained_model_name_or_path, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 604, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/core/models/modeling_qwen3_tts.py", line 1876, in from_pretrained
+    model = super().from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4971, in from_pretrained
+    model = cls(config, *model_args, **model_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/core/models/modeling_qwen3_tts.py", line 1817, in __init__
+    super().__init__(config)
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2076, in __init__
+    self.config._attn_implementation_internal = self._check_and_adjust_attn_implementation(
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2686, in _check_and_adjust_attn_implementation
+    applicable_attn_implementation = self.get_correct_attn_implementation(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2714, in get_correct_attn_implementation
+    self._flash_attn_2_can_dispatch(is_init_check)
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2422, in _flash_attn_2_can_dispatch
+    raise ImportError(f"{preface} the package flash_attn seems to be not installed. {install_message}")
+ImportError: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+as-is-run-exit=0
+
+=== PHASE 4.5 (cont.): ORCHESTRATOR-RULING DEVIATION — minimal single-line attn override in .upstream clone — 2026-09-21T00:08:13+08:00 ===
+Ruling: flash_attention_2 is hard-coded at sft_12hz.py:51 and absent from the validated ROCm stack;
+apply the MINIMAL disclosed deviation INSIDE the gitignored .upstream clone, restore pristine afterwards.
+applied single-line replacement: 'attn_implementation="flash_attention_2",' -> 'attn_implementation="sdpa",' (1 occurrence)
+edit-exit=0
+
+$ git -C .upstream/Qwen3-TTS diff   (EXACT diff of the disclosed temporary workaround)
+diff --git a/finetuning/sft_12hz.py b/finetuning/sft_12hz.py
+index c1f3f46..b5eae64 100644
+--- a/finetuning/sft_12hz.py
++++ b/finetuning/sft_12hz.py
+@@ -48,7 +48,7 @@ def train():
+     qwen3tts = Qwen3TTSModel.from_pretrained(
+         MODEL_PATH,
+         torch_dtype=torch.bfloat16,
+-        attn_implementation="flash_attention_2",
++        attn_implementation="sdpa",
+     )
+     config = AutoConfig.from_pretrained(MODEL_PATH)
+ 
+
+=== PHASE 4.5 (cont.): TRAINING RUN via launcher (official train(), disclosed sdpa line) — 2026-09-21T00:08:31+08:00 ===
+$ .venv/bin/python .work-finetune/run_sft_launcher.py --init_model_path models/Qwen3-TTS-12Hz-1.7B-Base --output_model_path .work-finetune/runs/smoke --train_jsonl .work-finetune/data/train_with_codes.jsonl --batch_size 2 --lr 2e-5 --num_epochs 2 --speaker_name smoke_speaker
+(MIOpen a_grid/b_grid/e_grid tuning lines filtered from stream for readability; command shown includes the grep -v)
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/accelerate/accelerator.py:529: UserWarning: `log_with=tensorboard` was passed but no supported trackers are currently installed.
+  warnings.warn(f"`log_with={log_with}` was passed but no supported trackers are currently installed.")
+`torch_dtype` is deprecated! Use `dtype` instead!
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+Epoch 0 | Step 0 | Loss: 13.6470
+Epoch 1 | Step 0 | Loss: 15.0211
+[launcher] train() wall seconds: 19.0
+[launcher] torch.cuda.get_device_name(0): AMD Radeon 8060S Graphics
+[launcher] torch.cuda.max_memory_allocated: 18.024 GiB
+[launcher] torch.cuda.max_memory_reserved: 18.486 GiB
+training-exit=0
+
+$ ls -la .work-finetune/runs/smoke/ .work-finetune/runs/smoke/checkpoint-epoch-1/
+.work-finetune/runs/smoke/:
+total 16
+drwxrwxr-x 4 amd amd 4096  9月 21 00:08 .
+drwxrwxr-x 3 amd amd 4096  9月 21 00:08 ..
+drwxrwxr-x 3 amd amd 4096  9月 21 00:08 checkpoint-epoch-0
+drwxrwxr-x 3 amd amd 4096  9月 21 00:08 checkpoint-epoch-1
+
+.work-finetune/runs/smoke/checkpoint-epoch-1/:
+total 3748016
+drwxrwxr-x 3 amd amd       4096  9月 21 00:08 .
+drwxrwxr-x 4 amd amd       4096  9月 21 00:08 ..
+-rw-rw-r-- 1 amd amd       4538  9月 21 00:08 config.json
+-rw-rw-r-- 1 amd amd         47  8月 27 13:22 configuration.json
+-rw-rw-r-- 1 amd amd        245  8月 27 13:22 generation_config.json
+-rw-rw-r-- 1 amd amd       2247  8月 27 13:22 .gitattributes
+-rw-rw-r-- 1 amd amd    1671839  8月 27 13:22 merges.txt
+-rw------- 1 amd amd 3833402520  9月 21 00:08 model.safetensors
+-rw-rw-r-- 1 amd amd          0  8月 27 13:26 .ok
+-rw-rw-r-- 1 amd amd        127  8月 27 13:22 preprocessor_config.json
+-rw-rw-r-- 1 amd amd      57817  8月 27 13:22 README.md
+drwxrwxr-x 2 amd amd       4096  8月 27 13:23 speech_tokenizer
+-rw-rw-r-- 1 amd amd       7344  8月 27 13:22 tokenizer_config.json
+-rw-rw-r-- 1 amd amd    2776833  8月 27 13:22 vocab.json
+
+=== PHASE 4.6: CHECKPOINT RELOAD + SYNTHESIS (4D, mandatory) — 2026-09-21T00:09:23+08:00 ===
+$ .venv/bin/python .work-finetune/reload_check.py   (official from_pretrained path on checkpoint-epoch-1)
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/runs/smoke/checkpoint-epoch-1 … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+[reload] loaded; supported speakers: ['smoke_speaker']
+[reload] generate_custom_voice took=6.1s sr=24000 n_wavs=1
+[reload] WAV-SANE=True finite=True sr=24000 (expect 24000) duration_s=3.52 (bounds 0.5-60) peak=0.2158 rms=0.03778
+[reload] wrote /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/runs/smoke/reload_synth_en01.wav
+RELOAD-AND-SYNTHESIS-OK
+reload-exit=0
+
+$ python -c 'checkpoint config sanity: tts_model_type + spk_id row 3000'
+tts_model_type: custom_voice
+talker_config.spk_id: {'smoke_speaker': 3000}
+talker_config.spk_is_dialect: {'smoke_speaker': False}
+config-check exit=0
+
+=== PHASE 4.5/4.6 CLOSEOUT: restore .upstream clone to pristine at pinned SHA (zero-patch audit) — 2026-09-21T00:09:47+08:00 ===
+$ git -C .upstream/Qwen3-TTS checkout -- .
+checkout-exit=0
+$ git -C .upstream/Qwen3-TTS status --porcelain   (expect EMPTY)
+[status lines: 0]
+$ git -C .upstream/Qwen3-TTS rev-parse HEAD   (expect 022e286b98fbec7e1e916cb940cdf532cd9f488e)
+022e286b98fbec7e1e916cb940cdf532cd9f488e
+
+--- environment fact capture for evidence JSON ---
+$ .venv/bin/python -c 'import torch,qwen_tts; print versions' / rocminfo / rocm-smi
+torch: 2.12.0+rocm7.14.0
+hip: 7.14.60850
+cuda_avail: True | device: AMD Radeon 8060S Graphics
+Name: qwen-tts
+Version: 0.1.1
+  Marketing Name:          AMD RYZEN AI MAX+ PRO 395 w/ Radeon 8060S
+  Name:                    gfx1151                            
+  Marketing Name:          AMD Radeon Graphics                
+$ uname -r && .venv/bin/python --version
+6.17.0-1032-oem
+Python 3.12.3
+
+=== PHASE 4.9: TEST SUITES — 2026-09-21T00:18:47+08:00 ===
+$ .venv/bin/python -m pytest -m 'not gpu' -q   (brief Step 4.9 exact command)
+....................................                                     [100%]
+252 passed, 38 deselected in 15.95s
+cpu-suite-exit=0
+(full suite incl. real-GPU was also run once for the README count refresh: 290 passed, 3 warnings, 324.76s)
+
+=== PHASE 4.10: FINAL VERIFICATION BLOCK — 2026-09-21T00:23:32+08:00 ===
+$ git -C .upstream/Qwen3-TTS status --porcelain | wc -l   (zero-patch audit; expect 0)
+0
+$ git -C .upstream/Qwen3-TTS rev-parse HEAD
+022e286b98fbec7e1e916cb940cdf532cd9f488e
+$ git -C .upstream/Qwen3-TTS diff --stat | wc -l   (expect 0)
+0
+
+$ git status --porcelain   (repo boundary: NO .upstream/, .work-finetune/, checkpoints, wavs)
+ M .gitignore
+ M CHANGELOG.md
+ M README.md
+ M README_CN.md
+ M evidence/README.md
+?? docs/finetuning-rocm.md
+?? evidence/finetune-smoke-2026-09-20.json
+?? evidence/finetune-smoke-2026-09-20.txt
+?? scripts/make_finetune_dataset.py
+?? tests/data/finetune_manifest.json
+?? tests/test_finetune_dataset.py
+
+$ git check-ignore -v .upstream/Qwen3-TTS .work-finetune/data voices 2>&1   (gitignore effectiveness)
+.gitignore:27:.upstream/	.upstream/Qwen3-TTS
+.gitignore:28:.work-finetune/	.work-finetune/data
+check-ignore exit=0
+
+$ grep -rn 'quality\|MOS\|sounds good' docs/finetuning-rocm.md | grep -viE 'no quality|NOT.*quality|quality claim|quality/convergence|quality conclusions|quality \(|quality 结论|quality is' || true
+docs/finetuning-rocm.md:13:> modelling quality. See [NOT PROVEN](#not-proven) for the explicit list.
+docs/finetuning-rocm.md:215:* **Speaker-similarity quality** — no embedding-distance or MOS-style
+docs/finetuning-rocm.md:217:* **Convergence quality** — 12 steps on 12 synthetic clips; the loss values
+scope-sweep done
+
+--- transcript clarification (machine-appended, 2026-09-21T00:23:54+08:00) ---
+1) In the PHASE 4.1 retry loop, lines reading 'exit=0 (attempt N failed)' carry a WRONG exit
+   number: the shell $? in that loop captured the exit of the preceding 'echo' statement, not
+   of git ls-remote. The verbatim git error text on those lines (GnuTLS -110 / connect timeout)
+   is the authoritative failure record; ls-remote exited 128 on every failed attempt.
+2) 'voices' gitignore pattern is directory-only; verified with a nested path below.
+.gitignore:29:voices/	voices/.keep
+check-ignore-nested exit=0

@@ -1,0 +1,31 @@
+{
+  "_comment": [
+    "Task 4 self-generated fine-tuning corpus (execution-validation smoke only —",
+    "NO quality claims). 12 original short utterances: 6 Chinese + 6 English.",
+    "Every text is distinct from tests/data/multilingual_samples.json.",
+    "Rendered to wav by scripts/make_finetune_dataset.py via the OFFICIAL",
+    "custom-voice model (self-generated speech only; no third-party audio),",
+    "with torch.manual_seed(1234) before each render and max_new_tokens=512.",
+    "The transcript rule: transcript == the manifest text used to generate.",
+    "'reference' is one extra self-generated clip used as the shared ref_audio",
+    "for all samples (upstream README: use the same ref_audio for all samples)."
+  ],
+  "reference": {
+    "language": "English",
+    "text": "This short clip defines the target speaker for fine-tuning."
+  },
+  "samples": [
+    {"id": "zh01", "language": "Chinese", "text": "清晨的露水挂在竹叶上闪闪发光。"},
+    {"id": "zh02", "language": "Chinese", "text": "图书馆今天下午有一场读书分享会。"},
+    {"id": "zh03", "language": "Chinese", "text": "外婆在院子里种了许多茉莉花。"},
+    {"id": "zh04", "language": "Chinese", "text": "这班列车将停靠三个沿海城市。"},
+    {"id": "zh05", "language": "Chinese", "text": "弟弟把作业本忘在了教室里。"},
+    {"id": "zh06", "language": "Chinese", "text": "山间的小溪一年四季都在流淌。"},
+    {"id": "en01", "language": "English", "text": "The morning ferry crosses the bay in twenty minutes."},
+    {"id": "en02", "language": "English", "text": "She keeps a small notebook beside the kitchen window."},
+    {"id": "en03", "language": "English", "text": "Our neighbor plays the piano every Sunday evening."},
+    {"id": "en04", "language": "English", "text": "The bakery on Miller Street opens at seven sharp."},
+    {"id": "en05", "language": "English", "text": "A narrow trail leads up to the old stone bridge."},
+    {"id": "en06", "language": "English", "text": "The children collected shells along the northern shore."}
+  ]
+}

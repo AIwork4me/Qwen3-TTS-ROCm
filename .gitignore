@@ -22,6 +22,12 @@ models/
 # reproducible via scripts/make_ref_wav.py, needed by the clone/tokenizer suites.
 !src/qwen3_tts_rocm/demo/assets/ref_en.wav
 
+# Fine-tuning (Task 4): pinned upstream clone (never vendored into this repo),
+# scratch dataset/runs, and generated speaker voices — all gitignored.
+.upstream/
+.work-finetune/
+voices/
+
 # OS/editor
 .DS_Store
 .superpowers/
