@@ -119,6 +119,81 @@ Per-alias reading:
   for gfx1151 owners is across *their own* config changes (dtype, attention
   impl, token cap, driver/toolchain updates) using the reproduce block below.
 
+## Cross-day replication (1.7B: 2026-08-27 → 2026-09-21; 0.6B: 2026-09-20 → 2026-09-21)
+
+Both archived benchmark sets were re-run on 2026-09-21 (git HEAD `6df5e86`,
+same host, same `scripts/benchmark.py` defaults: warmup on, n=2 measured
+runs per cell, `max_new_tokens=512`) to see how the published numbers survive
+a day boundary. One date correction, read from the artifacts themselves: the
+in-repo 1.7B baseline session is dated **2026-08-27T17:12:40+08:00**
+(`evidence/benchmark.json → meta.date`), so the 1.7B rows below actually span
+2026-08-27 → 2026-09-21; only the 0.6B baseline was recorded on 2026-09-20.
+Caption for everything below: **two days, n=2 per day, iGPU with
+thermal/background variance — indicative, not a controlled study.**
+
+### 1.7B set — median RTF, 2026-08-27 vs 2026-09-21
+
+| alias | lang | len | median RTF 08-27 | median RTF 09-21 | delta |
+|---|---|---|---|---|---|
+| custom-voice | cn | short | 1.37 | 1.21 | −11.6% |
+| custom-voice | cn | medium | 1.38 | 1.35 | −2.1% |
+| custom-voice | en | short | 1.51 | 1.47 | −2.7% |
+| custom-voice | en | medium | 1.31 | 1.27 | −3.1% |
+| voice-design | cn | short | 1.27 | 1.33 | +4.5% |
+| voice-design | cn | medium | 1.40 | 1.35 | −3.4% |
+| voice-design | en | short | 1.62 | 1.52 | −6.1% |
+| voice-design | en | medium | 1.38 | 1.25 | −9.2% |
+| base | cn | short | 1.73 | 1.40 | −19.0% |
+| base | cn | medium | 1.71 | 1.31 | −23.6% |
+| base | en | short | 1.88 | 1.37 | −26.9% |
+| base | en | medium | 1.81 | 1.27 | −29.4% |
+
+### 0.6B set — median RTF, 2026-09-20 vs 2026-09-21
+
+| alias | lang | len | median RTF 09-20 | median RTF 09-21 | delta |
+|---|---|---|---|---|---|
+| custom-voice-0.6b | cn | short | 1.03 | 1.06 | +2.5% |
+| custom-voice-0.6b | cn | medium | 1.15 | 1.11 | −3.6% |
+| custom-voice-0.6b | en | short | 1.30 | 1.23 | −5.2% |
+| custom-voice-0.6b | en | medium | 1.08 | 1.04 | −3.9% |
+| base-0.6b | cn | short | 1.22 | 1.16 | −4.7% |
+| base-0.6b | cn | medium | 1.19 | 1.18 | −0.9% |
+| base-0.6b | en | short | 1.22 | 1.23 | +1.2% |
+| base-0.6b | en | medium | 1.26 | 1.15 | −8.7% |
+
+### 0.6B set — per-alias load / peak memory
+
+| alias | metric | 2026-09-20 | 2026-09-21 | delta |
+|---|---|---|---|---|
+| custom-voice-0.6b | load_seconds | 4.041 | 4.062 | +0.5% |
+| custom-voice-0.6b | peak_alloc_gb | 2.802 | 2.778 | −0.9% |
+| base-0.6b | load_seconds | 1.547 | 1.493 | −3.5% |
+| base-0.6b | peak_alloc_gb | 3.104 | 3.048 | −1.8% |
+
+Variance observations only (no conclusions beyond):
+
+* **0.6B day-over-day (the true 09-20 → 09-21 pair):** every cell moved
+  −8.7% … +2.5%, and load/peak memory within ±3.5% — consistent with the
+  documented day-to-day jitter of this iGPU.
+* **1.7B custom-voice / voice-design (25-day gap):** −11.6% … +4.5%, same
+  envelope.
+* **1.7B `base` is the outlier:** all four cells improved 19–29%, same
+  direction — outside the envelope of the other 20 cells. Investigation
+  (transcript-level; the >2× anomaly threshold is not met, so no
+  variance-investigation re-run was spent — largest delta −29%): the
+  baseline session's discarded `base` warmup had run the uncapped
+  2048-token degenerate loop for **1396 s of sustained full iGPU load
+  immediately before its cells were measured**, while this session's warmup
+  terminated in 9.7 s — i.e. the baseline cells ran on a heat-soaked APU —
+  and its cn/medium cell also sampled much longer audio (28.6 s vs 16.2 s),
+  which raises per-token attention cost on the manual SDPA path. Same
+  git-tracked script and torch/driver stack; direction and magnitude are
+  consistent with thermal state plus sampled-output length, not a code
+  change.
+* Warmups this session terminated in 5.8 s / 4.9 s / 9.7 s (custom-voice /
+  voice-design / base): the degenerate warmup loop did not recur.
+* **No cell in either set deviates by more than 2×** between sessions.
+
 ## Reproduce
 
 ```bash
@@ -143,7 +218,10 @@ rows so a rerun pastes straight into this file.
 |---|---|
 | `evidence/benchmark-run.txt` | Raw stdout+stderr of the recorded session: per-call `[bench]` lines, markdown table, MIOpen/ck noise, exit code |
 | `evidence/benchmark.json` | Machine-readable `{meta:{host,gpu,cpu,torch_version_hip,date,args,...}, results:[per-cell RTF lists + summaries]}` |
-| `scripts/benchmark.py` | Generator for both of the above |
+| `evidence/benchmark-2026-09-21.{txt,json}` | Same pair for the 2026-09-21 cross-day replication session (1.7B set, git HEAD `6df5e86`) |
+| `evidence/benchmark-06b-2026-09-20.{txt,json}` | Same pair for the 0.6B baseline session (2026-09-20) |
+| `evidence/benchmark-06b-2026-09-21.{txt,json}` | Same pair for the 2026-09-21 0.6B replication session |
+| `scripts/benchmark.py` | Generator for all of the above |
 
 Related evidence: the in-repo record of a runaway is the raw line
 `[bench] warmup alias=base took=1396.0s (discarded)` in

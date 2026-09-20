@@ -170,6 +170,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Verified
 
+- Cross-day benchmark replication (2026-09-21, Step E): both archived sets
+  re-run with unchanged methodology (warmup + n=2/cell,
+  `max_new_tokens=512`, git HEAD `6df5e86`) —
+  `evidence/benchmark-2026-09-21.{json,txt}` (1.7B set) and
+  `evidence/benchmark-06b-2026-09-21.{json,txt}` (0.6B set), delta tables in
+  `docs/benchmarks.md` ("Cross-day replication"). Variance observations
+  only: the true 09-20 → 09-21 0.6B pair moved −8.7%…+2.5% per cell (load /
+  peak memory ±3.5%); 1.7B custom-voice / voice-design −11.6%…+4.5%; the
+  1.7B `base` alias improved 19–29% in all four cells — investigated at
+  transcript level (baseline cells were measured immediately after the
+  1396 s uncapped degenerate warmup, i.e. a heat-soaked iGPU, and its
+  cn/medium cell sampled 28.6 s vs 16.2 s of audio); no cell deviates >2×,
+  so the variance-investigation re-run budget stayed unused.
 - True-streaming probe on gfx1151 (2026-09-21, Step D): the installed
   official `qwen-tts` 0.1.1 Python API exposes **no incremental-audio
   path** — all three generate_* entry points are blocking functions
@@ -210,6 +223,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Test-count truing in README / README_CN: current-state claims updated to
+  the suite as it stands — 267 CPU + 38 GPU = **305/305** on the validation
+  host (CPU-only CI runs the same 267 CPU tests with 1 HIP-gated skip);
+  the first-verified-CI-run note (push `8815238`) is now explicitly dated
+  to when the suite stood at 252 CPU tests, so its `251 passed, 1 skipped,
+  38 deselected` per Python job stays accurate for its date.
 - Claims-consistency round: runtime messages no longer make claims the
   project cannot back — the first-load announcement describes cache/kernel
   causes instead of predicting "tens of seconds", and the flash-attn guard
