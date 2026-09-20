@@ -159,7 +159,7 @@ Upstream modifications remain **ZERO**:
 | CPU (`pytest -m 'not gpu'`) | 252 | all pass on the validation host (includes the 1 HIP-gated test) |
 | GPU (`pytest -m gpu`) | 38 | all pass on the validation host (real synthesis, weights required) |
 | Validation-host total | 290 | **290 / 290** |
-| CPU-only CI (`pytest -m "not gpu and not requires_download"`) | 252 | same 252 tests on Python 3.10/3.11/3.12 with **1 HIP-gated skip** (no AMD GPU on the runner) |
+| CPU-only CI (`pytest -m "not gpu and not requires_download"`) | 252 | same 252 tests on Python 3.10/3.11/3.12 with **1 HIP-gated skip** (no AMD GPU on the runner). **First verified run: all jobs green at push `8815238`** — [run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415), `251 passed, 1 skipped, 38 deselected` per Python job (transcript: `evidence/ci-2026-09-21-8815238.txt`) |
 | Lint | — | `ruff check .` clean |
 | Subagent verification | 5 tasks | **5 / 5 PASS** — verifier reports committed verbatim at [superpowers/reports/](superpowers/reports/) |
 

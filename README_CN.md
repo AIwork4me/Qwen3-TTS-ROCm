@@ -149,6 +149,10 @@ wav, sr, gen_s = voice_workflow.reuse_voice(  # 任意新句子，同一音色
 CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上运行的是同样这 252 项 CPU 测试，
 其中 1 项 HIP 环境门控测试因 CI 机器没有 AMD GPU 而跳过。在实际 ROCm
 验证主机上该项也会执行，因此最终为 252 CPU + 38 GPU = 290 / 290 全通过。
+本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
+35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415)，
+每个 Python job `251 passed, 1 skipped, 38 deselected`——转录见
+`evidence/ci-2026-09-21-8815238.txt`）。
 
 下面是验证真机上实拍的演示标签页：
 

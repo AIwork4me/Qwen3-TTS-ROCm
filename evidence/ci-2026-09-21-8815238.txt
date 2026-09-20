@@ -1,0 +1,16 @@
+# CI evidence — first verified run on push head 8815238
+date: 2026-09-21  repo-head: a02b70b0a16704b36cb59df2d56b74ede51ab5bc  run: 35526426415
+
+== gh run list --limit 3 ==
+completed	success	docs: align project with capability-first Radeon validation (North St…	ci	main	push	35526426415	1m41s	2026-09-20T17:36:57Z
+completed	success	chore(evidence): record real in-container GPU synthesis	ci	main	push	33281176076	1m34s	2026-08-29T23:31:37Z
+completed	success	chore(evidence): record first-user acceptance round and suite rerun	ci	main	push	33253206968	1m31s	2026-08-29T12:43:07Z
+
+== run jobs (gh api) ==
+test (3.10)	success	2026-09-20T17:37:01Z
+test (3.12)	success	2026-09-20T17:37:00Z
+build	success	2026-09-20T17:37:00Z
+test (3.11)	success	2026-09-20T17:37:00Z
+
+== test(3.10) pytest summary (job 106119278160 logs) ==
+2026-09-20T17:38:35.0680726Z 251 passed, 1 skipped, 38 deselected in 18.46s

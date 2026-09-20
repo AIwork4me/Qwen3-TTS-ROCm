@@ -168,6 +168,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Verified
+
+- First verified CI run on the 0.2.0 suite: push `8815238`, run
+  35526426415 — `test (3.10/3.11/3.12)` + `build` all green,
+  `251 passed, 1 skipped, 38 deselected` per Python job
+  (`evidence/ci-2026-09-21-8815238.txt`); README/README_CN/P0 report now
+  cite the run instead of a host-derived expectation.
+
 ### Changed
 
 - Claims-consistency round: runtime messages no longer make claims the

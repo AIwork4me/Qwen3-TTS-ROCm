@@ -168,7 +168,10 @@ timings: `evidence/voice-workflow-2026-09-20.json`).
 The CPU-only CI matrix runs the same 252 CPU tests on Python 3.10 / 3.11 /
 3.12, with 1 HIP-gated test skipped because no AMD GPU is present on the
 runner. On the validated ROCm host that test also runs, giving 252 CPU +
-38 GPU = 290 / 290.
+38 GPU = 290 / 290. First verified CI run on this suite: all jobs green at
+push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415),
+`251 passed, 1 skipped, 38 deselected` per Python job — transcript:
+`evidence/ci-2026-09-21-8815238.txt`).
 
 The flagship demo tab, captured live on the validation machine:
 
