@@ -1,0 +1,47 @@
+# Upstream issue filed — flash_attention_2 hard-coded in finetuning/sft_12hz.py
+date: 2026-09-21  filed-from: local ROCm validation evidence (evidence/finetune-smoke-2026-09-20.txt)
+
+#372 [OPEN] finetuning/sft_12hz.py hard-codes attn_implementation="flash_attention_2" — official fine-tuning fails out-of-the-box on ROCm (no flash-attn build)
+by AIwork4me at 2026-09-20T21:08:41Z
+https://github.com/QwenLM/Qwen3-TTS/issues/372
+
+=== EDIT 2026-09-21: body corrected to quote the ImportError VERBATIM from evidence/finetune-smoke-2026-09-20.txt:1545 (fix-round 1 after verifier FAIL on misquote) ===
+Unknown JSON field: "editor"
+Available fields:
+  assignees
+  author
+  body
+  closed
+  closedAt
+  comments
+  createdAt
+  id
+  labels
+  milestone
+  number
+  projectCards
+  projectItems
+  reactionGroups
+  state
+  title
+  updatedAt
+  url
+--- body excerpt (error block) ---
+fails at model load with (verbatim from our run transcript):
+
+```
+ImportError: FlashAttention2 has been toggled on, but it cannot be used due to
+the following error: the package flash_attn seems to be not installed. Please refer
+--- complete error-block excerpt (re-capture, fix-round 1) ---
+fails at model load with (verbatim from our run transcript):
+
+```
+--- complete error-block excerpt (final re-capture) ---
+fails at model load with (verbatim from our run transcript):
+
+```
+ImportError: FlashAttention2 has been toggled on, but it cannot be used due to
+the following error: the package flash_attn seems to be not installed. Please refer
+to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2
+to install Flash Attention 2.
+```

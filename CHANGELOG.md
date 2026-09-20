@@ -170,6 +170,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Verified
 
+- Filed upstream issue [QwenLM/Qwen3-TTS#372](https://github.com/QwenLM/Qwen3-TTS/issues/372):
+  `finetuning/sft_12hz.py` hard-codes `attn_implementation="flash_attention_2"`, failing
+  out-of-the-box on ROCm; requests a CLI-selectable attention implementation or an
+  `sdpa` fallback (`evidence/upstream-issue-2026-09-21.txt`).
 - First verified CI run on the 0.2.0 suite: push `8815238`, run
   35526426415 — `test (3.10/3.11/3.12)` + `build` all green,
   `251 passed, 1 skipped, 38 deselected` per Python job

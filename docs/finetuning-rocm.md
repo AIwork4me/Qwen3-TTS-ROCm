@@ -84,10 +84,14 @@ Workaround applied for the smoke run (per the program's orchestrator ruling):
 **No upstream code exists anywhere in this repository.** The override lived
 only in the gitignored clone during the run.
 
-> **Recommended action (for the human owner):** file an upstream issue asking
-> for `attn_implementation` to be CLI-selectable in `finetuning/sft_12hz.py`.
-> As shipped it blocks every flash-attn-less stack, including the whole
-> validated AMD ROCm wheel stack this project targets.
+> **Upstream issue filed (2026-09-21):**
+> [QwenLM/Qwen3-TTS#372](https://github.com/QwenLM/Qwen3-TTS/issues/372) —
+> `finetuning/sft_12hz.py` hard-codes `attn_implementation="flash_attention_2"`,
+> which blocks every flash-attn-less stack, including the whole validated AMD
+> ROCm wheel stack this project targets. The issue quotes the failure verbatim
+> from our smoke transcript, asks for a CLI-selectable attention implementation
+> or an automatic `sdpa` fallback (mirroring the inference path), and offers
+> both PR options (gh capture: `evidence/upstream-issue-2026-09-21.txt`).
 
 ---
 
