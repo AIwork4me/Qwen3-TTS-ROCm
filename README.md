@@ -39,7 +39,7 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **305 / 305 on validation host** — 267 CPU + 38 real-GPU |
+| Automated tests | **351 / 351 on validation host** — 313 CPU + 38 real-GPU |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
@@ -165,10 +165,14 @@ per sentence. Reproduce with
 (transcript: `evidence/voice-workflow-2026-09-20.txt`, machine-readable
 timings: `evidence/voice-workflow-2026-09-20.json`).
 
-The CPU-only CI matrix runs the same 267 CPU tests on Python 3.10 / 3.11 /
+The CPU-only CI matrix collects the same 313 CPU tests on Python 3.10 / 3.11 /
 3.12, with 1 HIP-gated test skipped because no AMD GPU is present on the
-runner. On the validated ROCm host that test also runs, giving 267 CPU +
-38 GPU = 305 / 305. First verified CI run on this suite: all jobs green at
+runner — plus, in a plain `.[dev]` environment without the optional
+`[quality]` extra, 15 further *visible* skips (12 jiwer + 3 resemblyzer
+quality-benchmark tests; fixed to skip instead of error by the 2026-09-21
+claims audit after Task 14's unguarded `import jiwer` had turned CI red).
+On the validated ROCm host that test also runs, giving 313 CPU +
+38 GPU = 351 / 351. First verified CI run on this suite: all jobs green at
 push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415),
 `251 passed, 1 skipped, 38 deselected` per Python job — verified 2026-09-21
 when the suite stood at 252 CPU tests; the suite has since grown to the
@@ -302,13 +306,17 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 305/305 on the validated ROCm host (267 CPU + 38
-  real-GPU); the CPU-only CI matrix runs the same 267 CPU tests with
-  1 HIP-gated skip on Python 3.10 / 3.11 / 3.12 (first verified at this
-  size: run
+* **Test suite** — 351/351 on the validated ROCm host (313 CPU + 38
+  real-GPU); the CPU-only CI matrix collects the same 313 CPU tests on
+  Python 3.10 / 3.11 / 3.12 with 1 HIP-gated skip (and the 15 visible
+  `[quality]`-extras skips noted above in a plain `.[dev]` environment;
+  last size-verified green CI run: the 267-CPU era, run
   [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932),
-  `266 passed, 1 skipped`). The upstream-parity proof below is one of the
-  38 GPU tests — it runs on the validation host, not in CPU-only CI (a
+  `266 passed, 1 skipped` — the 313-CPU era had been red from Task 14's
+  undeclared jiwer import until the claims-audit fix; see
+  [`evidence/claims-audit-2026-09-21.md`](evidence/claims-audit-2026-09-21.md)).
+  The upstream-parity proof below is one of the 38 GPU tests — it runs on
+  the validation host, not in CPU-only CI (a
   prepared-but-blocked self-hosted GPU workflow exists; see the GPU CI state
   note above and [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md)).
 
@@ -491,7 +499,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 267 CPU tests (1 HIP-gated skip without an AMD GPU)
+python -m pytest -m "not gpu and not requires_download" -q   # 313 CPU tests (1 HIP-gated skip without an AMD GPU; 15 more skip without .[quality])
 python -m pytest -m "gpu" -q                  # 38 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```

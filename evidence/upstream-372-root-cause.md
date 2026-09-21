@@ -77,10 +77,13 @@ configurable: the inference wrapper's `from_pretrained(**kwargs)` forwards
 anything (`qwen_tts/inference/qwen3_tts_model.py:83-86, :100-101, :112` —
 docstring names `attn_implementation` as a typical kwarg); the upstream CLI
 demo selects it (`qwen_tts/cli/demo.py:104-108` defines
-`--flash-attn/--no-flash-attn`; `demo.py:611-612` maps it to
-`attn_impl = "flash_attention_2" if args.flash_attn else None`). Upstream
-docs/examples *print* `flash_attention_2` (`README.md:161,214,254,302,319`,
-`finetuning/README.md:78`, all four `examples/*.py`), but those are examples,
+`--flash-attn/--no-flash-attn`; `demo.py:606` maps it to
+`attn_impl = "flash_attention_2" if args.flash_attn else None`, which the
+`from_pretrained` call at `demo.py:608-613` passes as `attn_implementation`
+— line 612). Upstream docs/examples *print* `flash_attention_2`
+(`README.md:161,214,254,302,319`, `finetuning/README.md:78`, and 3 of the
+4 `examples/*.py` — `test_tokenizer_12hz.py` contains no such literal;
+citation corrected by the 2026-09-21 claims audit), but those are examples,
 not enforcement. Only `sft_12hz.py:51` hard-codes it in executable code.
 
 **Q3 — passed directly to `Qwen3TTSModel.from_pretrained`?**
@@ -104,7 +107,8 @@ itself supports running without FA2.
 `resolve_attn` (`loader.py:201-224`: explicit arg wins, a requested
 `flash_attention_2` without an importable flash-attn raises a guided error,
 otherwise a HIP GPU gets `"sdpa"`). The whole validated inference stack of this
-repo (capability matrix, 305-test suite) runs on that default.
+repo (capability matrix, 351-test suite — 305 at experiment time, trued by
+the 2026-09-21 claims audit) runs on that default.
 (c) Empirically in this experiment: the official API with the attn argument
 **omitted** resolved `config._attn_implementation = 'sdpa'` and produced a
 sane waveform (§4 phase D).

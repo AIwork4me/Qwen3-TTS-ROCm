@@ -100,9 +100,7 @@ only in the gitignored clone during the run.
 
 ## Upstream fix status
 
-**ROCm E2E execution proven. Upstream portability fix submitted as Qwen3-TTS
-PR #373; current published qwen-tts==0.1.1 still requires the documented
-temporary workaround.**
+**ROCm E2E execution proven. Upstream portability fix submitted as Qwen3-TTS PR #373; current published `qwen-tts==0.1.1` still requires the documented temporary workaround.**
 
 [PR #373](https://github.com/QwenLM/Qwen3-TTS/pull/373) — *"fix(finetuning):
 make attention implementation configurable"* — was submitted 2026-09-21 from

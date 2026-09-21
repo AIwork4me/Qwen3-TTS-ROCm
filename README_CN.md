@@ -32,7 +32,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 305 / 305 全通过** —— 267 CPU + 38 真机 GPU |
+| 自动化测试 | **验证主机 351 / 351 全通过** —— 313 CPU + 38 真机 GPU |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
@@ -146,10 +146,13 @@ wav, sr, gen_s = voice_workflow.reuse_voice(  # 任意新句子，同一音色
 （运行记录：`evidence/voice-workflow-2026-09-20.txt`，机器可读计时：
 `evidence/voice-workflow-2026-09-20.json`）。
 
-CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上运行的是同样这 267 项 CPU 测试，
-其中 1 项 HIP 环境门控测试因 CI 机器没有 AMD GPU 而跳过。在实际 ROCm
-验证主机上该项也会执行，因此最终为 267 CPU + 38 GPU = 305 / 305 全通过。
-本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
+CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集的是同样这 313 项 CPU 测试，
+其中 1 项 HIP 环境门控测试因 CI 机器没有 AMD GPU 而跳过；在未安装可选
+`[quality]` 附加组件的纯 `.[dev]` 环境中，另有 15 项**可见**跳过（12 项
+jiwer + 3 项 resemblyzer 质量基准测试；2026-09-21 声明审计将其由报错改为
+可见跳过 —— 此前 Task 14 未加保护的 `import jiwer` 曾使 CI 变红）。在实际
+ROCm 验证主机上该项也会执行，因此最终为 313 CPU + 38 GPU = 351 / 351
+全通过。本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415)，
 每个 Python job `251 passed, 1 skipped, 38 deselected`——于 2026-09-21 验证，
 当时套件为 252 项 CPU 测试，其后套件已增长到上列数量——转录见
@@ -264,11 +267,15 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 305/305 全通过（267 CPU + 38 真机 GPU）；
-  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上运行同样这 267 项 CPU 测试，
-  其中 1 项 HIP 门控跳过（该规模首次实证：运行
-  [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932)，
-  `266 passed, 1 skipped`）。下文的上游一致性证明属于 38 项 GPU 测试之一，
+* **测试套件** —— 验证主机 351/351 全通过（313 CPU + 38 真机 GPU）；
+  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集同样这 313 项 CPU 测试，
+  其中 1 项 HIP 门控跳过（纯 `.[dev]` 环境中另有上文所述 15 项 `[quality]`
+  附加组件可见跳过；最近一次按规模实证绿灯的 CI 运行为 267-CPU 时期：
+  运行 [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932)，
+  `266 passed, 1 skipped` —— 313-CPU 时期曾因 Task 14 未声明的 jiwer 导入
+  变红，直到声明审计修复为止，见
+  [`evidence/claims-audit-2026-09-21.md`](evidence/claims-audit-2026-09-21.md)）。
+  下文的上游一致性证明属于 38 项 GPU 测试之一，
   在验证主机上运行，不在 CPU-only CI 中。
 
 <a id="why-this-project-exists"></a>
@@ -424,7 +431,7 @@ RTF 1.22–1.25；长文本 66–79 s 墙钟产出 52–59 s 音频、RTF 1.28�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 267 项 CPU 测试（无 AMD GPU 时 1 项 HIP 门控跳过）
+python -m pytest -m "not gpu and not requires_download" -q   # 313 项 CPU 测试（无 AMD GPU 时 1 项 HIP 门控跳过；缺 .[quality] 时另有 15 项跳过）
 python -m pytest -m "gpu" -q                  # 38 项 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```

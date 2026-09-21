@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - 2026-09-20
+## [0.2.0] - Unreleased (opened 2026-09-20; latest tagged release: v0.1.0)
 
 ### Added
 
@@ -172,6 +172,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Verified
 
+- Claims audit wave (2026-09-21, Task 16, brief 17): the full public-claims
+  vocabulary (`validated`, `supported`, `all models`, `all Radeon`,
+  `zero patch(es)`, `fine-tuning`, `vLLM`, `streaming`, `305`, `0.2.0`,
+  `gfx1151`, `gfx1100`) grepped across README/README_CN/CHANGELOG/docs/
+  evidence/src/tests/pyproject (778 hits, every one judged — audit table in
+  `evidence/claims-audit-2026-09-21.md`). Suite counts trued to the live
+  recount: **313 CPU + 38 GPU = 351/351** (305 superseded; CPU half re-run
+  green by the Task 15 verifier, GPU half carried by the p0 Task 5
+  verifier's 38/38). PR #373 wording re-verified against the GitHub API:
+  still `open`, `merged: false`. Version agreement verified
+  programmatically (pyproject / `__version__` / `test_scaffold` /
+  CHANGELOG all 0.2.0; no tagged 0.2.0 release exists, and the CHANGELOG
+  heading now says Unreleased explicitly). Deferred minors fixed:
+  `evidence/upstream-372-root-cause.md` Q2 citations (3-of-4 examples,
+  `demo.py:606`), `docs/finetuning-rocm.md` fixed-wording line unwrapped
+  with backticks restored, `docs/vllm-omni-rocm.md` §6 median corrected to
+  the JSON's pooled 7.72 s (qwen-side 8.28 s), and an erratum appended to
+  `evidence/README.md` for the stale `~20 s / ~240 tokens` figure inside
+  `vllm-vs-qwen-tts-2026-09-21.json`'s fairness_notes (actual longest
+  output 33.52 s ≈ 402 tokens; conclusion — no side hit any cap —
+  unchanged; JSON left byte-unedited per the no-hand-edit policy).
+- CI-red root cause fixed (found by the same audit): Task 14's
+  `tests/test_quality_eval.py` ran 12 cer/wer tests against an unguarded
+  `import jiwer` inside `scripts/quality_eval.py`, so every plain `.[dev]`
+  CI environment failed with `ModuleNotFoundError` (runs 35588552252,
+  35590816441, 35593965878 — 12 failures per Python job at pushes
+  `c07055a`/`cfef2e7`/`bbc25db`). The tests now follow the file's own
+  resemblyzer convention: a visible skip with the
+  `pip install -e '.[quality]'` hint when the extras group is absent
+  (verified both ways: 28 passed with the extra, 16 passed + 12 visibly
+  skipped with a simulated absence; full host CPU suite unchanged at 313
+  passed).
 - Cross-day benchmark replication (2026-09-21, Step E): both archived sets
   re-run with unchanged methodology (warmup + n=2/cell,
   `max_new_tokens=512`, git HEAD `6df5e86`) —
@@ -254,7 +286,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   host (CPU-only CI runs the same 267 CPU tests with 1 HIP-gated skip);
   the first-verified-CI-run note (push `8815238`) is now explicitly dated
   to when the suite stood at 252 CPU tests, so its `251 passed, 1 skipped,
-  38 deselected` per Python job stays accurate for its date.
+  38 deselected` per Python job stays accurate for its date. (Superseded
+  later the same day by the claims-audit truing to 313 CPU + 38 GPU =
+  351/351 — see the Task 16 entry below.)
 - Claims-consistency round: runtime messages no longer make claims the
   project cannot back — the first-load announcement describes cache/kernel
   causes instead of predicting "tens of seconds", and the flash-attn guard

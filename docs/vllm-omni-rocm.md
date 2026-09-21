@@ -137,9 +137,11 @@ side at all.
   load and ~26 GiB residency amortize, and every generation after that is
   ~8–15% faster (RTF 1.18 vs 1.30). Rough break-even: the startup deficit is
   ~75 s (load + warmup difference) and the per-render saving ≈ RTF gap ×
-  audio seconds (≈ 0.12 × duration), i.e. ~1 s at the workload's median
-  ~8–9 s render — the vLLM-Omni engine pays for its startup after roughly
-  50–100 renders.
+  audio seconds (≈ 0.12 × duration), i.e. ≈0.9 s at the workload's
+  pooled-median 7.72 s render (qwen-side median 8.28 s; both from the
+  JSON's 72 `rows` — figure corrected from a stale "~8–9 s" eyeball by the
+  2026-09-21 claims audit) — the vLLM-Omni engine pays for its startup
+  after roughly 50–100 renders.
 * **When batching/throughput is the goal**: the offline API accepts batched
   inputs (`end2end.py --batch-size/--use-batch-sample`) where batching
   benefits are plausible — but this A/B did not measure batching (see

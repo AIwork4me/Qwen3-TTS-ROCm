@@ -42,6 +42,27 @@ _spec.loader.exec_module(qev)
 MANIFEST = Path(__file__).resolve().parents[1] / "tests" / "data" / \
     "quality_benchmark_manifest.json"
 
+#: jiwer is part of the optional ``[quality]`` extra too — same convention as
+#: resemblyzer below: the cer/wer tests skip visibly (with the fix) when the
+#: extras group is not installed, instead of erroring the plain CPU suite.
+#: (Added by the 2026-09-21 claims audit: Task 14 shipped these tests with an
+#: unguarded ``import jiwer`` inside ``cer``/``wer``, which turned CI red on
+#: every plain ``.[dev]`` environment — 12 ModuleNotFoundError failures per
+#: Python job, runs 35588552252 / 35590816441 / 35593965878.)
+try:
+    import jiwer  # noqa: F401
+
+    _HAVE_JIWER = True
+except Exception:  # noqa: BLE001 - extras not installed -> visible skip
+    _HAVE_JIWER = False
+
+
+requires_jiwer = pytest.mark.skipif(
+    not _HAVE_JIWER,
+    reason="jiwer (quality extras) not installed: "
+           "pip install -e '.[quality]' to run cer/wer tests",
+)
+
 #: Resemblyzer is an optional ``[quality]`` extra — the speaker_sim test is
 #: skipped (visibly, with the fix) when the extras group is not installed,
 #: instead of erroring the plain CPU suite.
@@ -57,15 +78,18 @@ except Exception:  # noqa: BLE001 - extras not installed -> visible skip
 # cer / wer: hand-computed examples
 # ---------------------------------------------------------------------------
 
+@requires_jiwer
 def test_cer_hand_computed_substitution():
     """cer(你好世界, 你号世界) == 0.25 — one substitution of four chars."""
     assert math.isclose(qev.cer("你好世界", "你号世界"), 0.25)
 
 
+@requires_jiwer
 def test_cer_identical_is_zero():
     assert qev.cer("今天天气很好", "今天天气很好") == 0.0
 
 
+@requires_jiwer
 def test_cer_normalizes_punctuation_and_whitespace():
     """Sentence-final 。 and ASR-inserted spaces must not count as errors."""
     assert qev.cer("今天天气很好。", "今天天气很好") == 0.0
@@ -73,44 +97,53 @@ def test_cer_normalizes_punctuation_and_whitespace():
     assert qev.cer("你好，世界！", "你好世界") == 0.0
 
 
+@requires_jiwer
 def test_cer_empty_hypothesis_is_one():
     """Empty transcript = every char deleted = CER 1.0 (worst, not a crash)."""
     assert qev.cer("今天天气很好", "") == 1.0
 
 
+@requires_jiwer
 def test_cer_one_insertion():
     """A stray extra character is one insertion over the ref length: 1/5."""
     assert math.isclose(qev.cer("天气很好", "天气很好好"), 0.25)
 
 
+@requires_jiwer
 def test_cer_empty_reference_raises():
     with pytest.raises(ValueError):
         qev.cer("。。。", "你好")  # ref normalizes to empty -> manifest bug
 
 
+@requires_jiwer
 def test_wer_hand_computed_substitution():
     assert math.isclose(qev.wer("hello world", "hello there world"), 0.5)
 
 
+@requires_jiwer
 def test_wer_identical_is_zero():
     assert qev.wer("the quick brown fox", "the quick brown fox") == 0.0
 
 
+@requires_jiwer
 def test_wer_normalizes_case_and_punctuation():
     assert qev.wer("The weather is nice today.", "the weather is nice today") == 0.0
     assert qev.wer("Hello, world!", "hello world") == 0.0
 
 
+@requires_jiwer
 def test_wer_one_substitution_of_five_words():
     assert math.isclose(
         qev.wer("The weather is nice today.", "The weather was nice today."), 0.2
     )
 
 
+@requires_jiwer
 def test_wer_empty_hypothesis_is_one():
     assert qev.wer("The weather is nice today.", "") == 1.0
 
 
+@requires_jiwer
 def test_wer_empty_reference_raises():
     with pytest.raises(ValueError):
         qev.wer("!!", "hello")  # ref normalizes to empty
