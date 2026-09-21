@@ -1,0 +1,2535 @@
+{
+  "task": "Task 12 - qwen-tts vs vLLM-Omni controlled A/B (gfx1151)",
+  "date": "2026-09-21",
+  "git_head_at_execution": "13615dfd936acf5569abe1315fa6c20c410d2557",
+  "question": "Same 8-prompt CustomVoice workload (1.7B checkpoint, identical checkpoint dir both sides), same max_new_tokens field (512), same warmup policy (1 discarded generation), 3 timed runs per prompt per block: wall time, audio duration, RTF=wall/audio, load time, peak memory. Block order A-B-A (qwen A1 -> vllm B -> qwen A2) per the task decision (drift control: qwen measured in two windows bracketing the vllm block; DEVIATION from brief 12.3's literal ABBA, disclosed).",
+  "environment": {
+    "gpu_common": {
+      "gpu": "AMD RYZEN AI MAX+ PRO 395 w/ Radeon 8060S",
+      "gfx": "gfx1151",
+      "host_rocm": "7.2.1 (/opt/rocm)",
+      "kernel": "6.17.0-1032-oem"
+    },
+    "qwen_stack": {
+      "stack": "qwen-tts (official qwen_tts package via qwen3_tts_rocm.loader)",
+      "venv": ".venv (repo main validated venv; editable qwen3-tts-rocm)",
+      "python": "3.12.3",
+      "torch": "2.12.0+rocm7.14.0 (HIP 7.14.60850)",
+      "qwen_tts": "0.1.1",
+      "transformers": "4.57.3",
+      "loader_defaults": "bfloat16 + sdpa on cuda:0 (qwen3_tts_rocm.loader.load)",
+      "model_alias": "custom-voice (registry alias; NOTE: there is no 'custom-voice-1.7b' alias - 'custom-voice' IS the 1.7B CustomVoice checkpoint)",
+      "checkpoint_resolved": "models/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+    },
+    "vllm_stack": {
+      "stack": "vLLM-Omni offline Omni entrypoint (upstream end2end.py pattern)",
+      "venv": ".work-vllm/venv (isolated gitignored venv; HF_HOME=.work-vllm/hf-home)",
+      "python": "3.12.3",
+      "vllm": "0.28.0+rocm723",
+      "vllm_omni": "0.28.0",
+      "torch": "2.12.0+git6bbd260 (HIP 7.2.53211)",
+      "transformers": "5.14.1",
+      "onnxruntime": "onnxruntime-rocm 1.22.2.post3",
+      "model_name": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "checkpoint_resolved": "models/Qwen3-TTS-12Hz-1.7B-CustomVoice (HF_HOME hub snapshot symlink -> same directory the qwen side loads)",
+      "invocation": "byte-pattern reuse of .work-vllm/end2end.py --query-type CustomVoice (imported unmodified; _estimate_prompt_len, additional_information structure, Omni(**vars(args)|model), outputs[0].multimodal_output audio/sr unwrapping)"
+    }
+  },
+  "workload_manifest": {
+    "task": "Task 12 - qwen-tts vs vLLM-Omni controlled A/B workload manifest",
+    "description": "8 CustomVoice prompts (4 zh / 4 en; per language 1 short ~10-20 chars, 2 medium ~40-80, 1 long ~120-160; char_len = len(text) verbatim incl. punctuation/spaces). Identical synthesis params BOTH sides: speaker Vivian, instruct \"\" (blank -> no style instruction on both stacks), max_new_tokens 512 (qwen side: explicit official-API cap; vllm side: kept in additional_information for end2end.py pattern parity - see fairness notes), full utterance per call.",
+    "params_common": {
+      "task_type": "CustomVoice",
+      "speaker": "Vivian",
+      "instruct": "",
+      "max_new_tokens": 512,
+      "qwen_tts_model_alias": "custom-voice",
+      "vllm_omni_model_name": "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice",
+      "checkpoint_dir_identical": "models/Qwen3-TTS-12Hz-1.7B-CustomVoice (qwen side via qwen3_tts_rocm.loader.resolve_path; vllm side via HF_HOME=.work-vllm/hf-home hub snapshot symlink to the same directory)"
+    },
+    "prompts": [
+      {
+        "id": "p1",
+        "lang": "zh",
+        "language": "Chinese",
+        "bucket": "short",
+        "char_len": 14,
+        "text": "今天的天气真不错，适合散步。"
+      },
+      {
+        "id": "p2",
+        "lang": "zh",
+        "language": "Chinese",
+        "bucket": "medium1",
+        "char_len": 43,
+        "text": "杭州西湖的春天格外迷人，苏堤两畔的柳枝随微风轻轻摆动，三三两两的游人沿着湖边缓步而行。"
+      },
+      {
+        "id": "p3",
+        "lang": "zh",
+        "language": "Chinese",
+        "bucket": "medium2",
+        "char_len": 50,
+        "text": "人工智能技术正在改变我们的生活方式，从智能助手到自动驾驶，越来越多的场景开始受益于这些新的技术突破。"
+      },
+      {
+        "id": "p4",
+        "lang": "zh",
+        "language": "Chinese",
+        "bucket": "long",
+        "char_len": 120,
+        "text": "在一个阳光明媚的清晨，小镇的街道上渐渐热闹起来，面包店里飘出新鲜面包的香气，孩子们背着书包说说笑笑地走向学校，老人们则坐在公园的长椅上晒着温暖的太阳，悠闲地聊着家长里短，分享着彼此生活中的点点滴滴，整个小镇到处都充满了宁静而祥和的生活气息。"
+      },
+      {
+        "id": "p5",
+        "lang": "en",
+        "language": "English",
+        "bucket": "short",
+        "char_len": 20,
+        "text": "Today is a good day."
+      },
+      {
+        "id": "p6",
+        "lang": "en",
+        "language": "English",
+        "bucket": "medium1",
+        "char_len": 69,
+        "text": "The quick brown fox jumps over the lazy dog near the quiet riverbank."
+      },
+      {
+        "id": "p7",
+        "lang": "en",
+        "language": "English",
+        "bucket": "medium2",
+        "char_len": 77,
+        "text": "Machine learning has become an essential part of modern software development."
+      },
+      {
+        "id": "p8",
+        "lang": "en",
+        "language": "English",
+        "bucket": "long",
+        "char_len": 141,
+        "text": "In the soft morning light the town woke slowly, bread smells drifting from the bakery, children laughing on their way to school by the river."
+      }
+    ]
+  },
+  "method": {
+    "block_order": [
+      "A1 qwen",
+      "B vllm",
+      "A2 qwen"
+    ],
+    "runs_per_prompt_per_block": 3,
+    "warmup_policy": "1 discarded generation (manifest p1, same 512 cap) per block, EQUAL on both sides",
+    "rtf_definition": "generation_wall_s / audio_duration_s (audio = len(waveform)/sr of the returned full utterance)",
+    "memory_measurement": {
+      "in_process": "torch.cuda.max_memory_allocated, reset right after model load (qwen side: the whole single process; vllm side: ONLY the orchestrator process - workers are spawned separately)",
+      "whole_stack": "1 Hz polling of /sys/class/drm/card1/device/mem_info_vram_used + mem_info_gtt_used (amdgpu driver counters), identical sampler on both sides; peaks per phase (load/warmup/measured); rocm-smi snapshots wrap every block in the transcript. NOTE on this gfx1151 unified-memory APU the VRAM carveout counter stays flat (~1.34 GB, desktop) - stack allocations land in the GTT counter, so the informative whole-stack figure is the GTT peak (or vram+gtt sum), reported per side"
+    },
+    "env_isolation": "separate venvs (.venv vs .work-vllm/venv), separate processes per block (full unload between blocks, verified by sysfs/rocm-smi snapshots in the transcript); qwen side runs WITHOUT HF_HOME set, vllm side with HF_HOME=.work-vllm/hf-home HF_HUB_OFFLINE=1",
+    "batch_concurrency": "not exercised in the tested path - both APIs nominally accept batched inputs (qwen_tts: List[str] text; end2end.py: --batch-size/--use-batch-sample), but this A/B measures per-prompt RTF parity at batch=1 (the documented default single-sample invocation); batch throughput parity is out of scope and listed unproven"
+  },
+  "fairness_notes": [
+    "max_new_tokens=512 is an explicit official-API cap on the qwen side (generate_custom_voice(max_new_tokens=512)). The vLLM-Omni side carries \"max_new_tokens\": [512] inside additional_information exactly as end2end.py does, BUT code inspection of vllm-omni 0.28.0 shows the qwen3_tts offline pipeline does not consume that field (generation terminates on the talker stop token 2150 / EOS under engine-default sampling). Effective token-cap equivalence therefore does NOT hold by knob; it holds in practice for this workload because no tested prompt reaches either cap (longest output <=~20 s audio ~=<=240 tokens at 12 Hz < 512), so neither side was truncated.",
+    "Sampling params: neither side passes overrides. qwen side = checkpoint generate_config.json defaults (do_sample=true, temperature=0.9, top_k=50, top_p=1.0, repetition_penalty=1.05). vllm side = vllm-omni engine defaults (per-request sampling is not part of the end2end.py CustomVoice invocation pattern). Outputs are therefore not expected to be identical samples; the comparison is timing/memory, not sample equality (deterministic-vs-sampled equality was never claimed).",
+    "Both sides load the SAME checkpoint directory models/Qwen3-TTS-12Hz-1.7B-CustomVoice (qwen: loader.resolve_path; vllm: HF_HOME hub snapshot symlink to it).",
+    "instruct=\"\" (blank) on both sides: both stacks treat a blank instruct as absent (verified in qwen_tts processing and vllm-omni prompt_embeds_builder: `if instruct.strip()`).",
+    "vllm wall times include its full per-request pipeline (talker prefill + decode + Code2Wav codec->wav), mirroring the qwen side's single official API call covering the same end-to-end span."
+  ],
+  "unsupported_parity": [
+    "per-request sampling control on the vLLM-Omni offline path (no knob in the end2end.py CustomVoice pattern)",
+    "effective per-request token cap on the vLLM-Omni offline path (additional_information max_new_tokens not consumed by the qwen3_tts pipeline in 0.28.0)",
+    "batch/throughput comparison (supported by both APIs, not exercised here)",
+    "output-quality comparison (explicitly out of scope; Task 14 builds quality metrics)"
+  ],
+  "continuous_run_record": {
+    "run_start_utc": "2026-09-21T08:50:57Z",
+    "run_end_utc": "2026-09-21T09:09:25Z",
+    "overall_rc": 0,
+    "block_starts": {
+      "A1-qwen": "2026-09-21T08:50:57Z",
+      "B-vllm": "2026-09-21T08:56:38Z",
+      "A2-qwen": "2026-09-21T09:03:26Z"
+    },
+    "block_ends": {
+      "A1-qwen": "2026-09-21T08:56:33Z",
+      "B-vllm": "2026-09-21T09:03:21Z",
+      "A2-qwen": "2026-09-21T09:09:25Z"
+    },
+    "block_exits": {
+      "A1-qwen": 0,
+      "B-vllm": 0,
+      "A2-qwen": 0
+    },
+    "continuous_window": "1108s",
+    "block_commands": {
+      "A1": ".venv/bin/python .work-vllm/ab_qwen.py --block A1",
+      "B": "HF_HOME=.work-vllm/hf-home HF_HUB_OFFLINE=1 .work-vllm/venv/bin/python .work-vllm/ab_vllm.py --block B",
+      "A2": ".venv/bin/python .work-vllm/ab_qwen.py --block A2"
+    },
+    "isolation_proof": "the transcript env lines of the A blocks print torch 2.12.0+rocm7.14.0/HIP 7.14.60850 (exists only in .venv) and the B block torch 2.12.0+git6bbd260/HIP 7.2.53211 + vllm/vllm_omni versions (exist only in .work-vllm/venv); block-B tracebacks resolve vllm_omni modules under .work-vllm/venv/lib; HF_HOME appears only in block B's env line. ERRATUM: the drivers' env line 'venv' probe printed '/usr' for all blocks - Path(sys.executable).resolve() follows the venv symlink to /usr/bin/python3.12; a display artifact only, corrected here.",
+    "note": "continuous GPU uptime from first block command to last block command (heat-soak control); rocm-smi + sysfs snapshots at every block boundary prove one side fully unloaded before the next loads"
+  },
+  "block_snapshots": [
+    {
+      "time": "2026-09-21T08:50:57Z",
+      "label": "baseline",
+      "vram_used_bytes": 1402511360,
+      "gtt_used_bytes": 146407424
+    },
+    {
+      "time": "2026-09-21T08:50:57Z",
+      "label": "pre-A1-qwen",
+      "vram_used_bytes": 1402511360,
+      "gtt_used_bytes": 146407424
+    },
+    {
+      "time": "2026-09-21T08:56:33Z",
+      "label": "post-A1-qwen",
+      "vram_used_bytes": 1405267968,
+      "gtt_used_bytes": 577159168
+    },
+    {
+      "time": "2026-09-21T08:56:38Z",
+      "label": "pre-B-vllm",
+      "vram_used_bytes": 1400414208,
+      "gtt_used_bytes": 146407424
+    },
+    {
+      "time": "2026-09-21T09:03:21Z",
+      "label": "post-B-vllm",
+      "vram_used_bytes": 1400475648,
+      "gtt_used_bytes": 148549632
+    },
+    {
+      "time": "2026-09-21T09:03:26Z",
+      "label": "pre-A2-qwen",
+      "vram_used_bytes": 1400414208,
+      "gtt_used_bytes": 148504576
+    },
+    {
+      "time": "2026-09-21T09:09:25Z",
+      "label": "post-A2-qwen",
+      "vram_used_bytes": 1405747200,
+      "gtt_used_bytes": 577200128
+    },
+    {
+      "time": "2026-09-21T09:09:25Z",
+      "label": "final",
+      "vram_used_bytes": 1400414208,
+      "gtt_used_bytes": 148504576
+    }
+  ],
+  "per_block_summaries": {
+    "A1": {
+      "side": "qwen",
+      "block": "A1",
+      "started_utc": "2026-09-21T08:56:31+00:00",
+      "load_s": 4.772,
+      "warmup_wall_s": 5.752,
+      "warmup_audio_s": 3.2,
+      "peak_alloc_gib_post_load_reset": 4.658,
+      "vram_snapshot": {
+        "phase": "post_runs",
+        "current": {
+          "vram_mb": 1340.51171875,
+          "gtt_mb": 5059.82421875
+        },
+        "peaks": {
+          "pre": {
+            "vram_mb": 1346.1328125,
+            "gtt_mb": 4399.78515625
+          },
+          "post_load": {
+            "vram_mb": 1346.1328125,
+            "gtt_mb": 4399.78515625
+          },
+          "warmup": {
+            "vram_mb": 1346.2578125,
+            "gtt_mb": 4752.40234375
+          },
+          "measured": {
+            "vram_mb": 1345.94140625,
+            "gtt_mb": 5773.8046875
+          },
+          "post_runs": {
+            "vram_mb": 1340.51171875,
+            "gtt_mb": 5059.82421875
+          }
+        }
+      },
+      "rows_total": 24,
+      "rows_ok": 24,
+      "median_rtf_all_ok_rows": 1.2907,
+      "sampling": "checkpoint generate_config.json defaults (no overrides passed)",
+      "max_new_tokens": 512
+    },
+    "B": {
+      "side": "vllm",
+      "block": "B",
+      "started_utc": "2026-09-21T09:03:09+00:00",
+      "load_s": 69.063,
+      "warmup_wall_s": 16.933,
+      "warmup_audio_s": 3.36,
+      "peak_alloc_gib_post_load_reset": 0.0,
+      "peak_alloc_scope": "orchestrator process ONLY (workers are separate spawned processes); whole-stack peak is vram_snapshot.peaks",
+      "vram_snapshot": {
+        "phase": "post_runs",
+        "current": {
+          "vram_mb": 1339.5546875,
+          "gtt_mb": 25511.484375
+        },
+        "peaks": {
+          "pre": {
+            "vram_mb": 1345.16015625,
+            "gtt_mb": 25106.29296875
+          },
+          "post_load": {
+            "vram_mb": 1339.38671875,
+            "gtt_mb": 25104.29296875
+          },
+          "warmup": {
+            "vram_mb": 1339.53515625,
+            "gtt_mb": 25368.8203125
+          },
+          "measured": {
+            "vram_mb": 1339.5546875,
+            "gtt_mb": 25567.484375
+          },
+          "post_runs": {
+            "vram_mb": 1339.5546875,
+            "gtt_mb": 25511.484375
+          }
+        }
+      },
+      "rows_total": 24,
+      "rows_ok": 24,
+      "median_rtf_all_ok_rows": 1.1818,
+      "sampling": "vllm-omni engine defaults (per-request sampling not part of the end2end.py CustomVoice invocation pattern)",
+      "max_new_tokens_field": 512
+    },
+    "A2": {
+      "side": "qwen",
+      "block": "A2",
+      "started_utc": "2026-09-21T09:09:23+00:00",
+      "load_s": 4.903,
+      "warmup_wall_s": 6.402,
+      "warmup_audio_s": 3.44,
+      "peak_alloc_gib_post_load_reset": 4.855,
+      "vram_snapshot": {
+        "phase": "post_runs",
+        "current": {
+          "vram_mb": 1340.97265625,
+          "gtt_mb": 5303.86328125
+        },
+        "peaks": {
+          "pre": {
+            "vram_mb": 1344.1796875,
+            "gtt_mb": 4403.78515625
+          },
+          "post_load": {
+            "vram_mb": 1344.1796875,
+            "gtt_mb": 4403.78515625
+          },
+          "warmup": {
+            "vram_mb": 1344.7109375,
+            "gtt_mb": 4750.421875
+          },
+          "measured": {
+            "vram_mb": 1346.3671875,
+            "gtt_mb": 5873.8046875
+          },
+          "post_runs": {
+            "vram_mb": 1340.97265625,
+            "gtt_mb": 5303.86328125
+          }
+        }
+      },
+      "rows_total": 24,
+      "rows_ok": 24,
+      "median_rtf_all_ok_rows": 1.3236,
+      "sampling": "checkpoint generate_config.json defaults (no overrides passed)",
+      "max_new_tokens": 512
+    }
+  },
+  "per_prompt_medians": [
+    {
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 4.327,
+        "median_audio_s": 3.4,
+        "median_rtf": 1.258,
+        "rtf_values": [
+          1.226,
+          1.2314,
+          1.2457,
+          1.2703,
+          1.3014,
+          1.2883
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 4.067,
+        "median_audio_s": 3.28,
+        "median_rtf": 1.2401,
+        "rtf_values": [
+          1.2401,
+          1.2597,
+          1.2295
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.9858
+    },
+    {
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 16.475,
+        "median_audio_s": 12.24,
+        "median_rtf": 1.3443,
+        "rtf_values": [
+          1.3371,
+          1.3516,
+          1.2764,
+          1.3552,
+          1.3516,
+          1.2878
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 13.581,
+        "median_audio_s": 12.0,
+        "median_rtf": 1.1375,
+        "rtf_values": [
+          1.1375,
+          1.1318,
+          1.1604
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.8462
+    },
+    {
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 13.711,
+        "median_audio_s": 10.64,
+        "median_rtf": 1.3266,
+        "rtf_values": [
+          1.2201,
+          1.3615,
+          1.2918,
+          1.3622,
+          1.2571,
+          1.3792
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 13.264,
+        "median_audio_s": 11.52,
+        "median_rtf": 1.1949,
+        "rtf_values": [
+          1.1514,
+          1.1949,
+          1.1966
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.9007
+    },
+    {
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 40.69,
+        "median_audio_s": 30.96,
+        "median_rtf": 1.3118,
+        "rtf_values": [
+          1.3375,
+          1.3086,
+          1.3034,
+          1.3105,
+          1.3131,
+          1.3278
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 35.319,
+        "median_audio_s": 30.88,
+        "median_rtf": 1.1437,
+        "rtf_values": [
+          1.1326,
+          1.1562,
+          1.1437
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.8719
+    },
+    {
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 2.696,
+        "median_audio_s": 1.84,
+        "median_rtf": 1.3397,
+        "rtf_values": [
+          1.315,
+          1.3134,
+          1.2918,
+          1.4239,
+          1.6457,
+          1.3644
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 2.333,
+        "median_audio_s": 2.0,
+        "median_rtf": 1.238,
+        "rtf_values": [
+          1.3574,
+          1.238,
+          1.1667
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.9241
+    },
+    {
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 6.428,
+        "median_audio_s": 4.96,
+        "median_rtf": 1.2957,
+        "rtf_values": [
+          1.2895,
+          1.2624,
+          1.2818,
+          1.3193,
+          1.4457,
+          1.3019
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 6.453,
+        "median_audio_s": 5.44,
+        "median_rtf": 1.1862,
+        "rtf_values": [
+          1.1862,
+          1.1785,
+          1.223
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.9155
+    },
+    {
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 7.37,
+        "median_audio_s": 5.52,
+        "median_rtf": 1.3018,
+        "rtf_values": [
+          1.2682,
+          1.2771,
+          1.3005,
+          1.3032,
+          1.4458,
+          1.4592
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 6.689,
+        "median_audio_s": 5.76,
+        "median_rtf": 1.1614,
+        "rtf_values": [
+          1.1851,
+          1.1481,
+          1.1614
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.8921
+    },
+    {
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "qwen": {
+        "runs_total": 6,
+        "runs_ok": 6,
+        "median_wall_s": 15.524,
+        "median_audio_s": 11.68,
+        "median_rtf": 1.2968,
+        "rtf_values": [
+          1.3531,
+          1.266,
+          1.2606,
+          1.302,
+          1.4072,
+          1.2916
+        ]
+      },
+      "vllm": {
+        "runs_total": 3,
+        "runs_ok": 3,
+        "median_wall_s": 14.861,
+        "median_audio_s": 12.48,
+        "median_rtf": 1.1908,
+        "rtf_values": [
+          1.1908,
+          1.1484,
+          1.2141
+        ]
+      },
+      "rtf_ratio_vllm_over_qwen": 0.9183
+    }
+  ],
+  "side_summary": {
+    "qwen": {
+      "blocks": [
+        "A1",
+        "A2"
+      ],
+      "rows_total": 48,
+      "rows_ok": 48,
+      "runs_per_prompt_per_block": 3,
+      "median_rtf_all_ok_rows": 1.3033,
+      "load_s_by_block": {
+        "A1": 4.772,
+        "A2": 4.903
+      },
+      "warmup_wall_s_by_block": {
+        "A1": 5.752,
+        "A2": 6.402
+      },
+      "peak_alloc_gib_by_block": {
+        "A1": 4.658,
+        "A2": 4.855
+      },
+      "sysfs_peak_mb_by_block": {
+        "A1": {
+          "post_load": {
+            "vram_mb": 1346.1,
+            "gtt_mb": 4399.8,
+            "sum_mb": 5745.9
+          },
+          "warmup": {
+            "vram_mb": 1346.3,
+            "gtt_mb": 4752.4,
+            "sum_mb": 6098.7
+          },
+          "measured": {
+            "vram_mb": 1345.9,
+            "gtt_mb": 5773.8,
+            "sum_mb": 7119.7
+          }
+        },
+        "A2": {
+          "post_load": {
+            "vram_mb": 1344.2,
+            "gtt_mb": 4403.8,
+            "sum_mb": 5748.0
+          },
+          "warmup": {
+            "vram_mb": 1344.7,
+            "gtt_mb": 4750.4,
+            "sum_mb": 6095.1
+          },
+          "measured": {
+            "vram_mb": 1346.4,
+            "gtt_mb": 5873.8,
+            "sum_mb": 7220.2
+          }
+        }
+      }
+    },
+    "vllm": {
+      "blocks": [
+        "B"
+      ],
+      "rows_total": 24,
+      "rows_ok": 24,
+      "runs_per_prompt_per_block": 3,
+      "median_rtf_all_ok_rows": 1.1818,
+      "load_s_by_block": {
+        "B": 69.063
+      },
+      "warmup_wall_s_by_block": {
+        "B": 16.933
+      },
+      "peak_alloc_gib_by_block": {
+        "B": 0.0,
+        "note": "orchestrator process ONLY (workers are separate spawned processes); whole-stack peak is vram_snapshot.peaks"
+      },
+      "sysfs_peak_mb_by_block": {
+        "B": {
+          "post_load": {
+            "vram_mb": 1339.4,
+            "gtt_mb": 25104.3,
+            "sum_mb": 26443.7
+          },
+          "warmup": {
+            "vram_mb": 1339.5,
+            "gtt_mb": 25368.8,
+            "sum_mb": 26708.4
+          },
+          "measured": {
+            "vram_mb": 1339.6,
+            "gtt_mb": 25567.5,
+            "sum_mb": 26907.0
+          }
+        }
+      }
+    }
+  },
+  "rows": [
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 1,
+      "wall_s": 3.629,
+      "audio_s": 2.96,
+      "rtf": 1.226,
+      "waveform": {
+        "n_samples": 71040,
+        "sr": 24000,
+        "duration_s": 2.96,
+        "finite": true,
+        "peak": 0.65625,
+        "rms": 0.10441,
+        "nonsilent_frac": 0.9337,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p1_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 2,
+      "wall_s": 4.433,
+      "audio_s": 3.6,
+      "rtf": 1.2314,
+      "waveform": {
+        "n_samples": 86400,
+        "sr": 24000,
+        "duration_s": 3.6,
+        "finite": true,
+        "peak": 0.53906,
+        "rms": 0.11495,
+        "nonsilent_frac": 0.9253,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p1_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 3,
+      "wall_s": 4.385,
+      "audio_s": 3.52,
+      "rtf": 1.2457,
+      "waveform": {
+        "n_samples": 84480,
+        "sr": 24000,
+        "duration_s": 3.52,
+        "finite": true,
+        "peak": 0.35547,
+        "rms": 0.0716,
+        "nonsilent_frac": 0.9239,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p1_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 1,
+      "wall_s": 16.687,
+      "audio_s": 12.48,
+      "rtf": 1.3371,
+      "waveform": {
+        "n_samples": 299520,
+        "sr": 24000,
+        "duration_s": 12.48,
+        "finite": true,
+        "peak": 0.6875,
+        "rms": 0.1112,
+        "nonsilent_frac": 0.9261,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p2_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 2,
+      "wall_s": 16.003,
+      "audio_s": 11.84,
+      "rtf": 1.3516,
+      "waveform": {
+        "n_samples": 284160,
+        "sr": 24000,
+        "duration_s": 11.84,
+        "finite": true,
+        "peak": 0.4668,
+        "rms": 0.07759,
+        "nonsilent_frac": 0.9186,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p2_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 3,
+      "wall_s": 13.989,
+      "audio_s": 10.96,
+      "rtf": 1.2764,
+      "waveform": {
+        "n_samples": 263040,
+        "sr": 24000,
+        "duration_s": 10.96,
+        "finite": true,
+        "peak": 0.65234,
+        "rms": 0.11664,
+        "nonsilent_frac": 0.9217,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p2_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 1,
+      "wall_s": 13.372,
+      "audio_s": 10.96,
+      "rtf": 1.2201,
+      "waveform": {
+        "n_samples": 263040,
+        "sr": 24000,
+        "duration_s": 10.96,
+        "finite": true,
+        "peak": 0.98828,
+        "rms": 0.0803,
+        "nonsilent_frac": 0.9082,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p3_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 2,
+      "wall_s": 14.05,
+      "audio_s": 10.32,
+      "rtf": 1.3615,
+      "waveform": {
+        "n_samples": 247680,
+        "sr": 24000,
+        "duration_s": 10.32,
+        "finite": true,
+        "peak": 0.56641,
+        "rms": 0.08848,
+        "nonsilent_frac": 0.961,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p3_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 3,
+      "wall_s": 12.712,
+      "audio_s": 9.84,
+      "rtf": 1.2918,
+      "waveform": {
+        "n_samples": 236160,
+        "sr": 24000,
+        "duration_s": 9.84,
+        "finite": true,
+        "peak": 0.51953,
+        "rms": 0.08115,
+        "nonsilent_frac": 0.9411,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p3_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 1,
+      "wall_s": 40.446,
+      "audio_s": 30.24,
+      "rtf": 1.3375,
+      "waveform": {
+        "n_samples": 725760,
+        "sr": 24000,
+        "duration_s": 30.24,
+        "finite": true,
+        "peak": 0.75781,
+        "rms": 0.11201,
+        "nonsilent_frac": 0.9272,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p4_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 2,
+      "wall_s": 40.934,
+      "audio_s": 31.28,
+      "rtf": 1.3086,
+      "waveform": {
+        "n_samples": 750720,
+        "sr": 24000,
+        "duration_s": 31.28,
+        "finite": true,
+        "peak": 0.80859,
+        "rms": 0.11474,
+        "nonsilent_frac": 0.9323,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p4_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 3,
+      "wall_s": 39.937,
+      "audio_s": 30.64,
+      "rtf": 1.3034,
+      "waveform": {
+        "n_samples": 735360,
+        "sr": 24000,
+        "duration_s": 30.64,
+        "finite": true,
+        "peak": 0.71484,
+        "rms": 0.09166,
+        "nonsilent_frac": 0.916,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p4_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 1,
+      "wall_s": 4.103,
+      "audio_s": 3.12,
+      "rtf": 1.315,
+      "waveform": {
+        "n_samples": 74880,
+        "sr": 24000,
+        "duration_s": 3.12,
+        "finite": true,
+        "peak": 0.65234,
+        "rms": 0.1017,
+        "nonsilent_frac": 0.9226,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p5_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 2,
+      "wall_s": 2.627,
+      "audio_s": 2.0,
+      "rtf": 1.3134,
+      "waveform": {
+        "n_samples": 48000,
+        "sr": 24000,
+        "duration_s": 2.0,
+        "finite": true,
+        "peak": 0.51172,
+        "rms": 0.07922,
+        "nonsilent_frac": 0.9172,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p5_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 3,
+      "wall_s": 3.927,
+      "audio_s": 3.04,
+      "rtf": 1.2918,
+      "waveform": {
+        "n_samples": 72960,
+        "sr": 24000,
+        "duration_s": 3.04,
+        "finite": true,
+        "peak": 0.60938,
+        "rms": 0.10671,
+        "nonsilent_frac": 0.9068,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p5_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 1,
+      "wall_s": 6.293,
+      "audio_s": 4.88,
+      "rtf": 1.2895,
+      "waveform": {
+        "n_samples": 117120,
+        "sr": 24000,
+        "duration_s": 4.88,
+        "finite": true,
+        "peak": 0.60156,
+        "rms": 0.11324,
+        "nonsilent_frac": 0.9379,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p6_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 2,
+      "wall_s": 5.858,
+      "audio_s": 4.64,
+      "rtf": 1.2624,
+      "waveform": {
+        "n_samples": 111360,
+        "sr": 24000,
+        "duration_s": 4.64,
+        "finite": true,
+        "peak": 0.59375,
+        "rms": 0.08481,
+        "nonsilent_frac": 0.9504,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p6_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 3,
+      "wall_s": 5.435,
+      "audio_s": 4.24,
+      "rtf": 1.2818,
+      "waveform": {
+        "n_samples": 101760,
+        "sr": 24000,
+        "duration_s": 4.24,
+        "finite": true,
+        "peak": 0.58984,
+        "rms": 0.08951,
+        "nonsilent_frac": 0.9649,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p6_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 1,
+      "wall_s": 6.493,
+      "audio_s": 5.12,
+      "rtf": 1.2682,
+      "waveform": {
+        "n_samples": 122880,
+        "sr": 24000,
+        "duration_s": 5.12,
+        "finite": true,
+        "peak": 0.53125,
+        "rms": 0.12717,
+        "nonsilent_frac": 0.9635,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p7_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 2,
+      "wall_s": 7.152,
+      "audio_s": 5.6,
+      "rtf": 1.2771,
+      "waveform": {
+        "n_samples": 134400,
+        "sr": 24000,
+        "duration_s": 5.6,
+        "finite": true,
+        "peak": 0.49609,
+        "rms": 0.08051,
+        "nonsilent_frac": 0.9526,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p7_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 3,
+      "wall_s": 7.075,
+      "audio_s": 5.44,
+      "rtf": 1.3005,
+      "waveform": {
+        "n_samples": 130560,
+        "sr": 24000,
+        "duration_s": 5.44,
+        "finite": true,
+        "peak": 0.41797,
+        "rms": 0.09615,
+        "nonsilent_frac": 0.966,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p7_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 1,
+      "wall_s": 16.778,
+      "audio_s": 12.4,
+      "rtf": 1.3531,
+      "waveform": {
+        "n_samples": 297600,
+        "sr": 24000,
+        "duration_s": 12.4,
+        "finite": true,
+        "peak": 0.51172,
+        "rms": 0.08765,
+        "nonsilent_frac": 0.9153,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p8_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 2,
+      "wall_s": 23.092,
+      "audio_s": 18.24,
+      "rtf": 1.266,
+      "waveform": {
+        "n_samples": 437760,
+        "sr": 24000,
+        "duration_s": 18.24,
+        "finite": true,
+        "peak": 0.48438,
+        "rms": 0.09369,
+        "nonsilent_frac": 0.9281,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p8_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A1",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 3,
+      "wall_s": 12.707,
+      "audio_s": 10.08,
+      "rtf": 1.2606,
+      "waveform": {
+        "n_samples": 241920,
+        "sr": 24000,
+        "duration_s": 10.08,
+        "finite": true,
+        "peak": 0.36523,
+        "rms": 0.06572,
+        "nonsilent_frac": 0.836,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p8_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 1,
+      "wall_s": 4.067,
+      "audio_s": 3.28,
+      "rtf": 1.2401,
+      "waveform": {
+        "n_samples": 78720,
+        "sr": 24000,
+        "duration_s": 3.28,
+        "finite": true,
+        "peak": 0.47871,
+        "rms": 0.10222,
+        "nonsilent_frac": 0.9158,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p1_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 2,
+      "wall_s": 4.031,
+      "audio_s": 3.2,
+      "rtf": 1.2597,
+      "waveform": {
+        "n_samples": 76800,
+        "sr": 24000,
+        "duration_s": 3.2,
+        "finite": true,
+        "peak": 0.52266,
+        "rms": 0.0964,
+        "nonsilent_frac": 0.9255,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p1_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 3,
+      "wall_s": 4.131,
+      "audio_s": 3.36,
+      "rtf": 1.2295,
+      "waveform": {
+        "n_samples": 80640,
+        "sr": 24000,
+        "duration_s": 3.36,
+        "finite": true,
+        "peak": 0.632,
+        "rms": 0.10568,
+        "nonsilent_frac": 0.9258,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p1_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 1,
+      "wall_s": 13.468,
+      "audio_s": 11.84,
+      "rtf": 1.1375,
+      "waveform": {
+        "n_samples": 284160,
+        "sr": 24000,
+        "duration_s": 11.84,
+        "finite": true,
+        "peak": 0.62433,
+        "rms": 0.08763,
+        "nonsilent_frac": 0.9207,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p2_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 2,
+      "wall_s": 13.581,
+      "audio_s": 12.0,
+      "rtf": 1.1318,
+      "waveform": {
+        "n_samples": 288000,
+        "sr": 24000,
+        "duration_s": 12.0,
+        "finite": true,
+        "peak": 0.55392,
+        "rms": 0.09794,
+        "nonsilent_frac": 0.9269,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p2_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 3,
+      "wall_s": 15.038,
+      "audio_s": 12.96,
+      "rtf": 1.1604,
+      "waveform": {
+        "n_samples": 311040,
+        "sr": 24000,
+        "duration_s": 12.96,
+        "finite": true,
+        "peak": 0.6022,
+        "rms": 0.08242,
+        "nonsilent_frac": 0.9026,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p2_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 1,
+      "wall_s": 13.264,
+      "audio_s": 11.52,
+      "rtf": 1.1514,
+      "waveform": {
+        "n_samples": 276480,
+        "sr": 24000,
+        "duration_s": 11.52,
+        "finite": true,
+        "peak": 0.72498,
+        "rms": 0.10517,
+        "nonsilent_frac": 0.9379,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p3_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 2,
+      "wall_s": 10.42,
+      "audio_s": 8.72,
+      "rtf": 1.1949,
+      "waveform": {
+        "n_samples": 209280,
+        "sr": 24000,
+        "duration_s": 8.72,
+        "finite": true,
+        "peak": 0.46296,
+        "rms": 0.08055,
+        "nonsilent_frac": 0.9412,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p3_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 3,
+      "wall_s": 16.944,
+      "audio_s": 14.16,
+      "rtf": 1.1966,
+      "waveform": {
+        "n_samples": 339840,
+        "sr": 24000,
+        "duration_s": 14.16,
+        "finite": true,
+        "peak": 0.48478,
+        "rms": 0.09038,
+        "nonsilent_frac": 0.9468,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p3_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 1,
+      "wall_s": 37.966,
+      "audio_s": 33.52,
+      "rtf": 1.1326,
+      "waveform": {
+        "n_samples": 804480,
+        "sr": 24000,
+        "duration_s": 33.52,
+        "finite": true,
+        "peak": 0.61684,
+        "rms": 0.06779,
+        "nonsilent_frac": 0.9101,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p4_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 2,
+      "wall_s": 34.963,
+      "audio_s": 30.24,
+      "rtf": 1.1562,
+      "waveform": {
+        "n_samples": 725760,
+        "sr": 24000,
+        "duration_s": 30.24,
+        "finite": true,
+        "peak": 0.65496,
+        "rms": 0.08921,
+        "nonsilent_frac": 0.9158,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p4_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 3,
+      "wall_s": 35.319,
+      "audio_s": 30.88,
+      "rtf": 1.1437,
+      "waveform": {
+        "n_samples": 741120,
+        "sr": 24000,
+        "duration_s": 30.88,
+        "finite": true,
+        "peak": 0.67461,
+        "rms": 0.07868,
+        "nonsilent_frac": 0.9037,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p4_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 1,
+      "wall_s": 3.692,
+      "audio_s": 2.72,
+      "rtf": 1.3574,
+      "waveform": {
+        "n_samples": 65280,
+        "sr": 24000,
+        "duration_s": 2.72,
+        "finite": true,
+        "peak": 0.49577,
+        "rms": 0.06551,
+        "nonsilent_frac": 0.8394,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p5_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 2,
+      "wall_s": 2.08,
+      "audio_s": 1.68,
+      "rtf": 1.238,
+      "waveform": {
+        "n_samples": 40320,
+        "sr": 24000,
+        "duration_s": 1.68,
+        "finite": true,
+        "peak": 0.45737,
+        "rms": 0.08782,
+        "nonsilent_frac": 0.9182,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p5_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 3,
+      "wall_s": 2.333,
+      "audio_s": 2.0,
+      "rtf": 1.1667,
+      "waveform": {
+        "n_samples": 48000,
+        "sr": 24000,
+        "duration_s": 2.0,
+        "finite": true,
+        "peak": 0.79858,
+        "rms": 0.10141,
+        "nonsilent_frac": 0.9169,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p5_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 1,
+      "wall_s": 6.453,
+      "audio_s": 5.44,
+      "rtf": 1.1862,
+      "waveform": {
+        "n_samples": 130560,
+        "sr": 24000,
+        "duration_s": 5.44,
+        "finite": true,
+        "peak": 0.50335,
+        "rms": 0.08398,
+        "nonsilent_frac": 0.9187,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p6_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 2,
+      "wall_s": 6.505,
+      "audio_s": 5.52,
+      "rtf": 1.1785,
+      "waveform": {
+        "n_samples": 132480,
+        "sr": 24000,
+        "duration_s": 5.52,
+        "finite": true,
+        "peak": 0.77161,
+        "rms": 0.08979,
+        "nonsilent_frac": 0.9502,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p6_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 3,
+      "wall_s": 6.164,
+      "audio_s": 5.04,
+      "rtf": 1.223,
+      "waveform": {
+        "n_samples": 120960,
+        "sr": 24000,
+        "duration_s": 5.04,
+        "finite": true,
+        "peak": 0.54302,
+        "rms": 0.07535,
+        "nonsilent_frac": 0.9035,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p6_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 1,
+      "wall_s": 6.352,
+      "audio_s": 5.36,
+      "rtf": 1.1851,
+      "waveform": {
+        "n_samples": 128640,
+        "sr": 24000,
+        "duration_s": 5.36,
+        "finite": true,
+        "peak": 0.57709,
+        "rms": 0.11284,
+        "nonsilent_frac": 0.939,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p7_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 2,
+      "wall_s": 6.705,
+      "audio_s": 5.84,
+      "rtf": 1.1481,
+      "waveform": {
+        "n_samples": 140160,
+        "sr": 24000,
+        "duration_s": 5.84,
+        "finite": true,
+        "peak": 0.71034,
+        "rms": 0.09819,
+        "nonsilent_frac": 0.952,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p7_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 3,
+      "wall_s": 6.689,
+      "audio_s": 5.76,
+      "rtf": 1.1614,
+      "waveform": {
+        "n_samples": 138240,
+        "sr": 24000,
+        "duration_s": 5.76,
+        "finite": true,
+        "peak": 0.51512,
+        "rms": 0.11101,
+        "nonsilent_frac": 0.9624,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p7_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 1,
+      "wall_s": 14.861,
+      "audio_s": 12.48,
+      "rtf": 1.1908,
+      "waveform": {
+        "n_samples": 299520,
+        "sr": 24000,
+        "duration_s": 12.48,
+        "finite": true,
+        "peak": 0.40218,
+        "rms": 0.0787,
+        "nonsilent_frac": 0.8799,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p8_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 2,
+      "wall_s": 17.64,
+      "audio_s": 15.36,
+      "rtf": 1.1484,
+      "waveform": {
+        "n_samples": 368640,
+        "sr": 24000,
+        "duration_s": 15.36,
+        "finite": true,
+        "peak": 0.44935,
+        "rms": 0.07967,
+        "nonsilent_frac": 0.859,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p8_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "vllm",
+      "block": "B",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 3,
+      "wall_s": 12.529,
+      "audio_s": 10.32,
+      "rtf": 1.2141,
+      "waveform": {
+        "n_samples": 247680,
+        "sr": 24000,
+        "duration_s": 10.32,
+        "finite": true,
+        "peak": 0.38013,
+        "rms": 0.05798,
+        "nonsilent_frac": 0.9052,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/vllm/p8_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 1,
+      "wall_s": 5.081,
+      "audio_s": 4.0,
+      "rtf": 1.2703,
+      "waveform": {
+        "n_samples": 96000,
+        "sr": 24000,
+        "duration_s": 4.0,
+        "finite": true,
+        "peak": 0.43945,
+        "rms": 0.0791,
+        "nonsilent_frac": 0.9167,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p1_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 2,
+      "wall_s": 4.269,
+      "audio_s": 3.28,
+      "rtf": 1.3014,
+      "waveform": {
+        "n_samples": 78720,
+        "sr": 24000,
+        "duration_s": 3.28,
+        "finite": true,
+        "peak": 0.36914,
+        "rms": 0.06922,
+        "nonsilent_frac": 0.9439,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p1_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p1",
+      "lang": "zh",
+      "bucket": "short",
+      "char_len": 14,
+      "run": 3,
+      "wall_s": 3.71,
+      "audio_s": 2.88,
+      "rtf": 1.2883,
+      "waveform": {
+        "n_samples": 69120,
+        "sr": 24000,
+        "duration_s": 2.88,
+        "finite": true,
+        "peak": 0.46289,
+        "rms": 0.06391,
+        "nonsilent_frac": 0.9065,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p1_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 1,
+      "wall_s": 16.263,
+      "audio_s": 12.0,
+      "rtf": 1.3552,
+      "waveform": {
+        "n_samples": 288000,
+        "sr": 24000,
+        "duration_s": 12.0,
+        "finite": true,
+        "peak": 0.63672,
+        "rms": 0.10605,
+        "nonsilent_frac": 0.9493,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p2_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 2,
+      "wall_s": 23.896,
+      "audio_s": 17.68,
+      "rtf": 1.3516,
+      "waveform": {
+        "n_samples": 424320,
+        "sr": 24000,
+        "duration_s": 17.68,
+        "finite": true,
+        "peak": 0.55078,
+        "rms": 0.08959,
+        "nonsilent_frac": 0.9273,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p2_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p2",
+      "lang": "zh",
+      "bucket": "medium1",
+      "char_len": 43,
+      "run": 3,
+      "wall_s": 17.72,
+      "audio_s": 13.76,
+      "rtf": 1.2878,
+      "waveform": {
+        "n_samples": 330240,
+        "sr": 24000,
+        "duration_s": 13.76,
+        "finite": true,
+        "peak": 0.53516,
+        "rms": 0.08268,
+        "nonsilent_frac": 0.9369,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p2_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 1,
+      "wall_s": 17.218,
+      "audio_s": 12.64,
+      "rtf": 1.3622,
+      "waveform": {
+        "n_samples": 303360,
+        "sr": 24000,
+        "duration_s": 12.64,
+        "finite": true,
+        "peak": 0.50391,
+        "rms": 0.07615,
+        "nonsilent_frac": 0.9018,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p3_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 2,
+      "wall_s": 12.672,
+      "audio_s": 10.08,
+      "rtf": 1.2571,
+      "waveform": {
+        "n_samples": 241920,
+        "sr": 24000,
+        "duration_s": 10.08,
+        "finite": true,
+        "peak": 0.80469,
+        "rms": 0.11192,
+        "nonsilent_frac": 0.942,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p3_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p3",
+      "lang": "zh",
+      "bucket": "medium2",
+      "char_len": 50,
+      "run": 3,
+      "wall_s": 17.323,
+      "audio_s": 12.56,
+      "rtf": 1.3792,
+      "waveform": {
+        "n_samples": 301440,
+        "sr": 24000,
+        "duration_s": 12.56,
+        "finite": true,
+        "peak": 0.58594,
+        "rms": 0.08874,
+        "nonsilent_frac": 0.9522,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p3_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 1,
+      "wall_s": 42.671,
+      "audio_s": 32.56,
+      "rtf": 1.3105,
+      "waveform": {
+        "n_samples": 781440,
+        "sr": 24000,
+        "duration_s": 32.56,
+        "finite": true,
+        "peak": 0.76172,
+        "rms": 0.10315,
+        "nonsilent_frac": 0.8973,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p4_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 2,
+      "wall_s": 38.867,
+      "audio_s": 29.6,
+      "rtf": 1.3131,
+      "waveform": {
+        "n_samples": 710400,
+        "sr": 24000,
+        "duration_s": 29.6,
+        "finite": true,
+        "peak": 0.76953,
+        "rms": 0.12295,
+        "nonsilent_frac": 0.9492,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p4_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p4",
+      "lang": "zh",
+      "bucket": "long",
+      "char_len": 120,
+      "run": 3,
+      "wall_s": 41.959,
+      "audio_s": 31.6,
+      "rtf": 1.3278,
+      "waveform": {
+        "n_samples": 758400,
+        "sr": 24000,
+        "duration_s": 31.6,
+        "finite": true,
+        "peak": 0.73438,
+        "rms": 0.12129,
+        "nonsilent_frac": 0.9135,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p4_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 1,
+      "wall_s": 1.937,
+      "audio_s": 1.36,
+      "rtf": 1.4239,
+      "waveform": {
+        "n_samples": 32640,
+        "sr": 24000,
+        "duration_s": 1.36,
+        "finite": true,
+        "peak": 0.35547,
+        "rms": 0.07324,
+        "nonsilent_frac": 0.8913,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p5_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 2,
+      "wall_s": 2.765,
+      "audio_s": 1.68,
+      "rtf": 1.6457,
+      "waveform": {
+        "n_samples": 40320,
+        "sr": 24000,
+        "duration_s": 1.68,
+        "finite": true,
+        "peak": 0.71875,
+        "rms": 0.14764,
+        "nonsilent_frac": 0.9336,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p5_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p5",
+      "lang": "en",
+      "bucket": "short",
+      "char_len": 20,
+      "run": 3,
+      "wall_s": 2.183,
+      "audio_s": 1.6,
+      "rtf": 1.3644,
+      "waveform": {
+        "n_samples": 38400,
+        "sr": 24000,
+        "duration_s": 1.6,
+        "finite": true,
+        "peak": 0.62891,
+        "rms": 0.11691,
+        "nonsilent_frac": 0.9371,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p5_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 1,
+      "wall_s": 6.649,
+      "audio_s": 5.04,
+      "rtf": 1.3193,
+      "waveform": {
+        "n_samples": 120960,
+        "sr": 24000,
+        "duration_s": 5.04,
+        "finite": true,
+        "peak": 0.66797,
+        "rms": 0.09878,
+        "nonsilent_frac": 0.9595,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p6_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 2,
+      "wall_s": 8.211,
+      "audio_s": 5.68,
+      "rtf": 1.4457,
+      "waveform": {
+        "n_samples": 136320,
+        "sr": 24000,
+        "duration_s": 5.68,
+        "finite": true,
+        "peak": 0.40625,
+        "rms": 0.07127,
+        "nonsilent_frac": 0.9392,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p6_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p6",
+      "lang": "en",
+      "bucket": "medium1",
+      "char_len": 69,
+      "run": 3,
+      "wall_s": 6.562,
+      "audio_s": 5.04,
+      "rtf": 1.3019,
+      "waveform": {
+        "n_samples": 120960,
+        "sr": 24000,
+        "duration_s": 5.04,
+        "finite": true,
+        "peak": 0.51953,
+        "rms": 0.0738,
+        "nonsilent_frac": 0.9362,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p6_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 1,
+      "wall_s": 8.757,
+      "audio_s": 6.72,
+      "rtf": 1.3032,
+      "waveform": {
+        "n_samples": 161280,
+        "sr": 24000,
+        "duration_s": 6.72,
+        "finite": true,
+        "peak": 0.50391,
+        "rms": 0.1023,
+        "nonsilent_frac": 0.9411,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p7_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 2,
+      "wall_s": 8.79,
+      "audio_s": 6.08,
+      "rtf": 1.4458,
+      "waveform": {
+        "n_samples": 145920,
+        "sr": 24000,
+        "duration_s": 6.08,
+        "finite": true,
+        "peak": 0.54297,
+        "rms": 0.12181,
+        "nonsilent_frac": 0.9696,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p7_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p7",
+      "lang": "en",
+      "bucket": "medium2",
+      "char_len": 77,
+      "run": 3,
+      "wall_s": 7.588,
+      "audio_s": 5.2,
+      "rtf": 1.4592,
+      "waveform": {
+        "n_samples": 124800,
+        "sr": 24000,
+        "duration_s": 5.2,
+        "finite": true,
+        "peak": 0.64062,
+        "rms": 0.11821,
+        "nonsilent_frac": 0.9509,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p7_r3.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 1,
+      "wall_s": 14.27,
+      "audio_s": 10.96,
+      "rtf": 1.302,
+      "waveform": {
+        "n_samples": 263040,
+        "sr": 24000,
+        "duration_s": 10.96,
+        "finite": true,
+        "peak": 0.49023,
+        "rms": 0.08831,
+        "nonsilent_frac": 0.8378,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p8_r1.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 2,
+      "wall_s": 21.727,
+      "audio_s": 15.44,
+      "rtf": 1.4072,
+      "waveform": {
+        "n_samples": 370560,
+        "sr": 24000,
+        "duration_s": 15.44,
+        "finite": true,
+        "peak": 0.46484,
+        "rms": 0.08149,
+        "nonsilent_frac": 0.8912,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p8_r2.wav",
+      "ok": true,
+      "error": null
+    },
+    {
+      "side": "qwen",
+      "block": "A2",
+      "prompt_id": "p8",
+      "lang": "en",
+      "bucket": "long",
+      "char_len": 141,
+      "run": 3,
+      "wall_s": 13.019,
+      "audio_s": 10.08,
+      "rtf": 1.2916,
+      "waveform": {
+        "n_samples": 241920,
+        "sr": 24000,
+        "duration_s": 10.08,
+        "finite": true,
+        "peak": 0.53125,
+        "rms": 0.07054,
+        "nonsilent_frac": 0.8922,
+        "non_silent": true
+      },
+      "wav": "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-vllm/ab_out/qwen/p8_r3.wav",
+      "ok": true,
+      "error": null
+    }
+  ],
+  "meta": {
+    "generated_utc": "2026-09-21T09:15:27+00:00",
+    "transcript": ".work-vllm/ab_run_2026-09-21.log (gitignored; verbatim copy committed as evidence/vllm-vs-qwen-tts-2026-09-21.txt)",
+    "prior_feasibility": "evidence/vllm-omni-feasibility-2026-09-21.json"
+  }
+}
