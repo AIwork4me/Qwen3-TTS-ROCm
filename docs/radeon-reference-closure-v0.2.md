@@ -494,7 +494,5 @@ the public docs:
 
 ## 18. v0.2.0 release URL
 
-**pending Task 19 (user-gated).** The tag and release are created only after
-the final independent release verifier (Task 18 Step 18.2) returns PASS;
-this placeholder is allowed here, in the closure document only, and is
-replaced by the release URL in the Task 19 release notes.
+**https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases/tag/v0.2.0** — tag `v0.2.0` on commit `bec162c` (release housekeeping: §17 item 9 + the claims-audit evidence-index row; CPU suite re-verified green there: 313 passed / 38 deselected), created 2026-09-22 after the final independent release verifier returned PASS and the user gate confirmed. The tag and release were created only after
+the final independent release verifier (Task 18 Step 18.2) returned PASS.

@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.2.0] - Unreleased (opened 2026-09-20; latest tagged release: v0.1.0)
+## [0.2.0] - 2026-09-22 — [Radeon Reference Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases/tag/v0.2.0) (opened 2026-09-20; previously Unreleased; tag `v0.2.0` on `bec162c` after final release-verifier PASS)
 
 ### Added
 
@@ -167,8 +167,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `docs/p0-parity-report.md`. Two latent `ruff` errors in
   `scripts/make_finetune_dataset.py` fixed (missing executable bit,
   unparenthesized implicit concatenation) so CI's lint job passes.
-
-## [Unreleased]
 
 ### Verified
 
@@ -341,6 +339,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--port`, loader/download/refusal diagnostics carry troubleshooting
   pointers, the startup banner is humanized and `scripts/install.sh` prints
   stage banners with a NEXT hint.
+
+## [Unreleased]
+
+No changes since v0.2.0 (released 2026-09-22).
 
 ## [0.1.0] - 2026-08-27
 
