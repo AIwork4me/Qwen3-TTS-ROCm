@@ -485,6 +485,12 @@ the public docs:
    (code is live via the editable path; only dist-info is stale; the built
    artifacts correctly carry 0.2.0). Harmless to all suites; a
    `pip install -e .` refresh trues it up. (Task 17 report, notes.)
+9. **Claims-audit internal-record tally nits** — two §F.2 tallies in
+   `evidence/claims-audit-2026-09-21.md` (stated 162 hits vs 159 sum;
+   stated 4 files vs 5) were left uncorrected per the dated-record
+   convention and are disclosed in `rc02-task-16-verification.md`; all
+   live-surface counts reproduce exactly. Internal records only; no public
+   claim affected. (Final-verifier finding 1.)
 
 ## 18. v0.2.0 release URL
 
