@@ -217,6 +217,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `finetuning/sft_12hz.py` hard-codes `attn_implementation="flash_attention_2"`, failing
   out-of-the-box on ROCm; requests a CLI-selectable attention implementation or an
   `sdpa` fallback (`evidence/upstream-issue-2026-09-21.txt`).
+- Submitted upstream PR [QwenLM/Qwen3-TTS#373](https://github.com/QwenLM/Qwen3-TTS/pull/373)
+  "fix(finetuning): make attention implementation configurable" (OPEN at submission,
+  2026-09-21; fork `AIwork4me:fix/finetuning-attn-implementation`, commits `0be0026`
+  + `48b8644` on base `022e286` — the audited pinned SHA): makes the attention
+  implementation configurable in `finetuning/sft_12hz.py` while preserving the
+  `flash_attention_2` default for existing users, per the root-cause evidence
+  (`evidence/upstream-372-root-cause.md`, Appendix). Fixes #372 **when merged**;
+  until a merged fix ships, the published `qwen-tts==0.1.1` fine-tuning path
+  still requires the documented temporary workaround (one-token `sdpa` override
+  at `sft_12hz.py:51`, `docs/finetuning-rocm.md`).
 - First verified CI run on the 0.2.0 suite: push `8815238`, run
   35526426415 — `test (3.10/3.11/3.12)` + `build` all green,
   `251 passed, 1 skipped, 38 deselected` per Python job

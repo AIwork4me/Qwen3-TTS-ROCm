@@ -428,3 +428,46 @@ worktree at the pinned SHA, clean, ready for Task 3's commit.
    not exist; the filtered (noise-removed) stream in `iso-driver.log` contains
    every non-MIOpen-noise line of phase A. Phases C/C2/D raw streams were
    captured to files that existed and are kept under `.work-finetune/iso/`.
+
+---
+
+## Appendix — Upstream PR (2026-09-21)
+
+The upstream fix this document's evidence supports (§1 root cause, §5 item 5
+"selectable/default-safe", Task 8's design) was submitted as
+QwenLM/Qwen3-TTS **PR #373** — "fix(finetuning): make attention
+implementation configurable" — on 2026-09-21, from a fork, targeting
+`QwenLM/Qwen3-TTS:main`.
+
+**Issue #372 is resolved only when PR #373 merges.** Until a merged fix
+ships in a release, the published `qwen-tts==0.1.1` package and the
+`finetuning/sft_12hz.py` at the pinned SHA still hard-code
+`flash_attention_2`, so this stack's users still need the documented
+temporary workaround (one-token `sdpa` override at `sft_12hz.py:51`;
+`docs/finetuning-rocm.md`, 2026-09-20 smoke, and this document's §4).
+
+| Fact | Value |
+|---|---|
+| PR URL | https://github.com/QwenLM/Qwen3-TTS/pull/373 |
+| Number | 373 |
+| Title | fix(finetuning): make attention implementation configurable |
+| State at submission | OPEN |
+| Head branch | `AIwork4me:fix/finetuning-attn-implementation` |
+| Commits | `0be0026` "fix(finetuning): make attention implementation configurable" + `48b8644` "test(finetuning): cover default and explicit attention implementation" |
+| Base | `022e286` — verified as the parent of `0be0026` via the GitHub API; identical to this document's pinned upstream SHA (facts table, row 3) |
+| Submission date | 2026-09-21 |
+| Closes | Fixes #372 — but only on merge |
+
+Verification command and verbatim output (run 2026-09-21 by the Task 9
+Step 9.4 agent, before writing this appendix):
+
+```
+$ gh pr view 373 --repo QwenLM/Qwen3-TTS --json number,title,state,url,headRefName
+{"headRefName":"fix/finetuning-attn-implementation","number":373,"state":"OPEN","title":"fix(finetuning): make attention implementation configurable","url":"https://github.com/QwenLM/Qwen3-TTS/pull/373"}
+```
+
+Supporting verification (same session): `gh api repos/QwenLM/Qwen3-TTS/commits/0be0026`
+returned `parents: ["022e286"]`, and the PR's commit list via
+`gh pr view --json commits` returned exactly the two commits above on
+`AIwork4me`'s fork. What merges into upstream `main` after this submission is
+outside this document's scope; this appendix records the submission fact only.
