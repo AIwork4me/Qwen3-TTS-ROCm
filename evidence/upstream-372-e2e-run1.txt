@@ -1,0 +1,598 @@
+================================================================================
+=== TASK 6 ROUND B (E2E RUN 1) — FULL FINE-TUNING E2E, RUN 1 OF 2 — 2026-09-21T14:43:54+08:00 ===
+Program: Radeon Reference Closure v0.2, Task 6 (briefs 6B+6C) — Steps 6.1/6.2.
+Goal: one FULLY INDEPENDENT end-to-end fine-tuning proof from the FIX worktree
+(.upstream/Qwen3-TTS-fix, branch fix/finetuning-attn-implementation): fresh
+self-generated dataset -> official prepare_data.py -> DIRECT python invocation of the
+patched finetuning/sft_12hz.py with --attn_implementation sdpa (same scale/args as the
+validated 2026-09-20 smoke, evidence/finetune-smoke-2026-09-20.{txt,json}) -> per-epoch
+checkpoints -> official qwen_tts API reload -> synthesis -> waveform sanity.
+Peak memory: direct invocation cannot expose torch.cuda.max_memory_allocated, so per the
+task ruling an in-process launcher (.work-finetune/e2e_sft_launcher.py, imports the PATCHED
+module from the FIX worktree and calls train() verbatim, reset_peak_memory_stats at start)
+re-runs the IDENTICAL args for the memory reading; which invocation produced what is
+recorded explicitly below. Run 2 re-prepares everything fresh in e2e-r2/ (no reused
+checkpoint, no reused trainer state, separate processes).
+This transcript is machine-generated (driver + tee); it is never hand-edited.
+================================================================================
+=== RUN 1: ENVIRONMENT AND PINNED INPUTS ===
+$ date -Is && uname -r
+2026-09-21T14:43:54+08:00
+6.17.0-1032-oem
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python -c 'import sys,torch; python/torch/hip/gpu0'
+python 3.12.3
+torch 2.12.0+rocm7.14.0
+hip 7.14.60850
+gpu0 AMD Radeon 8060S Graphics
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python -c 'importlib.metadata versions'
+qwen-tts 0.1.1
+transformers 4.57.3
+torch 2.12.0+rocm7.14.0
+accelerate 1.12.0
+safetensors 0.8.0
+$ git -C . rev-parse --abbrev-ref HEAD && git -C . rev-parse HEAD   (downstream repo)
+main
+69a9b4c8b46599acd33aa62a851d5665aa73f12f
+$ git -C .upstream/Qwen3-TTS-fix rev-parse --abbrev-ref HEAD && git -C .upstream/Qwen3-TTS-fix rev-parse HEAD   (FIX worktree under test)
+fix/finetuning-attn-implementation
+48b8644aac8512e6fdc0f4442788bf399c425fdb
+$ git -C .upstream/Qwen3-TTS-fix status --porcelain | wc -l   (0 = FIX worktree pristine, committed patch only)
+0
+$ git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD --stat   (the ONLY difference vs pristine pinned upstream 022e286)
+ finetuning/sft_12hz.py                |  15 +++--
+ tests/test_sft_attn_implementation.py | 105 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 115 insertions(+), 5 deletions(-)
+$ diff .upstream/Qwen3-TTS/finetuning/prepare_data.py .upstream/Qwen3-TTS-fix/finetuning/prepare_data.py   (prep entry point identical to pristine)
+IDENTICAL
+$ ls -ld /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-Tokenizer-12Hz   (1.7B Base checkpoint + 12Hz tokenizer, same as the 2026-09-20 smoke)
+drwxrwxr-x 3 amd amd 4096  8月 27 13:26 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+drwxrwxr-x 2 amd amd 4096  8月 27 11:29 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-Tokenizer-12Hz
+$ sha256 e2e_sft_launcher.py e2e_reload_check.py (run drivers)
+6c94abf9bb17388684c37d26e054648a1494a4b3c5035d13ce0c687b7ca2ddaf  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e_sft_launcher.py
+94606c67ffd1b81e661385669ee4503bb322026459225e30b18b361327e162cb  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e_reload_check.py
+================================================================================
+=== RUN 1: CLEAN-STATE PROOF (fresh dir tree) ===
+$ ls /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1 2>&1   (must NOT pre-exist: fresh output tree per run)
+ls: cannot access '/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1': No such file or directory
+$ ls /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1.log 2>&1   (direct-train tee target must NOT pre-exist)
+ls: cannot access '/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1.log': No such file or directory
+$ rm -rf /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1 && mkdir -p /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data   (create the clean run tree)
+clean-tree-created=2026-09-21T14:43:55+08:00
+================================================================================
+=== RUN 1 PHASE A: FRESH SELF-GENERATED DATASET — scripts/make_finetune_dataset.py (2026-09-20 defaults, output into this run's tree) ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot BEFORE phase A (dataset generation)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 8
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405399040
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python /home/amd/Desktop/Qwen3-TTS-ROCm/scripts/make_finetune_dataset.py --manifest /home/amd/Desktop/Qwen3-TTS-ROCm/tests/data/finetune_manifest.json --output-dir /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data --speaker serena
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18923520, provided ptr: 0x766cb58be400 size: 13691904
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18923520, provided ptr: 0x766cb58d0400 size: 13747200
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47308800, provided ptr: 0x766cb6323a00 size: 15595008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47308800, provided ptr: 0x766cb6323a00 size: 15622656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 94617600, provided ptr: 0x766c31200000 size: 27556608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 94617600, provided ptr: 0x766c31200000 size: 27570432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 141926400, provided ptr: 0x766bdd600000 size: 40683008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 141926400, provided ptr: 0x766bdd600000 size: 40689920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13074432, provided ptr: 0x766cb5492400 size: 12020736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13074432, provided ptr: 0x766cb54a4400 size: 12076032
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x766cb64b0a00 size: 11417088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x766cb64b6600 size: 11444736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65372160, provided ptr: 0x766c31400000 size: 19200768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65372160, provided ptr: 0x766cb5bc4400 size: 19214592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x766bf4c00000 size: 28149248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x766cb5e5c000 size: 28156160
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12730368, provided ptr: 0x766cb547a400 size: 11922432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12730368, provided ptr: 0x766cb548c400 size: 11977728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 31825920, provided ptr: 0x766cb642ca00 size: 11171328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 31825920, provided ptr: 0x766cb6432600 size: 11198976
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63651840, provided ptr: 0x766c31800000 size: 18709248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63651840, provided ptr: 0x766cb5b7c400 size: 18723072
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 95477760, provided ptr: 0x766be6200000 size: 27411968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 95477760, provided ptr: 0x766cb5e02000 size: 27418880
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x766cb5d0ca00 size: 9451008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x766cb5d0ca00 size: 9478656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51609600, provided ptr: 0x766cb6413000 size: 15268608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51609600, provided ptr: 0x766cb6413000 size: 15282432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x766cb6618e00 size: 22251008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x766cb6618e00 size: 22257920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x766cb5d34600 size: 8467968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x766cb5d3a200 size: 8495616
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x766cb6f7a200 size: 13302528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x766cb6f7d200 size: 13316352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x766be5600000 size: 19301888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x766bf4800000 size: 19308800
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x766cb5756400 size: 12708864
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x766cb5768400 size: 12764160
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x766cb6a68a00 size: 13137408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x766cb6a6e600 size: 13165056
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x766bde800000 size: 22641408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x766bde800000 size: 22655232
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x766bdc600000 size: 33310208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x766bdc600000 size: 33317120
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15138816, provided ptr: 0x766cb5732400 size: 12610560
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15138816, provided ptr: 0x766cb5744400 size: 12665856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x766cb69d8a00 size: 12891648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x766cb69de600 size: 12919296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 75694080, provided ptr: 0x766bdc400000 size: 22149888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 75694080, provided ptr: 0x766bdc400000 size: 22163712
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x766bda200000 size: 32572928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x766bda200000 size: 32579840
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14794752, provided ptr: 0x766cb570e400 size: 12512256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14794752, provided ptr: 0x766cb5720400 size: 12567552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36986880, provided ptr: 0x766cb6948a00 size: 12645888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36986880, provided ptr: 0x766cb694e600 size: 12673536
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 73973760, provided ptr: 0x766bdc400000 size: 21658368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 73973760, provided ptr: 0x766bdc400000 size: 21672192
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 110960640, provided ptr: 0x766bd7800000 size: 31835648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 110960640, provided ptr: 0x766bd9a00000 size: 31842560
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13418496, provided ptr: 0x766cb54aa400 size: 12119040
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13418496, provided ptr: 0x766cb54bc400 size: 12174336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33546240, provided ptr: 0x766cb6534a00 size: 11662848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33546240, provided ptr: 0x766cb653a600 size: 11690496
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x766bd8400000 size: 19692288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x766cb5c0c400 size: 19706112
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100638720, provided ptr: 0x766bd6600000 size: 28886528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100638720, provided ptr: 0x766cb5eb6000 size: 28893440
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x766cb54c2400 size: 12217344
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x766cb54d4400 size: 12272640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x766cb65b8a00 size: 11908608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x766cb65be600 size: 11936256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x766bd7400000 size: 20183808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x766cb5c54400 size: 20197632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x766bd5400000 size: 29623808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x766cb5f10000 size: 29630720
+[ref] rendering shared reference clip: This short clip defines the target speaker for fine-tuning.
+[render] took=7.1s sr=24000 lang=English chars=59
+[utt] zh01 (Chinese): 清晨的露水挂在竹叶上闪闪发光。
+[render] took=3.8s sr=24000 lang=Chinese chars=15
+[utt] zh02 (Chinese): 图书馆今天下午有一场读书分享会。
+[render] took=3.8s sr=24000 lang=Chinese chars=16
+[utt] zh03 (Chinese): 外婆在院子里种了许多茉莉花。
+[render] took=3.0s sr=24000 lang=Chinese chars=14
+[utt] zh04 (Chinese): 这班列车将停靠三个沿海城市。
+[render] took=2.9s sr=24000 lang=Chinese chars=14
+[utt] zh05 (Chinese): 弟弟把作业本忘在了教室里。
+[render] took=2.6s sr=24000 lang=Chinese chars=13
+[utt] zh06 (Chinese): 山间的小溪一年四季都在流淌。
+[render] took=4.5s sr=24000 lang=Chinese chars=14
+[utt] en01 (English): The morning ferry crosses the bay in twenty minutes.
+[render] took=4.5s sr=24000 lang=English chars=52
+[utt] en02 (English): She keeps a small notebook beside the kitchen window.
+[render] took=4.3s sr=24000 lang=English chars=53
+[utt] en03 (English): Our neighbor plays the piano every Sunday evening.
+[render] took=4.4s sr=24000 lang=English chars=50
+[utt] en04 (English): The bakery on Miller Street opens at seven sharp.
+[render] took=4.4s sr=24000 lang=English chars=49
+[utt] en05 (English): A narrow trail leads up to the old stone bridge.
+[render] took=3.9s sr=24000 lang=English chars=48
+[utt] en06 (English): The children collected shells along the northern shore.
+[render] took=4.0s sr=24000 lang=English chars=55
+[done] 12 records -> /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_raw.jsonl
+[done] shared ref_audio -> /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/ref_speaker.wav
+generator-exit=0
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot AFTER phase A (dataset generation)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 24
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407479808
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ wc -l /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_raw.jsonl && cat /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/dataset_report.txt && ls -l --time-style=full-iso /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data
+12 /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_raw.jsonl
+manifest: /home/amd/Desktop/Qwen3-TTS-ROCm/tests/data/finetune_manifest.json
+speaker: serena  language-mode: explicit  max_new_tokens: 512  reseed-per-render: 1234
+zh01	Chinese	3.04s	utt_zh01.wav
+zh02	Chinese	2.96s	utt_zh02.wav
+zh03	Chinese	2.40s	utt_zh03.wav
+zh04	Chinese	2.40s	utt_zh04.wav
+zh05	Chinese	2.08s	utt_zh05.wav
+zh06	Chinese	3.60s	utt_zh06.wav
+en01	English	3.60s	utt_en01.wav
+en02	English	3.60s	utt_en02.wav
+en03	English	3.52s	utt_en03.wav
+en04	English	3.44s	utt_en04.wav
+en05	English	3.12s	utt_en05.wav
+en06	English	3.20s	utt_en06.wav
+total 1980
+-rw-rw-r-- 1 amd amd    548 2026-09-21 14:44:54.910631685 +0800 dataset_report.txt
+-rw-rw-r-- 1 amd amd 211244 2026-09-21 14:44:08.605748349 +0800 ref_speaker.wav
+-rw-rw-r-- 1 amd amd   2845 2026-09-21 14:44:54.910578766 +0800 train_raw.jsonl
+-rw-rw-r-- 1 amd amd 172844 2026-09-21 14:44:33.795439880 +0800 utt_en01.wav
+-rw-rw-r-- 1 amd amd 172844 2026-09-21 14:44:38.147386597 +0800 utt_en02.wav
+-rw-rw-r-- 1 amd amd 169004 2026-09-21 14:44:42.556332620 +0800 utt_en03.wav
+-rw-rw-r-- 1 amd amd 165164 2026-09-21 14:44:46.938278976 +0800 utt_en04.wav
+-rw-rw-r-- 1 amd amd 149804 2026-09-21 14:44:50.882230696 +0800 utt_en05.wav
+-rw-rw-r-- 1 amd amd 153644 2026-09-21 14:44:54.909181404 +0800 utt_en06.wav
+-rw-rw-r-- 1 amd amd 145964 2026-09-21 14:44:12.383702078 +0800 utt_zh01.wav
+-rw-rw-r-- 1 amd amd 142124 2026-09-21 14:44:16.199655344 +0800 utt_zh02.wav
+-rw-rw-r-- 1 amd amd 115244 2026-09-21 14:44:19.210618471 +0800 utt_zh03.wav
+-rw-rw-r-- 1 amd amd 115244 2026-09-21 14:44:22.145582529 +0800 utt_zh04.wav
+-rw-rw-r-- 1 amd amd  99884 2026-09-21 14:44:24.751550618 +0800 utt_zh05.wav
+-rw-rw-r-- 1 amd amd 172844 2026-09-21 14:44:29.294494990 +0800 utt_zh06.wav
+$ sha256 of this run train_raw.jsonl + all rendered wavs (determinism + independence record)
+e8adc00ce64b2d43d136643b2a50e25b815eb941cd49560798c8f554971e5311  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_raw.jsonl
+c76541c3d6a44d4b7af2002c2911707e9c20998bb04366fceced8fbaae6ea049  -
+================================================================================
+=== RUN 1 PHASE B: OFFICIAL DATA PREPARATION — prepare_data.py FROM THE FIX WORKTREE (byte-identical to pristine; 2026-09-20 phase-4.4 flow, fresh in/out paths under this run's tree) ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot BEFORE phase B (prepare_data)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 23
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407479808
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ (cd /home/amd/Desktop/Qwen3-TTS-ROCm/.upstream/Qwen3-TTS-fix/finetuning && /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python prepare_data.py --device cuda:0 --tokenizer_model_path /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-Tokenizer-12Hz --input_jsonl /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_raw.jsonl --output_jsonl /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl)
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/models/mimi/modeling_mimi.py:898: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+prepare-exit=0
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot AFTER phase B (prepare_data)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 11
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407479808
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ wc -l /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl && sha256sum /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl
+12 /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl
+2985c706cf02e8e36f6ce50d21e177e1b9f06bd027b6bac0bb95cc866096a032  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl
+================================================================================
+=== RUN 1 PHASE C: TRAINING — DIRECT INVOCATION OF THE PATCHED OFFICIAL SCRIPT (this phase's checkpoints are the run's reload source; brief Step 6.1 literal command form) ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot BEFORE phase C (direct sft_12hz.py training)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 11
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407479808
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ (cd /home/amd/Desktop/Qwen3-TTS-ROCm/.upstream/Qwen3-TTS-fix && /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python finetuning/sft_12hz.py --attn_implementation sdpa --init_model_path /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base --output_model_path /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs --train_jsonl /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl --batch_size 2 --lr 2e-5 --num_epochs 2 --speaker_name e2e_r1_speaker) 2>&1 | tee /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1.log
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/accelerate/accelerator.py:529: UserWarning: `log_with=tensorboard` was passed but no supported trackers are currently installed.
+  warnings.warn(f"`log_with={log_with}` was passed but no supported trackers are currently installed.")
+`torch_dtype` is deprecated! Use `dtype` instead!
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+Epoch 0 | Step 0 | Loss: 14.6621
+Epoch 1 | Step 0 | Loss: 10.0124
+sft-direct-exit=0   (exit of the python process itself via PIPESTATUS[0], NOT of the tee wrapper)
+sft-direct-wall-seconds=22.8   (date +%s.%N deltas around the python process)
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot AFTER phase C (direct sft_12hz.py training)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 12
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405378560
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ grep -n 'Epoch .* Loss' /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1.log   (loss lines verbatim, script's own logging)
+22:Epoch 0 | Step 0 | Loss: 14.6621
+23:Epoch 1 | Step 0 | Loss: 10.0124
+$ ls /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs && ls -l --time-style=full-iso /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs/checkpoint-epoch-1   (per-epoch checkpoints)
+checkpoint-epoch-0
+checkpoint-epoch-1
+total 3748004
+-rw-rw-r-- 1 amd amd       4540 2026-09-21 14:45:22.036749630 +0800 config.json
+-rw-rw-r-- 1 amd amd         47 2026-08-27 13:22:38.764875580 +0800 configuration.json
+-rw-rw-r-- 1 amd amd        245 2026-08-27 13:22:38.882880637 +0800 generation_config.json
+-rw-rw-r-- 1 amd amd    1671839 2026-08-27 13:22:38.969920952 +0800 merges.txt
+-rw------- 1 amd amd 3833402520 2026-09-21 14:45:23.069836766 +0800 model.safetensors
+-rw-rw-r-- 1 amd amd        127 2026-08-27 13:22:39.022972833 +0800 preprocessor_config.json
+-rw-rw-r-- 1 amd amd      57817 2026-08-27 13:22:39.375916126 +0800 README.md
+drwxrwxr-x 2 amd amd       4096 2026-08-27 13:23:52.732079329 +0800 speech_tokenizer
+-rw-rw-r-- 1 amd amd       7344 2026-08-27 13:22:39.277917291 +0800 tokenizer_config.json
+-rw-rw-r-- 1 amd amd    2776833 2026-08-27 13:22:40.204906274 +0800 vocab.json
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python -c 'checkpoint config sanity: tts_model_type + spk_id entry' 
+CKPT-CONFIG-OK tts_model_type=custom_voice spk_id={'e2e_r1_speaker': 3000} spk_is_dialect={'e2e_r1_speaker': False}
+ckpt-config-exit=0
+$ sha256sum /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs/checkpoint-epoch-1/model.safetensors   (trained-weights fingerprint; differs per training)
+bf87ab9def9b665748e47bda78be5d2da4db6b83ef3a0103c21c5d628b8734d8  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs/checkpoint-epoch-1/model.safetensors
+================================================================================
+=== RUN 1 PHASE D: PEAK-MEMORY READING — launcher re-runs train() verbatim in-process with IDENTICAL args (direct invocation cannot expose torch.cuda.max_memory_allocated) ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot BEFORE phase D (launcher memory-reading run)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 8
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405378560
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e_sft_launcher.py --init_model_path /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base --output_model_path /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs-mem --train_jsonl /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/data/train_with_codes.jsonl --batch_size 2 --lr 2e-5 --num_epochs 2 --speaker_name e2e_r1_speaker --attn_implementation sdpa
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/accelerate/accelerator.py:529: UserWarning: `log_with=tensorboard` was passed but no supported trackers are currently installed.
+  warnings.warn(f"`log_with={log_with}` was passed but no supported trackers are currently installed.")
+`torch_dtype` is deprecated! Use `dtype` instead!
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+[launcher] torch.cuda.reset_peak_memory_stats() called at start
+Epoch 0 | Step 0 | Loss: 13.8779
+Epoch 1 | Step 0 | Loss: 9.3656
+[launcher] train() wall seconds: 18.4
+[launcher] torch.cuda.get_device_name(0): AMD Radeon 8060S Graphics
+[launcher] torch.cuda.max_memory_allocated: 18.013 GiB
+[launcher] torch.cuda.max_memory_reserved: 18.477 GiB
+launcher-exit=0
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot AFTER phase D (launcher memory-reading run)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 11
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407475712
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ ls /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs-mem && sha256sum /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs-mem/checkpoint-epoch-1/model.safetensors
+checkpoint-epoch-0
+checkpoint-epoch-1
+464fd883b89962e3783fbd40662ee7815f57d332a21469a48dc30b77711dc8eb  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs-mem/checkpoint-epoch-1/model.safetensors
+================================================================================
+=== RUN 1 PHASE E: CHECKPOINT RELOAD THROUGH OFFICIAL qwen_tts API + SYNTHESIS + WAVEFORM SANITY (checkpoint from the DIRECT phase-C training) ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot BEFORE phase E (reload + synthesis)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 8
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407475712
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e_reload_check.py --ckpt /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs/checkpoint-epoch-1 --speaker e2e_r1_speaker --text 'The morning ferry crosses the bay in twenty minutes.' --out /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/reload_synth_en01.wav
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs/checkpoint-epoch-1 … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x7cf64d4c2400 size: 12217344
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x7cf64d4d4400 size: 12272640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x7cf64e5b8a00 size: 11908608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x7cf64e5be600 size: 11936256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x7cf609400000 size: 20183808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x7cf64dc54400 size: 20197632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7cf602000000 size: 29623808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7cf64df10000 size: 29630720
+[reload] loaded; supported speakers: ['e2e_r1_speaker']
+[reload] generate_custom_voice took=6.0s sr=24000 n_wavs=1
+[reload] WAV-SANE=True finite=True sr=24000 (expect 24000) duration_s=3.20 (bounds 0.5-60) peak=0.3320 rms=0.05800
+[reload] wrote /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/reload_synth_en01.wav
+RELOAD-AND-SYNTHESIS-OK
+reload-exit=0
+$ rocm-smi --showproductname --showuse --showmeminfo vram   [GPU snapshot AFTER phase E (reload + synthesis)]
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 9
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407475712
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== RUN 1: POST-RUN PRISTINE CHECK ===
+$ git -C .upstream/Qwen3-TTS-fix status --porcelain | wc -l   (must be 0 — nothing written into the FIX worktree)
+0
+$ git -C .upstream/Qwen3-TTS-fix rev-parse HEAD   (unchanged)
+48b8644aac8512e6fdc0f4442788bf399c425fdb
+================================================================================
+=== RUN 1 SUMMARY ===
+run=1 speaker=e2e_r1_speaker
+generator-exit=0 prepare-exit=0 sft-direct-exit=0 launcher-exit=0 reload-exit=0
+samples=12 batch_size=2 -> 6 optimizer steps/epoch x 2 epochs = 12 optimizer steps (script steps the optimizer on EVERY microbatch; same arithmetic as the 2026-09-20 smoke)
+direct-invocation-produced: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs/checkpoint-epoch-{0,1} + the tee log .work-finetune/e2e-r1.log
+launcher-invocation-produced: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e-r1/runs-mem/checkpoint-epoch-{0,1} + the in-process peak-memory reading
+================================================================================
+=== TASK 6 E2E RUN 1 COMPLETE — sft-direct-exit=0 launcher-exit=0 reload-exit=0 ===
