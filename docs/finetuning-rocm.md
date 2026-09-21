@@ -1,4 +1,4 @@
-# Fine-tuning on ROCm — execution-validation record (2026-09-20)
+# Fine-tuning on ROCm — execution-validation record (2026-09-20; upstream-fix status updated 2026-09-21)
 
 This page documents that the **official Qwen3-TTS fine-tuning workflow
 executes end-to-end on the validated AMD ROCm stack** of this repository:
@@ -92,6 +92,63 @@ only in the gitignored clone during the run.
 > from our smoke transcript, asks for a CLI-selectable attention implementation
 > or an automatic `sdpa` fallback (mirroring the inference path), and offers
 > both PR options (gh capture: `evidence/upstream-issue-2026-09-21.txt`).
+> Follow-up, same day: the CLI-selectable option was submitted as
+> [PR #373](https://github.com/QwenLM/Qwen3-TTS/pull/373) — see
+> [Upstream fix status](#upstream-fix-status) below.
+
+---
+
+## Upstream fix status
+
+**ROCm E2E execution proven. Upstream portability fix submitted as Qwen3-TTS
+PR #373; current published qwen-tts==0.1.1 still requires the documented
+temporary workaround.**
+
+[PR #373](https://github.com/QwenLM/Qwen3-TTS/pull/373) — *"fix(finetuning):
+make attention implementation configurable"* — was submitted 2026-09-21 from
+a fork and is **OPEN, not merged**. It makes the attention implementation
+selectable on the CLI (`--attn_implementation`, with the upstream
+`flash_attention_2` default preserved) and fixes
+[#372](https://github.com/QwenLM/Qwen3-TTS/issues/372) **when merged**.
+Until a merged fix ships in a release, the single-line `sdpa` override
+documented above remains the path for the published `qwen-tts==0.1.1`
+package — the workaround history in this document stays as recorded.
+
+The PR is backed by a local validation chain, all archived under
+[`evidence/`](../evidence/README.md):
+
+1. **Pristine double reproduction of the failure** — the identical
+   invocation against byte-pristine upstream at the pinned SHA, twice, in
+   fresh processes with fresh datasets:
+   [`upstream-372-pristine-failure-run1.txt`](../evidence/upstream-372-pristine-failure-run1.txt) /
+   [`-run2.txt`](../evidence/upstream-372-pristine-failure-run2.txt).
+2. **Root cause + minimal fix, controlled isolation** — flipping exactly
+   the one token at `sft_12hz.py:51` lets the same chain pass end to end:
+   [`upstream-372-root-cause.md`](../evidence/upstream-372-root-cause.md)
+   (includes the PR submission appendix).
+3. **Targeted loader validation ×3** —
+   [`upstream-372-round-a-loads1.txt`](../evidence/upstream-372-round-a-loads1.txt),
+   [`-loads2.txt`](../evidence/upstream-372-round-a-loads2.txt),
+   [`-loads3.txt`](../evidence/upstream-372-round-a-loads3.txt).
+4. **2× independent E2E runs from the fix branch** — the patched official
+   script invoked directly (`sft_12hz.py --attn_implementation sdpa`),
+   fresh tree/dataset/process each, both exit 0 end to end with reload +
+   sane synthesis: [`upstream-372-e2e-run1.txt`](../evidence/upstream-372-e2e-run1.txt),
+   [`upstream-372-e2e-run2.txt`](../evidence/upstream-372-e2e-run2.txt)
+   (+ `.json` companions).
+5. **Default semantics preserved + minimal diff audited** — the
+   default-flag path still fails byte-identically to pristine upstream on
+   this flash-attn-less host (CUDA runtime was not independently tested);
+   the full fix-branch diff is vendor-neutral and minimal:
+   [`upstream-372-default-semantics.txt`](../evidence/upstream-372-default-semantics.txt),
+   [`upstream-372-diff-audit.txt`](../evidence/upstream-372-diff-audit.txt).
+6. **Independent chain verifier PASS** — a fresh verifier re-attacked all
+   eight challenges and the 12 PR preconditions:
+   [`docs/superpowers/reports/rc02-task-8-upstream-372-verdict.md`](superpowers/reports/rc02-task-8-upstream-372-verdict.md).
+
+No claim on this page depends on PR #373 being merged, and the
+merged-upstream path has NOT been run — there is no merged upstream to run.
+The repository's zero-patch policy is unchanged.
 
 ---
 
@@ -237,7 +294,10 @@ Each item is linked to the evidence transcript
 * The flash-attn workaround (single-line `sdpa` override) is a **temporary,
   disclosed upstream-defect workaround** inside a gitignored clone; the
   program's no-fork policy is preserved (clone restored pristine, audit
-  clean). Upstream issue filing remains a human-owner action.
+  clean). Upstream issue #372 was filed 2026-09-21 and the fix PR #373
+  submitted the same day ([Upstream fix status](#upstream-fix-status));
+  until it merges, the workaround remains required for the published
+  `qwen-tts==0.1.1`.
 * `github.com` inaccessibility forced the disclosed clone-bootstrap
   procedure described above; the pinned SHA is verified by git's own
   content-addressing.

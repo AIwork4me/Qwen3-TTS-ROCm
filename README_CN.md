@@ -56,7 +56,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 设计 → 克隆 → 复用（音色工坊一键流程） | VoiceDesign 1.7B + Base | ✅ 端到端已验证 | [`voice-workflow-2026-09-20.txt`](evidence/voice-workflow-2026-09-20.txt) · [`voice-workflow-2026-09-20.json`](evidence/voice-workflow-2026-09-20.json) |
 | 12Hz 分词器编解码（编码 → 解码往返） | Tokenizer-12Hz | ✅ 端到端已验证 | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
 | 多语言矩阵 —— 全部 10 种官方支持语言端到端 | 1.7B CustomVoice + VoiceDesign + Base | ✅ 端到端已验证 | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
-| 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base | ✅ 限定范围 —— **仅执行冒烟验证**（准备 → 12 步 → 保存 → 重载 → 合成健全；无质量结论） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) |
+| 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base | ✅ 限定范围 —— **仅执行冒烟验证**（准备 → 12 步 → 保存 → 重载 → 合成健全；无质量结论）。ROCm 端到端执行已验证。上游可移植性修复已作为 Qwen3-TTS PR #373 提交（OPEN）；当前已发布的 `qwen-tts==0.1.1` 仍需按文档使用临时变通方案（[文档](docs/finetuning-rocm.md#upstream-fix-status)） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) · PR #373 验证链：[`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) · [`upstream-372-round-a-loads1.txt`](evidence/upstream-372-round-a-loads1.txt) · [`upstream-372-round-a-loads2.txt`](evidence/upstream-372-round-a-loads2.txt) · [`upstream-372-round-a-loads3.txt`](evidence/upstream-372-round-a-loads3.txt) · [`upstream-372-default-semantics.txt`](evidence/upstream-372-default-semantics.txt) · [`upstream-372-diff-audit.txt`](evidence/upstream-372-diff-audit.txt) |
 | CustomVoice 的指令控制 instruct | 0.6B | 🚫 上游未暴露（封装对 0.6B 静默忽略 `instruct`）—— 由测试钉住 | 任务 0 审计：[`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni 服务 | — | 🟡 部分验证 —— 仅证明离线可行：gfx1151 上跑通一个官方文档离线示例，单一配置，独立 venv（不声明服务、性能或质量） | [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt) · [路线图](#路线图尚未验证) |
 | 真流式推理 | — | 🚫 上游未暴露 —— 2026-09-21 在 gfx1151 上实测：qwen-tts 0.1.1 官方 Python API 仅在调用完成时一次性返回音频（每次运行恰 1 个分片；首音频时间 == 总墙钟） | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [路线图](#真流式推理) |
@@ -289,7 +289,7 @@ bash scripts/run_demo.sh
 | ROCm 环境自检 | — | ✅ |
 | ModelScope 优先下载器 | — | ✅ |
 | AMD iGPU 上的 RTF 基准证据 | — | ✅ |
-| 官方微调工作流（SFT）在 ROCm 上 | ✅（文档面向 CUDA + FlashAttention） | ✅ 限定为**仅执行验证（冒烟）**：数据准备 → 12 步训练 → checkpoint 保存 → 重载 → 合成通过健全性检查（不涉及音色相似度/收敛/质量结论）。含一项已披露的临时变通：上游硬编码的 `flash_attention_2` → `sdpa`，仅在 gitignored 的 `.upstream` 克隆内改动并已还原。详见 [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
+| 官方微调工作流（SFT）在 ROCm 上 | ✅（文档面向 CUDA + FlashAttention） | ✅ 限定为**仅执行验证（冒烟）**：数据准备 → 12 步训练 → checkpoint 保存 → 重载 → 合成通过健全性检查（不涉及音色相似度/收敛/质量结论）。ROCm 端到端执行已验证。上游可移植性修复已作为 Qwen3-TTS PR #373 提交（OPEN）——其验证链为：原始失败双重复现 → 最小修复受控隔离 → 3 次针对性加载验证 → 修复分支两次独立 E2E → 默认 `flash_attention_2` 语义保持 → 独立链路校验 PASS。在合并之前，当前已发布的 `qwen-tts==0.1.1` 仍需以下已披露的临时变通：上游硬编码的 `flash_attention_2` → `sdpa`，仅在 gitignored 的 `.upstream` 克隆内改动并已还原。详见 [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
 
 <a id="兼容性"></a>
 

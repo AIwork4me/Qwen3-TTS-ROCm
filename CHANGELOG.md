@@ -235,6 +235,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Fine-tuning claims aligned with the upstream PR state (2026-09-21, Task 10):
+  `docs/finetuning-rocm.md` gained an "Upstream fix status" section with the
+  fixed wording — ROCm E2E execution proven; upstream portability fix
+  submitted as PR #373 (OPEN); current published `qwen-tts==0.1.1` still
+  requires the documented temporary workaround — and its stale "issue filing
+  remains a human-owner action" limitation was corrected (#372 filed and
+  PR #373 submitted the same day, 2026-09-21). README / README_CN
+  fine-tuning rows now state the PR #373 status per the same wording and
+  link the full PR-validation evidence chain (pristine double reproduction,
+  root cause + controlled isolation, 3× loader validation, 2× independent
+  E2E runs, default-semantics proof, diff audit, independent verifier PASS)
+  instead of under-claiming only the 2026-09-20 smoke-era workaround; no
+  claim exceeds "submitted", and the merged-upstream path is explicitly not
+  claimed. PROVEN/NOT-PROVEN boundaries unchanged.
 - Test-count truing in README / README_CN: current-state claims updated to
   the suite as it stands — 267 CPU + 38 GPU = **305/305** on the validation
   host (CPU-only CI runs the same 267 CPU tests with 1 HIP-gated skip);
