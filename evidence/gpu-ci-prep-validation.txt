@@ -1,0 +1,140 @@
+# GPU CI preparation validation (Task 11) — local, prepare-only.
+# Date: 2026-09-21T08:21:10Z | Host: amd-HP-ZBook-Ultra | git HEAD: 3bb9c0a0da35924bb3cdbbbcb67504428b2a6b09 (branch main)
+# Purpose: prove .github/workflows/gpu-nightly.yml is valid YAML with the required
+# shape, and that every -k filter in it selects REAL collected -m gpu test nodes.
+# STATUS: BLOCKED ON RUNNER INFRASTRUCTURE — nothing here executed on a GitHub runner.
+
+## [1] cmd: .venv/bin/python -c "import yaml; yaml.safe_load(open('.github/workflows/gpu-nightly.yml'))"  (+ structural assertions)
+YAML-PARSE-OK; structural assertions PASS:
+  triggers: schedule cron 0 2 * * * + workflow_dispatch(suite: gpu-short|full-weekly), NO pull_request/push
+  jobs: gpu-short / full-weekly on [self-hosted, radeon-gfx1151], timeouts 120/720 min
+  checkout pinned to full SHA 3d3c42e5aac5ba805825da76410c181273ba90b1 (matches ci.yml)
+  permissions: contents: read
+  all 3 shipped -k filters + full matrix + verify_gpu.sh + benchmark --json-out present
+PYTEST_EXIT=0
+
+## [2] cmd: .venv/bin/python -m pytest -m gpu --co -q   (full GPU node inventory)
+tests/test_generate_custom_voice.py::test_single
+tests/test_generate_custom_voice.py::test_batch
+tests/test_generate_custom_voice.py::test_instruct_changes_output
+tests/test_generate_custom_voice.py::test_sampling_kwarg_passthrough_effect
+tests/test_generate_custom_voice_06b.py::test_single
+tests/test_generate_custom_voice_06b.py::test_batch
+tests/test_generate_custom_voice_06b.py::test_instruct_behavior
+tests/test_generate_custom_voice_06b.py::test_kwargs_passthrough
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[custom-voice]
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[voice-design]
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[base]
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[custom-voice-0.6b]
+tests/test_loader_all_models.py::test_load_smoke_each_tts_model[base-0.6b]
+tests/test_loader_all_models.py::test_tokenizer_load
+tests/test_official_demo_parity.py::test_upstream_blocks_constructed
+tests/test_official_demo_parity.py::test_official_closure_executes_via_gradio_fns
+tests/test_official_demo_parity.py::test_real_synthesis_through_upstream_callback
+tests/test_testing_utils.py::test_gpu_fixture_smoke
+tests/test_tokenizer_codec.py::test_metadata_getters_populated
+tests/test_tokenizer_codec.py::test_encode_decode_roundtrip_sane_and_duration_bound
+tests/test_voice_clone_06b.py::test_clone_with_ref_text
+tests/test_voice_clone_06b.py::test_clone_x_vector_only
+tests/test_voice_clone_06b.py::test_create_prompt_reuse
+tests/test_voice_clone_06b.py::test_save_load_roundtrip_parity
+tests/test_voice_clone_06b.py::test_batch_clone
+tests/test_voice_clone_workflow.py::test_clone_with_ref_text
+tests/test_voice_clone_workflow.py::test_clone_x_vector_only
+tests/test_voice_clone_workflow.py::test_create_prompt_reuse
+tests/test_voice_clone_workflow.py::test_save_load_roundtrip_parity
+tests/test_voice_clone_workflow.py::test_batch_clone
+tests/test_voice_design.py::test_single_sane
+tests/test_voice_design.py::test_batch_of_two_sane
+tests/test_voice_design.py::test_two_instructions_both_sane_and_distinct
+tests/test_voice_design.py::test_unsupported_language_raises_valueerror
+tests/test_voice_workflow.py::test_design_voice_creates_prompt_and_preview
+tests/test_voice_workflow.py::test_reuse_across_two_sentences
+tests/test_voice_workflow.py::test_save_load_roundtrip_then_reuse
+tests/test_voice_workflow.py::test_official_schema_preserved
+
+38/305 tests collected (267 deselected) in 4.21s
+PYTEST_EXIT=0
+
+## [3] cmd: .venv/bin/python -m pytest -m gpu --co -q -k "official_demo or tokenizer"
+tests/test_loader_all_models.py::test_tokenizer_load
+tests/test_official_demo_parity.py::test_upstream_blocks_constructed
+tests/test_official_demo_parity.py::test_official_closure_executes_via_gradio_fns
+tests/test_official_demo_parity.py::test_real_synthesis_through_upstream_callback
+tests/test_tokenizer_codec.py::test_metadata_getters_populated
+tests/test_tokenizer_codec.py::test_encode_decode_roundtrip_sane_and_duration_bound
+
+6/305 tests collected (299 deselected) in 4.14s
+PYTEST_EXIT=0
+
+## [3] cmd: .venv/bin/python -m pytest -m gpu --co -q -k "custom_voice or voice_design or voice_clone"
+tests/test_generate_custom_voice.py::test_single
+tests/test_generate_custom_voice.py::test_batch
+tests/test_generate_custom_voice.py::test_instruct_changes_output
+tests/test_generate_custom_voice.py::test_sampling_kwarg_passthrough_effect
+tests/test_generate_custom_voice_06b.py::test_single
+tests/test_generate_custom_voice_06b.py::test_batch
+tests/test_generate_custom_voice_06b.py::test_instruct_behavior
+tests/test_generate_custom_voice_06b.py::test_kwargs_passthrough
+tests/test_voice_clone_06b.py::test_clone_with_ref_text
+tests/test_voice_clone_06b.py::test_clone_x_vector_only
+tests/test_voice_clone_06b.py::test_create_prompt_reuse
+tests/test_voice_clone_06b.py::test_save_load_roundtrip_parity
+tests/test_voice_clone_06b.py::test_batch_clone
+tests/test_voice_clone_workflow.py::test_clone_with_ref_text
+tests/test_voice_clone_workflow.py::test_clone_x_vector_only
+tests/test_voice_clone_workflow.py::test_create_prompt_reuse
+tests/test_voice_clone_workflow.py::test_save_load_roundtrip_parity
+tests/test_voice_clone_workflow.py::test_batch_clone
+tests/test_voice_design.py::test_single_sane
+tests/test_voice_design.py::test_batch_of_two_sane
+tests/test_voice_design.py::test_two_instructions_both_sane_and_distinct
+tests/test_voice_design.py::test_unsupported_language_raises_valueerror
+
+22/305 tests collected (283 deselected) in 4.22s
+PYTEST_EXIT=0
+
+## [3] cmd: .venv/bin/python -m pytest -m gpu --co -q -k "voice_workflow"
+tests/test_voice_workflow.py::test_design_voice_creates_prompt_and_preview
+tests/test_voice_workflow.py::test_reuse_across_two_sentences
+tests/test_voice_workflow.py::test_save_load_roundtrip_then_reuse
+tests/test_voice_workflow.py::test_official_schema_preserved
+
+4/305 tests collected (301 deselected) in 4.17s
+PYTEST_EXIT=0
+
+## [4] cmd: python cross-check block (union disjointness + complement enumeration)
+STEP1=6 STEP2=22 STEP3=4 UNION=32 DISJOINT=yes FULL=38
+full-weekly-only nodes (38-32):
+  tests/test_loader_all_models.py::test_load_smoke_each_tts_model[base-0.6b]
+  tests/test_loader_all_models.py::test_load_smoke_each_tts_model[base]
+  tests/test_loader_all_models.py::test_load_smoke_each_tts_model[custom-voice-0.6b]
+  tests/test_loader_all_models.py::test_load_smoke_each_tts_model[custom-voice]
+  tests/test_loader_all_models.py::test_load_smoke_each_tts_model[voice-design]
+  tests/test_testing_utils.py::test_gpu_fixture_smoke
+PYTEST_EXIT=0
+
+## [5] brief-draft filters checked and REFINED (why shipped -k differs):
+# cmd: .venv/bin/python -m pytest -m gpu --co -q -k "parity or tokenizer"
+8/305 tests collected (297 deselected) in 4.12s
+# cmd: .venv/bin/python -m pytest -m gpu --co -q -k "demo or studio"
+3/305 tests collected (302 deselected) in 4.14s
+# cmd: .venv/bin/python -m pytest -m gpu --co -q -k "validate_languages"
+no tests collected (305 deselected) in 4.17s
+# -> "parity" also matches the 2 clone save_load_roundtrip_parity nodes (8 not 6, duplicating step 2);
+# -> "studio" matches 0 GPU nodes (Voice Studio/demo-backend unit tests are CPU-only in ci.yml);
+# -> "validate_languages" matches 0 GPU nodes (scripts/validate_languages.py is a script, not a pytest node).
+
+## [6] cmd: .venv/bin/python scripts/benchmark.py --help | grep -A1 json-out   (flag is --json-out, not --json)
+usage: benchmark [-h] [--aliases ALIASES] [--max-new-tokens MAX_NEW_TOKENS]
+                 [--runs RUNS] [--warmup | --no-warmup] [--json-out JSON_OUT]
+
+RTF benchmark across registered Qwen3-TTS aliases (Task 18)
+--
+                        discard one warmup generation per alias (default: on)
+  --json-out JSON_OUT   where the JSON report lands (default:
+                        evidence/benchmark.json)
+
+## [7] VERDICT: YAML valid; every shipped -k filter selects the documented real GPU nodes
+## (6+22+4=32/38, disjoint); 6 loader/fixture-smoke nodes run only in full-weekly; no runner
+## exists, nothing executed on GitHub Actions. BLOCKED ON RUNNER INFRASTRUCTURE.

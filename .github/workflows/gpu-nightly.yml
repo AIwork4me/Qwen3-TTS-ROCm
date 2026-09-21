@@ -1,0 +1,108 @@
+# Qwen3-TTS-ROCm GPU regression CI (self-hosted Radeon 8060S, gfx1151).
+#
+# STATUS: BLOCKED ON RUNNER INFRASTRUCTURE — this workflow is validated
+# locally (YAML parse + -k filter selection proofs in
+# evidence/gpu-ci-prep-validation.txt) but has NEVER executed on a GitHub
+# runner: no self-hosted runner is registered yet. Do not add a GPU CI badge
+# until a real run is green. Setup/maintenance: docs/development/gpu-ci-runbook.md.
+#
+# Unlike ci.yml (ubuntu-latest, CPU-only, hermetic install per job), this
+# workflow runs on a SELF-HOSTED runner that owns the persistent validated
+# stack: the .venv built by scripts/install.sh (ROCm 7.14 wheels, Python
+# 3.12) and the downloaded models/ tree. Jobs therefore install nothing —
+# they reuse the host environment, matching how every evidence transcript
+# in evidence/ was produced.
+#
+# Suite selection (validated against `.venv/bin/python -m pytest -m gpu
+# --co -q` on 2026-09-21 — 38 GPU nodes total; see the runbook's filter
+# mapping table):
+#   nightly gpu-short = 32 of the 38 nodes, in three disjoint slices:
+#     1. "official_demo or tokenizer"    ->  6 nodes (upstream parity proof
+#        incl. one real synthesis through the official demo's Gradio
+#        closures + tokenizer codec/load)
+#     2. "custom_voice or voice_design or voice_clone"
+#                                      -> 22 nodes (CustomVoice 1.7B + 0.6B,
+#        VoiceDesign, Base clone 1.7B + 0.6B incl. the reusable
+#        create_voice_clone_prompt path in both clone suites)
+#     3. "voice_workflow"               ->  4 nodes (Voice Studio workflow:
+#        design -> preview -> save -> reuse on real weights)
+#   The other 6 nodes (5 test_loader_all_models load smokes +
+#   test_gpu_fixture_smoke) run only in full-weekly, by design: every
+#   short-suite step already loads the model it exercises.
+#   NOT covered by any -k filter here (on purpose, never silently claimed):
+#   scripts/validate_languages.py (a script, not a pytest node) and the
+#   Voice Studio/demo-backend CPU unit tests (test_demo_backend.py /
+#   test_demo_ui.py — no gpu marker; they run in ci.yml). The keyword
+#   "studio" selects 0 GPU nodes and is therefore not used.
+#
+# Supply chain: like ci.yml, third-party actions are pinned to full commit
+# SHAs; least privileges (contents: read). No pull_request trigger: a
+# self-hosted runner on a private desktop must never execute fork code.
+
+name: gpu-nightly
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # nightly 02:00 UTC (GitHub schedules in UTC; delays possible — runbook §trigger)
+  workflow_dispatch:
+    inputs:
+      suite:
+        description: "gpu-short | full-weekly"
+        required: false
+        default: "gpu-short"
+
+permissions:
+  contents: read
+
+jobs:
+  gpu-short:
+    if: ${{ github.event.inputs.suite != 'full-weekly' }}
+    runs-on: [self-hosted, radeon-gfx1151]
+    timeout-minutes: 120
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Environment diagnostics (fail fast if host prerequisites drifted)
+        run: |
+          test -x .venv/bin/python || { echo "ERROR: .venv missing — build it with scripts/install.sh (runbook §prerequisites)"; exit 1; }
+          test -d models || { echo "ERROR: models/ missing — run scripts/download_models.sh (runbook §prerequisites)"; exit 1; }
+          rocm-smi --showproductname --showuse --showmeminfo vram
+          .venv/bin/python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+
+      - name: Upstream parity + tokenizer (GPU)
+        run: .venv/bin/python -m pytest -m gpu -q -k "official_demo or tokenizer"
+
+      - name: Core generation suites (CustomVoice 1.7B/0.6B, VoiceDesign, Base clone 1.7B/0.6B incl. reusable prompt)
+        run: .venv/bin/python -m pytest -m gpu -q -k "custom_voice or voice_design or voice_clone"
+
+      - name: Voice Studio voice workflow (GPU)
+        run: .venv/bin/python -m pytest -m gpu -q -k "voice_workflow"
+
+  full-weekly:
+    if: ${{ github.event.inputs.suite == 'full-weekly' }}
+    runs-on: [self-hosted, radeon-gfx1151]
+    timeout-minutes: 720
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Environment diagnostics (fail fast if host prerequisites drifted)
+        run: |
+          test -x .venv/bin/python || { echo "ERROR: .venv missing — build it with scripts/install.sh (runbook §prerequisites)"; exit 1; }
+          test -d models || { echo "ERROR: models/ missing — run scripts/download_models.sh (runbook §prerequisites)"; exit 1; }
+          rocm-smi --showproductname --showuse --showmeminfo vram
+          .venv/bin/python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+
+      - name: Full GPU regression (all 38 gpu-marked nodes)
+        run: .venv/bin/python -m pytest -m gpu -q
+
+      # Stack-level prerequisite of fine-tuning (bf16 matmul + SDPA on gfx1151).
+      # The real fine-tuning execution smoke (upstream prepare_data.py + sft_12hz.py
+      # in the gitignored .upstream/ clone — evidence/finetune-smoke-2026-09-20.txt)
+      # is a manual procedure, NOT run by this workflow; see runbook §maintenance.
+      - name: GPU stack sanity (fine-tune prerequisite)
+        run: bash scripts/verify_gpu.sh
+
+      - name: Benchmark replication (RTF across registered aliases)
+        run: .venv/bin/python scripts/benchmark.py --json-out evidence/benchmark-nightly.json

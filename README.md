@@ -174,6 +174,14 @@ push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/ac
 when the suite stood at 252 CPU tests; the suite has since grown to the
 counts above. Transcript: `evidence/ci-2026-09-21-8815238.txt`).
 
+**GPU CI state:** a self-hosted GPU regression workflow
+(`.github/workflows/gpu-nightly.yml` — nightly short suite + manual
+full-weekly matrix on the `gfx1151` host) and its runbook are **prepared but
+BLOCKED ON RUNNER INFRASTRUCTURE**: no runner is registered, the workflow has
+never executed on GitHub Actions, and there is deliberately **no GPU CI
+badge**. Filter-selection proofs: `evidence/gpu-ci-prep-validation.txt`;
+activation steps: [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md).
+
 The flagship demo tab, captured live on the validation machine:
 
 ![Preset Speakers tab synthesizing on Radeon 8060S](docs/img/demo-customvoice.png)
@@ -300,7 +308,9 @@ bilingual environment self-check any time (read-only, never raises).
   size: run
   [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932),
   `266 passed, 1 skipped`). The upstream-parity proof below is one of the
-  38 GPU tests — it runs on the validation host, not in CPU-only CI.
+  38 GPU tests — it runs on the validation host, not in CPU-only CI (a
+  prepared-but-blocked self-hosted GPU workflow exists; see the GPU CI state
+  note above and [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md)).
 
 <a id="why-this-project-exists"></a>
 
