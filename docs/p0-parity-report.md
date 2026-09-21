@@ -3,6 +3,14 @@
 Program: P0 capability parity, 2026-09-20 — five gated tasks (T0 audit +
 Tasks 1–5), subagent-driven, verifier-gated per task.
 
+> **As-of 2026-09-21:** this report records the P0 program at its final
+> commit `8815238` (2026-09-20). The follow-up program (commits
+> `bc5e43c`–`181667c`, 2026-09-21) superseded the two rows marked
+> *(superseded)* below (vLLM-Omni feasibility: **FEASIBLE**, 🟡 single
+> config; true streaming: **measured — blocking-only API**, row stays
+> not-claimed) and first-verified CI on the pushed suite. The authoritative
+> current capability state is [`README.md`](../README.md).
+
 ## North Star
 
 **Official Qwen3-TTS on AMD Radeon — capability by capability, benchmark by benchmark, with zero upstream patches.**
@@ -66,8 +74,8 @@ intentionally not claimed.
 | Fine-tuning (official SFT workflow) | 1.7B Base | ✅ scoped — execution-only smoke, no quality claims | [`evidence/finetune-smoke-2026-09-20.txt`](../evidence/finetune-smoke-2026-09-20.txt) · [`evidence/finetune-smoke-2026-09-20.json`](../evidence/finetune-smoke-2026-09-20.json) |
 | Benchmark coverage (median RTF, archived runs) | 1.7B trio + 0.6B pair | ✅ archived | [`evidence/benchmark.json`](../evidence/benchmark.json) · [`evidence/benchmark-06b-2026-09-20.json`](../evidence/benchmark-06b-2026-09-20.json) |
 | Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently nulls `instruct`) | [`evidence/ground-truth-2026-09-20.md`](../evidence/ground-truth-2026-09-20.md) |
-| vLLM-Omni serving | — | 🚫 → roadmap (feasibility not started) | README "Roadmap (not yet validated)" |
-| True streaming inference | — | 🚫 → roadmap (no Radeon measurements exist) | README "Roadmap (not yet validated)" |
+| vLLM-Omni serving | — | 🚫 → roadmap (feasibility not started) *(superseded 2026-09-21: offline feasibility FEASIBLE, 🟡 single config — see README)* | README "Roadmap (not yet validated)" |
+| True streaming inference | — | 🚫 → roadmap (no Radeon measurements exist) *(superseded 2026-09-21: measured — blocking-only API, probe archived; row stays not-claimed)* | README "Roadmap (not yet validated)" |
 
 ## Benchmarks
 

@@ -10,7 +10,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 PY="$ROOT/.venv/bin/python"
 
 if [[ ! -x "$PY" ]]; then
-    echo "ERROR: $PY not found. Create the venv first (see docs/plan)." >&2
+    echo "ERROR: $PY not found. Create the venv first (see README.md Quick Start)." >&2
     exit 1
 fi
 

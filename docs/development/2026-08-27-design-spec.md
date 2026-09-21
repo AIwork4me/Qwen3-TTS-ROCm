@@ -125,7 +125,7 @@ def load(model_ref: str|Path,
 
 ### 5.4 patch.py — 运行时兼容补丁点（预留壳）
 - 仅当 Spike 后发现官方代码在某处不兼容且可 monkey-patch 时启用
-- 每个补丁必须：针对官方精确版本号断言（`qwen_tts.__version__ == "0.1.1"`）+ 单元测试 + 文档记录原因
+- 每个补丁必须：针对官方精确版本号断言（`qwen_tts.__version__ == "0.1.1"`）+ 单元测试 + 文档记录原因（2026-09-21 勘误：安装版 qwen-tts 并无 `__version__` 属性；实际实现改用 `importlib.metadata` 版本断言，见 `src/qwen3_tts_rocm/compat.py`）
 - 当前预期：空实现（vendor 升级路径保险丝）
 
 ### 5.5 demo/app.py — 增强版 Gradio 应用

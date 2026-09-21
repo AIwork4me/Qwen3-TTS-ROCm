@@ -10,10 +10,14 @@ memory pressure and background load on an integrated GPU — treat any single
 session as indicative, and cite the artifact + date alongside any number you
 quote.**
 
-Headline: for short-to-medium sentences (≤ ~18 s of audio) the tuned-voice
-models render at a median **RTF ≈ 1.3–1.6** (lower is better), i.e. a few
-seconds of wait for a few seconds of speech. The zero-shot Base (voice-clone)
-model lands around **RTF ≈ 1.7–1.9** on the same texts.
+Headline (2026-08-27 session): for short-to-medium sentences (≤ ~18 s of
+audio) the tuned-voice models render at a median **RTF ≈ 1.3–1.6** (lower
+is better), i.e. a few seconds of wait for a few seconds of speech. The
+zero-shot Base (voice-clone) model landed around **RTF ≈ 1.7–1.9** on the
+same texts that day. 2026-09-21 replication: the tuned-voice cells held
+within ±12%, and Base measured **1.27–1.40** once the baseline's 1396 s
+heat-soak warmup was accounted for — see the Cross-day replication section
+below.
 
 ## Platform
 

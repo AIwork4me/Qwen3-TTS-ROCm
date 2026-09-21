@@ -17,7 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `base-0.6b` (ref-text cloning, x-vector-only cloning, reusable
   `create_voice_clone_prompt`, official-demo-format save/load roundtrip
   parity, batch cloning). The suite grows to 250/250 on the validation host
-  (216 CPU + 34 real-GPU); CPU-only CI passes 215 + 1 HIP-gated skip.
+  (216 CPU + 34 real-GPU); CPU-only CI was expected to pass 215 + 1
+  HIP-gated skip (host-derived expectation at authoring time — the first
+  actually executed CI run, 2026-09-21, is recorded under [Unreleased]).
 - `scripts/benchmark.py`: the 0.6B aliases (`custom-voice-0.6b`,
   `base-0.6b`) are benchmarked through their family's official entry
   points; per-alias `load_seconds` (timed `loader.load`) and
@@ -51,7 +53,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the reference audio. 13 CPU unit tests pin the pure helpers. Archived
   run: `evidence/multilingual-matrix.json` + verbatim transcript
   `evidence/multilingual-matrix.txt` (24/24 matrix cells + 4/4 reference
-  generations passed, 147.5 s wall). README / README_CN gained the
+  generations passed, 152.6 s wall). README / README_CN gained the
   "Multilingual capability matrix" section rendered from that evidence.
 - First-class Voice Design → reusable-voice workflow (P0 capability parity,
   Task 3): new `qwen3_tts_rocm.voice_workflow` composes ONLY the three

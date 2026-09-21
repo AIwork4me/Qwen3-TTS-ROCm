@@ -296,8 +296,11 @@ bilingual environment self-check any time (read-only, never raises).
   ([docker/README.md](docker/README.md)).
 * **Test suite** — 305/305 on the validated ROCm host (267 CPU + 38
   real-GPU); the CPU-only CI matrix runs the same 267 CPU tests with
-  1 HIP-gated skip on Python 3.10 / 3.11 / 3.12, including the
-  upstream-parity proof below.
+  1 HIP-gated skip on Python 3.10 / 3.11 / 3.12 (first verified at this
+  size: run
+  [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932),
+  `266 passed, 1 skipped`). The upstream-parity proof below is one of the
+  38 GPU tests — it runs on the validation host, not in CPU-only CI.
 
 <a id="why-this-project-exists"></a>
 
@@ -350,10 +353,14 @@ compute for 1 second of audio.
 |---|---:|
 | Custom Voice (1.7B) | 1.31 – 1.51 |
 | Voice Design (1.7B) | 1.27 – 1.62 |
-| Voice Clone, zero-shot (`base` 1.7B) | 1.71 – 1.88 |
+| Voice Clone, zero-shot (`base` 1.7B) | 1.71 – 1.88 (2026-08-27) |
 
 A few seconds of wait for a few seconds of speech on an iGPU — usable
-sentence-scale interactive demos, comfortable batch workloads. We quote
+sentence-scale interactive demos, comfortable batch workloads. The `base`
+row is the 2026-08-27 session; the 2026-09-21 replication measured
+1.27 – 1.40 under non-heat-soaked conditions (the baseline's `base` cells
+followed a 1396 s warmup — see the cross-day section of
+[`docs/benchmarks.md`](docs/benchmarks.md)). We quote
 ranges, not latency promises: numbers drift with clocks, thermals, memory
 pressure and background load on shared-pool unified memory. Full per-cell
 tables, methodology, n=2 caveats and the reproduce block:

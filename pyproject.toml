@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qwen3-tts-rocm"
-version = "0.1.0"
+version = "0.2.0"
 description = "ROCm (gfx1151) runtime adapter, model manager and enhanced Gradio demo for Qwen3-TTS"
 readme = "README.md"
 requires-python = ">=3.10"

@@ -266,7 +266,10 @@ bash scripts/run_demo.sh
   （[docker/README.md](docker/README.md)）。
 * **测试套件** —— 验证主机 305/305 全通过（267 CPU + 38 真机 GPU）；
   CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上运行同样这 267 项 CPU 测试，
-  其中 1 项 HIP 门控跳过，含下文的上游一致性证明。
+  其中 1 项 HIP 门控跳过（该规模首次实证：运行
+  [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932)，
+  `266 passed, 1 skipped`）。下文的上游一致性证明属于 38 项 GPU 测试之一，
+  在验证主机上运行，不在 CPU-only CI 中。
 
 <a id="why-this-project-exists"></a>
 
@@ -315,10 +318,12 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 |---|---:|
 | 定制音色 Custom Voice（1.7B） | 1.31 – 1.51 |
 | 音色设计 Voice Design（1.7B） | 1.27 – 1.62 |
-| 零样本语音克隆（`base` 1.7B） | 1.71 – 1.88 |
+| 零样本语音克隆（`base` 1.7B） | 1.71 – 1.88（2026-08-27 会话） |
 
 在 iGPU 上等几秒得到几秒语音——句子级交互演示可用，批量离线合成更是从容。
-我们只给区间，不做绝对延迟承诺：统一内存共享池上，数字随时钟、温度、内存
+`base` 行为 2026-08-27 会话数据；2026-09-21 复测在非热浸泡条件下测得
+1.27 – 1.40（基线 `base` 各格紧随 1396 秒预热——见
+[`docs/benchmarks.md`](docs/benchmarks.md) 跨天复测章节）。我们只给区间，不做绝对延迟承诺：统一内存共享池上，数字随时钟、温度、内存
 压力与后台负载漂移。完整分格表格、方法学、n=2 注意事项与复现命令见
 [`docs/benchmarks.md`](docs/benchmarks.md)。
 
