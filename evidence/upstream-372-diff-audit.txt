@@ -1,0 +1,306 @@
+================================================================================
+=== TASK 7 ROUND E -- FIX-BRANCH DIFF AUDIT -- 2026-09-21T15:08:52+08:00 ===
+Program: Radeon Reference Closure v0.2, Task 7 (brief 6E) -- Step 7.2.
+Document kind: analysis (per-hunk verdicts) over machine-captured command outputs;
+the diff itself is appended at the end byte-identically. Not a raw transcript.
+
+Audited range: FIX branch fix/finetuning-attn-implementation @ 48b8644 vs pinned
+upstream main 022e286b98fbec7e1e916cb940cdf532cd9f488e (the branch base).
+Diff saved with: git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD \
+    > .work-finetune/fix-branch.diff   (151 lines, 4 hunks, 2 files)
+Range-syntax note: the brief writes <pinned-SHA>...HEAD (three-dot). The FIX branch
+is a LINEAR descendant of 022e286 (022e286 -> 0be0026 -> 48b8644), so
+merge-base(022e286, HEAD) == 022e286 and the two-dot and three-dot diffs are
+byte-identical (verified below in check [H]); the two-dot form is recorded.
+
+Audit criteria (brief Step 7.2 / program plan): ONLY configurability + parser
+factoring + tests; no unrelated cleanup; no formatting churn; no downstream
+branding; no prohibited change (AMD/ROCm branches, torch.version.hip, changed
+global default, vendoring, architecture/optimizer/dataset/checkpoint changes,
+new dependencies).
+================================================================================
+=== PINNED INPUTS ===
+$ date -Is
+2026-09-21T15:08:52+08:00
+$ git -C . rev-parse --abbrev-ref HEAD && git -C . rev-parse HEAD   (downstream repo)
+main
+192554033c2dc055f95e53c2dc671445d08d161f
+$ git -C .upstream/Qwen3-TTS-fix rev-parse --abbrev-ref HEAD && git -C .upstream/Qwen3-TTS-fix rev-parse HEAD
+fix/finetuning-attn-implementation
+48b8644aac8512e6fdc0f4442788bf399c425fdb
+$ git -C .upstream/Qwen3-TTS-fix status --porcelain | wc -l   (0 = pristine FIX worktree)
+0
+$ diff under audit: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/fix-branch.diff
+274761d4df2dee189be9ef8c829fcff1232f390b60112fcf1df0bc10963e29b4  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/fix-branch.diff
+================================================================================
+=== RANGE-LEVEL CHECKS (machine-captured) ===
+[A] $ git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD --stat
+ finetuning/sft_12hz.py                |  15 +++--
+ tests/test_sft_attn_implementation.py | 105 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 115 insertions(+), 5 deletions(-)
+[B] $ git -C .upstream/Qwen3-TTS-fix diff -w 022e286..HEAD --stat   (identical stat to [A] => zero whitespace-only churn)
+ finetuning/sft_12hz.py                |  15 +++--
+ tests/test_sft_attn_implementation.py | 105 ++++++++++++++++++++++++++++++++++
+ 2 files changed, 115 insertions(+), 5 deletions(-)
+[C] $ git -C .upstream/Qwen3-TTS-fix log --oneline 022e286..HEAD   (exactly the patch + tests commits)
+48b8644 test(finetuning): cover default and explicit attention implementation
+0be0026 fix(finetuning): make attention implementation configurable
+[D1] $ git -C .upstream/Qwen3-TTS-fix show --stat --oneline 0be0026 | cat
+0be0026 fix(finetuning): make attention implementation configurable
+ finetuning/sft_12hz.py | 15 ++++++++++-----
+ 1 file changed, 10 insertions(+), 5 deletions(-)
+[D2] $ git -C .upstream/Qwen3-TTS-fix show --stat --oneline 48b8644 | cat
+48b8644 test(finetuning): cover default and explicit attention implementation
+ tests/test_sft_attn_implementation.py | 105 ++++++++++++++++++++++++++++++++++
+ 1 file changed, 105 insertions(+)
+[E] prohibited-pattern scan over CHANGED lines only (+/-, excluding +++/--- headers):
+    grep -c -i -E "torch\.version\.hip|version\.hip|\brocm\b|\bamd\b|is_hip|device_map|CUDA_VISIBLE|qwen3-tts-rocm|radeon"
+0
+    ^ 0 hits = no AMD/ROCm branching, no torch.version.hip, no device_map, no downstream branding on any changed line
+[F] $ git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD --name-only   (exactly 2 files; no vendored/copied code, no dependency files)
+finetuning/sft_12hz.py
+tests/test_sft_attn_implementation.py
+[G] imports added by the diff (must be stdlib only):
+    $ git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD | grep "^+" | grep -E "^\\+\\s*(import|from) "
++import sys
++import unittest
++from pathlib import Path
++from unittest import mock
++import sft_12hz  # noqa: E402
+[H] two-dot vs three-dot identity:
+    $ diff <(git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD) <(git -C .upstream/Qwen3-TTS-fix diff 022e286...HEAD) && echo TWO_DOT_THREE_DOT_IDENTICAL
+TWO_DOT_THREE_DOT_IDENTICAL
+[I] hunk count:
+    $ git -C .upstream/Qwen3-TTS-fix diff 022e286..HEAD | grep -c "^@@"
+4
+================================================================================
+=== PER-HUNK VERDICTS (analysis; every hunk of the 4 above) ===
+Hunk | File: hunk header               | Verdict
+-----+---------------------------------+-----------------------------------------------------
+H1   | finetuning/sft_12hz.py          | PASS -- pure parser factoring. Removes def train():
+     | @@ -28,9 +28,7 @@               | + global target_speaker_embedding + blank FROM this
+     | (context: all 7 pre-existing    | position (all three re-appear verbatim as H2's new
+     | add_argument lines are CONTEXT, | train() body); parser construction now sits under
+     | untouched)                     | def build_arg_parser():. Every pre-existing
+     |                                 | add_argument line is a context line (untouched), so
+     |                                 | the parser's existing flags/defaults/requiredness are
+     |                                 | byte-identical. No cleanup, no reformatting.
+H2   | finetuning/sft_12hz.py          | PASS -- the configurability change itself. Adds
+     | @@ -39,7 +37,14 @@              | --attn_implementation (type=str,
+     |                                 | default="flash_attention_2" -- upstream's hard-coded
+     |                                 | value BECOMES the parser default; global default NOT
+     |                                 | changed), return parser, and re-creates train() with
+     |                                 | the moved global statement + args =
+     |                                 | build_arg_parser().parse_args() (replaces upstream's
+     |                                 | args = parser.parse_args(); same sys.argv semantics for
+     |                                 | CLI users; backward compat proven by
+     |                                 | test_backward_compatible_parse).
+H3   | finetuning/sft_12hz.py          | PASS -- the one call-site change: hard-coded
+     | @@ -48,7 +53,7 @@               | attn_implementation="flash_attention_2" becomes
+     |                                 | attn_implementation=args.attn_implementation. With no
+     |                                 | flag given the identical string reaches
+     |                                 | from_pretrained (Round D: unit test
+     |                                 | test_default_value_reaches_model_loader + runtime
+     |                                 | default-parse proof in
+     |                                 | evidence/upstream-372-default-semantics.txt).
+H4   | tests/test_sft_attn_implementation.py | PASS -- tests only. New 105-line file, 5 tests,
+     | @@ -0,0 +1,105 @@               | stdlib + unittest.mock only ([G] shows the only
+     | (new file)                      | imports added by the whole diff: sys, unittest,
+     |                                 | pathlib.Path, unittest.mock), GPU-free
+     |                                 | (from_pretrained intercepted). No test changes to any
+     |                                 | pre-existing file, no fixtures/data added.
+
+Changed-line accounting (all 5 deletions + 115 insertions accounted for):
+  Deletions (5): def train(): / global target_speaker_embedding / blank line
+    (H1; re-appear verbatim in H2 -- pure moves); args = parser.parse_args()
+    (H2; replaced by the equivalent build_arg_parser().parse_args()); the
+    hard-coded attn_implementation="flash_attention_2" (H3; the fix itself).
+  Insertions (10 in sft_12hz.py): def build_arg_parser(): ; the one new
+    add_argument with default="flash_attention_2"; return parser; 2 blank
+    lines; def train(): ; global target_speaker_embedding; blank; args =
+    build_arg_parser().parse_args(); attn_implementation=args.attn_implementation
+    (H3). Plus 105 test-file lines (H4). Nothing else.
+================================================================================
+=== PROHIBITED-CHANGE CHECKLIST (brief Step 7.2) ===
+Prohibited change                                   | Finding
+----------------------------------------------------+------------------------------
+AMD/ROCm-specific branches (is_hip, gfx, ...)       | NO -- [E] 0 hits on changed lines
+torch.version.hip / version probing                 | NO -- [E] 0 hits
+Changed global default (flash_attention_2)          | NO -- parser default IS flash_attention_2 (H2);
+                                                    |   default path proven preserved by Round D
+Vendoring (copying repo/downstream code upstream)   | NO -- [F] only the 2 files; the new file is an
+                                                    |   original unittest module
+Architecture / optimizer / dataset / checkpoint     | NO -- Accelerator, DataLoader, optimizer,
+changes                                             |   dataset handling, save/load calls are all
+                                                    |   context lines (untouched); the diff's only
+                                                    |   non-test hunks are H1-H3 above
+New dependencies                                    | NO -- [G] stdlib imports only; no
+                                                    |   requirements/pyproject file in [F]
+Unrelated cleanup / formatting churn                | NO -- [B] whitespace-ignoring stat identical;
+                                                    |   every changed line itemized above
+Downstream branding (repo names, paths, Radeon/     | NO -- [E] 0 hits; test file references only
+ROCm wording)                                       |   upstream's own flag names
+================================================================================
+=== AUDIT VERDICT (analysis) ===
+DIFF_IS_MINIMAL_AND_GENERIC -- PASS.
+Every hunk is either the configurability change (new --attn_implementation flag
+defaulting to the unchanged flash_attention_2, call site reading args), the
+minimal parser factoring needed to expose it (build_arg_parser()), or its tests.
+No changed line falls outside those three categories; no prohibited pattern
+appears anywhere in the diff. PR-ready as the full fix+tests diff for
+QwenLM/Qwen3-TTS#372 (range 022e286..48b8644).
+================================================================================
+=== THE DIFF ITSELF (appended verbatim from .work-finetune/fix-branch.diff) ===
+diff --git a/finetuning/sft_12hz.py b/finetuning/sft_12hz.py
+index c1f3f46..d4d63e4 100644
+--- a/finetuning/sft_12hz.py
++++ b/finetuning/sft_12hz.py
+@@ -28,9 +28,7 @@ from torch.utils.data import DataLoader
+ from transformers import AutoConfig
+ 
+ target_speaker_embedding = None
+-def train():
+-    global target_speaker_embedding
+-
++def build_arg_parser():
+     parser = argparse.ArgumentParser()
+     parser.add_argument("--init_model_path", type=str, default="Qwen/Qwen3-TTS-12Hz-1.7B-Base")
+     parser.add_argument("--output_model_path", type=str, default="output")
+@@ -39,7 +37,14 @@ def train():
+     parser.add_argument("--lr", type=float, default=2e-5)
+     parser.add_argument("--num_epochs", type=int, default=3)
+     parser.add_argument("--speaker_name", type=str, default="speaker_test")
+-    args = parser.parse_args()
++    parser.add_argument("--attn_implementation", type=str, default="flash_attention_2")
++    return parser
++
++
++def train():
++    global target_speaker_embedding
++
++    args = build_arg_parser().parse_args()
+ 
+     accelerator = Accelerator(gradient_accumulation_steps=4, mixed_precision="bf16", log_with="tensorboard")
+ 
+@@ -48,7 +53,7 @@ def train():
+     qwen3tts = Qwen3TTSModel.from_pretrained(
+         MODEL_PATH,
+         torch_dtype=torch.bfloat16,
+-        attn_implementation="flash_attention_2",
++        attn_implementation=args.attn_implementation,
+     )
+     config = AutoConfig.from_pretrained(MODEL_PATH)
+ 
+diff --git a/tests/test_sft_attn_implementation.py b/tests/test_sft_attn_implementation.py
+new file mode 100644
+index 0000000..12b1667
+--- /dev/null
++++ b/tests/test_sft_attn_implementation.py
+@@ -0,0 +1,105 @@
++"""Regression tests: --attn_implementation in finetuning/sft_12hz.py.
++
++Proves: (1) default stays flash_attention_2; (2) sdpa selectable;
++(3) the selected value reaches Qwen3TTSModel.from_pretrained;
++(4) parser stays backward compatible (the pre-patch argument set,
++    whose real names are init_model_path, output_model_path,
++    train_jsonl [required], batch_size, lr, num_epochs, speaker_name,
++    still parses with no new flags).
++GPU-free: from_pretrained is intercepted before any weight load.
++
++Adaptation vs. the plan draft: upstream's parser marks --train_jsonl
++as required=True, so this module always supplies a dummy
++--train_jsonl /tmp/dummy.jsonl (the file is never opened because
++from_pretrained raises _StopAfterLoad first).
++"""
++import sys
++import unittest
++from pathlib import Path
++from unittest import mock
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "finetuning"))
++import sft_12hz  # noqa: E402
++
++_DUMMY_TRAIN_JSONL = "/tmp/dummy.jsonl"
++
++
++class _StopAfterLoad(Exception):
++    pass
++
++
++def _parse(argv):
++    # --train_jsonl is required=True upstream; satisfy it for every parse.
++    argv = ["--train_jsonl", _DUMMY_TRAIN_JSONL, *argv]
++    with mock.patch.object(sys, "argv", ["sft_12hz.py", *argv]):
++        return sft_12hz.build_arg_parser().parse_args()
++
++
++class AttnImplementationTests(unittest.TestCase):
++    def test_default_is_flash_attention_2(self):
++        self.assertEqual(_parse([]).attn_implementation, "flash_attention_2")
++
++    def test_explicit_sdpa_selectable(self):
++        self.assertEqual(
++            _parse(["--attn_implementation", "sdpa"]).attn_implementation, "sdpa"
++        )
++
++    def test_value_reaches_model_loader(self):
++        captured = {}
++
++        def fake_from_pretrained(*args, **kwargs):
++            captured.update(kwargs)
++            raise _StopAfterLoad()
++
++        with mock.patch.object(sft_12hz, "Accelerator"), \
++                mock.patch.object(sft_12hz, "Qwen3TTSModel") as q:
++            q.from_pretrained.side_effect = fake_from_pretrained
++            with mock.patch.object(
++                sys,
++                "argv",
++                ["sft_12hz.py", "--train_jsonl", _DUMMY_TRAIN_JSONL,
++                 "--attn_implementation", "sdpa"],
++            ):
++                with self.assertRaises(_StopAfterLoad):
++                    sft_12hz.train()
++        self.assertEqual(captured["attn_implementation"], "sdpa")
++
++    def test_default_value_reaches_model_loader(self):
++        captured = {}
++
++        def fake_from_pretrained(*args, **kwargs):
++            captured.update(kwargs)
++            raise _StopAfterLoad()
++
++        with mock.patch.object(sft_12hz, "Accelerator"), \
++                mock.patch.object(sft_12hz, "Qwen3TTSModel") as q:
++            q.from_pretrained.side_effect = fake_from_pretrained
++            with mock.patch.object(
++                sys, "argv", ["sft_12hz.py", "--train_jsonl", _DUMMY_TRAIN_JSONL]
++            ):
++                with self.assertRaises(_StopAfterLoad):
++                    sft_12hz.train()
++        self.assertEqual(captured["attn_implementation"], "flash_attention_2")
++
++    def test_backward_compatible_parse(self):
++        # Upstream's actual pre-patch argument set parses identically with
++        # no new flags. train_jsonl (required) is supplied by _parse.
++        args = _parse([
++            "--init_model_path", "/tmp/init-model",
++            "--output_model_path", "/tmp/out",
++            "--batch_size", "4",
++            "--lr", "1e-4",
++            "--num_epochs", "1",
++            "--speaker_name", "speaker_test",
++        ])
++        self.assertEqual(args.init_model_path, "/tmp/init-model")
++        self.assertEqual(args.output_model_path, "/tmp/out")
++        self.assertEqual(args.train_jsonl, _DUMMY_TRAIN_JSONL)
++        self.assertEqual(args.batch_size, 4)
++        self.assertEqual(args.lr, 1e-4)
++        self.assertEqual(args.num_epochs, 1)
++        self.assertEqual(args.speaker_name, "speaker_test")
++
++
++if __name__ == "__main__":
++    unittest.main()
+================================================================================
+AUDIT-DOC-END 2026-09-21T15:08:53+08:00

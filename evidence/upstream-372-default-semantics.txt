@@ -1,0 +1,190 @@
+================================================================================
+=== TASK 7 ROUND D -- DEFAULT-CONFIGURATION SEMANTICS -- 2026-09-21T15:06:32+08:00 ===
+Program: Radeon Reference Closure v0.2, Task 7 (brief 6D) -- Step 7.1.
+Goal: prove the FIX branch preserves upstream's default configuration semantics
+when NO --attn_implementation flag is given, on two independent legs:
+  (a) UNIT: the Task 4 unittest suite on the FIX branch -- the default-value
+      tests (test_default_is_flash_attention_2, test_default_value_reaches_model_loader)
+      prove the default parse and the default reaching from_pretrained are
+      flash_attention_2; expected result: 5 tests OK, exit 0.
+  (b) RUNTIME: a real default-flag load of the 1.7B Base model on THIS ROCm host
+(flash_attn absent) -- expected to FAIL with the SAME FlashAttention ImportError
+the pristine upstream showed (evidence/upstream-372-pristine-failure-run1.txt),
+i.e. preserved-default runtime behavior, non-zero exit.
+Known deviation vs brief (SDD ruling in progress.md for Task 3): the parse supplies
+dummy --train_jsonl / --output_model_path because upstream's parser requires
+--train_jsonl; the dummies are never opened -- and NO --attn_implementation is given.
+This transcript is machine-generated (driver shell + tee); never hand-edited.
+================================================================================
+=== ENVIRONMENT AND PINNED INPUTS ===
+$ date -Is && uname -r
+2026-09-21T15:06:32+08:00
+6.17.0-1032-oem
+$ git -C . rev-parse --abbrev-ref HEAD && git -C . rev-parse HEAD   (downstream repo)
+main
+192554033c2dc055f95e53c2dc671445d08d161f
+$ git -C .upstream/Qwen3-TTS-fix rev-parse --abbrev-ref HEAD && git -C .upstream/Qwen3-TTS-fix rev-parse HEAD   (FIX worktree)
+fix/finetuning-attn-implementation
+48b8644aac8512e6fdc0f4442788bf399c425fdb
+$ git -C .upstream/Qwen3-TTS-fix status --porcelain | wc -l   (0 = pristine FIX worktree)
+0
+$ pinned upstream main (FIX branch base): 022e286b98fbec7e1e916cb940cdf532cd9f488e
+$ MODEL: /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+drwxrwxr-x 3 amd amd 4096  8月 27 13:26 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+$ driver under test: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_d_default_load.py
+fbebafd28a9caeded5bc1727dd4bc3555bb4a8689eb5194fd4e75434ad1c387d  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_d_default_load.py
+$ versions (python / torch / HIP / qwen-tts / transformers) + flash_attn absence
+python=3.12.3
+torch=2.12.0+rocm7.14.0 hip=7.14.60850
+qwen_tts=0.1.1   (via importlib.metadata; the module exposes no __version__)
+transformers=4.57.3
+cuda_available=True
+device=AMD Radeon 8060S Graphics
+flash_attn=ABSENT (ImportError: No module named 'flash_attn')
+================================================================================
+=== COMPONENT A -- UNIT TEST SUITE ON THE FIX BRANCH (GPU-free) ===
+$ (cd .upstream/Qwen3-TTS-fix && /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python -m unittest tests.test_sft_attn_implementation -v)
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+test_backward_compatible_parse (tests.test_sft_attn_implementation.AttnImplementationTests.test_backward_compatible_parse) ... ok
+test_default_is_flash_attention_2 (tests.test_sft_attn_implementation.AttnImplementationTests.test_default_is_flash_attention_2) ... ok
+test_default_value_reaches_model_loader (tests.test_sft_attn_implementation.AttnImplementationTests.test_default_value_reaches_model_loader) ... ok
+test_explicit_sdpa_selectable (tests.test_sft_attn_implementation.AttnImplementationTests.test_explicit_sdpa_selectable) ... ok
+test_value_reaches_model_loader (tests.test_sft_attn_implementation.AttnImplementationTests.test_value_reaches_model_loader) ... ok
+
+----------------------------------------------------------------------
+Ran 5 tests in 0.002s
+
+OK
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+unittest-exit=0   (the python process's own exit code -- not a pipeline wrapper's)
+================================================================================
+=== GPU SNAPSHOT BEFORE COMPONENT B ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 7
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1404719104
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== COMPONENT B -- DEFAULT-FLAG LOAD ATTEMPT (expected: FlashAttention ImportError, non-zero exit) ===
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python .work-finetune/round_d_default_load.py /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+parsed attn_implementation='flash_attention_2' (parser DEFAULT -- no flag given)
+default-parse-is-flash_attention_2=OK (runtime-side parse)
+attempting real from_pretrained with the DEFAULT value (expected to FAIL here)...
+Traceback (most recent call last):
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_d_default_load.py", line 36, in <module>
+    qwen3tts = sft_12hz.Qwen3TTSModel.from_pretrained(
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/inference/qwen3_tts_model.py", line 112, in from_pretrained
+    model = AutoModel.from_pretrained(pretrained_model_name_or_path, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/models/auto/auto_factory.py", line 604, in from_pretrained
+    return model_class.from_pretrained(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/core/models/modeling_qwen3_tts.py", line 1876, in from_pretrained
+    model = super().from_pretrained(
+            ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 277, in _wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 4971, in from_pretrained
+    model = cls(config, *model_args, **model_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/qwen_tts/core/models/modeling_qwen3_tts.py", line 1817, in __init__
+    super().__init__(config)
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2076, in __init__
+    self.config._attn_implementation_internal = self._check_and_adjust_attn_implementation(
+                                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2686, in _check_and_adjust_attn_implementation
+    applicable_attn_implementation = self.get_correct_attn_implementation(
+                                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2714, in get_correct_attn_implementation
+    self._flash_attn_2_can_dispatch(is_init_check)
+  File "/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/modeling_utils.py", line 2422, in _flash_attn_2_can_dispatch
+    raise ImportError(f"{preface} the package flash_attn seems to be not installed. {install_message}")
+ImportError: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+python-exit=1   (the python process's own exit code via PIPESTATUS[0], NOT of the tee wrapper)
+================================================================================
+=== GPU SNAPSHOT AFTER COMPONENT B ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 7
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1404719104
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== FAILURE-CLASS CHECK -- ImportError line vs pristine upstream failure (evidence/upstream-372-pristine-failure-run1.txt) ===
+$ grep -n "ImportError: FlashAttention2" .work-finetune/round_d_default_load_stdout.txt
+50:ImportError: FlashAttention2 has been toggled on, but it cannot be used due to the following error: the package flash_attn seems to be not installed. Please refer to the documentation of https://huggingface.co/docs/transformers/perf_infer_gpu_one#flashattention-2 to install Flash Attention 2.
+$ diff <(grep -m1 "^ImportError: FlashAttention2" evidence/upstream-372-pristine-failure-run1.txt) <(grep -m1 "^ImportError: FlashAttention2" .work-finetune/round_d_default_load_stdout.txt) && echo CLASS-MATCH-VERBATIM
+CLASS-MATCH-VERBATIM
+================================================================================
+=== ROUND D CLOSEOUT -- CRITERIA ===
+date-end: 2026-09-21T15:06:43+08:00
+criterion-a-unit-default-fa2: unittest-exit=0 (0 = PASS, 5 tests incl. both default-value tests)
+criterion-b-runtime-default-fails-here: python-exit=1 (non-zero = expected FAIL on this flash-attn-less host)
+criterion-b-class-match-verbatim: diff-rc=0 (0 + CLASS-MATCH-VERBATIM above = same failure as pristine upstream)
+ROUND_D_RESULT=PASS
+VERBATIM STATEMENT (required by brief Step 7.1): Default configuration semantics preserved; CUDA runtime was not independently tested.
+================================================================================
