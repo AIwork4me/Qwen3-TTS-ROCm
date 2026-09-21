@@ -1,0 +1,222 @@
+================================================================================
+=== TASK 5 ROUND A — TARGETED LOADER VALIDATION, RUN 1 OF 3 — 2026-09-21T14:21:38+08:00 ===
+Program: Radeon Reference Closure v0.2, Task 5 (brief 6A) — Steps 5.1/5.2.
+Goal: in a FRESH process, load the 1.7B Base checkpoint exactly as patched
+sft_12hz.py does (its own build_arg_parser + its own Qwen3TTSModel.from_pretrained,
+attn_implementation=sdpa, bf16) from the FIX worktree (.upstream/Qwen3-TTS-fix),
+and print parse result, resolved config._attn_implementation, CUDA availability,
+device name and allocator peak. Expected: no FlashAttention ImportError,
+impl=sdpa, ROUND_A_LOAD_OK, exit 0.
+Known deviation vs brief: the parse line supplies dummy --train_jsonl /
+--output_model_path / --init_model_path because upstream's parser requires
+--train_jsonl (disclosed plan defect, SDD ruling in progress.md for Task 3);
+the dummies are never opened — the driver stops after the load.
+This transcript is machine-generated (driver shell + tee); never hand-edited.
+================================================================================
+=== ENVIRONMENT AND PINNED INPUTS (RUN 1) ===
+$ date -Is && uname -r
+2026-09-21T14:21:38+08:00
+6.17.0-1032-oem
+$ git -C . rev-parse --abbrev-ref HEAD && git -C . rev-parse HEAD   (downstream repo)
+main
+5bfd44834e51e8d431a03add3c638c606bfb9b7a
+$ git -C .upstream/Qwen3-TTS-fix rev-parse --abbrev-ref HEAD && git -C .upstream/Qwen3-TTS-fix rev-parse HEAD   (FIX worktree)
+fix/finetuning-attn-implementation
+48b8644aac8512e6fdc0f4442788bf399c425fdb
+$ git -C .upstream/Qwen3-TTS-fix status --porcelain | wc -l   (0 = pristine FIX worktree)
+0
+$ MODEL (init_model_path used by the 2026-09-20 fine-tune smoke, per evidence/finetune-smoke-2026-09-20.{txt,json}): /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+drwxrwxr-x 3 amd amd 4096  8月 27 13:26 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+$ driver under test: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_a_load_check.py
+fa87b054bee11f3d122140196f1eea0b7fa3120287e4bc8462c389655c2c1450  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_a_load_check.py
+================================================================================
+=== GPU SNAPSHOT BEFORE RUN 1 ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 7
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1406259200
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== RUN 1: FRESH PYTHON PROCESS — patched-module loader check ===
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python .work-finetune/round_a_load_check.py /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+parsed attn_implementation=sdpa
+config._attn_implementation=sdpa
+cuda_available=True
+device=AMD Radeon 8060S Graphics
+mem_alloc_GiB=0.00
+ROUND_A_LOAD_OK
+python-exit=0   (the python process's own exit code — not a pipeline wrapper's)
+================================================================================
+=== GPU SNAPSHOT AFTER RUN 1 ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 8
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1406259200
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== RUN 1 CLOSEOUT ===
+date-end: 2026-09-21T14:21:44+08:00
+RUN_1_EXIT_0
+================================================================================
+================================================================================
+=== SUPPLEMENT (FIX ROUND 1): GPU-RESIDENT VARIANT, RUN 1 OF 3 — 2026-09-21T14:26:27+08:00 ===
+Program: Radeon Reference Closure v0.2, Task 5 fix round 1 (brief 6A supplement).
+Ruling: the brief requires 'ROCm GPU residency is real' as a Round A confirmation
+item, so this section SUPPLEMENTS the verbatim-path run above (left byte-untouched)
+with a GPU-resident variant: same driver, same parse line (dummy --train_jsonl /
+--output_model_path per the disclosed parser-args plan defect, never opened),
+from_pretrained ADDITIONALLY passes device_map="cuda:0" (fallback if the wrapper
+rejects it: load-then-move via qwen3tts.model.to('cuda:0'); placement_method= print
+records which worked), plus a param_device= placement print. Expected:
+config._attn_implementation=sdpa, param_device=cuda:0, mem_alloc_GiB>0,
+ROUND_A_LOAD_OK, python-exit=0, no FlashAttention ImportError.
+This section is machine-generated (driver shell + tee -a); never hand-edited.
+================================================================================
+=== ENVIRONMENT AND PINNED INPUTS (SUPPLEMENT RUN 1) ===
+$ date -Is && uname -r
+2026-09-21T14:26:27+08:00
+6.17.0-1032-oem
+$ git -C . rev-parse --abbrev-ref HEAD && git -C . rev-parse HEAD   (downstream repo, at supplement-run time)
+main
+3cb1aa18c19e343d647c87fa72e2b5ab98652e7c
+$ git -C .upstream/Qwen3-TTS-fix rev-parse --abbrev-ref HEAD && git -C .upstream/Qwen3-TTS-fix rev-parse HEAD   (FIX worktree)
+fix/finetuning-attn-implementation
+48b8644aac8512e6fdc0f4442788bf399c425fdb
+$ git -C .upstream/Qwen3-TTS-fix status --porcelain | wc -l   (0 = pristine FIX worktree)
+0
+$ MODEL (same as the verbatim-path run above): /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+$ driver under test: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_a_load_check_gpu.py
+a6cd725a183a40830804c77e6f92761acc598421a9b2c07450027fd2a3c50a7a  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/round_a_load_check_gpu.py
+================================================================================
+=== GPU SNAPSHOT BEFORE SUPPLEMENT RUN 1 ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 7
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1407172608
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== SUPPLEMENT RUN 1: FRESH PYTHON PROCESS — GPU-resident loader check ===
+$ /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python .work-finetune/round_a_load_check_gpu.py /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base
+/bin/sh: 1: sox: not found
+SoX could not be found!
+
+    If you do not have SoX, proceed here:
+     - - - http://sox.sourceforge.net/ - - -
+
+    If you do (or think that you should) have SoX, double-check your
+    path variables.
+    
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+parsed attn_implementation=sdpa
+placement_method=device_map
+config._attn_implementation=sdpa
+cuda_available=True
+device=AMD Radeon 8060S Graphics
+param_device=cuda:0
+mem_alloc_GiB=3.91
+ROUND_A_LOAD_OK
+python-exit=0   (the python process's own exit code — not a pipeline wrapper's)
+================================================================================
+=== GPU SNAPSHOT AFTER SUPPLEMENT RUN 1 ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 9
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405075456
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+================================================================================
+=== SUPPLEMENT RUN 1 CLOSEOUT ===
+date-end: 2026-09-21T14:26:34+08:00
+RUN_1_SUPPLEMENT_EXIT_0
+================================================================================
