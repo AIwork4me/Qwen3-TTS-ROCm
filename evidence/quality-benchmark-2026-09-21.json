@@ -1,0 +1,86 @@
+{
+  "meta": {
+    "date": "2026-09-21T18:10:36+08:00",
+    "git_head": "7cffe845841c6951ee703aadceabc5feff320d19",
+    "host": "amd-HP-ZBook-Ultra",
+    "python": "3.12.3",
+    "torch": "2.12.0+rocm7.14.0 (HIP 7.14.60850)",
+    "gpu": "AMD Radeon 8060S Graphics (gfx1151, torch-visible memory 80.0 GiB)",
+    "versions": {
+      "jiwer": "4.0.0",
+      "resemblyzer": "0.1.4",
+      "openai-whisper": "20250625",
+      "pystoi": "0.4.1",
+      "pesq": "not installed (REJECTED at Step 14.1 license gate)"
+    },
+    "args": {
+      "manifest": "tests/data/quality_benchmark_manifest.json",
+      "out": "evidence/quality-benchmark-2026-09-21.json"
+    },
+    "sampling_policy": {
+      "do_sample": true,
+      "temperature": 1.0,
+      "max_new_tokens": 512,
+      "speaker": "first supported speaker (generate_custom_voice)",
+      "rng_seed_per_case": "manifest seed + case index (torch.manual_seed)"
+    },
+    "asr": {
+      "model": "tiny",
+      "temperature": 0,
+      "device": "cuda if torch.cuda.is_available() else cpu"
+    }
+  },
+  "omitted_metrics": {
+    "pesq": "REJECTED at the Step 14.1 license gate: the pesq PyPI wrapper is MIT-labelled but bundles the ITU-T P.862 reference C implementation whose own IPR notice (owners British Telecommunications/Psytechnics and Royal KPN/OPTICOM; 'cannot ... sell, hire, loan, distribute, dispose or put to any commercial use') is incompatible with OSS distribution. Not installed; see evidence/quality-benchmark-2026-09-21.txt.",
+    "stoi": "pystoi ACCEPTed at the Step 14.1 gates (MIT; synthetic-pair smoke pass) but not computed for these cases: STOI requires a clean-reference/degraded-signal pair and the fixed manifest is text-conditioned (no clean reference waveform exists). Shipped in the quality extras for signal-pair (tokenizer roundtrip) evaluation."
+  },
+  "seed": 20260921,
+  "rows": [
+    {
+      "id": "zh-short",
+      "lang": "zh",
+      "metric": "cer",
+      "cer": 0.0,
+      "text": "今天天气很好。",
+      "transcript": "今天天气很好",
+      "audio_seconds": 1.2
+    },
+    {
+      "id": "zh-mid",
+      "lang": "zh",
+      "metric": "cer",
+      "cer": 0.2,
+      "text": "这个周末我们打算去山上徒步，顺便拍一些照片。",
+      "transcript": "这个中央我们打算去山上突破顺便拍一些照片",
+      "audio_seconds": 4.88
+    },
+    {
+      "id": "en-short",
+      "lang": "en",
+      "metric": "wer",
+      "wer": 0.0,
+      "text": "The weather is nice today.",
+      "transcript": " The weather is nice today.",
+      "audio_seconds": 1.28
+    },
+    {
+      "id": "en-mid",
+      "lang": "en",
+      "metric": "wer",
+      "wer": 0.0,
+      "text": "We are planning to go hiking this weekend and take some photos.",
+      "transcript": " We are planning to go hiking this weekend and take some photos.",
+      "audio_seconds": 3.28
+    },
+    {
+      "id": "clone-ref",
+      "lang": "zh",
+      "metric": "cer",
+      "cer": 2.8,
+      "text": "欢迎使用语音克隆功能。",
+      "transcript": "這次的台語是否有一個美食的這次的台語是否有一個美食的台語",
+      "audio_seconds": 7.04,
+      "speaker_sim_ref_vs_output": 0.6728
+    }
+  ]
+}

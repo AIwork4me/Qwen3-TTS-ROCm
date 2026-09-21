@@ -1,0 +1,12 @@
+{
+  "seed": 20260921,
+  "manifest_version": 1,
+  "description": "Fixed quality-benchmark case set (Task 14 / brief 15). Consumed by scripts/quality_eval.py; cases are frozen so CER/WER and speaker-similarity rows stay comparable across runs. The clone case reuses the bundled license-clean synthetic reference clip (fully reproducible via scripts/make_ref_wav.py); its ref_text is the documented approximate transcript of that clip (see tests/test_voice_clone_workflow.py and scripts/benchmark.py). The clone case is cross-lingual by design: an English-language synthetic reference driven to Chinese text, the officially supported path exercised by the multilingual matrix evidence.",
+  "cases": [
+    {"id": "zh-short", "text": "今天天气很好。", "lang": "zh"},
+    {"id": "zh-mid",   "text": "这个周末我们打算去山上徒步，顺便拍一些照片。", "lang": "zh"},
+    {"id": "en-short", "text": "The weather is nice today.", "lang": "en"},
+    {"id": "en-mid",   "text": "We are planning to go hiking this weekend and take some photos.", "lang": "en"},
+    {"id": "clone-ref", "role": "reference-clone", "ref": "src/qwen3_tts_rocm/demo/assets/ref_en.wav", "ref_text": "This tiny synthetic voice was cloned for automated testing.", "text": "欢迎使用语音克隆功能。", "lang": "zh"}
+  ]
+}

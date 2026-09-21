@@ -33,5 +33,9 @@ voices/
 .superpowers/
 .work-vllm/
 
+# Quality-benchmark gate scratch (Task 14): isolated gate venv + pesq sdist
+# inspection (license evidence, never installed) + run drivers
+.work-quality/
+
 # Upstream PR preparation scratch (Task 9): PR body + user-gate summary
 .work-upstream/

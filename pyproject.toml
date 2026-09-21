@@ -46,6 +46,18 @@ Documentation = "https://github.com/AIwork4me/Qwen3-TTS-ROCm/blob/main/README.md
 [project.optional-dependencies]
 dev = ["pytest", "ruff"]
 demo = ["gradio>=6,<7", "soundfile"]
+# Quality-benchmark toolchain (Task 14 / brief 15). Versions pinned to the
+# stack validated by the Step 14.1 investigation gates
+# (evidence/quality-benchmark-2026-09-21.txt): jiwer Apache-2.0, resemblyzer
+# Apache-2.0, openai-whisper MIT, pystoi MIT. `pesq` is deliberately absent:
+# REJECTED at the license gate (bundled ITU-T P.862 reference code carries a
+# restrictive Psytechnics/OPTICOM IPR notice — see the evidence transcript).
+quality = [
+  "jiwer==4.0.0",
+  "resemblyzer==0.1.4",
+  "openai-whisper==20250625",
+  "pystoi==0.4.1",
+]
 
 [project.scripts]
 qwen3-tts-rocm-check = "qwen3_tts_rocm.cli_check:main"

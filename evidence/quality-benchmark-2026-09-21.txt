@@ -1,0 +1,988 @@
+===== TASK 14 QUALITY BENCHMARK — STEP 14.1 INVESTIGATION GATES (brief 15) =====
+===== RUN START 2026-09-21T09:38:40Z =====
+
+== header (Global Constraints: date, git HEAD, upstream SHA, versions, GPU) ==
+----- CMD [git-HEAD]: git rev-parse HEAD -----
+7cffe845841c6951ee703aadceabc5feff320d19
+----- RC [git-HEAD] = 0 -----
+----- CMD [git-status]: git status --porcelain -----
+?? .work-quality/
+?? evidence/quality-benchmark-2026-09-21.txt
+----- RC [git-status] = 0 -----
+----- CMD [upstream-pinned-SHA]: git -C .upstream/Qwen3-TTS rev-parse HEAD -----
+022e286b98fbec7e1e916cb940cdf532cd9f488e
+----- RC [upstream-pinned-SHA] = 0 -----
+----- CMD [upstream-pristine-check]: git -C .upstream/Qwen3-TTS status --porcelain -----
+----- RC [upstream-pristine-check] = 0 -----
+----- CMD [qwen-tts-version]: /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/pip show qwen-tts -----
+Name: qwen-tts
+Version: 0.1.1
+Summary: Qwen-TTS python package
+Home-page: https://github.com/Qwen/Qwen3-TTS
+Author: Alibaba Qwen Team
+Author-email: 
+License: Apache-2.0
+Location: /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages
+Requires: accelerate, einops, gradio, librosa, onnxruntime, soundfile, sox, torchaudio, transformers
+Required-by: qwen3-tts-rocm
+----- RC [qwen-tts-version] = 0 -----
+
+== environment ==
+----- CMD [python]: /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python -V -----
+Python 3.12.3
+----- RC [python] = 0 -----
+----- CMD [torch-hip-gpu]: /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/bin/python -c import torch; print('torch', torch.__version__, '| HIP', torch.version.hip, '| device0', torch.cuda.get_device_name(0), '| gcnArch', torch.cuda.get_device_properties(0).gcnArchName) -----
+torch 2.12.0+rocm7.14.0 | HIP 7.14.60850 | device0 AMD Radeon 8060S Graphics | gcnArch gfx1151
+----- RC [torch-hip-gpu] = 0 -----
+----- CMD [rocm-smi-idle-before]: rocm-smi --showproductname --showuse --showmeminfo vram -----
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 8
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1403363328
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+----- RC [rocm-smi-idle-before] = 0 -----
+
+======================================================================
+== SECTION A: LICENSE PROBES (facts gathered BEFORE verdicts/install) ==
+======================================================================
+----- PyPI metadata probe: jiwer -----
+package: jiwer
+version: 4.0.0
+license_field: None
+license_expression: Apache-2.0
+license_classifiers: []
+requires_dist: ['click>=8.1.8', 'rapidfuzz>=3.9.7']
+----- RC [pypi-jiwer] = 0 (curl|python pipeline) -----
+----- PyPI metadata probe: resemblyzer -----
+package: Resemblyzer
+version: 0.1.4
+license_field: ''
+license_expression: None
+license_classifiers: ['License :: OSI Approved :: Apache Software License']
+requires_dist: ['librosa >=0.9.1', 'numpy >=1.20.0', 'webrtcvad >=2.0.10', 'torch >=1.0.1', 'scipy >=1.2.1', 'typing']
+----- RC [pypi-resemblyzer] = 0 (curl|python pipeline) -----
+----- PyPI metadata probe: openai-whisper -----
+package: openai-whisper
+version: 20250625
+license_field: 'MIT'
+license_expression: None
+license_classifiers: []
+requires_dist: ['more-itertools', 'numba', 'numpy', 'tiktoken', 'torch', 'tqdm', 'triton>=2; (platform_machine == "x86_64" and sys_platform == "linux") or sys_platform == "linux2"', 'black; extra == "dev"', 'flake8; extra == "dev"', 'isort; extra == "dev"', 'pytest; extra == "dev"', 'scipy; extra == "dev"']
+----- RC [pypi-openai-whisper] = 0 (curl|python pipeline) -----
+----- PyPI metadata probe: pystoi -----
+package: pystoi
+version: 0.4.1
+license_field: 'MIT'
+license_expression: None
+license_classifiers: ['License :: OSI Approved :: MIT License']
+requires_dist: ['numpy', 'scipy']
+----- RC [pypi-pystoi] = 0 (curl|python pipeline) -----
+----- PyPI metadata probe: pesq -----
+package: pesq
+version: 0.0.4
+license_field: ''
+license_expression: None
+license_classifiers: ['License :: OSI Approved :: MIT License']
+requires_dist: None
+----- RC [pypi-pesq] = 0 (curl|python pipeline) -----
+
+----- GitHub API license probe: resemblyzer (github.com blocked on this host; api.github.com reachable) -----
+repo: resemble-ai/Resemblyzer | default_branch: master
+github_license: {'key': 'apache-2.0', 'name': 'Apache License 2.0', 'spdx_id': 'Apache-2.0', 'url': 'https://api.github.com/licenses/apache-2.0', 'node_id': 'MDc6TGljZW5zZTI='}
+----- GitHub API: release assets (does the encoder model need a github download?) -----
+tag: 0.1.1-dev | assets: []
+----- GitHub API: pretrained model file inside the package tree -----
+file __init__.py 232
+file audio.py 4349
+file hparams.py 913
+file pretrained.pt 17090379
+file voice_encoder.py 9191
+
+----- pesq sdist inspection WITHOUT installing (license evidence) -----
+sdist url: https://files.pythonhosted.org/packages/22/e6/f8bdcef3238ac10fb3ce37d150e9b03a152d971febd681f088c6e5e17d8e/pesq-0.0.4.tar.gz
+downloaded 38702 bytes
+pesq-0.0.4/
+pesq-0.0.4/LICENSE
+pesq-0.0.4/pesq/
+pesq-0.0.4/pesq/cypesq.pyx
+pesq-0.0.4/pesq/dsp.c
+pesq-0.0.4/pesq/dsp.h
+pesq-0.0.4/pesq/pesq.h
+pesq-0.0.4/pesq/pesqdsp.c
+pesq-0.0.4/pesq/pesqio.h
+pesq-0.0.4/pesq/pesqmain.h
+pesq-0.0.4/pesq/pesqmod.c
+pesq-0.0.4/pesq/pesqpar.h
+pesq-0.0.4/pesq/_pesq.py
+pesq-0.0.4/pesq/__init__.py
+pesq-0.0.4/pesq.egg-info/
+pesq-0.0.4/pesq.egg-info/dependency_links.txt
+pesq-0.0.4/pesq.egg-info/PKG-INFO
+pesq-0.0.4/pesq.egg-info/SOURCES.txt
+pesq-0.0.4/pesq.egg-info/top_level.txt
+pesq-0.0.4/PKG-INFO
+pesq-0.0.4/README.md
+pesq-0.0.4/setup.cfg
+pesq-0.0.4/setup.py
+-- ITU copyright headers found inside the sdist C sources:
+.work-quality/pesq-0.0.4/pesq/pesqio.h
+.work-quality/pesq-0.0.4/pesq/pesq.h
+.work-quality/pesq-0.0.4/pesq/dsp.c
+.work-quality/pesq-0.0.4/pesq/pesqmod.c
+.work-quality/pesq-0.0.4/pesq/pesqmain.h
+.work-quality/pesq-0.0.4/pesq/pesqpar.h
+.work-quality/pesq-0.0.4/pesq/pesqdsp.c
+.work-quality/pesq-0.0.4/pesq/dsp.h
+-- verbatim header of one bundled ITU source file:
+file: 
+(no .c file at top level; listing tree)
+
+======================================================================
+== SECTION B: VERDICTS — decided BEFORE installing anything into .venv ==
+======================================================================
+CANDIDATE VERDICT TABLE (four gates: reproducible / suitable licensing / feasible on this stack / adopted for a reason)
+
+[1] jiwer 4.0.0
+    license: Apache-2.0 (PyPI license_expression; OSI-permissive)
+    feasibility: pure Python + rapidfuzz (MIT); CPU; no torch; no model downloads
+    verdict: ACCEPT  -> pyproject quality extras + install
+    role: WER (word level, en) + CER (character level, zh) math
+
+[2] resemblyzer 0.1.4
+    license: Apache-2.0 (PyPI classifier 'Apache Software License'; GitHub API license
+             apache-2.0). BRIEF CORRECTION: brief sketch said 'MIT'; actual at
+             execution is Apache-2.0. Still OSI-permissive -> ACCEPT stands.
+    feasibility: torch-based (validated ROCm torch 2.12.0+rocm7.14.0 present);
+             pretrained.pt (17,090,379 B) ships INSIDE the wheel/package tree ->
+             NO runtime download (github.com:443 blocked on this host — Task 6
+             evidence — and irrelevant here); webrtcvad C extension must build
+             (gcc 13.3.0 present — verified in Section C smoke); runs pinned to
+             CPU; librosa/scipy/numpy already in the validated stack
+    verdict: ACCEPT  -> pyproject quality extras + install
+    role: speaker embedding cosine (VoiceEncoder.embed_utterance)
+
+[3] openai-whisper 20250625
+    license: MIT (PyPI license field)
+    feasibility: torch-based; `tiny` weights (~72 MB) fetched from
+             openaipublic.azureedge.net (reachable from this host; github.com
+             block irrelevant); dep 'triton>=2' already satisfied by the ROCm
+             build triton==3.7.1+git0263a6a6.rocm7.14.0 (same distribution
+             name — pip installs NOTHING new, no CUDA-triton clobber);
+             tiktoken/numba/more-itertools/tqdm already present; tiktoken BPE
+             files come from the same reachable azureedge host
+    verdict: ACCEPT  -> pyproject quality extras + install
+    role: ASR transcribe (tiny) feeding CER/WER
+
+[4] pystoi 0.4.1
+    license: MIT (PyPI classifier 'License :: OSI Approved :: MIT License';
+             GitHub mpariente/pystoi)
+    feasibility: numpy + scipy only; CPU; synthetic smoke in Section C
+    verdict: ACCEPT  -> pyproject quality extras + install
+    role/SCOPE NOTE: STOI needs a clean-reference/degraded-signal PAIR. The
+             fixed 5-case manifest is text-conditioned (no clean reference
+             waveform exists for any case), so the delivered harness computes
+             no STOI row — recorded in the run JSON as a scope omission
+             (distinct from a licensing rejection); pystoi is validated and
+             shipped in the quality extras for signal-pair (tokenizer
+             roundtrip) evaluation.
+
+[5] pesq 0.0.4
+    license: REJECT. The PyPI wrapper (ludlows/python-pesq) carries an MIT
+             LICENSE for its own .pyx/.py glue, but the sdist ALSO bundles the
+             verbatim ITU-T P.862/P.862.2 reference C implementation whose own
+             'PESQ Intellectual Property Rights Notice' (captured verbatim in
+             Section A, pesq/pesqmod.c) states: OWNERS ARE British
+             Telecommunications plc (rights assigned to Psytechnics Limited)
+             and Royal KPN NV (rights assigned to OPTICOM GmbH); RESTRICTIONS:
+             the user cannot 'alter, duplicate, modify...' nor 'sell, hire,
+             loan, distribute, dispose or put to any commercial use' any aspect
+             of the PESQ Software; PERMITTED USE is limited to
+             understanding/evaluating the algorithm with 'none of said
+             evaluations or its results ... used for external commercial use'
+             (wider use needs prior written permission of both Psytechnics and
+             OPTICOM). A redistribution+commercial-use restriction inside the
+             shipped sources is incompatible with this repository's Apache-2.0
+             OSS distribution no matter what the wrapper's LICENSE file says.
+             Brief expected exactly this: 'ITU license history — expected
+             REJECT, document and skip, never hide.'
+    feasibility: (not reached — license gate fails first)
+    verdict: REJECT -> NOT installed, NOT in pyproject; harness JSON carries
+             an "omitted" note with this reason.
+
+Decision rule honored: only the four ACCEPTed candidates are installed, and
+they are installed into the scratch gate venv FIRST (.work-quality/venv,
+torch bridged from the validated .venv via PYTHONPATH) — the real .venv is
+touched only after every gate above has passed (Section D of this transcript
+is executed in a separate later step of the same file).
+
+======================================================================
+== SECTION C: SCRATCH-VENV INSTALLS + SMOKES (.venv untouched)       ==
+======================================================================
+scratch venv: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv (created with python -m venv from system python3.12;
+torch/numpy/scipy/soundfile bridged from the validated .venv via PYTHONPATH)
+----- pip installs into the SCRATCH venv only -----
+----- CMD [pip-install-jiwer]: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/bin/pip install jiwer==4.0.0 -----
+Collecting jiwer==4.0.0
+  Downloading jiwer-4.0.0-py3-none-any.whl.metadata (3.3 kB)
+Requirement already satisfied: click>=8.1.8 in /home/amd/.local/lib/python3.12/site-packages (from jiwer==4.0.0) (8.3.3)
+Collecting rapidfuzz>=3.9.7 (from jiwer==4.0.0)
+  Downloading rapidfuzz-3.14.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (12 kB)
+Downloading jiwer-4.0.0-py3-none-any.whl (23 kB)
+Downloading rapidfuzz-3.14.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (3.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.2/3.2 MB 272.7 kB/s eta 0:00:00
+Installing collected packages: rapidfuzz, jiwer
+Successfully installed jiwer-4.0.0 rapidfuzz-3.14.6
+----- RC [pip-install-jiwer] = 0 -----
+----- CMD [pip-install-pystoi]: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/bin/pip install pystoi==0.4.1 -----
+Collecting pystoi==0.4.1
+  Downloading pystoi-0.4.1-py2.py3-none-any.whl.metadata (4.0 kB)
+Collecting numpy (from pystoi==0.4.1)
+  Downloading numpy-2.5.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scipy (from pystoi==0.4.1)
+  Using cached scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Downloading pystoi-0.4.1-py2.py3-none-any.whl (8.2 kB)
+Downloading numpy-2.5.3-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (16.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 16.7/16.7 MB 22.4 MB/s eta 0:00:00
+Using cached scipy-1.18.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (35.3 MB)
+Installing collected packages: numpy, scipy, pystoi
+Successfully installed numpy-2.5.3 pystoi-0.4.1 scipy-1.18.1
+----- RC [pip-install-pystoi] = 0 -----
+----- CMD [pip-install-resemblyzer]: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/bin/pip install resemblyzer==0.1.4 -----
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='pypi.org', port=443): Read timed out. (read timeout=15)")': /simple/resemblyzer/
+Collecting resemblyzer==0.1.4
+  Downloading Resemblyzer-0.1.4-py3-none-any.whl.metadata (5.8 kB)
+Collecting librosa>=0.9.1 (from resemblyzer==0.1.4)
+  Using cached librosa-1.0.0-py3-none-any.whl.metadata (6.7 kB)
+Requirement already satisfied: numpy>=1.20.0 in ./.work-quality/venv/lib/python3.12/site-packages (from resemblyzer==0.1.4) (2.5.3)
+Collecting webrtcvad>=2.0.10 (from resemblyzer==0.1.4)
+  Downloading webrtcvad-2.0.10.tar.gz (66 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 66.2/66.2 kB 367.4 kB/s eta 0:00:00
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Collecting torch>=1.0.1 (from resemblyzer==0.1.4)
+  Downloading torch-2.14.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (37 kB)
+Requirement already satisfied: scipy>=1.2.1 in ./.work-quality/venv/lib/python3.12/site-packages (from resemblyzer==0.1.4) (1.18.1)
+Collecting typing (from resemblyzer==0.1.4)
+  Downloading typing-3.7.4.3.tar.gz (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.6/78.6 kB 1.3 MB/s eta 0:00:00
+  Preparing metadata (setup.py): started
+  Preparing metadata (setup.py): finished with status 'done'
+Collecting numba>=0.61.0 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached numba-0.67.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.7 kB)
+Collecting scikit-learn>=1.6.0 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Downloading scikit_learn-1.9.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (9.3 kB)
+Collecting joblib>=1.2 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Downloading joblib-1.6.0-py3-none-any.whl.metadata (6.5 kB)
+Collecting decorator>=5.2.1 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached decorator-5.3.1-py3-none-any.whl.metadata (3.9 kB)
+Collecting soundfile>=0.12.1 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached soundfile-0.14.0-py2.py3-none-manylinux_2_28_x86_64.whl.metadata (18 kB)
+Collecting pooch>=1.7 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached pooch-1.9.0-py3-none-any.whl.metadata (10 kB)
+Collecting soxr>=1.0.0 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached soxr-1.1.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (5.8 kB)
+Collecting lazy_loader>=0.3 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached lazy_loader-0.5-py3-none-any.whl.metadata (5.9 kB)
+Collecting msgpack>=1.0.5 (from librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached msgpack-1.2.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (8.3 kB)
+Collecting filelock (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading filelock-4.0.1-py3-none-any.whl.metadata (2.0 kB)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/lib/python3/dist-packages (from torch>=1.0.1->resemblyzer==0.1.4) (4.10.0)
+Collecting setuptools>=77.0.3 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Using cached setuptools-84.0.0-py3-none-any.whl.metadata (6.6 kB)
+Collecting sympy>=1.13.3 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Using cached sympy-1.14.0-py3-none-any.whl.metadata (12 kB)
+WARNING: Retrying (Retry(total=4, connect=None, read=None, redirect=None, status=None)) after connection broken by 'ReadTimeoutError("HTTPSConnectionPool(host='pypi.org', port=443): Read timed out. (read timeout=15)")': /simple/networkx/
+Collecting networkx>=2.5.1 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Using cached networkx-3.6.1-py3-none-any.whl.metadata (6.8 kB)
+Requirement already satisfied: jinja2 in /usr/lib/python3/dist-packages (from torch>=1.0.1->resemblyzer==0.1.4) (3.1.2)
+Collecting fsspec>=0.8.5 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading fsspec-2026.9.0-py3-none-any.whl.metadata (10 kB)
+Collecting cuda-toolkit==13.0.3 (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading cuda_toolkit-13.0.3.0-py2.py3-none-any.whl.metadata (17 kB)
+Collecting cuda-bindings<14,>=13.0.3 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading cuda_bindings-13.4.2-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (2.4 kB)
+Collecting nvidia-cudnn-cu13==9.24.0.43 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_x86_64.whl.metadata (1.9 kB)
+Collecting nvidia-cusparselt-cu13==0.8.1 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl.metadata (12 kB)
+Collecting nvidia-nccl-cu13==2.30.7 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl.metadata (2.1 kB)
+Collecting nvidia-nvshmem-cu13==3.4.5 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.1 kB)
+Collecting triton~=3.8.0 (from torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading triton-3.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (978 bytes)
+Collecting nvidia-cublas==13.1.1.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cuda-nvrtc==13.0.88.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-runtime==13.0.96.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cufft==12.0.0.61.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvjitlink<14,>=13.0.88 (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_nvjitlink-13.4.92-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cufile==1.15.1.6.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cuda-cupti==13.0.85.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-curand==10.4.0.35.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl.metadata (1.7 kB)
+Collecting nvidia-cusolver==12.0.4.66.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-cusparse==12.6.3.3.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (1.8 kB)
+Collecting nvidia-nvtx==13.0.85.* (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl.metadata (1.8 kB)
+Collecting cuda-pathfinder>=1.4.2 (from cuda-bindings<14,>=13.0.3->torch>=1.0.1->resemblyzer==0.1.4)
+  Downloading cuda_pathfinder-1.8.2-py3-none-any.whl.metadata (1.9 kB)
+Collecting cloudpickle>=3.0 (from joblib>=1.2->librosa>=0.9.1->resemblyzer==0.1.4)
+  Downloading cloudpickle-3.1.2-py3-none-any.whl.metadata (7.1 kB)
+Requirement already satisfied: packaging in /usr/lib/python3/dist-packages (from lazy_loader>=0.3->librosa>=0.9.1->resemblyzer==0.1.4) (24.0)
+Collecting llvmlite<0.50,>=0.49.0dev0 (from numba>=0.61.0->librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached llvmlite-0.49.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (5.0 kB)
+Requirement already satisfied: platformdirs>=2.5.0 in /usr/lib/python3/dist-packages (from pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (4.2.0)
+Requirement already satisfied: requests>=2.19.0 in /usr/lib/python3/dist-packages (from pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (2.31.0)
+Collecting narwhals>=2.0.1 (from scikit-learn>=1.6.0->librosa>=0.9.1->resemblyzer==0.1.4)
+  Downloading narwhals-2.26.0-py3-none-any.whl.metadata (15 kB)
+Collecting threadpoolctl>=3.5.0 (from scikit-learn>=1.6.0->librosa>=0.9.1->resemblyzer==0.1.4)
+  Downloading threadpoolctl-3.7.0-py3-none-any.whl.metadata (24 kB)
+Collecting cffi>=1.0 (from soundfile>=0.12.1->librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl.metadata (2.5 kB)
+Collecting mpmath<1.4,>=1.1.0 (from sympy>=1.13.3->torch>=1.0.1->resemblyzer==0.1.4)
+  Using cached mpmath-1.3.0-py3-none-any.whl.metadata (8.6 kB)
+Collecting pycparser (from cffi>=1.0->soundfile>=0.12.1->librosa>=0.9.1->resemblyzer==0.1.4)
+  Using cached pycparser-3.0-py3-none-any.whl.metadata (8.2 kB)
+Downloading Resemblyzer-0.1.4-py3-none-any.whl (15.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 15.7/15.7 MB 1.5 MB/s eta 0:00:00
+Using cached librosa-1.0.0-py3-none-any.whl (294 kB)
+Downloading torch-2.14.0-cp312-cp312-manylinux_2_28_x86_64.whl (554.6 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 554.6/554.6 MB 10.3 MB/s eta 0:00:00
+Downloading cuda_toolkit-13.0.3.0-py2.py3-none-any.whl (2.5 kB)
+Downloading nvidia_cudnn_cu13-9.24.0.43-py3-none-manylinux_2_27_x86_64.whl (553.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 553.1/553.1 MB 10.3 MB/s eta 0:00:00
+Downloading nvidia_cusparselt_cu13-0.8.1-py3-none-manylinux2014_x86_64.whl (170.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 170.1/170.1 MB 14.3 MB/s eta 0:00:00
+Downloading nvidia_nccl_cu13-2.30.7-py3-none-manylinux_2_18_x86_64.whl (216.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 216.0/216.0 MB 14.0 MB/s eta 0:00:00
+Downloading nvidia_nvshmem_cu13-3.4.5-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (60.4 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 60.4/60.4 MB 16.5 MB/s eta 0:00:00
+Downloading nvidia_cublas-13.1.1.3-py3-none-manylinux_2_27_x86_64.whl (423.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 423.1/423.1 MB 11.9 MB/s eta 0:00:00
+Downloading nvidia_cuda_cupti-13.0.85-py3-none-manylinux_2_25_x86_64.whl (10.7 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 10.7/10.7 MB 28.1 MB/s eta 0:00:00
+Downloading nvidia_cuda_nvrtc-13.0.88-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (90.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 90.2/90.2 MB 15.8 MB/s eta 0:00:00
+Downloading nvidia_cuda_runtime-13.0.96-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (2.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.2/2.2 MB 19.6 MB/s eta 0:00:00
+Downloading nvidia_cufft-12.0.0.61-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (214.1 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 214.1/214.1 MB 13.7 MB/s eta 0:00:00
+Downloading nvidia_cufile-1.15.1.6-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 17.7 MB/s eta 0:00:00
+Downloading nvidia_curand-10.4.0.35-py3-none-manylinux_2_27_x86_64.whl (59.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 59.5/59.5 MB 16.2 MB/s eta 0:00:00
+Downloading nvidia_cusolver-12.0.4.66-py3-none-manylinux_2_27_x86_64.whl (200.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 200.9/200.9 MB 14.4 MB/s eta 0:00:00
+Downloading nvidia_cusparse-12.6.3.3-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (145.9 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 145.9/145.9 MB 15.1 MB/s eta 0:00:00
+Downloading nvidia_nvtx-13.0.85-py3-none-manylinux1_x86_64.manylinux_2_5_x86_64.whl (148 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 148.0/148.0 kB 10.3 MB/s eta 0:00:00
+Downloading cuda_bindings-13.4.2-cp312-cp312-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl (7.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 7.2/7.2 MB 34.1 MB/s eta 0:00:00
+Using cached decorator-5.3.1-py3-none-any.whl (10 kB)
+Downloading fsspec-2026.9.0-py3-none-any.whl (221 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 221.7/221.7 kB 20.2 MB/s eta 0:00:00
+Downloading joblib-1.6.0-py3-none-any.whl (306 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 306.1/306.1 kB 20.8 MB/s eta 0:00:00
+Using cached lazy_loader-0.5-py3-none-any.whl (8.0 kB)
+Using cached msgpack-1.2.2-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (420 kB)
+Using cached networkx-3.6.1-py3-none-any.whl (2.1 MB)
+Using cached numba-0.67.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.9 MB)
+Using cached pooch-1.9.0-py3-none-any.whl (67 kB)
+Downloading scikit_learn-1.9.1-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (9.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 9.2/9.2 MB 31.0 MB/s eta 0:00:00
+Using cached setuptools-84.0.0-py3-none-any.whl (818 kB)
+Using cached soundfile-0.14.0-py2.py3-none-manylinux_2_28_x86_64.whl (1.3 MB)
+Using cached soxr-1.1.0-cp312-abi3-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (240 kB)
+Using cached sympy-1.14.0-py3-none-any.whl (6.3 MB)
+Downloading triton-3.8.0-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (248.0 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 248.0/248.0 MB 13.7 MB/s eta 0:00:00
+Downloading filelock-4.0.1-py3-none-any.whl (106 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 106.2/106.2 kB 11.7 MB/s eta 0:00:00
+Using cached cffi-2.1.1-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (221 kB)
+Downloading cloudpickle-3.1.2-py3-none-any.whl (22 kB)
+Downloading cuda_pathfinder-1.8.2-py3-none-any.whl (62 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 62.6/62.6 kB 7.6 MB/s eta 0:00:00
+Using cached llvmlite-0.49.0-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (59.9 MB)
+Using cached mpmath-1.3.0-py3-none-any.whl (536 kB)
+Downloading narwhals-2.26.0-py3-none-any.whl (474 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 474.0/474.0 kB 31.0 MB/s eta 0:00:00
+Downloading nvidia_nvjitlink-13.4.92-py3-none-manylinux2010_x86_64.manylinux_2_12_x86_64.whl (42.5 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.5/42.5 MB 17.0 MB/s eta 0:00:00
+Downloading threadpoolctl-3.7.0-py3-none-any.whl (26 kB)
+Using cached pycparser-3.0-py3-none-any.whl (48 kB)
+Building wheels for collected packages: webrtcvad, typing
+  Building wheel for webrtcvad (setup.py): started
+  Building wheel for webrtcvad (setup.py): finished with status 'done'
+  Created wheel for webrtcvad: filename=webrtcvad-2.0.10-cp312-cp312-linux_x86_64.whl size=74495 sha256=d4a73cf3cd8197bdd5a3ee29d29538c86a2d08ed22d36da2e7cb3346839c41fa
+  Stored in directory: /home/amd/.cache/pip/wheels/1e/d3/95/680fa3b16848f1a58d2edaed34c496224c89a9bc63e17b3614
+  Building wheel for typing (setup.py): started
+  Building wheel for typing (setup.py): finished with status 'done'
+  Created wheel for typing: filename=typing-3.7.4.3-py3-none-any.whl size=26304 sha256=9923fba753db16b2dd3d106542bb06d135a382a0e4a9c129faeeb49ca8119c17
+  Stored in directory: /home/amd/.cache/pip/wheels/12/98/52/2bffe242a9a487f00886e43b8ed8dac46456702e11a0d6abef
+Successfully built webrtcvad typing
+Installing collected packages: webrtcvad, nvidia-cusparselt-cu13, mpmath, cuda-toolkit, typing, triton, threadpoolctl, sympy, soxr, setuptools, pycparser, pooch, nvidia-nvtx, nvidia-nvshmem-cu13, nvidia-nvjitlink, nvidia-nccl-cu13, nvidia-curand, nvidia-cufile, nvidia-cuda-runtime, nvidia-cuda-nvrtc, nvidia-cuda-cupti, networkx, narwhals, msgpack, llvmlite, lazy_loader, fsspec, filelock, decorator, cuda-pathfinder, cloudpickle, nvidia-cusparse, nvidia-cufft, nvidia-cublas, numba, joblib, cuda-bindings, cffi, soundfile, scikit-learn, nvidia-cusolver, nvidia-cudnn-cu13, librosa, torch, resemblyzer
+  Attempting uninstall: setuptools
+    Found existing installation: setuptools 68.1.2
+    Not uninstalling setuptools at /usr/lib/python3/dist-packages, outside environment /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv
+    Can't uninstall 'setuptools'. No files were found to uninstall.
+Successfully installed cffi-2.1.1 cloudpickle-3.1.2 cuda-bindings-13.4.2 cuda-pathfinder-1.8.2 cuda-toolkit-13.0.3.0 decorator-5.3.1 filelock-4.0.1 fsspec-2026.9.0 joblib-1.6.0 lazy_loader-0.5 librosa-1.0.0 llvmlite-0.49.0 mpmath-1.3.0 msgpack-1.2.2 narwhals-2.26.0 networkx-3.6.1 numba-0.67.0 nvidia-cublas-13.1.1.3 nvidia-cuda-cupti-13.0.85 nvidia-cuda-nvrtc-13.0.88 nvidia-cuda-runtime-13.0.96 nvidia-cudnn-cu13-9.24.0.43 nvidia-cufft-12.0.0.61 nvidia-cufile-1.15.1.6 nvidia-curand-10.4.0.35 nvidia-cusolver-12.0.4.66 nvidia-cusparse-12.6.3.3 nvidia-cusparselt-cu13-0.8.1 nvidia-nccl-cu13-2.30.7 nvidia-nvjitlink-13.4.92 nvidia-nvshmem-cu13-3.4.5 nvidia-nvtx-13.0.85 pooch-1.9.0 pycparser-3.0 resemblyzer-0.1.4 scikit-learn-1.9.1 setuptools-84.0.0 soundfile-0.14.0 soxr-1.1.0 sympy-1.14.0 threadpoolctl-3.7.0 torch-2.14.0 triton-3.8.0 typing-3.7.4.3 webrtcvad-2.0.10
+----- RC [pip-install-resemblyzer] = 0 -----
+----- CMD [pip-install-openai-whisper]: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/bin/pip install openai-whisper==20250625 -----
+Collecting openai-whisper==20250625
+  Downloading openai_whisper-20250625.tar.gz (803 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 803.2/803.2 kB 840.9 kB/s eta 0:00:00
+  Installing build dependencies: started
+  Installing build dependencies: still running...
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Collecting more-itertools (from openai-whisper==20250625)
+  Using cached more_itertools-11.1.0-py3-none-any.whl.metadata (41 kB)
+Requirement already satisfied: numba in ./.work-quality/venv/lib/python3.12/site-packages (from openai-whisper==20250625) (0.67.0)
+Requirement already satisfied: numpy in ./.work-quality/venv/lib/python3.12/site-packages (from openai-whisper==20250625) (2.5.3)
+Collecting tiktoken (from openai-whisper==20250625)
+  Downloading tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.7 kB)
+Requirement already satisfied: torch in ./.work-quality/venv/lib/python3.12/site-packages (from openai-whisper==20250625) (2.14.0)
+Collecting tqdm (from openai-whisper==20250625)
+  Downloading tqdm-4.70.1-py3-none-any.whl.metadata (57 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 57.4/57.4 kB 2.5 MB/s eta 0:00:00
+Requirement already satisfied: triton>=2 in ./.work-quality/venv/lib/python3.12/site-packages (from openai-whisper==20250625) (3.8.0)
+Requirement already satisfied: llvmlite<0.50,>=0.49.0dev0 in ./.work-quality/venv/lib/python3.12/site-packages (from numba->openai-whisper==20250625) (0.49.0)
+Collecting regex (from tiktoken->openai-whisper==20250625)
+  Downloading regex-2026.9.10-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl.metadata (40 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.6/40.6 kB 1.6 MB/s eta 0:00:00
+Requirement already satisfied: requests in /usr/lib/python3/dist-packages (from tiktoken->openai-whisper==20250625) (2.31.0)
+Requirement already satisfied: filelock in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (4.0.1)
+Requirement already satisfied: typing-extensions>=4.10.0 in /usr/lib/python3/dist-packages (from torch->openai-whisper==20250625) (4.10.0)
+Requirement already satisfied: setuptools>=77.0.3 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (84.0.0)
+Requirement already satisfied: sympy>=1.13.3 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (3.6.1)
+Requirement already satisfied: jinja2 in /usr/lib/python3/dist-packages (from torch->openai-whisper==20250625) (3.1.2)
+Requirement already satisfied: fsspec>=0.8.5 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (2026.9.0)
+Requirement already satisfied: cuda-toolkit==13.0.3 in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.0.3.0)
+Requirement already satisfied: cuda-bindings<14,>=13.0.3 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (13.4.2)
+Requirement already satisfied: nvidia-cudnn-cu13==9.24.0.43 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (9.24.0.43)
+Requirement already satisfied: nvidia-cusparselt-cu13==0.8.1 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (0.8.1)
+Requirement already satisfied: nvidia-nccl-cu13==2.30.7 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (2.30.7)
+Requirement already satisfied: nvidia-nvshmem-cu13==3.4.5 in ./.work-quality/venv/lib/python3.12/site-packages (from torch->openai-whisper==20250625) (3.4.5)
+Requirement already satisfied: nvidia-cublas==13.1.1.3.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.1.1.3)
+Requirement already satisfied: nvidia-cuda-nvrtc==13.0.88.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.0.88)
+Requirement already satisfied: nvidia-cuda-runtime==13.0.96.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.0.96)
+Requirement already satisfied: nvidia-cufft==12.0.0.61.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (12.0.0.61)
+Requirement already satisfied: nvidia-nvjitlink<14,>=13.0.88 in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.4.92)
+Requirement already satisfied: nvidia-cufile==1.15.1.6.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (1.15.1.6)
+Requirement already satisfied: nvidia-cuda-cupti==13.0.85.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.0.85)
+Requirement already satisfied: nvidia-curand==10.4.0.35.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (10.4.0.35)
+Requirement already satisfied: nvidia-cusolver==12.0.4.66.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (12.0.4.66)
+Requirement already satisfied: nvidia-cusparse==12.6.3.3.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (12.6.3.3)
+Requirement already satisfied: nvidia-nvtx==13.0.85.* in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.3; platform_system == "Linux"->torch->openai-whisper==20250625) (13.0.85)
+Requirement already satisfied: cuda-pathfinder>=1.4.2 in ./.work-quality/venv/lib/python3.12/site-packages (from cuda-bindings<14,>=13.0.3->torch->openai-whisper==20250625) (1.8.2)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./.work-quality/venv/lib/python3.12/site-packages (from sympy>=1.13.3->torch->openai-whisper==20250625) (1.3.0)
+Using cached more_itertools-11.1.0-py3-none-any.whl (72 kB)
+Downloading tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl (1.2 MB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.2/1.2 MB 2.5 MB/s eta 0:00:00
+Downloading tqdm-4.70.1-py3-none-any.whl (80 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 80.2/80.2 kB 2.3 MB/s eta 0:00:00
+Downloading regex-2026.9.10-cp312-cp312-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (804 kB)
+   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 804.6/804.6 kB 2.4 MB/s eta 0:00:00
+Building wheels for collected packages: openai-whisper
+  Building wheel for openai-whisper (pyproject.toml): started
+  Building wheel for openai-whisper (pyproject.toml): finished with status 'done'
+  Created wheel for openai-whisper: filename=openai_whisper-20250625-py3-none-any.whl size=803980 sha256=fd538fe876e31a26a79b0ce73d753a6d30150d61680f721ff9f34553304fb89e
+  Stored in directory: /home/amd/.cache/pip/wheels/61/d2/20/09ec9bef734d126cba375b15898010b6cc28578d8afdde5869
+Successfully built openai-whisper
+Installing collected packages: tqdm, regex, more-itertools, tiktoken, openai-whisper
+Successfully installed more-itertools-11.1.0 openai-whisper-20250625 regex-2026.9.10 tiktoken-0.14.0 tqdm-4.70.1
+----- RC [pip-install-openai-whisper] = 0 -----
+----- pesq is NOT installed (REJECT): proof -----
+----- CMD [pip-show-pesq-must-fail]: /home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/bin/pip show pesq -----
+WARNING: Package(s) not found: pesq
+----- RC [pip-show-pesq-must-fail] = 1 -----
+
+----- SMOKE 1: jiwer math on hand-computed examples -----
+Traceback (most recent call last):
+  File "<stdin>", line 2, in <module>
+AttributeError: module 'jiwer' has no attribute '__version__'
+----- RC [smoke-1-jiwer] = 1 -----
+
+----- SMOKE 2: pystoi on a synthetic clean/degraded pair -----
+pystoi imported from: pystoi.stoi
+stoi(clean, clean+noise@5%) = -0.0086
+stoi(clean, 3kHz tone)      = -0.0276
+SMOKE-2 pystoi OK
+----- RC [smoke-2-pystoi] = 0 -----
+
+----- SMOKE 3: resemblyzer one embedding on CPU + cosine behavior -----
+/home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/lib/python3.12/site-packages/webrtcvad.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+encoder loaded on CPU in 0.05s (weights shipped inside the wheel)
+embedding shape: (256,) dtype: float32
+cos(identical 220Hz, identical 220Hz) = 1.0
+cos(220Hz, 2500Hz)                    = 0.322433
+SMOKE-3 resemblyzer OK
+----- RC [smoke-3-resemblyzer] = 0 -----
+
+----- SMOKE 4: whisper tiny ASR — GPU probe (serialized GPU phase) -----
+----- CMD [rocm-smi-PRE-whisper-gpu]: rocm-smi --showproductname --showuse --showmeminfo vram -----
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 8
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405452288
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+----- RC [rocm-smi-PRE-whisper-gpu] = 0 -----
+torch: 2.12.0+rocm7.14.0 | HIP: 7.14.60850 | cuda available: True
+  0%|                                              | 0.00/72.1M [00:00<?, ?iB/s]  0%|                                      | 32.0k/72.1M [00:00<04:27, 282kiB/s]  0%|                                       | 112k/72.1M [00:00<02:18, 544kiB/s]  0%|▏                                      | 240k/72.1M [00:00<01:26, 867kiB/s]  1%|▏                                     | 464k/72.1M [00:00<00:54, 1.37MiB/s]  1%|▍                                     | 752k/72.1M [00:00<00:39, 1.87MiB/s]  1%|▍                                     | 960k/72.1M [00:00<00:45, 1.65MiB/s]  2%|▊                                    | 1.48M/72.1M [00:00<00:29, 2.52MiB/s]  4%|█▍                                   | 2.77M/72.1M [00:00<00:13, 5.40MiB/s]  6%|██▎                                  | 4.56M/72.1M [00:01<00:07, 9.09MiB/s] 11%|███▉                                 | 7.58M/72.1M [00:01<00:04, 15.4MiB/s] 16%|██████                               | 11.7M/72.1M [00:01<00:02, 23.4MiB/s] 20%|███████▏                             | 14.1M/72.1M [00:01<00:02, 21.7MiB/s] 23%|████████▎                            | 16.3M/72.1M [00:02<00:07, 7.94MiB/s] 37%|█████████████▌                       | 26.4M/72.1M [00:02<00:02, 16.8MiB/s] 40%|██████████████▊                      | 28.9M/72.1M [00:02<00:02, 17.8MiB/s] 43%|████████████████                     | 31.2M/72.1M [00:02<00:02, 18.7MiB/s] 50%|██████████████████▋                  | 36.3M/72.1M [00:02<00:02, 17.9MiB/s] 53%|███████████████████▋                 | 38.4M/72.1M [00:03<00:03, 11.5MiB/s] 71%|██████████████████████████▎          | 51.1M/72.1M [00:03<00:00, 26.4MiB/s] 78%|████████████████████████████▊        | 56.1M/72.1M [00:03<00:00, 23.9MiB/s] 83%|██████████████████████████████▊      | 60.1M/72.1M [00:04<00:00, 17.5MiB/s] 88%|████████████████████████████████▍    | 63.1M/72.1M [00:04<00:00, 19.2MiB/s] 92%|█████████████████████████████████▉   | 66.2M/72.1M [00:04<00:00, 20.8MiB/s] 96%|███████████████████████████████████▌ | 69.2M/72.1M [00:04<00:00, 20.2MiB/s]100%|█████████████████████████████████████| 72.1M/72.1M [00:04<00:00, 16.1MiB/s]
+warning: xnack 'Off' was requested for a processor that does not support it!
+warning: xnack 'Off' was requested for a processor that does not support it!
+warning: xnack 'Off' was requested for a processor that does not support it!
+/home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/lib/python3.12/site-packages/whisper/model.py:124: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  a = scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/lib/python3.12/site-packages/whisper/model.py:124: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  a = scaled_dot_product_attention(
+tiny loaded on cuda in 138.87s | params fp16=torch.float32
+GPU transcribe wall=5.00s (audio 2.80s)
+GPU transcript (verbatim, no quality interpretation): ''
+SMOKE-4a whisper tiny on GPU OK
+----- RC [smoke-4a-whisper-gpu] = 0 -----
+----- CMD [rocm-smi-POST-whisper-gpu]: rocm-smi --showproductname --showuse --showmeminfo vram -----
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 10
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405452288
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+----- RC [rocm-smi-POST-whisper-gpu] = 0 -----
+
+----- SMOKE 4b: whisper tiny on CPU (timing comparison, GPU probe fallback data) -----
+/home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/lib/python3.12/site-packages/whisper/transcribe.py:130: UserWarning: Performing inference on CPU when CUDA is available
+  warnings.warn("Performing inference on CPU when CUDA is available")
+/home/amd/Desktop/Qwen3-TTS-ROCm/.work-quality/venv/lib/python3.12/site-packages/whisper/transcribe.py:132: UserWarning: FP16 is not supported on CPU; using FP32 instead
+  warnings.warn("FP16 is not supported on CPU; using FP32 instead")
+CPU transcribe wall=4.81s (audio 2.80s)
+CPU transcript (verbatim, no quality interpretation): ''
+SMOKE-4b whisper tiny on CPU OK
+----- RC [smoke-4b-whisper-cpu] = 0 -----
+
+===== STEP 14.1 GATES TRANSCRIPT END 2026-09-21T09:58:24Z =====
+
+----- SMOKE 1b: jiwer math, corrected probe (4.0.0 dropped jiwer.__version__) -----
+jiwer version (importlib.metadata): 4.0.0
+wer('hello world','hello there world') = 0.5 (expected 0.5)
+cer('你好世界','你号世界') = 0.25 (expected 0.25)
+cer('你好 世界','你好世界') = 0.2 (whitespace pin)
+cer('今天天气很好。','今天天气很好') = 0.14285714285714285 (punct pin)
+wer('Hello world','hello world') = 0.5 (case pin)
+cer identical = 0.0 (expected 0.0)
+SMOKE-1b jiwer OK
+----- RC [smoke-1b-jiwer] = 0 -----
+
+======================================================================
+== SECTION D: .venv INSTALL OF ACCEPTED CANDIDATES (gates passed)     ==
+======================================================================
+----- pip install (real .venv): jiwer==4.0.0 pystoi==0.4.1 resemblyzer==0.1.4 openai-whisper==20250625 -----
+Collecting jiwer==4.0.0
+  Using cached jiwer-4.0.0-py3-none-any.whl.metadata (3.3 kB)
+Collecting pystoi==0.4.1
+  Using cached pystoi-0.4.1-py2.py3-none-any.whl.metadata (4.0 kB)
+Collecting resemblyzer==0.1.4
+  Using cached Resemblyzer-0.1.4-py3-none-any.whl.metadata (5.8 kB)
+Collecting openai-whisper==20250625
+  Using cached openai_whisper-20250625-py3-none-any.whl
+Requirement already satisfied: click>=8.1.8 in ./.venv/lib/python3.12/site-packages (from jiwer==4.0.0) (8.5.0)
+Collecting rapidfuzz>=3.9.7 (from jiwer==4.0.0)
+  Using cached rapidfuzz-3.14.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (12 kB)
+Requirement already satisfied: numpy in ./.venv/lib/python3.12/site-packages (from pystoi==0.4.1) (2.4.4)
+Requirement already satisfied: scipy in ./.venv/lib/python3.12/site-packages (from pystoi==0.4.1) (1.18.1)
+Requirement already satisfied: librosa>=0.9.1 in ./.venv/lib/python3.12/site-packages (from resemblyzer==0.1.4) (1.0.0)
+Collecting webrtcvad>=2.0.10 (from resemblyzer==0.1.4)
+  Using cached webrtcvad-2.0.10-cp312-cp312-linux_x86_64.whl
+Requirement already satisfied: torch>=1.0.1 in ./.venv/lib/python3.12/site-packages (from resemblyzer==0.1.4) (2.12.0+rocm7.14.0)
+Collecting typing (from resemblyzer==0.1.4)
+  Using cached typing-3.7.4.3-py3-none-any.whl
+Requirement already satisfied: more-itertools in ./.venv/lib/python3.12/site-packages (from openai-whisper==20250625) (11.1.0)
+Requirement already satisfied: numba in ./.venv/lib/python3.12/site-packages (from openai-whisper==20250625) (0.67.0)
+Collecting tiktoken (from openai-whisper==20250625)
+  Using cached tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl.metadata (6.7 kB)
+Requirement already satisfied: tqdm in ./.venv/lib/python3.12/site-packages (from openai-whisper==20250625) (4.70.0)
+Requirement already satisfied: triton>=2 in ./.venv/lib/python3.12/site-packages (from openai-whisper==20250625) (3.7.1+git0263a6a6.rocm7.14.0)
+Requirement already satisfied: scikit-learn>=1.6.0 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (1.9.0)
+Requirement already satisfied: joblib>=1.2 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (1.5.3)
+Requirement already satisfied: decorator>=5.2.1 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (5.3.1)
+Requirement already satisfied: soundfile>=0.12.1 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (0.14.0)
+Requirement already satisfied: pooch>=1.7 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (1.9.0)
+Requirement already satisfied: soxr>=1.0.0 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (1.1.0)
+Requirement already satisfied: lazy_loader>=0.3 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (0.5)
+Requirement already satisfied: msgpack>=1.0.5 in ./.venv/lib/python3.12/site-packages (from librosa>=0.9.1->resemblyzer==0.1.4) (1.2.1)
+Requirement already satisfied: packaging in ./.venv/lib/python3.12/site-packages (from lazy_loader>=0.3->librosa>=0.9.1->resemblyzer==0.1.4) (26.3)
+Requirement already satisfied: llvmlite<0.50,>=0.49.0dev0 in ./.venv/lib/python3.12/site-packages (from numba->openai-whisper==20250625) (0.49.0)
+Requirement already satisfied: platformdirs>=2.5.0 in ./.venv/lib/python3.12/site-packages (from pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (4.11.4)
+Requirement already satisfied: requests>=2.19.0 in ./.venv/lib/python3.12/site-packages (from pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (2.34.2)
+Requirement already satisfied: charset_normalizer<4,>=2 in ./.venv/lib/python3.12/site-packages (from requests>=2.19.0->pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (3.5.1)
+Requirement already satisfied: idna<4,>=2.5 in ./.venv/lib/python3.12/site-packages (from requests>=2.19.0->pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (3.19)
+Requirement already satisfied: urllib3<3,>=1.26 in ./.venv/lib/python3.12/site-packages (from requests>=2.19.0->pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (2.7.0)
+Requirement already satisfied: certifi>=2023.5.7 in ./.venv/lib/python3.12/site-packages (from requests>=2.19.0->pooch>=1.7->librosa>=0.9.1->resemblyzer==0.1.4) (2026.7.22)
+Requirement already satisfied: narwhals>=2.0.1 in ./.venv/lib/python3.12/site-packages (from scikit-learn>=1.6.0->librosa>=0.9.1->resemblyzer==0.1.4) (2.25.0)
+Requirement already satisfied: threadpoolctl>=3.5.0 in ./.venv/lib/python3.12/site-packages (from scikit-learn>=1.6.0->librosa>=0.9.1->resemblyzer==0.1.4) (3.6.0)
+Requirement already satisfied: cffi>=1.0 in ./.venv/lib/python3.12/site-packages (from soundfile>=0.12.1->librosa>=0.9.1->resemblyzer==0.1.4) (2.1.1)
+Requirement already satisfied: typing-extensions in ./.venv/lib/python3.12/site-packages (from soundfile>=0.12.1->librosa>=0.9.1->resemblyzer==0.1.4) (4.15.0)
+Requirement already satisfied: pycparser in ./.venv/lib/python3.12/site-packages (from cffi>=1.0->soundfile>=0.12.1->librosa>=0.9.1->resemblyzer==0.1.4) (3.0)
+Requirement already satisfied: filelock in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (3.29.1)
+Requirement already satisfied: setuptools<82 in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (81.0.0)
+Requirement already satisfied: sympy>=1.13.3 in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (3.6.1)
+Requirement already satisfied: jinja2 in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (3.1.6)
+Requirement already satisfied: fsspec>=0.8.5 in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (2026.4.0)
+Requirement already satisfied: rocm==7.14.0 in ./.venv/lib/python3.12/site-packages (from rocm[libraries]==7.14.0->torch>=1.0.1->resemblyzer==0.1.4) (7.14.0)
+Requirement already satisfied: rocm-bootstrap in ./.venv/lib/python3.12/site-packages (from torch>=1.0.1->resemblyzer==0.1.4) (0.1.0)
+Requirement already satisfied: rocm-sdk-core==7.14.0 in ./.venv/lib/python3.12/site-packages (from rocm==7.14.0->rocm[libraries]==7.14.0->torch>=1.0.1->resemblyzer==0.1.4) (7.14.0)
+Requirement already satisfied: rocm-sdk-libraries==7.14.0 in ./.venv/lib/python3.12/site-packages (from rocm[libraries]==7.14.0->torch>=1.0.1->resemblyzer==0.1.4) (7.14.0)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in ./.venv/lib/python3.12/site-packages (from sympy>=1.13.3->torch>=1.0.1->resemblyzer==0.1.4) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in ./.venv/lib/python3.12/site-packages (from jinja2->torch>=1.0.1->resemblyzer==0.1.4) (3.0.3)
+Requirement already satisfied: regex in ./.venv/lib/python3.12/site-packages (from tiktoken->openai-whisper==20250625) (2026.7.19)
+Using cached jiwer-4.0.0-py3-none-any.whl (23 kB)
+Using cached pystoi-0.4.1-py2.py3-none-any.whl (8.2 kB)
+Using cached Resemblyzer-0.1.4-py3-none-any.whl (15.7 MB)
+Using cached rapidfuzz-3.14.6-cp312-cp312-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl (3.2 MB)
+Using cached tiktoken-0.14.0-cp312-cp312-manylinux_2_28_x86_64.whl (1.2 MB)
+Installing collected packages: webrtcvad, typing, rapidfuzz, tiktoken, pystoi, jiwer, resemblyzer, openai-whisper
+
+Successfully installed jiwer-4.0.0 openai-whisper-20250625 pystoi-0.4.1 rapidfuzz-3.14.6 resemblyzer-0.1.4 tiktoken-0.14.0 typing-3.7.4.3 webrtcvad-2.0.10
+----- RC [pip-install-venv] = 0 -----
+
+----- pesq absence in .venv (must NOT be found) -----
+WARNING: Package(s) not found: pesq
+----- RC [pip-show-pesq-venv] = 1 (1 = not installed, expected) -----
+
+----- import verification in the real .venv -----
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/webrtcvad.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+jiwer 4.0.0 | cer(你好世界,你号世界) = 0.25
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+AttributeError: 'function' object has no attribute 'stoi'
+----- RC [venv-import-verify] = 1 -----
+----- pip dependency consistency check -----
+No broken requirements found.
+----- RC [pip-check] = 0 -----
+===== SECTION D END 2026-09-21T10:00:27Z =====
+
+----- SECTION D follow-up: corrected import verification in the real .venv -----
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/webrtcvad.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+jiwer 4.0.0 | cer(你好世界,你号世界) = 0.25
+pystoi 0.4.1 | pystoi.stoi is callable: True
+openai-whisper 20250625 | tiny available: True
+resemblyzer 0.1.4 | VoiceEncoder: VoiceEncoder
+torch still 2.12.0+rocm7.14.0 | cuda: True
+VENV-IMPORTS OK (corrected probe)
+----- RC [venv-import-verify-2] = 0 -----
+===== SECTION D (corrected) END 2026-09-21T10:00:39Z =====
+
+======================================================================
+== STEP 14.5: GPU EVIDENCE RUN — scripts/quality_eval.py            ==
+== serialized GPU phase; rocm-smi snapshots before/after            ==
+======================================================================
+----- CMD: git HEAD at run time -----
+7cffe845841c6951ee703aadceabc5feff320d19
+----- RC = 0 -----
+----- CMD: rocm-smi PRE (GPU phase opens) -----
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 7
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405452288
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+----- RC = 0 -----
+----- CMD: .venv/bin/python scripts/quality_eval.py --manifest tests/data/quality_benchmark_manifest.json --out evidence/quality-benchmark-2026-09-21.json -----
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[quality] alias=custom-voice loaded in 4.7s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Flash Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:323.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/transformers/integrations/sdpa_attention.py:96: UserWarning: Mem Efficient attention on Current AMD GPU is still experimental. Enable it with TORCH_ROCM_AOTRITON_ENABLE_EXPERIMENTAL=1. (Triggered internally at /__w/rockrel/rockrel/external-builds/pytorch/pytorch/aten/src/ATen/native/transformers/hip/sdp_utils.cpp:383.)
+  attn_output = torch.nn.functional.scaled_dot_product_attention(
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12902400, provided ptr: 0x77cebd484000 size: 5764608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12902400, provided ptr: 0x77cebd48e200 size: 5792256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x77cebdd5a400 size: 7895808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x77cebdd5a400 size: 7909632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x77cebeb69a00 size: 11191808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x77cebeb6b200 size: 11198720
+[quality] case=zh-short gen=3.4s audio=1.20s cer=0.0000 transcript='今天天气很好'
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 20987904, provided ptr: 0x77cebd100000 size: 14281728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 20987904, provided ptr: 0x77cebd100000 size: 14337024
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 52469760, provided ptr: 0x77cebe673200 size: 17069568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 52469760, provided ptr: 0x77cebe67c200 size: 17097216
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 104939520, provided ptr: 0x77cde6000000 size: 30505728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 104939520, provided ptr: 0x77cde6000000 size: 30519552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 157409280, provided ptr: 0x77cdcd200000 size: 45106688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 157409280, provided ptr: 0x77cebd100000 size: 45113600
+[quality] case=zh-mid gen=5.9s audio=4.88s cer=0.2000 transcript='这个中央我们打算去山上突破顺便拍一些照片'
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x77cdf7720000 size: 6010368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x77cdf7720000 size: 6038016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 27525120, provided ptr: 0x77cebd100000 size: 8387328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 27525120, provided ptr: 0x77cebd100000 size: 8401152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41287680, provided ptr: 0x77cebe1e0600 size: 11929088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41287680, provided ptr: 0x77cebe1e2a00 size: 11936000
+[quality] case=en-short gen=1.7s audio=1.28s wer=0.0000 transcript=' The weather is nice today.'
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14106624, provided ptr: 0x77cebd100000 size: 12315648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14106624, provided ptr: 0x77cebd100000 size: 12370944
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35266560, provided ptr: 0x77cebda9d200 size: 12154368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35266560, provided ptr: 0x77cebdaa6200 size: 12182016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 70533120, provided ptr: 0x77cebe911e00 size: 20675328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 70533120, provided ptr: 0x77cebe911e00 size: 20689152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x77cde6000000 size: 30361088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x77cde6000000 size: 30368000
+[quality] case=en-mid gen=4.0s audio=3.28s wer=0.0000 transcript=' We are planning to go hiking this weekend and take some photos.'
+[qwen3-tts-rocm] 加载 /home/amd/Desktop/Qwen3-TTS-ROCm/models/Qwen3-TTS-12Hz-1.7B-Base … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[quality] alias=base loaded in 1.9s
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100608, provided ptr: 0x77ceff9c0000 size: 92160
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100608, provided ptr: 0x77ceff9c0000 size: 92416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100608, provided ptr: 0x77ceff9c0000 size: 92672
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42319872, provided ptr: 0x77cc8a67c000 size: 20376576
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42319872, provided ptr: 0x77cc8a684400 size: 20431872
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x77cc8d494600 size: 32306688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x77cc8d49a200 size: 32334336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 211599360, provided ptr: 0x77cc75000000 size: 60979968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 211599360, provided ptr: 0x77cc75000000 size: 60993792
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 317399040, provided ptr: 0x77cc6f600000 size: 90818048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 317399040, provided ptr: 0x77cc6f600000 size: 90824960
+/home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages/webrtcvad.py:1: UserWarning: pkg_resources is deprecated as an API. See https://setuptools.pypa.io/en/latest/pkg_resources.html. The pkg_resources package is slated for removal as early as 2025-11-30. Refrain from using this package or pin to Setuptools<81.
+  import pkg_resources
+[quality] case=clone-ref gen=9.2s audio=7.04s cer=2.8000 transcript='這次的台語是否有一個美食的這次的台語是否有一個美食的台語'
+[quality] wrote evidence/quality-benchmark-2026-09-21.json
+----- RC [quality_eval main] = 0 -----
+----- CMD: rocm-smi POST (GPU phase closes) -----
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 9
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1405452288
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+----- RC = 0 -----
+----- RESULTING JSON (verbatim) -----
+{
+  "meta": {
+    "date": "2026-09-21T18:10:36+08:00",
+    "git_head": "7cffe845841c6951ee703aadceabc5feff320d19",
+    "host": "amd-HP-ZBook-Ultra",
+    "python": "3.12.3",
+    "torch": "2.12.0+rocm7.14.0 (HIP 7.14.60850)",
+    "gpu": "AMD Radeon 8060S Graphics (gfx1151, torch-visible memory 80.0 GiB)",
+    "versions": {
+      "jiwer": "4.0.0",
+      "resemblyzer": "0.1.4",
+      "openai-whisper": "20250625",
+      "pystoi": "0.4.1",
+      "pesq": "not installed (REJECTED at Step 14.1 license gate)"
+    },
+    "args": {
+      "manifest": "tests/data/quality_benchmark_manifest.json",
+      "out": "evidence/quality-benchmark-2026-09-21.json"
+    },
+    "sampling_policy": {
+      "do_sample": true,
+      "temperature": 1.0,
+      "max_new_tokens": 512,
+      "speaker": "first supported speaker (generate_custom_voice)",
+      "rng_seed_per_case": "manifest seed + case index (torch.manual_seed)"
+    },
+    "asr": {
+      "model": "tiny",
+      "temperature": 0,
+      "device": "cuda if torch.cuda.is_available() else cpu"
+    }
+  },
+  "omitted_metrics": {
+    "pesq": "REJECTED at the Step 14.1 license gate: the pesq PyPI wrapper is MIT-labelled but bundles the ITU-T P.862 reference C implementation whose own IPR notice (owners British Telecommunications/Psytechnics and Royal KPN/OPTICOM; 'cannot ... sell, hire, loan, distribute, dispose or put to any commercial use') is incompatible with OSS distribution. Not installed; see evidence/quality-benchmark-2026-09-21.txt.",
+    "stoi": "pystoi ACCEPTed at the Step 14.1 gates (MIT; synthetic-pair smoke pass) but not computed for these cases: STOI requires a clean-reference/degraded-signal pair and the fixed manifest is text-conditioned (no clean reference waveform exists). Shipped in the quality extras for signal-pair (tokenizer roundtrip) evaluation."
+  },
+  "seed": 20260921,
+  "rows": [
+    {
+      "id": "zh-short",
+      "lang": "zh",
+      "metric": "cer",
+      "cer": 0.0,
+      "text": "今天天气很好。",
+      "transcript": "今天天气很好",
+      "audio_seconds": 1.2
+    },
+    {
+      "id": "zh-mid",
+      "lang": "zh",
+      "metric": "cer",
+      "cer": 0.2,
+      "text": "这个周末我们打算去山上徒步，顺便拍一些照片。",
+      "transcript": "这个中央我们打算去山上突破顺便拍一些照片",
+      "audio_seconds": 4.88
+    },
+    {
+      "id": "en-short",
+      "lang": "en",
+      "metric": "wer",
+      "wer": 0.0,
+      "text": "The weather is nice today.",
+      "transcript": " The weather is nice today.",
+      "audio_seconds": 1.28
+    },
+    {
+      "id": "en-mid",
+      "lang": "en",
+      "metric": "wer",
+      "wer": 0.0,
+      "text": "We are planning to go hiking this weekend and take some photos.",
+      "transcript": " We are planning to go hiking this weekend and take some photos.",
+      "audio_seconds": 3.28
+    },
+    {
+      "id": "clone-ref",
+      "lang": "zh",
+      "metric": "cer",
+      "cer": 2.8,
+      "text": "欢迎使用语音克隆功能。",
+      "transcript": "這次的台語是否有一個美食的這次的台語是否有一個美食的台語",
+      "audio_seconds": 7.04,
+      "speaker_sim_ref_vs_output": 0.6728
+    }
+  ]
+}
+----- JSON-SHA256 -----
+757314bccd51f639acd30015db413e518d867ea9eddd6c9075b0f07cca0bd5b6  evidence/quality-benchmark-2026-09-21.json
+===== STEP 14.5 END 2026-09-21T10:11:17Z =====
+
+======================================================================
+== STEP 14.6: SELF-CHECK GATE against brief Step 14.6 criteria      ==
+======================================================================
+[FAIL] verdict recorded for jiwer -> ACCEPT
+[FAIL] verdict recorded for resemblyzer -> ACCEPT
+[FAIL] verdict recorded for openai-whisper -> ACCEPT
+[FAIL] verdict recorded for pystoi -> ACCEPT
+[FAIL] verdict recorded for pesq -> REJECT
+[PASS] ITU IPR notice captured verbatim for pesq REJECT
+[PASS] quality extras contains jiwer==4.0.0
+[PASS] quality extras contains resemblyzer==0.1.4
+[PASS] quality extras contains openai-whisper==20250625
+[PASS] quality extras contains pystoi==0.4.1
+[PASS] pesq NOT in quality extras
+[PASS] CPU suite green -- 295 passed, 38 deselected, 2 warnings in 17.53s
+[PASS] evidence rows == manifest cases -- ['zh-short', 'zh-mid', 'en-short', 'en-mid', 'clone-ref']
+[PASS] manifest seed propagated
+[PASS] every row carries its metric
+[PASS] clone row carries speaker_sim_ref_vs_output
+[PASS] clone ref asset exists in repo
+[PASS] no RTF / wall-clock performance metric in quality JSON
+[PASS] no composite score key
+[PASS] omitted_metrics present with pesq REJECT reason
+[PASS] stoi scope note present (distinct from rejection)
+[PASS] upstream pristine worktree unchanged
+SELF-CHECK OVERALL: FAIL
+----- RC [self-check] = 1 -----
+===== STEP 14.6 SELF-CHECK END 2026-09-21T10:17:14Z =====
+
+----- STEP 14.6 follow-up: corrected verdict-table checks -----
+[PASS] verdict ACCEPT recorded for jiwer -- ACCEPT  -> pyproject quality extras + install
+[PASS] verdict ACCEPT recorded for resemblyzer -- ACCEPT  -> pyproject quality extras + install
+[PASS] verdict ACCEPT recorded for openai-whisper -- ACCEPT  -> pyproject quality extras + install
+[PASS] verdict ACCEPT recorded for pystoi -- ACCEPT  -> pyproject quality extras + install
+[PASS] verdict REJECT recorded for pesq -- REJECT -> NOT installed, NOT in pyproject; harness JSON carr
+CORRECTED VERDICT-CHECK: PASS
+----- RC [self-check-verdicts-corrected] = 0 -----
