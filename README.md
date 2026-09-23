@@ -25,6 +25,7 @@ official checkpoints, the third opens a bilingual six-tab Gradio demo on
 **English** | [简体中文](README_CN.md)
 
 [![CI](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml)
+[![GPU CI](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/gpu-nightly.yml/badge.svg?branch=main)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/gpu-nightly.yml)
 [![Release](https://img.shields.io/github/v/release/AIwork4me/Qwen3-TTS-ROCm)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
@@ -178,13 +179,17 @@ push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/ac
 when the suite stood at 252 CPU tests; the suite has since grown to the
 counts above. Transcript: `evidence/ci-2026-09-21-8815238.txt`).
 
-**GPU CI state:** a self-hosted GPU regression workflow
+**GPU CI state:** **LIVE** — the self-hosted GPU regression workflow
 (`.github/workflows/gpu-nightly.yml` — nightly short suite + manual
-full-weekly matrix on the `gfx1151` host) and its runbook are **prepared but
-BLOCKED ON RUNNER INFRASTRUCTURE**: no runner is registered, the workflow has
-never executed on GitHub Actions, and there is deliberately **no GPU CI
-badge**. Filter-selection proofs: `evidence/gpu-ci-prep-validation.txt`;
-activation steps: [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md).
+full-weekly matrix on the `gfx1151` host) ran its first real green run on
+2026-09-23 ([run 35857806038](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35857806038),
+`gpu-short`, 32 GPU test nodes, commit `a3a8a75`). The nightly window is
+02:00 local (+08:00) = 18:00 UTC, and it runs when the validation host is
+powered/online at the window — a missed window is not a regression signal
+and can be re-dispatched manually per the runbook. Filter-selection
+proofs: `evidence/gpu-ci-prep-validation.txt`; first-run transcript:
+`evidence/gpu-ci-first-green-2026-09-23.txt`; runbook:
+[`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md).
 
 The flagship demo tab, captured live on the validation machine:
 

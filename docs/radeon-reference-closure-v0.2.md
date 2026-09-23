@@ -295,6 +295,10 @@ badge**. No live-runner claim is made anywhere. All GPU test evidence in this
 repository comes from the validation host itself (§7/§15). This remains a
 known gap (§17, item 2).
 
+> Addendum 2026-09-23: superseded — GPU CI is LIVE as of first green run
+> `35857806038`; see [`docs/development/gpu-ci-runbook.md`](development/gpu-ci-runbook.md)
+> and `evidence/gpu-ci-first-green-2026-09-23.txt`.
+
 ## 11. vLLM-Omni comparison
 
 Headline (controlled A/B on gfx1151, same checkpoint/workload/GPU, A-B-A

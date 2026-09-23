@@ -1,16 +1,23 @@
 # GPU CI runbook — self-hosted Radeon 8060S (`gfx1151`) regression runner
 
-> **STATUS: BLOCKED ON RUNNER INFRASTRUCTURE — workflow validated locally,
-> never executed on a runner. No GPU CI badge until a real run is green.**
+> **STATUS: LIVE — first green run 35857806038 on 2026-09-23 (gpu-short,
+> 32 nodes, commit a3a8a75). Nightly gpu-short at 02:00 local (+08:00) =
+> 18:00 UTC; runs when the validation host is powered/online at the window
+> (a missed window can be re-dispatched manually).**
 >
-> As of 2026-09-21 the workflow file
-> [`.github/workflows/gpu-nightly.yml`](../../.github/workflows/gpu-nightly.yml)
-> exists and is validated (YAML parse + every `-k` filter proven against the
-> collected GPU test nodes — transcript:
-> [`evidence/gpu-ci-prep-validation.txt`](../../evidence/gpu-ci-prep-validation.txt)),
-> but **no self-hosted runner is registered** and the workflow has **never
-> run on GitHub Actions**. This runbook is the prepare-only record of how to
-> close that gap. Nothing on the public README claims live GPU CI.
+> The self-hosted runner (amd-HP-ZBook-Ultra, labels
+> `[self-hosted, Linux, X64, radeon-gfx1151]`) is registered at repo scope
+> and runs as a **user-level systemd service** with linger enabled — see
+> [Runner installation](#runner-installation-done-2026-09-23--user-level-systemd--linger).
+> The workflow [`.github/workflows/gpu-nightly.yml`](../../.github/workflows/gpu-nightly.yml)
+> was hardened for real execution in commit `a3a8a75` (retrying `git fetch`
+> sync replacing `actions/checkout` — this host's github.com link is
+> TLS-flaky; absolute host `.venv`/`models/` paths; a provenance assertion
+> that `PYTHONPATH=$GITHUB_WORKSPACE/src` wins over the host editable
+> install). First real run green, every step:
+> [`evidence/gpu-ci-first-green-2026-09-23.txt`](../../evidence/gpu-ci-first-green-2026-09-23.txt).
+> One prior scheduled run (`35831353081`) failed at checkout **before**
+> the hardening (relative-path + TLS defects) — history, not current state.
 
 Audience: the maintainer of the private validation desktop (AMD Ryzen AI
 Max+ PRO 395 / Radeon 8060S, `gfx1151`, ROCm 7.14.0, Ubuntu kernel
@@ -24,13 +31,33 @@ Max+ PRO 395 / Radeon 8060S, `gfx1151`, ROCm 7.14.0, Ubuntu kernel
 
 | Job | When | Timeout | Content |
 |---|---|---|---|
-| `gpu-short` | nightly cron `0 2 * * *` (02:00 **UTC** — GitHub schedules in UTC, not runner-local time; scheduled runs can also be delayed by load, so treat dispatch as the reliable path) or `workflow_dispatch` with `suite=gpu-short`/default | 120 min | environment diagnostics, then 32 of the 38 GPU test nodes in three disjoint `-k` slices (below) |
+| `gpu-short` | nightly cron `0 18 * * *` (18:00 **UTC** = 02:00 **local** +08:00 — GitHub schedules in UTC, not runner-local time; scheduled runs can also be delayed by load, so treat dispatch as the reliable path) or `workflow_dispatch` with `suite=gpu-short`/default | 120 min | environment diagnostics, then 32 of the 38 GPU test nodes in three disjoint `-k` slices (below) |
 | `full-weekly` | `workflow_dispatch` with `suite=full-weekly` only (no cron yet — flip the schedule on once a weekly cadence is actually wanted) | 720 min | all 38 GPU nodes + `scripts/verify_gpu.sh` stack sanity + `scripts/benchmark.py` RTF replication |
 
 Unlike the CPU workflow (`ci.yml`, ubuntu-latest, hermetic per-job install),
 the runner **installs nothing per job**: it reuses the persistent host
-`.venv` and `models/` tree. Both jobs fail fast in the diagnostics step if
-`.venv/bin/python` or `models/` is missing.
+`.venv` and `models/` tree via absolute `HOST_REPO` paths. Both jobs fail
+fast in the diagnostics step if `.venv/bin/python` or `models/` is missing.
+
+As hardened in commit `a3a8a75` (after the first scheduled run
+`35831353081` failed at checkout):
+
+- **No `actions/checkout`** — the sync step is a plain
+  `git fetch --depth=1 origin main` wrapped in a bounded retry loop
+  (15 attempts, 60 s apart; this host's github.com link is intermittently
+  TLS-flaky — GnuTLS -110 / connect timeouts — and checkout's 3 attempts
+  were not enough). No third-party action runs at all.
+- **Host assets by absolute path**: `HOST_REPO=/home/amd/Desktop/Qwen3-TTS-ROCm`
+  (`.venv`) and `QWEN3_TTS_ROCM_MODELS_DIR` → the host `models/` tree —
+  the checked-out workspace contains neither (both gitignored).
+- **Code-under-test provenance**: every pytest/benchmark step sets
+  `PYTHONPATH=$GITHUB_WORKSPACE/src`, which precedes the host venv's
+  editable-install `.pth`; the diagnostics step asserts
+  `qwen3_tts_rocm.__file__` resolves inside `/_work/` before any test
+  runs — the run tests the pushed commit, not the host tree.
+- **Concurrency**: workflow-level group `gpu-nightly` with
+  `cancel-in-progress: false` — one GPU, so a new run queues behind an
+  in-flight one instead of cancelling it.
 
 ## Prerequisites (on the desktop, before any runner step)
 
@@ -106,54 +133,89 @@ differ): the draft's `-k "parity or tokenizer"` also matched the two clone
 benchmark flag is `--json-out` (the script's real flag), not `--json`. All
 counts recorded in the validation transcript.
 
-## Runner installation (the blocking step)
+## Runner installation (done 2026-09-23 — user-level systemd + linger)
 
-Never done yet — this is the exact procedure when it happens. Work in a
-directory outside the repo tree, e.g. `~/actions-runner/`:
+The runner (name **amd-HP-ZBook-Ultra**, labels `[self-hosted, Linux, X64,
+radeon-gfx1151]`) lives in `~/actions-runner/` and runs as a **user-level
+systemd service** under the desktop's normal user `amd` — **not root**, no
+`sudo` anywhere in the actual install (GPU access works through the user's
+`render`/`video` group membership):
+
+- Unit `~/.config/systemd/user/github-runner.service`:
+  `ExecStart=/home/amd/actions-runner/run.sh`, `WorkingDirectory=/home/amd/actions-runner`,
+  `Type=simple`, `Restart=on-failure`, `RestartSec=10`,
+  `After=network-online.target`, `WantedBy=default.target`.
+- `systemctl --user enable --now github-runner.service` — enabled + active.
+- **Linger ON** (`loginctl enable-linger amd` → `Linger=yes`): the user
+  manager starts at boot without a login session, so the runner survives
+  reboots and runs the nightly window unattended.
+
+The exact registration procedure as performed (for a clean reinstall):
 
 ```bash
-# 1. Registration token (short-lived, org/repo scope):
+# 1. Registration token (short-lived, repo scope). NOTE: this endpoint
+#    REQUIRES an explicit POST --method:
 TOKEN=$(gh api repos/AIwork4me/Qwen3-TTS-ROCm/actions/runners/registration-token \
-        --jq .token)
+        --method POST --jq .token)
 
-# 2. Download + configure the runner (linux x64):
+# 2. Download + configure the runner (linux x64). NOTE: the runner
+#    release tarball ships NO .sha256 sidecar file — if you want an
+#    integrity check, take the digest from the release-asset API's
+#    `digest` field (e.g. `gh api repos/actions/runner/releases/tags/<tag>
+#    --jq '.assets[].digest'`) rather than looking for a sidecar.
 cd ~/actions-runner
 ./config.sh --url https://github.com/AIwork4me/Qwen3-TTS-ROCm \
             --token "$TOKEN" \
             --labels radeon-gfx1151 \
             --unattended
 
-# 3. Install as a service and start it:
-sudo ./svc.sh install
-sudo ./svc.sh start
-./svc.sh status   # or: systemctl status actions.runner.*
+# 3. Run as a USER-LEVEL systemd service (what was actually done):
+mkdir -p ~/.config/systemd/user
+#   write ~/.config/systemd/user/github-runner.service as described above,
+#   then:
+systemctl --user daemon-reload
+systemctl --user enable --now github-runner.service
+loginctl enable-linger "$USER"   # boot-persistent without a login session
 ```
+
+Alternative (the upstream default, **not** what was done): the documented
+`sudo ./svc.sh install && sudo ./svc.sh start` installs a system-level
+service running as root. On this single-user desktop the user-level unit
+is preferred: the runner needs no root, and systemd user units + linger
+give the same boot persistence with a smaller privilege surface.
 
 Then confirm the runner appears as *Idle* with the `radeon-gfx1151` label
 under repo **Settings → Actions → Runners**, and do one manual
 `workflow_dispatch` run (below) as the go-live test.
 
-## Label + fork security (binding constraints)
+## Security posture (binding constraints, as actually deployed)
 
-This is a self-hosted runner on a private desktop with direct access to the
-GPU, the `models/` tree and the home directory. Treat it as
-infrastructure, not as an ephemeral CI container:
+This is a self-hosted runner on a private desktop with direct access to
+the GPU, the `models/` tree and the home directory. Treat it as
+infrastructure, not as an ephemeral CI container. The reality of this
+deployment — a **personal (non-org) public repository**:
 
-- **Restrict the runner to this repository only** — register it at repo
-  scope (the `config.sh --url` above), never at org scope.
-- **Never enable it for public forks.** In repo **Settings → Actions →
-  Runner groups**, keep the runner in the *Default* group with access
-  limited to this repository, and leave **"Allow public repositories to
-  use this runner group"** OFF. Fork PRs must never land on this runner —
-  this is also why `gpu-nightly.yml` has **no `pull_request` trigger**
-  (only `schedule` + `workflow_dispatch`; `workflow_dispatch` is
-  repo-write-access only).
+- **Repo-scope registration** — the runner is registered against
+  `AIwork4me/Qwen3-TTS-ROCm` only (the `config.sh --url` above), never at
+  org scope. Org **runner-group** endpoints do not apply here at all:
+  the account is personal, so there is no runner-group management surface
+  to configure (the earlier draft's runner-group instructions were
+  org-account boilerplate, not something this repo can set).
+- **Containment = the workflow's trigger surface, which is deliberately
+  minimal**: `gpu-nightly.yml` has only `schedule` + `workflow_dispatch`
+  triggers — **no `pull_request`, no `push`** — and `workflow_dispatch`
+  requires **write access** to the repository. Fork/outside contributors
+  therefore cannot cause any code to execute on this runner; fork PRs
+  never land on it.
 - Keep `permissions: contents: read` in the workflow; never widen it for
-  convenience.
-- The runner executes whatever is on the checked-out ref. If the repo ever
-  accepts outside contributions routinely, revisit whether a self-hosted
-  runner is acceptable at all (GitHub's guidance: self-hosted runners are
-  for private repos / trusted contributors).
+  convenience. No third-party actions run at all (the sync step is plain
+  git against the public repo URL, no token needed).
+- **Residual risk, recorded honestly**: the repo's allowed-actions setting
+  remains "all" (the default). The trigger-surface restriction above —
+  not an action allowlist — is what actually contains this runner. If the
+  repo ever accepts outside contributions routinely, revisit whether a
+  self-hosted runner is acceptable at all (GitHub's guidance: self-hosted
+  runners are for private repos / trusted contributors).
 
 ## Triggering
 
@@ -162,11 +224,14 @@ infrastructure, not as an ephemeral CI container:
     `suite` = `gpu-short` (default) or `full-weekly`.
   - CLI: `gh workflow run gpu-nightly.yml --ref main -f suite=gpu-short`
     (then `gh run watch` or `gh run view --workflow gpu-nightly.yml`).
-- **Nightly schedule**: cron `0 2 * * *` is evaluated by GitHub in **UTC**
-  and may start late under load. If a specific local time matters, adjust
-  the cron (host is UTC+8 → 02:00 local ≈ `0 18 * * *` UTC) when the
-  runner goes live. Scheduled workflows are also auto-disabled after 60
-  days of repo inactivity — re-enable if that trips.
+- **Nightly schedule**: cron `0 18 * * *` — 18:00 **UTC** = 02:00
+  **local** (+08:00). GitHub evaluates cron in UTC and may start runs
+  late under load. The desktop is a validation host, not a managed
+  server: the nightly happens only if the machine is powered/online at
+  the window — a missed window is not an incident and leaves no signal;
+  re-dispatch manually (above) if a night matters. Scheduled workflows
+  are also auto-disabled after 60 days of repo inactivity — re-enable if
+  that trips.
 
 ## Maintenance
 
@@ -179,23 +244,47 @@ infrastructure, not as an ephemeral CI container:
   upstream publishes new checkpoints; keep `models/` on disk with ≥ 30 GB
   free (the fine-tuning smoke alone needs headroom).
 - **Disk**: runner work dirs (`~/actions-runner/_work/`) accumulate
-  checkouts; prune periodically. `benchmark-nightly.json` (written by
-  `full-weekly` into the checkout's `evidence/`) is a job artifact —
-  retrieve it from the run page, then commit it under a dated name if it
-  should become evidence.
+  checkouts; prune periodically.
+- **Never write tracked files from workflow steps**: the sync step's
+  `git clean -qfdx` removes *untracked* files only — it does **not**
+  revert modifications to *tracked* files. A step that modified a tracked
+  file would leave the workspace permanently dirty, and later runs would
+  test stale content instead of the fetched SHA (with `checkout` failing
+  or silently keeping the modification). Any future step must leave the
+  checkout untouched except for untracked scratch paths (which the next
+  run's clean removes).
+- **`benchmark-nightly.json` is ephemeral**: `full-weekly` writes it into
+  the runner workspace (`evidence/benchmark-nightly.json` under
+  `_work/…`), and nothing uploads it anywhere — the workflow deliberately
+  uses no actions at all, so it is *not* on the run page as an artifact;
+  the next run's `git clean -qfdx` deletes it. To keep a nightly
+  benchmark, copy it off the runner (or add an artifact-upload step with
+  that exact caveat in mind) before the next run, and commit it under a
+  dated name if it should become evidence.
 - **Timeouts**: 120 min (short) / 720 min (full) cover the observed suite
-  (38 nodes ≈ 5–10 min warm) plus one cold model-load margin; if the
-  nightly starts timing out, fix the cause — do not raise the cap silently.
-- **After any first green run**: update this header, the README CI
-  paragraph, and only then consider adding a GPU CI badge.
+  (38 nodes ≈ 5–10 min warm) plus one cold model-load margin — the first
+  green run took ~18 min wall including ~10 min of sync retries through a
+  TLS-flaky window; if the nightly starts timing out, fix the cause — do
+  not raise the cap silently.
+- **First green run happened 2026-09-23** (run `35857806038`): this
+  header, both READMEs' CI paragraphs and the GPU CI badge were flipped
+  in the same docs-only change set; transcript
+  `evidence/gpu-ci-first-green-2026-09-23.txt`.
 
-## Go-live checklist (in order)
+## Go-live checklist (state as of 2026-09-23)
 
-1. Prerequisites section green on the desktop.
-2. Runner installed, registered, labeled `radeon-gfx1151`, Idle.
-3. Runner-group fork policy verified OFF for public repos.
-4. One manual `workflow_dispatch` run of `gpu-short` → green.
-5. One manual `workflow_dispatch` run of `full-weekly` → green (schedule a
-   convenient start time; it is long).
-6. Update this file's STATUS header, README's CI paragraph, and
-   `evidence/` (archive both run transcripts). Badge only after 4–5.
+1. ✅ Prerequisites section green on the desktop.
+2. ✅ Runner installed, registered, labeled `radeon-gfx1151`, Idle —
+   user-level systemd service + linger (see above).
+3. ✅ Trigger-surface containment verified: `schedule` +
+   `workflow_dispatch` only, no `pull_request`; repo-scope registration
+   on a personal account (no org runner-group surface applies).
+4. ✅ One manual `workflow_dispatch` run of `gpu-short` → **green**
+   (run `35857806038`, 2026-09-23, commit `a3a8a75`).
+5. ☐ One manual `workflow_dispatch` run of `full-weekly` → green —
+   **still pending**; schedule a convenient start time (it is long).
+6. ✅ STATUS header + both READMEs' CI paragraphs flipped, evidence
+   archived (`evidence/gpu-ci-first-green-2026-09-23.txt`), GPU CI badge
+   added — the badge was added at step 4 with `full-weekly` (step 5)
+   still unrun: it reflects the workflow's last-run status, so the first
+   `full-weekly` result will show on it directly.

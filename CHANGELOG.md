@@ -342,7 +342,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-No changes since v0.2.0 (released 2026-09-22).
+### Changed
+
+- **GPU CI is live.** The self-hosted Radeon regression workflow
+  (`.github/workflows/gpu-nightly.yml`, added prepared-but-blocked in
+  0.2.0) executed its first real green run on 2026-09-23: run
+  `35857806038` (`gpu-short`, event `workflow_dispatch`, commit `a3a8a75`)
+  — 32/38 GPU test nodes in three disjoint slices, all passing, ~18 min
+  wall including ~10 min of sync retries through the host's TLS-flaky
+  github.com window (transcript:
+  `evidence/gpu-ci-first-green-2026-09-23.txt`). The runner
+  (amd-HP-ZBook-Ultra, labels `[self-hosted, Linux, X64,
+  radeon-gfx1151]`) is a user-level systemd service
+  (`~/.config/systemd/user/github-runner.service`, `ExecStart run.sh`,
+  `Restart=on-failure`, linger enabled, service user `amd` — not root).
+  The same hardening commit `a3a8a75` made real execution reliable:
+  retrying `git fetch` sync replacing `actions/checkout` (no third-party
+  actions), absolute host `.venv`/`models/` paths, a
+  `PYTHONPATH=$GITHUB_WORKSPACE/src` provenance assertion (code under
+  test = the pushed commit), and a `gpu-nightly` concurrency group with
+  `cancel-in-progress: false`. Nightly window: `0 18 * * *` UTC = 02:00
+  local (+08:00); runs when the validation host is powered/online at the
+  window — a missed window can be re-dispatched manually. README /
+  README_CN gained the GPU CI badge and the live-state paragraph;
+  the runbook (`docs/development/gpu-ci-runbook.md`) was corrected to the
+  as-built procedure (POST for the registration token, release-asset-API
+  digest instead of a nonexistent `.sha256` sidecar, user-systemd + linger
+  install with `sudo svc.sh` as the documented alternative,
+  personal-repo security posture, current cron, tracked-file-write
+  caveat, `benchmark-nightly.json` ephemerality).
 
 ## [0.1.0] - 2026-08-27
 

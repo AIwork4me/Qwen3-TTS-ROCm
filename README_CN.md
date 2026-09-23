@@ -19,6 +19,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 [English](README.md) | **简体中文**
 
 [![CI](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/ci.yml)
+[![GPU CI](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/gpu-nightly.yml/badge.svg?branch=main)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/workflows/gpu-nightly.yml)
 [![Release](https://img.shields.io/github/v/release/AIwork4me/Qwen3-TTS-ROCm)](https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
@@ -157,6 +158,17 @@ ROCm 验证主机上该项也会执行，因此最终为 313 CPU + 38 GPU = 351 
 每个 Python job `251 passed, 1 skipped, 38 deselected`——于 2026-09-21 验证，
 当时套件为 252 项 CPU 测试，其后套件已增长到上列数量——转录见
 `evidence/ci-2026-09-21-8815238.txt`）。
+
+**GPU CI 状态：已上线（LIVE）** —— 自托管 GPU 回归工作流
+（`.github/workflows/gpu-nightly.yml`：`gfx1151` 验证主机上的夜间短套件
++ 手动全量矩阵）已于 2026-09-23 首次真实运行全绿（[运行
+35857806038](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35857806038)，
+`gpu-short`，32 项 GPU 测试节点，提交 `a3a8a75`）。夜间窗口为本地
+（+08:00）02:00 = 18:00 UTC，仅当验证主机在该时刻开机在线时才会运行 ——
+错过窗口并非回归信号，可按运维手册手动补跑。筛选证明：
+`evidence/gpu-ci-prep-validation.txt`；首跑逐字记录：
+`evidence/gpu-ci-first-green-2026-09-23.txt`；运维手册：
+[`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md)。
 
 下面是验证真机上实拍的演示标签页：
 
