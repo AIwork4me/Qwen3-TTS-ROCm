@@ -1,17 +1,31 @@
 # Qwen3-TTS-ROCm GPU regression CI (self-hosted Radeon 8060S, gfx1151).
 #
-# STATUS: BLOCKED ON RUNNER INFRASTRUCTURE — this workflow is validated
-# locally (YAML parse + -k filter selection proofs in
-# evidence/gpu-ci-prep-validation.txt) but has NEVER executed on a GitHub
-# runner: no self-hosted runner is registered yet. Do not add a GPU CI badge
-# until a real run is green. Setup/maintenance: docs/development/gpu-ci-runbook.md.
+# STATUS: the self-hosted runner (amd-HP-ZBook-Ultra, labels [self-hosted,
+# Linux, X64, radeon-gfx1151]) is registered and healthy, but the first real
+# run (35831353081) FAILED at checkout: this host's github.com link is
+# intermittently TLS-flaky (GnuTLS -110 / connect timeouts) and actions/
+# checkout's 3 fetch attempts were not enough (0/3). This revision therefore
+# replaces actions/checkout with a plain `git fetch --depth=1` wrapped in a
+# bounded retry loop (15 attempts, 60 s apart) — no third-party action runs
+# at all anymore. Do not add a GPU CI badge until a real run is green.
+# Setup/maintenance: docs/development/gpu-ci-runbook.md.
 #
 # Unlike ci.yml (ubuntu-latest, CPU-only, hermetic install per job), this
 # workflow runs on a SELF-HOSTED runner that owns the persistent validated
 # stack: the .venv built by scripts/install.sh (ROCm 7.14 wheels, Python
 # 3.12) and the downloaded models/ tree. Jobs therefore install nothing —
-# they reuse the host environment, matching how every evidence transcript
-# in evidence/ was produced.
+# they reuse the host environment via absolute HOST_REPO paths: Actions
+# executes every `run:` step with cwd = $GITHUB_WORKSPACE (the synced copy
+# under ~/actions-runner/_work/...), which by design contains neither the
+# gitignored .venv nor models/. Code under test comes from the fetched SHA:
+# PYTHONPATH=$GITHUB_WORKSPACE/src shadows the host venv's editable install
+# of the host tree (verified: the editable hook is a plain .pth sys.path
+# append, which PYTHONPATH precedes), and the diagnostics step asserts the
+# import provenance before any test runs.
+#
+# Single GPU => gpu-short and full-weekly must never overlap: the
+# workflow-level concurrency group queues a new run behind an in-flight one
+# instead of cancelling it (cancel-in-progress: false).
 #
 # Suite selection (validated against `.venv/bin/python -m pytest -m gpu
 # --co -q` on 2026-09-21 — 38 GPU nodes total; see the runbook's filter
@@ -35,15 +49,16 @@
 #   test_demo_ui.py — no gpu marker; they run in ci.yml). The keyword
 #   "studio" selects 0 GPU nodes and is therefore not used.
 #
-# Supply chain: like ci.yml, third-party actions are pinned to full commit
-# SHAs; least privileges (contents: read). No pull_request trigger: a
-# self-hosted runner on a private desktop must never execute fork code.
+# Supply chain: no third-party actions are used at all (the sync step is
+# plain git against the public repo URL, no token needed); least privileges
+# (contents: read). No pull_request trigger: a self-hosted runner on a
+# private desktop must never execute fork code.
 
 name: gpu-nightly
 
 on:
   schedule:
-    - cron: "0 2 * * *" # nightly 02:00 UTC (GitHub schedules in UTC; delays possible — runbook §trigger)
+    - cron: "0 18 * * *" # nightly 02:00 local (+08:00) = 18:00 UTC
   workflow_dispatch:
     inputs:
       suite:
@@ -54,55 +69,146 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: gpu-nightly
+  cancel-in-progress: false # single GPU: queue behind an in-flight run, never cancel it
+
+defaults:
+  run:
+    shell: bash # bash --noprofile --norc -eo pipefail
+
 jobs:
   gpu-short:
     if: ${{ github.event.inputs.suite != 'full-weekly' }}
     runs-on: [self-hosted, radeon-gfx1151]
     timeout-minutes: 120
+    env:
+      # Host-only assets the workspace copy cannot have (both gitignored):
+      # the validated venv and the downloaded models/ tree.
+      HOST_REPO: /home/amd/Desktop/Qwen3-TTS-ROCm
+      QWEN3_TTS_ROCM_MODELS_DIR: /home/amd/Desktop/Qwen3-TTS-ROCm/models
     steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Sync repository (retrying fetch — host github.com is TLS-flaky)
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if [[ ! -d .git ]]; then
+            git init -q
+            git remote add origin https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
+          fi
+          ok=0
+          for attempt in $(seq 1 15); do
+            if git fetch --depth=1 origin main; then
+              ok=1
+              break
+            fi
+            echo "fetch attempt ${attempt}/15 failed (host github.com TLS flakiness: GnuTLS -110 / connect timeouts)"
+            if [[ "$attempt" -lt 15 ]]; then sleep 60; fi
+          done
+          if [[ "$ok" -ne 1 ]]; then
+            echo "ERROR: git fetch origin main failed 15/15 attempts over ~14 min — the host github.com link is down harder than the retry budget; see docs/development/gpu-ci-runbook.md"
+            exit 1
+          fi
+          git clean -qfdx
+          git checkout -q FETCH_HEAD
+          echo "SYNCED_TO $(git rev-parse HEAD)"
 
       - name: Environment diagnostics (fail fast if host prerequisites drifted)
         run: |
-          test -x .venv/bin/python || { echo "ERROR: .venv missing — build it with scripts/install.sh (runbook §prerequisites)"; exit 1; }
-          test -d models || { echo "ERROR: models/ missing — run scripts/download_models.sh (runbook §prerequisites)"; exit 1; }
+          set -euo pipefail
+          test -x "$HOST_REPO/.venv/bin/python" || { echo "ERROR: $HOST_REPO/.venv missing — build it with scripts/install.sh (runbook §prerequisites)"; exit 1; }
+          test -d "$QWEN3_TTS_ROCM_MODELS_DIR" || { echo "ERROR: $QWEN3_TTS_ROCM_MODELS_DIR missing — run scripts/download_models.sh (runbook §prerequisites)"; exit 1; }
           rocm-smi --showproductname --showuse --showmeminfo vram
-          .venv/bin/python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+          "$HOST_REPO/.venv/bin/python" -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+          # Code-under-test provenance: PYTHONPATH must win over the host
+          # venv's editable install (which points at HOST_REPO/src).
+          PYTHONPATH="$GITHUB_WORKSPACE/src" "$HOST_REPO/.venv/bin/python" -c "import qwen3_tts_rocm; p=qwen3_tts_rocm.__file__; print(p); import sys; sys.exit(0 if '/_work/' in p else 1)" \
+            || { echo "ERROR: qwen3_tts_rocm resolved outside the runner workspace — the host editable install won over PYTHONPATH=\$GITHUB_WORKSPACE/src; do not trust this run's code provenance"; exit 1; }
 
       - name: Upstream parity + tokenizer (GPU)
-        run: .venv/bin/python -m pytest -m gpu -q -k "official_demo or tokenizer"
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          "$HOST_REPO/.venv/bin/python" -m pytest -m gpu -q -k "official_demo or tokenizer"
 
       - name: Core generation suites (CustomVoice 1.7B/0.6B, VoiceDesign, Base clone 1.7B/0.6B incl. reusable prompt)
-        run: .venv/bin/python -m pytest -m gpu -q -k "custom_voice or voice_design or voice_clone"
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          "$HOST_REPO/.venv/bin/python" -m pytest -m gpu -q -k "custom_voice or voice_design or voice_clone"
 
       - name: Voice Studio voice workflow (GPU)
-        run: .venv/bin/python -m pytest -m gpu -q -k "voice_workflow"
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          "$HOST_REPO/.venv/bin/python" -m pytest -m gpu -q -k "voice_workflow"
 
   full-weekly:
     if: ${{ github.event.inputs.suite == 'full-weekly' }}
     runs-on: [self-hosted, radeon-gfx1151]
     timeout-minutes: 720
+    env:
+      # Host-only assets the workspace copy cannot have (both gitignored):
+      # the validated venv and the downloaded models/ tree.
+      HOST_REPO: /home/amd/Desktop/Qwen3-TTS-ROCm
+      QWEN3_TTS_ROCM_MODELS_DIR: /home/amd/Desktop/Qwen3-TTS-ROCm/models
     steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Sync repository (retrying fetch — host github.com is TLS-flaky)
+        run: |
+          set -euo pipefail
+          cd "$GITHUB_WORKSPACE"
+          if [[ ! -d .git ]]; then
+            git init -q
+            git remote add origin https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
+          fi
+          ok=0
+          for attempt in $(seq 1 15); do
+            if git fetch --depth=1 origin main; then
+              ok=1
+              break
+            fi
+            echo "fetch attempt ${attempt}/15 failed (host github.com TLS flakiness: GnuTLS -110 / connect timeouts)"
+            if [[ "$attempt" -lt 15 ]]; then sleep 60; fi
+          done
+          if [[ "$ok" -ne 1 ]]; then
+            echo "ERROR: git fetch origin main failed 15/15 attempts over ~14 min — the host github.com link is down harder than the retry budget; see docs/development/gpu-ci-runbook.md"
+            exit 1
+          fi
+          git clean -qfdx
+          git checkout -q FETCH_HEAD
+          echo "SYNCED_TO $(git rev-parse HEAD)"
 
       - name: Environment diagnostics (fail fast if host prerequisites drifted)
         run: |
-          test -x .venv/bin/python || { echo "ERROR: .venv missing — build it with scripts/install.sh (runbook §prerequisites)"; exit 1; }
-          test -d models || { echo "ERROR: models/ missing — run scripts/download_models.sh (runbook §prerequisites)"; exit 1; }
+          set -euo pipefail
+          test -x "$HOST_REPO/.venv/bin/python" || { echo "ERROR: $HOST_REPO/.venv missing — build it with scripts/install.sh (runbook §prerequisites)"; exit 1; }
+          test -d "$QWEN3_TTS_ROCM_MODELS_DIR" || { echo "ERROR: $QWEN3_TTS_ROCM_MODELS_DIR missing — run scripts/download_models.sh (runbook §prerequisites)"; exit 1; }
           rocm-smi --showproductname --showuse --showmeminfo vram
-          .venv/bin/python -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+          "$HOST_REPO/.venv/bin/python" -c "import torch; print(torch.__version__, torch.cuda.is_available(), torch.cuda.get_device_name(0))"
+          # Code-under-test provenance: PYTHONPATH must win over the host
+          # venv's editable install (which points at HOST_REPO/src).
+          PYTHONPATH="$GITHUB_WORKSPACE/src" "$HOST_REPO/.venv/bin/python" -c "import qwen3_tts_rocm; p=qwen3_tts_rocm.__file__; print(p); import sys; sys.exit(0 if '/_work/' in p else 1)" \
+            || { echo "ERROR: qwen3_tts_rocm resolved outside the runner workspace — the host editable install won over PYTHONPATH=\$GITHUB_WORKSPACE/src; do not trust this run's code provenance"; exit 1; }
 
       - name: Full GPU regression (all 38 gpu-marked nodes)
-        run: .venv/bin/python -m pytest -m gpu -q
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          "$HOST_REPO/.venv/bin/python" -m pytest -m gpu -q
 
       # Stack-level prerequisite of fine-tuning (bf16 matmul + SDPA on gfx1151).
       # The real fine-tuning execution smoke (upstream prepare_data.py + sft_12hz.py
       # in the gitignored .upstream/ clone — evidence/finetune-smoke-2026-09-20.txt)
       # is a manual procedure, NOT run by this workflow; see runbook §maintenance.
+      # Runs the HOST copy on purpose: verify_gpu.sh derives its interpreter from
+      # its own location (HOST_REPO/.venv) and only exercises the host torch/HIP
+      # stack — no project code — so the fetched SHA is irrelevant here.
       - name: GPU stack sanity (fine-tune prerequisite)
-        run: bash scripts/verify_gpu.sh
+        run: |
+          bash "$HOST_REPO/scripts/verify_gpu.sh"
 
       - name: Benchmark replication (RTF across registered aliases)
-        run: .venv/bin/python scripts/benchmark.py --json-out evidence/benchmark-nightly.json
+        env:
+          PYTHONPATH: ${{ github.workspace }}/src
+        run: |
+          "$HOST_REPO/.venv/bin/python" scripts/benchmark.py --json-out evidence/benchmark-nightly.json
