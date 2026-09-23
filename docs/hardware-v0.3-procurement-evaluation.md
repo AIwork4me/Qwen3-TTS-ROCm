@@ -13,7 +13,7 @@ Measured memory envelopes this decision is sized against (from program evidence)
 | Workload | Measured GPU-memory peak | Consequence |
 |---|---|---|
 | 1.7B inference (worst model in ladder) | ~4.9 GiB | any 12 GB+ card is comfortable |
-| Fine-tuning smoke run | 18.0–18.5 GiB allocated | needs ≥20 GB card, or batch-size reduction |
+| Fine-tuning smoke run | peak allocated 18.01–18.03 GiB / reserved 18.48–18.50 GiB (evidence/upstream-372-e2e-run{1,2}.json) | needs ≥20 GB card, or batch-size reduction |
 
 USD→CNY conversions below use ≈ ¥7.2/USD as a comparison aid only; CNY is the
 procurement currency. Unverifiable figures are marked **UNVERIFIED** rather than guessed.
@@ -28,7 +28,8 @@ that simultaneously:
 
 1. lands exactly on the mission-preferred **gfx1100** axis (officially on the
    ROCm 7.14.0 support matrix — verified against AMD docs, see §2.2);
-2. clears the fine-tune envelope with real headroom (18.5 GiB peak vs 24 GB);
+2. clears the fine-tune envelope with real headroom (reserved peak
+   18.48–18.50 GiB vs 24 GB);
 3. runs on internal PCIe, so v0.3 benchmark/RTF numbers are **directly
    comparable** to the gfx1151 evidence (an eGPU path would force a
    "capability-only, RTF not comparable" disclosure on every number);
@@ -36,13 +37,17 @@ that simultaneously:
    extending the A–D GPU-CI work with a second architecture instead of
    leaving the laptop as a single point of failure.
 
-Runner-up: **7900 XTX + USB4 eGPU on the existing ZBook (~¥8,800–10,100)** if
-a second physical host is unacceptable — cheaper and desk-space-friendly, but
-carries amdgpu-over-USB4 initialization risk and permanently taints every RTF
-number with a ~PCIe 3.0 x4-class link that must be disclosed.
+Runner-up: **7900 XTX + USB4 eGPU on the existing ZBook (~¥8,800–9,500 with
+the AOOSTAR AG03)** if a second physical host is unacceptable — cheaper than
+the tower and desk-space-friendly, but carries amdgpu-over-USB4
+initialization risk and permanently taints every RTF number with a ~PCIe 3.0
+x4-class link that must be disclosed. (The Razer Core X V2 enclosure
+alternative stops being cheaper once its missing PSU is added — ~¥10,400–11,400
+all-in, i.e. Rank-1 money without Rank-1 comparability; see §3.1/§6.)
 Budget floor: **used RX 7900 XT 20 GB + tower (~¥6,000–8,000)** — cheapest
-gfx1100 path, but fine-tune headroom is 0.5–1.0 GiB over the measured peak,
-i.e. batch-reduction fallback territory, not comfortable headroom.
+gfx1100 path, but fine-tune headroom over the reserved 18.48–18.50 GiB peak
+is only ~0.15 GiB (20 GB ≈ 18.6 GiB usable), i.e. batch-reduction fallback
+territory, not comfortable headroom.
 
 **Timing note:** the 2026 GPU market is rising (GDDR7 shortage; used-card
 index +5.7% in six weeks; used 7900 XTX moved $706→$900 in that window —
@@ -56,10 +61,10 @@ software path in parallel while procurement is approved.
 
 ### 2.1 Candidates table (all support facts = AMD ROCm 7.14.0 official matrix, checked 2026-09-23)
 
-| GPU | gfx target | RDNA gen | VRAM | On ROCm 7.14.0 official matrix | Price (new) | Price (used) | 1.7B inference (4.9 GiB) | Fine-tune (18.0–18.5 GiB) |
+| GPU | gfx target | RDNA gen | VRAM | On ROCm 7.14.0 official matrix | Price (new) | Price (used) | 1.7B inference (4.9 GiB) | Fine-tune (reserved 18.48–18.50 GiB) |
 |---|---|---|---|---|---|---|---|---|
-| **RX 7900 XTX** | **gfx1100** | RDNA3 (Navi31) | 24 GB | **Yes — supported** | $929+; CN ~¥7,299 (公版淘宝)–¥8,000 (JD AIB) | ~$900 US; 闲鱼 min listing ~¥6,788 | Yes | **Yes (~5.5 GiB headroom)** |
-| **RX 7900 XT** | **gfx1100** | RDNA3 (Navi31) | 20 GB | **Yes — supported** | ~$850+; CN ~¥4,500–5,500 (JD XFX 海外版) | ~$610–650 US; CN est ¥3,000–4,000 (estimate, not a verified listing) | Yes | Marginal — exactly at the ≥20 GB floor; 0.5–1.0 GiB headroom |
+| **RX 7900 XTX** | **gfx1100** | RDNA3 (Navi31) | 24 GB | **Yes — supported** | $929+; CN ~¥7,299 (公版淘宝)–¥8,000 (JD AIB) | ~$900 US; 闲鱼 min listing ~¥6,788 | Yes | **Yes (~4 GiB headroom: 24 GB ≈ 22.4 GiB vs reserved peak 18.5 GiB)** |
+| **RX 7900 XT** | **gfx1100** | RDNA3 (Navi31) | 20 GB | **Yes — supported** | ~$850+; CN ~¥4,500–5,500 (JD XFX 海外版) | ~$610–650 US; CN est ¥3,000–4,000 (estimate, not a verified listing) | Yes | Marginal — exactly at the ≥20 GB floor; ~0.15 GiB headroom (reserved 18.48–18.50 GiB vs ~18.6 GiB usable on 20 GB) |
 | RX 7900 GRE | gfx1100 | RDNA3 | 16 GB | Yes — supported | CN channel is EOL/shrinking; 2026 price UNVERIFIED | UNVERIFIED | Yes | No |
 | RX 7800 XT | gfx1101 (not gfx1100) | RDNA3 (Navi32) | 16 GB | Yes — supported | MSRP $499 | ~$499–523 (holding at MSRP) | Yes | No |
 | RX 7700 XT | gfx1101 | RDNA3 (Navi32) | 12 GB | Yes — supported | UNVERIFIED this pass | UNVERIFIED | Yes (12 GB) | No |
@@ -150,7 +155,7 @@ September-2026 buyer's guide):
 |---|---|---|---|---|
 | AOOSTAR AG03 (or AG02) | USB4 40 Gbps | 800 W included | **¥1,499 (~$214)** | Dock-style; verify triple-slot 7900 XTX physical clearance |
 | EXP GDC TH3P4G3 | TB4/USB4 | bring-your-own ATX PSU | ~$199 + PSU (~$80–120) | Bare board; cheapest flexible option, most cabling |
-| Razer Core X V2 | TB5/USB4 | included | **$349.99 (~¥2,520)** | Proper enclosure, PCIe 4.0 x4, 140 W PD to laptop; original Core X being phased out |
+| Razer Core X V2 | TB5/USB4 | **NOT included — ships without a PSU** (Razer official FAQ; Tom's Hardware) | **$349.99 (~¥2,520) + ~$80–120 (~¥600–900) ATX PSU ≈ $430–470 all-in (~¥3,100–3,400)** | Proper enclosure, PCIe 4.0 x4, 140 W PD to laptop; original Core X being phased out; all-in cost erases its price edge over the AG03 |
 
 **Bandwidth + comparability caveat (must be disclosed in any evidence
 produced on this path):** USB4 40 Gbps tunnels PCIe at roughly PCIe 3.0
@@ -242,7 +247,7 @@ maintain, ~¥3–3.5K host cost that an eGPU path avoids.
 | Used 7900 XTX in tower (**R1**) | Used-card condition (AI-farm/翻新 stock in 2026 market); price volatility (used index +5.7% in 6 weeks); 355 W card needs real 850 W PSU + case airflow | Seller-verified `rocminfo` transcript before payment; 国行-warranty AIB cards preferred; buy promptly once approved; quality 850 W gold PSU in the ¥3–3.5K host budget |
 | New 7900 XTX in tower | +¥500–1,500 over used for identical silicon; CN new stock of a 2022 card is shrinking (EOL trajectory like the GRE) | Watch JD AIB stock; used-with-warranty often the better trade |
 | 7900 XTX + eGPU (**R2**) | amdgpu USB4 init/hotplug failures (documented above); kernel-upgrade regressions; benchmark comparability permanently caveated; no second host — laptop remains single point of failure | Connect-at-boot workflow; kernel pin; disclosure header on every benchmark artifact; accept capability-only scope |
-| Used 7900 XT + tower (**R3**) | Fine-tune headroom 0.5–1.0 GiB over measured 18.0–18.5 GiB peak → fragmentation/transient spikes can OOM; same used-market risks | Batch-size reduction fallback already proven on gfx1151; treat fine-tune on this card as "smoke runs only", not a comfortable regime |
+| Used 7900 XT + tower (**R3**) | Reserved peak 18.48–18.50 GiB vs ~18.6 GiB usable on a 20 GB card → only ~0.1–0.15 GiB headroom; fragmentation/transient spikes can OOM; same used-market risks | Batch-size reduction fallback already proven on gfx1151; treat fine-tune on this card as "smoke runs only", not a comfortable regime |
 | AI PRO R9700 + tower (Alt A) | ¥10,999 + host; **not gfx1100** — does not satisfy the stated North Star without a mission re-scope; RDNA4 compute stack is younger (fewer long-tail fixes in the wild) | Only choose if the program re-scopes the second axis to "any officially-supported discrete arch" and prioritizes VRAM headroom |
 | RX 9070 XT (any host) | 16 GB = inference-only; gfx1201 ≠ gfx1100 axis; Sep-2026 street price inflated by AMD's Q3-2026 SEP raise ($700–950+ vs $599 MSRP) | None needed — recorded as the cheapest NEW officially-supported card if the mission is later relaxed to RDNA4 inference-only |
 | W7900 / W7800 | $2,300–3,995 for capability a ¥7K 7900 XTX already delivers; used W7900 barely discounts vs new | Excluded on cost-effectiveness; revisit only if >32 GB VRAM becomes a requirement |
@@ -258,9 +263,9 @@ USD ≈ ¥7.2/USD.
 
 | Rank | Configuration | Total budget | Unlocks | Feeds v0.3 / CI |
 |---|---|---|---|---|
-| **1** | **Used RX 7900 XTX 24 GB (闲鱼 ¥6,800–7,500, warranty AIB preferred) + minimal AM5 tower (¥3,000–3,500)** | **~¥9,800–11,000 (~$1,360–1,530)** | Full v0.3 ladder on gfx1100 **with directly comparable RTF** + fine-tune execution (18.5 GiB in 24 GB) + any future ≥24 GB workload | Second self-hosted runner `radeon-gfx1100`; nightly queue covers two architectures; laptop no longer single point of failure |
-| 2 | New RX 7900 XTX 24 GB (CN ¥7,299–8,000) + AOOSTAR AG03 eGPU (¥1,499) [or Razer Core X V2 $349.99 ≈ ¥2,520] | **~¥8,800–10,100** | Full v0.3 ladder capability validation on gfx1100 + fine-tune-capable VRAM; RTF NOT directly comparable (mandatory eGPU disclosure) | No second host — same laptop, same runner; capability evidence only |
-| 3 | Used RX 7900 XT 20 GB (CN est ¥3,000–4,500; US import ~$610–650) + minimal tower | **~¥6,000–8,000 (~$830–1,110)** | Cheapest gfx1100 path: full inference ladder + fine-tune smoke runs only (0.5–1.0 GiB headroom) | Second runner on gfx1100; fine-tune regime remains laptop-or-nothing |
+| **1** | **Used RX 7900 XTX 24 GB (闲鱼 ¥6,800–7,500, warranty AIB preferred) + minimal AM5 tower (¥3,000–3,500)** | **~¥9,800–11,000 (~$1,360–1,530)** | Full v0.3 ladder on gfx1100 **with directly comparable RTF** + fine-tune execution (reserved peak 18.48–18.50 GiB in 24 GB) + any future ≥24 GB workload | Second self-hosted runner `radeon-gfx1100`; nightly queue covers two architectures; laptop no longer single point of failure |
+| 2 | New RX 7900 XTX 24 GB (CN ¥7,299–8,000) + AOOSTAR AG03 eGPU (¥1,499, PSU included) [Razer Core X V2 alt: $349.99 + ~$80–120 PSU ≈ ¥3,100–3,400 all-in] | **~¥8,800–9,500 (AG03); ~¥10,400–11,400 (Core X V2 incl. PSU)** | Full v0.3 ladder capability validation on gfx1100 + fine-tune-capable VRAM; RTF NOT directly comparable (mandatory eGPU disclosure) | No second host — same laptop, same runner; capability evidence only |
+| 3 | Used RX 7900 XT 20 GB (CN est ¥3,000–4,500; US import ~$610–650) + minimal tower | **~¥6,000–8,000 (~$830–1,110)** | Cheapest gfx1100 path: full inference ladder + fine-tune smoke runs only (~0.15 GiB headroom over the reserved 18.48–18.50 GiB peak) | Second runner on gfx1100; fine-tune regime remains laptop-or-nothing |
 | Alt A | Radeon AI PRO R9700 32 GB (¥10,999) + tower | ~¥14,000–14,500 | gfx1201 RDNA4 axis, 32 GB comfortable fine-tune, newest gen | Second runner `radeon-gfx1201`; requires mission re-scope away from gfx1100 |
 | Alt B | vast.ai RX 7900 XTX dry-run | ~$5–15 | Pre-purchase software de-risk of the whole v0.3 ladder on gfx1100 | Directional only — not evidence-grade, no hardware |
 
@@ -321,7 +326,7 @@ header from day one. Alt A only under a re-scoped North Star.
 
 **eGPU:**
 - egpu.io — September 2026 External GPU Buyer's Guide: https://egpu.io
-- Razer Core X V2 ($349.99, TB5/USB4, PCIe 4.0 x4): https://www.razer.com
+- Razer Core X V2 ($349.99, TB5/USB4, PCIe 4.0 x4; **ships WITHOUT a PSU** — Razer official FAQ + Tom's Hardware): https://www.razer.com , https://www.tomshardware.com
 - AOOSTAR eGPU docks ($169–249; AG03 800 W, ~¥1,499, announced Dec 2025): https://aoostar.com
 - EXP GDC TH3P4G3 (~$199, TB4/USB4 bare dock): https://www.amazon.com (also eBay)
 - Arch BBS — RX 7900 XTX + AOOSTAR AG02 USB4, "Timeout on hotplug command 0x1038" (Dec 2025): https://bbs.archlinux.org
@@ -341,7 +346,9 @@ header from day one. Alt A only under a re-scoped North Star.
 - AMD Developer Cloud (MI300X): https://www.amd.com
 
 **Program-internal (not URLs):** measured memory envelopes (1.7B inference
-~4.9 GiB; fine-tune smoke 18.0–18.5 GiB allocated) from program evidence;
+~4.9 GiB; fine-tune smoke peak allocated 18.01–18.03 GiB / reserved
+18.48–18.50 GiB — evidence/upstream-372-e2e-run{1,2}.json) from program
+evidence;
 gfx1151 host facts (HP ZBook Ultra G1a, Radeon 8060S, ROCm 7.14.0, torch
 2.12.0+rocm7.14.0) from program records.
 
