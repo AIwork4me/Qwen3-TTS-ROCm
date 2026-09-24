@@ -497,7 +497,15 @@ docker run --rm \
     qwen3-tts-rocm:dev
 ```
 
-镜像验证记录：[`evidence/docker-build-final.txt`](evidence/docker-build-final.txt)。
+镜像验证记录：仅构建时代为 [`evidence/docker-build-final.txt`](evidence/docker-build-final.txt)；
+**GPU 运行时 E2E（2026-09-24，v0.2.1）**——全新 `--no-cache` 镜像在
+Radeon 8060S 上完成容器内全链路：ROCm torch/HIP 7.14 + gfx1151 诊断、
+bf16 矩阵乘与 SDPA 有限性、torchaudio 导入、经仓库 loader 加载 0.6B
+CustomVoice、一次真实官方 API 合成（3.84 秒音频 @ 24 kHz、非静音、WAV
+落盘）以及 4 项 GPU pytest 切片——见
+[`evidence/docker-gpu-e2e-gfx1151-2026-09-24.txt`](evidence/docker-gpu-e2e-gfx1151-2026-09-24.txt)
+· [JSON](evidence/docker-gpu-e2e-gfx1151-2026-09-24.json) ·
+[生成的 WAV](evidence/docker-gpu-e2e-gen-2026-09-24.wav)。
 完整指南——组 GID 注意事项、无 GPU 诊断、无 GPU 冒烟测试——见
 [`docker/README.md`](docker/README.md)。
 

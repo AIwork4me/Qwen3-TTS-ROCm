@@ -344,6 +344,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Docker real-GPU E2E closure** (v0.2.1 Task 2, 2026-09-24): a fresh
+  `docker build --no-cache` image (tag `qwen3-tts-rocm:gfx1151-e2e`, HEAD
+  `488a028`) executed the complete GPU synthesis path inside the container
+  on the Radeon 8060S — 17/17 checks: ROCm/HIP/GPU/arch diagnostics,
+  finite bf16 matmul + SDPA, torchaudio import, repository-loader 0.6B
+  CustomVoice load, one official-API synthesis (3.84 s audio @ 24 kHz,
+  non-silent, WAV written), plus a 4-node GPU pytest slice in-container
+  (4 passed, 38.33 s). New probe `scripts/docker_gpu_e2e.py` is embedded
+  in the image at build time. Evidence:
+  `evidence/docker-gpu-e2e-gfx1151-2026-09-24.{txt,json}` +
+  `evidence/docker-gpu-e2e-gen-2026-09-24.wav` (erratum inside: the JSON's
+  `generation.rtf` recorded the reciprocal throughput 0.37; repo-convention
+  RTF = 2.73; probe fixed in `96bc051`). README Docker wording upgraded
+  from build-validated to GPU-runtime-validated; `docker/README.md` gained
+  the GPU runtime validation section.
+
 - **First green `full-weekly` GPU CI run** (v0.2.1 Task 1, 2026-09-24):
   run `35964051504` (`gpu-nightly` / `full-weekly`, event
   `workflow_dispatch`, suite=full-weekly, commit `09ca9fd`) — every step

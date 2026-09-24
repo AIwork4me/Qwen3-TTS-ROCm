@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "probe": "scripts/docker_gpu_e2e.py",
+    "when_utc": "2026-09-24T08:29:31+00:00",
+    "python": "3.12.3",
+    "torch": "2.12.0+rocm7.14.0",
+    "hip": "7.14.60850",
+    "gpu": "AMD Radeon 8060S Graphics",
+    "gcn_arch": "gfx1151",
+    "alias": "custom-voice-0.6b",
+    "wall_seconds": 18.89
+  },
+  "checks": [
+    {
+      "check": "torch_is_rocm_build",
+      "ok": true,
+      "detail": "2.12.0+rocm7.14.0"
+    },
+    {
+      "check": "hip_version",
+      "ok": true,
+      "detail": "7.14.60850"
+    },
+    {
+      "check": "cuda_available",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "gpu_name",
+      "ok": true,
+      "detail": "AMD Radeon 8060S Graphics"
+    },
+    {
+      "check": "gfx_arch",
+      "ok": true,
+      "detail": "gfx1151"
+    },
+    {
+      "check": "bf16_matmul_finite",
+      "ok": true,
+      "detail": "shape=(512, 512) min=-110.500 max=99.500"
+    },
+    {
+      "check": "sdpa_finite",
+      "ok": true,
+      "detail": "shape=(2, 4, 64, 32)"
+    },
+    {
+      "check": "torchaudio_import",
+      "ok": true,
+      "detail": "2.11.0+rocm7.14.0"
+    },
+    {
+      "check": "loader_load",
+      "ok": true,
+      "detail": "alias=custom-voice-0.6b load_seconds=6.37"
+    },
+    {
+      "check": "speakers_surface",
+      "ok": true,
+      "detail": "n=9 first=aiden"
+    },
+    {
+      "check": "one_waveform",
+      "ok": true,
+      "detail": "n=1"
+    },
+    {
+      "check": "sample_rate",
+      "ok": true,
+      "detail": "24000 (expected 24000)"
+    },
+    {
+      "check": "waveform_finite",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "check": "non_silent",
+      "ok": true,
+      "detail": "rms=0.0909 (>= 1e-3)"
+    },
+    {
+      "check": "duration_sane",
+      "ok": true,
+      "detail": "3.84s in [0.5, 60]"
+    },
+    {
+      "check": "wav_written",
+      "ok": true,
+      "detail": "/workspace/out/gen.wav 184364 bytes via soundfile"
+    }
+  ],
+  "generation": {
+    "load_seconds": 6.37,
+    "generate_seconds": 10.47,
+    "audio_seconds": 3.84,
+    "rtf": 0.37,
+    "peak_alloc_gb": 2.28,
+    "peak_reserved_gb": 2.33,
+    "wav_bytes": 184364,
+    "wav_writer": "soundfile"
+  }
+}

@@ -1,0 +1,60 @@
+=== DOCKER REAL-GPU E2E CLOSURE — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 2. Goal: a fresh Docker image executes real Qwen3-TTS synthesis on Radeon 8060S / gfx1151.
+Host build HEAD at image build: 488a02837e5df22cbc81cb48ece13a1daa82d38c (image embeds scripts/docker_gpu_e2e.py at this commit; probe commit 5ca613e + numpy fix 488a028 are IN the image; rtf-definition fix 96bc051 came after, see ERRATUM)
+Image: qwen3-tts-rocm:gfx1151-e2e (image id 3d31b1399fbe, built 2026-09-24 16:03:15 +0800)
+
+=== BUILD (docker build --no-cache -f docker/Dockerfile -t qwen3-tts-rocm:gfx1151-e2e . ; BUILDKIT_PROGRESS=plain; full log .work-docker/build2.log, 200 wheel downloads) ===
+#2 load metadata for docker.io/library/ubuntu:24.04 DONE 0.0s
+#1 DONE 0.0s
+#2 DONE 0.0s
+#3 DONE 0.0s
+#5 DONE 3.3s
+#6 DONE 482.0s
+#7 DONE 0.1s
+#8 DONE 95.3s
+#9 DONE 265.0s
+#10 DONE 1525.7s
+BUILD2_RC=0 (attempt 1 of the rebuilt image: build.log, also RC=0; rebuilt because the first probe crashed AFTER a successful render — see HONEST ITERATION)
+
+=== RUN COMMAND (attempt 2, the archived green run) ===
+docker run --rm --name qwen3-gpu-e2e --device /dev/kfd --device /dev/dri --group-add 44 (video) --group-add 992 (render) -v $PWD/models:/workspace/models -v $PWD/.work-docker:/workspace/out --entrypoint bash qwen3-tts-rocm:gfx1151-e2e -c '/workspace/.venv/bin/python /workspace/scripts/docker_gpu_e2e.py --json-out /workspace/out/docker-gpu-e2e.json --wav /workspace/out/gen.wav'
+
+=== IN-CONTAINER PROBE RESULT (verbatim [e2e] lines; MIOpen/transformers console chatter omitted — full runtime log .work-docker/runtime2.log) ===
+[e2e] OK   torch_is_rocm_build — 2.12.0+rocm7.14.0
+[e2e] OK   hip_version — 7.14.60850
+[e2e] OK   cuda_available
+[e2e] OK   gpu_name — AMD Radeon 8060S Graphics
+[e2e] OK   gfx_arch — gfx1151
+[e2e] OK   bf16_matmul_finite — shape=(512, 512) min=-110.500 max=99.500
+[e2e] OK   sdpa_finite — shape=(2, 4, 64, 32)
+[e2e] OK   torchaudio_import — 2.11.0+rocm7.14.0
+[e2e] OK   loader_load — alias=custom-voice-0.6b load_seconds=6.37
+[e2e] OK   speakers_surface — n=9 first=aiden
+[e2e] OK   one_waveform — n=1
+[e2e] OK   sample_rate — 24000 (expected 24000)
+[e2e] OK   waveform_finite
+[e2e] OK   non_silent — rms=0.0909 (>= 1e-3)
+[e2e] OK   duration_sane — 3.84s in [0.5, 60]
+[e2e] OK   wav_written — /workspace/out/gen.wav 184364 bytes via soundfile
+[e2e] wrote /workspace/out/docker-gpu-e2e.json
+DOCKER-GPU-E2E-OK
+RUN2_RC=0
+
+=== JSON SUMMARY ===
+Archived verbatim: evidence/docker-gpu-e2e-gfx1151-2026-09-24.json (17/17 checks ok; generation: load 6.37 s, generate 10.47 s, audio 3.84 s, peak alloc 2.28 GiB / reserved 2.33 GiB, wav 184364 bytes via soundfile)
+Generated WAV archived: evidence/docker-gpu-e2e-gen-2026-09-24.wav (24 kHz, 3.84 s)
+
+=== GPU PYTEST SLICE INSIDE THE CONTAINER ===
+docker run ... -c 'cd /workspace && .venv/bin/python -m pytest -m gpu tests/test_generate_custom_voice_06b.py -q'
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 2 warnings in 38.33s
+PYTEST_RC=0
+
+=== HONEST ITERATION (attempt 1 failure, archived verbatim in .work-docker/runtime-attempt1-failed.log) ===
+Attempt 1 (image built at HEAD 5ca613e) crashed AFTER a successful render: the probe assumed torch tensors, but the official API returns numpy — 'AttributeError: ... numpy.ndarray ... has no attribute pow' at the RMS computation. All environment checks + load + generation had already passed (torch_is_rocm_build/hip_version/gpu_name/gfx1151/bf16_matmul_finite/sdpa_finite/torchaudio_import/loader_load 6.15 s/one_waveform all OK in that log). Fix: commit 488a028; image rebuilt --no-cache; attempt 2 green.
+
+=== ERRATUM (artifact left unedited, per the no-hand-edit policy) ===
+evidence/docker-gpu-e2e-gfx1151-2026-09-24.json field generation.rtf=0.37 is audio-seconds/wall-second (throughput), NOT the repo-binding RTF (wall/audio, benchmark.py: lower is better). Correct RTF for this run = 10.47/3.84 = 2.73. Probe fixed in commit 96bc051 for future runs.
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-2-verification.md

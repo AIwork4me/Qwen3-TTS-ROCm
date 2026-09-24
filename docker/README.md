@@ -77,6 +77,37 @@ docker run --rm --entrypoint bash qwen3-tts-rocm:dev \
     -c 'exec bash scripts/run_demo.sh --device cpu --dtype float32'
 ```
 
+## GPU runtime validation (state: E2E validated 2026-09-24, v0.2.1 Task 2)
+
+A fresh `--no-cache` image built at a known HEAD proved the complete GPU
+synthesis path inside the container on the validation host (Radeon 8060S /
+gfx1151): ROCm torch 2.12.0+rocm7.14.0 / HIP 7.14.60850 / gfx1151
+diagnostics, finite bf16 matmul + SDPA, torchaudio import,
+`loader.load("custom-voice-0.6b")` against the mounted models tree, one
+official-API synthesis (3.84 s of audio @ 24 kHz, RMS 0.0909, WAV written
+via soundfile), and a 4-node GPU pytest slice (`pytest -m gpu
+tests/test_generate_custom_voice_06b.py`, 4 passed in 38.33 s). The probe
+is `scripts/docker_gpu_e2e.py`, embedded in the image at build time so the
+image's own copy is what runs:
+
+```bash
+docker run --rm --device /dev/kfd --device /dev/dri \
+    --group-add "$(getent group video | cut -d: -f3)" \
+    --group-add "$(getent group render | cut -d: -f3)" \
+    -v "$PWD/models:/workspace/models" -v "$PWD/.work-docker:/workspace/out" \
+    --entrypoint bash qwen3-tts-rocm:gfx1151-e2e -c \
+    '/workspace/.venv/bin/python /workspace/scripts/docker_gpu_e2e.py \
+     --json-out /workspace/out/docker-gpu-e2e.json --wav /workspace/out/gen.wav'
+```
+
+Transcript: `evidence/docker-gpu-e2e-gfx1151-2026-09-24.txt`; machine
+summary: `evidence/docker-gpu-e2e-gfx1151-2026-09-24.json` (erratum:
+its `generation.rtf` field recorded the reciprocal throughput 0.37 —
+repo-convention RTF for that run is 2.73, probe fixed thereafter);
+generated audio: `evidence/docker-gpu-e2e-gen-2026-09-24.wav`. Earlier
+build-only evidence: `evidence/docker-build-final.txt`; the 2026-08-30
+pre-program REST-API GPU generation: `evidence/docker-gpu-gen-2026-08-30.txt`.
+
 ## Build-time behavior worth knowing
 
 * `scripts/install.sh` runs with `QWEN3_TTS_ROCM_SKIP_VERIFY=1`: the final

@@ -563,8 +563,16 @@ docker run --rm \
     qwen3-tts-rocm:dev
 ```
 
-Image validation transcript:
-[`evidence/docker-build-final.txt`](evidence/docker-build-final.txt). Full
+Image validation transcripts: build-only era
+[`evidence/docker-build-final.txt`](evidence/docker-build-final.txt); **GPU
+runtime E2E (2026-09-24, v0.2.1)** — a fresh `--no-cache` image ran the full
+in-container chain on the Radeon 8060S: ROCm torch/HIP 7.14 + gfx1151
+diagnostics, finite bf16 matmul + SDPA, torchaudio import, repository-loader
+load of the 0.6B CustomVoice checkpoint, a real official-API synthesis
+(3.84 s of audio @ 24 kHz, non-silent, WAV written), plus a 4-node GPU
+pytest slice — [`evidence/docker-gpu-e2e-gfx1151-2026-09-24.txt`](evidence/docker-gpu-e2e-gfx1151-2026-09-24.txt)
+· [JSON](evidence/docker-gpu-e2e-gfx1151-2026-09-24.json) ·
+[generated WAV](evidence/docker-gpu-e2e-gen-2026-09-24.wav). Full
 guide — group-GID caveats, CPU-only diagnostics, smoke test without a GPU:
 [`docker/README.md`](docker/README.md).
 
