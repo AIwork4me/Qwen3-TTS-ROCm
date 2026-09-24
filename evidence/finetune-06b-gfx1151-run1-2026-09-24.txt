@@ -38,3 +38,7 @@ $ git -C .upstream/Qwen3-TTS status --porcelain | wc -l  (pristine clone untouch
 
 === VERIFICATION ===
 Independent verifier report: docs/superpowers/reports/pc021-task-6-verification.md (verifier checks pristine-before/after and reloads one checkpoint independently)
+
+=== CORRECTIONS (appended 2026-09-24 after Task 6 verifier findings — original capture above left unedited) ===
+D1: the full verbatim driver transcript for this run lives at /tmp/e2e06b-r1b-driver.log (the header's ".work-finetune/e2e06b-r1-driver.log" pointer is wrong — that file does not exist; run 2's pointer was correct).
+D3: the "porcelain 0 before and after" pristine-clone check was run by the implementer outside the driver protocol (the driver checks the FIX worktree, not the pristine clone); the Task 6 verifier independently re-verified pristine porcelain 0 after all GPU work. Attestation status now explicit.

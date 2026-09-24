@@ -33,3 +33,7 @@ $ git -C .upstream/Qwen3-TTS status --porcelain | wc -l  (pristine clone untouch
 
 === VERIFICATION ===
 Independent verifier report: docs/superpowers/reports/pc021-task-6-verification.md
+
+=== CORRECTIONS (appended 2026-09-24 after Task 6 verifier findings — original capture above left unedited) ===
+D2: phase-consistent losses — the DIRECT phase-C training printed Loss 13.0165 (epoch 0 step 0) → 7.3493 (epoch 1 step 0); the launcher memory-rerun printed 13.0165 → 7.1318 (fresh shuffle order). Any summary pairing 13.02 with 7.13 mixed the two invocations; both numbers are real and both phases are recorded above.
+D3: same attestation-status note as run 1 (pristine-clone check run by the implementer outside the driver; verifier re-verified independently after all GPU work).

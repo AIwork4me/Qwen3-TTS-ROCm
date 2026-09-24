@@ -267,8 +267,10 @@ RuntimeError **by construction** — the first 0.6B attempt failed exactly
 there (verbatim transcript referenced in the run-1 evidence). The one-line
 workaround mirrors official inference semantics. An upstream issue is
 drafted but NOT filed (user-gated). The pristine pinned clone
-`.upstream/Qwen3-TTS` (022e286) is untouched — porcelain 0 before and
-after every run.
+`.upstream/Qwen3-TTS` (022e286) is untouched — porcelain 0 verified by the
+implementer before and after the runs (outside the driver protocol, which
+checks the fix worktree) and independently re-verified by the Task 6
+verifier after all GPU work.
 
 **Claims discipline (unchanged and now covering both sizes):** 1.7B and
 0.6B fine-tuning are **execution-validated only** — no convergence claim,
