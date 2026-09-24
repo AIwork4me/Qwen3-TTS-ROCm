@@ -244,6 +244,38 @@ as-found; the loss lines above are the script's own prints (`step % 10 == 0`).
 
 ---
 
+## 0.6B Base execution validation (v0.2.1 Task 6, 2026-09-24)
+
+The same disciplined protocol ran TWICE on **Qwen3-TTS-12Hz-0.6B-Base**
+(fully independent runs: fresh dataset regeneration, fresh run trees,
+separate processes, distinct speakers): dataset → official `prepare_data.py`
+→ 12 optimizer steps (2 epochs × 6) → per-epoch checkpoints (1.81 GB,
+fingerprinted) → official `Qwen3TTSModel.from_pretrained` reload through
+our loader → post-finetune synthesis asserted sane (RELOAD-AND-SYNTHESIS-OK
+both runs). Training wall 19.5 s / 26.5 s; launcher-measured peak
+8.65 GiB allocated / 9.06–9.07 reserved. Evidence:
+`evidence/finetune-06b-gfx1151-run{1,2}-2026-09-24.txt`.
+
+**A SECOND upstream defect had to be disclosed and worked around for 0.6B**
+(gitignored fix worktree commit `512db9b`, branch
+`fix/finetuning-06b-text-projection`): upstream `sft_12hz.py` adds the text
+and codec embeddings **without** the talker's `text_projection` MLP that
+EVERY inference path applies (modeling `text_projection(get_text_embeddings()(...))`).
+On 1.7B the two dims coincidentally match (2048/2048); on 0.6B
+(`text_hidden_size` 2048 ≠ `hidden_size` 1024) the addition is a shape
+RuntimeError **by construction** — the first 0.6B attempt failed exactly
+there (verbatim transcript referenced in the run-1 evidence). The one-line
+workaround mirrors official inference semantics. An upstream issue is
+drafted but NOT filed (user-gated). The pristine pinned clone
+`.upstream/Qwen3-TTS` (022e286) is untouched — porcelain 0 before and
+after every run.
+
+**Claims discipline (unchanged and now covering both sizes):** 1.7B and
+0.6B fine-tuning are **execution-validated only** — no convergence claim,
+no quality claim, no multi-speaker claim. PR #373 (attention implementation)
+remains OPEN/unmerged as of 2026-09-24, and the 0.6B text-projection defect
+is a second, separate upstream blocker for out-of-the-box 0.6B fine-tuning.
+
 ## PROVEN
 
 Each item is linked to the evidence transcript

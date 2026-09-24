@@ -1,0 +1,40 @@
+=== 0.6B BASE FINE-TUNING E2E — RUN 1 — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 6. Driver: .work-finetune/e2e06b-driver.sh (full verbatim transcript: .work-finetune/e2e06b-r1-driver.log; training log .work-finetune/e2e06b-r1.log). Mirrors the validated 1.7B protocol (evidence/finetune-smoke-2026-09-20 + upstream-372-e2e-run{1,2}).
+Model: Qwen3-TTS-12Hz-0.6B-Base bf16. Dataset: 12 self-generated utterances (1.7B CustomVoice 'serena', manifest tests/data/finetune_manifest.json), official prepare_data.py (tokenizer 12Hz), batch 2, lr 2e-5, 2 epochs = 12 optimizer steps, speaker e2e06b_r1_speaker (id 3000).
+
+=== DISCLOSED WORKAROUNDS (both inside the gitignored fix worktree .upstream/Qwen3-TTS-fix; the pristine clone .upstream/Qwen3-TTS is UNTOUCHED — porcelain 0 before and after) ===
+1. PR #373 branch fix/finetuning-attn-implementation (48b8644): --attn_implementation sdpa (upstream issue #372: flash-attn hardcode; PR still OPEN 2026-09-24).
+2. LOCAL commit 512db9b branch fix/finetuning-06b-text-projection: NEW upstream bug — sft_12hz.py:98 adds text+codec embeddings WITHOUT the talker's text_projection that every inference path applies (modeling ~line 1978); on 0.6B (text_hidden_size 2048 != hidden_size 1024) this is a RuntimeError BY CONSTRUCTION:
+   RuntimeError: The size of tensor a (2048) must match the size of tensor b (1024) at non-singleton dimension 2
+   First run-1 attempt WITHOUT workaround 2 failed exactly there (verbatim transcript /tmp/e2e06b-attempt1-upstream-bug.log; generator+prepare green, sft-direct-exit=1). The one-line fix mirrors official inference semantics. Upstream issue drafted, NOT filed (user-gated outward action).
+
+=== KEY TRANSCRIPT LINES (verbatim from the driver log) ===
+512db9bf65795aa8b977f3132b3fe906c4a8b0c0
+=== RUN 1 PHASE A: FRESH SELF-GENERATED DATASET — scripts/make_finetune_dataset.py (2026-09-20 defaults, output into this run's tree) ===
+generator-exit=0
+=== RUN 1 PHASE B: OFFICIAL DATA PREPARATION — prepare_data.py FROM THE FIX WORKTREE (byte-identical to pristine; 2026-09-20 phase-4.4 flow, fresh in/out paths under this run's tree) ===
+prepare-exit=0
+=== RUN 1 PHASE C: TRAINING — DIRECT INVOCATION OF THE PATCHED OFFICIAL SCRIPT (this phase's checkpoints are the run's reload source; brief Step 6.1 literal command form) ===
+Epoch 0 | Step 0 | Loss: 12.5180
+Epoch 1 | Step 0 | Loss: 7.1567
+sft-direct-exit=0   (exit of the python process itself via PIPESTATUS[0], NOT of the tee wrapper)
+sft-direct-wall-seconds=19.5   (date +%s.%N deltas around the python process)
+$ grep -n 'Epoch .* Loss' /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e06b-r1.log   (loss lines verbatim, script's own logging)
+22:Epoch 0 | Step 0 | Loss: 12.5180
+23:Epoch 1 | Step 0 | Loss: 7.1567
+CKPT-CONFIG-OK tts_model_type=custom_voice spk_id={'e2e06b_r1_speaker': 3000} spk_is_dialect={'e2e06b_r1_speaker': False}
+Epoch 0 | Step 0 | Loss: 15.3062
+Epoch 1 | Step 0 | Loss: 7.1528
+[launcher] torch.cuda.max_memory_allocated: 8.649 GiB
+[launcher] torch.cuda.max_memory_reserved: 9.064 GiB
+launcher-exit=0
+=== RUN 1 PHASE E: CHECKPOINT RELOAD THROUGH OFFICIAL qwen_tts API + SYNTHESIS + WAVEFORM SANITY (checkpoint from the DIRECT phase-C training) ===
+RELOAD-AND-SYNTHESIS-OK
+reload-exit=0
+checkpoint fingerprint (phase-C epoch-1): 780b6e131a55103e2697b5173a42bed5b26b76a2d18f9c34c44f53b09d0ff858  model.safetensors (1811626544 bytes)
+launcher memory-rerun checkpoint (independent fresh training): 5418b5866b11193c5f7080885233d0e8b601f0f708e6249cca3897bdf03b5c8c
+$ git -C .upstream/Qwen3-TTS status --porcelain | wc -l  (pristine clone untouched)
+0
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-6-verification.md (verifier checks pristine-before/after and reloads one checkpoint independently)

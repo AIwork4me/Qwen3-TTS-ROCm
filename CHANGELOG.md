@@ -344,6 +344,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **0.6B Base fine-tuning execution validation** (v0.2.1 Task 6,
+  2026-09-24): the disciplined fine-tuning protocol ran twice, fully
+  independently, on Qwen3-TTS-12Hz-0.6B-Base — prep → 12 optimizer steps →
+  fingerprinted checkpoints → official-API reload → sane synthesis (both
+  runs RELOAD-AND-SYNTHESIS-OK; walls 19.5/26.5 s; peaks 8.65 GiB).
+  Execution-only: no convergence, quality, or multi-speaker claims.
+  **Second upstream defect root-caused and disclosed**: `sft_12hz.py`
+  adds text+codec embeddings without the talker's mandatory
+  `text_projection` — a shape RuntimeError by construction on 0.6B
+  (text_hidden 2048 ≠ hidden 1024; first attempt failed verbatim exactly
+  there). One-line inference-faithful workaround confined to the gitignored
+  fix worktree (`512db9b`); pristine clone untouched; upstream issue
+  drafted, not filed (user-gated). Evidence:
+  `evidence/finetune-06b-gfx1151-run{1,2}-2026-09-24.txt`;
+  `docs/finetuning-rocm.md` gained the 0.6B section; fine-tuning rows in
+  both READMEs now distinguish 1.7B vs 0.6B execution validation.
+
 - **Long-text + soak stability evidence** (v0.2.1 Task 5, 2026-09-24): new
   `scripts/longtext_ladder.py` (4-tier zh/en ladder on 1.7B CustomVoice:
   8/8 green up to 892 chars / 58 s audio, natural EOS everywhere, no

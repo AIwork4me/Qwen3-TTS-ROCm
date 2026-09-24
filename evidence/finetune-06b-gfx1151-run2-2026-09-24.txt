@@ -1,0 +1,35 @@
+=== 0.6B BASE FINE-TUNING E2E — RUN 2 — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 6. Driver: .work-finetune/e2e06b-driver.sh (full verbatim transcript: /tmp/e2e06b-r2-driver.log; training log .work-finetune/e2e06b-r2.log). Mirrors the validated 1.7B protocol. Fully independent from run 1: fresh dataset regeneration, fresh run tree e2e06b-r2/, separate processes, distinct speaker e2e06b_r2_speaker.
+Model: Qwen3-TTS-12Hz-0.6B-Base bf16; 12 utterances, batch 2, lr 2e-5, 2 epochs = 12 optimizer steps.
+
+=== DISCLOSED WORKAROUNDS (gitignored fix worktree .upstream/Qwen3-TTS-fix; pristine clone .upstream/Qwen3-TTS UNTOUCHED, porcelain 0 before/after) ===
+1. PR #373 branch (48b8644): --attn_implementation sdpa (issue #372; PR OPEN 2026-09-24).
+2. LOCAL commit 512db9b branch fix/finetuning-06b-text-projection: upstream sft_12hz.py:98 text+codec embedding addition omits the mandatory talker.text_projection — shape RuntimeError BY CONSTRUCTION on 0.6B (text_hidden 2048 != hidden 1024); see run-1 transcript for the verbatim first-attempt traceback.
+
+=== KEY TRANSCRIPT LINES (verbatim) ===
+=== RUN 2 PHASE A: FRESH SELF-GENERATED DATASET — scripts/make_finetune_dataset.py (2026-09-20 defaults, output into this run's tree) ===
+generator-exit=0
+=== RUN 2 PHASE B: OFFICIAL DATA PREPARATION — prepare_data.py FROM THE FIX WORKTREE (byte-identical to pristine; 2026-09-20 phase-4.4 flow, fresh in/out paths under this run's tree) ===
+prepare-exit=0
+=== RUN 2 PHASE C: TRAINING — DIRECT INVOCATION OF THE PATCHED OFFICIAL SCRIPT (this phase's checkpoints are the run's reload source; brief Step 6.1 literal command form) ===
+Epoch 0 | Step 0 | Loss: 13.0165
+Epoch 1 | Step 0 | Loss: 7.3493
+sft-direct-exit=0   (exit of the python process itself via PIPESTATUS[0], NOT of the tee wrapper)
+sft-direct-wall-seconds=26.5   (date +%s.%N deltas around the python process)
+RELOAD-AND-SYNTHESIS-OK (phase E)
+reload-exit=0
+$ grep -n 'Epoch .* Loss' /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e06b-r2.log   (loss lines verbatim, script's own logging)
+22:Epoch 0 | Step 0 | Loss: 13.0165
+23:Epoch 1 | Step 0 | Loss: 7.3493
+CKPT-CONFIG-OK tts_model_type=custom_voice spk_id={'e2e06b_r2_speaker': 3000} spk_is_dialect={'e2e06b_r2_speaker': False}
+Epoch 0 | Step 0 | Loss: 13.0165
+Epoch 1 | Step 0 | Loss: 7.1318
+[launcher] torch.cuda.max_memory_allocated: 8.650 GiB
+[launcher] torch.cuda.max_memory_reserved: 9.072 GiB
+launcher-exit=0
+fd9d1aed64334f77662dfd17ddc5e74e815cf2f86cb1a8a701c45f4016965e0e  /home/amd/Desktop/Qwen3-TTS-ROCm/.work-finetune/e2e06b-r2/runs/checkpoint-epoch-1/model.safetensors
+$ git -C .upstream/Qwen3-TTS status --porcelain | wc -l  (pristine clone untouched)
+0
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-6-verification.md
