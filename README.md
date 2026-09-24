@@ -183,12 +183,18 @@ counts above. Transcript: `evidence/ci-2026-09-21-8815238.txt`).
 (`.github/workflows/gpu-nightly.yml` — nightly short suite + manual
 full-weekly matrix on the `gfx1151` host) ran its first real green run on
 2026-09-23 ([run 35857806038](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35857806038),
-`gpu-short`, 32 GPU test nodes, commit `a3a8a75`). The nightly window is
+`gpu-short`, 32 GPU test nodes, commit `a3a8a75`) and its first green
+`full-weekly` run on 2026-09-24 ([run 35964051504](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35964051504),
+commit `09ca9fd`: all 38 GPU test nodes passed in 314 s, `verify_gpu.sh`
+stack sanity green, RTF benchmark replication across the three 1.7B
+aliases — 12 cells, median RTF 1.27–1.40 — with the benchmark JSON
+persisted as a downloadable run artifact). The nightly window is
 02:00 local (+08:00) = 18:00 UTC, and it runs when the validation host is
 powered/online at the window — a missed window is not a regression signal
 and can be re-dispatched manually per the runbook. Filter-selection
 proofs: `evidence/gpu-ci-prep-validation.txt`; first-run transcript:
-`evidence/gpu-ci-first-green-2026-09-23.txt`; runbook:
+`evidence/gpu-ci-first-green-2026-09-23.txt`; full-weekly transcript:
+`evidence/gpu-ci-full-weekly-first-green-2026-09-24.txt`; runbook:
 [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md).
 
 The flagship demo tab, captured live on the validation machine:

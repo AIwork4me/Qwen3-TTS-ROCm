@@ -342,8 +342,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **First green `full-weekly` GPU CI run** (v0.2.1 Task 1, 2026-09-24):
+  run `35964051504` (`gpu-nightly` / `full-weekly`, event
+  `workflow_dispatch`, suite=full-weekly, commit `09ca9fd`) — every step
+  green on the self-hosted `gfx1151` runner in ~12½ min: all 38 GPU test
+  nodes passed in 314.08 s (including the 5 all-model load smokes + GPU
+  fixture smoke that only `full-weekly` runs), `verify_gpu.sh` stack
+  sanity SPIKE-GPU-OK, and RTF benchmark replication across the three 1.7B
+  aliases (12 cells, median RTF 1.27–1.40). Transcript:
+  `evidence/gpu-ci-full-weekly-first-green-2026-09-24.txt`. The runbook's
+  go-live checklist step 5 is ✅; both READMEs' GPU CI paragraphs now
+  record the full-weekly first green.
+
 ### Changed
 
+- **`full-weekly` benchmark output persists as a run artifact.** A new
+  `if: always()` step uploads `evidence/benchmark-nightly.json` via
+  GitHub's first-party `actions/upload-artifact@v4` (artifact name
+  `benchmark-nightly-json`; retention request 365 d is clamped by the
+  repository's 90-day maximum — warning disclosed in the transcript).
+  Previously the JSON was ephemeral (wiped by the next run's
+  `git clean`); the runbook's ephemerality caveat is updated accordingly.
+  The JSON is still deliberately not committed back into the repository.
 - **GPU CI is live.** The self-hosted Radeon regression workflow
   (`.github/workflows/gpu-nightly.yml`, added prepared-but-blocked in
   0.2.0) executed its first real green run on 2026-09-23: run

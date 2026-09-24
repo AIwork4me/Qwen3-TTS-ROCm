@@ -163,11 +163,17 @@ ROCm 验证主机上该项也会执行，因此最终为 313 CPU + 38 GPU = 351 
 （`.github/workflows/gpu-nightly.yml`：`gfx1151` 验证主机上的夜间短套件
 + 手动全量矩阵）已于 2026-09-23 首次真实运行全绿（[运行
 35857806038](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35857806038)，
-`gpu-short`，32 项 GPU 测试节点，提交 `a3a8a75`）。夜间窗口为本地
+`gpu-short`，32 项 GPU 测试节点，提交 `a3a8a75`），并于 2026-09-24 首次
+`full-weekly` 全绿（[运行
+35964051504](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35964051504)，
+提交 `09ca9fd`：全部 38 项 GPU 测试节点 314 秒内通过、`verify_gpu.sh`
+栈健全性检查通过、三个 1.7B 别名的 RTF 基准复现 —— 12 个单元，中位
+RTF 1.27–1.40 —— 基准 JSON 已作为可下载的运行工件持久化）。夜间窗口为本地
 （+08:00）02:00 = 18:00 UTC，仅当验证主机在该时刻开机在线时才会运行 ——
 错过窗口并非回归信号，可按运维手册手动补跑。筛选证明：
 `evidence/gpu-ci-prep-validation.txt`；首跑逐字记录：
-`evidence/gpu-ci-first-green-2026-09-23.txt`；运维手册：
+`evidence/gpu-ci-first-green-2026-09-23.txt`；full-weekly 逐字记录：
+`evidence/gpu-ci-full-weekly-first-green-2026-09-24.txt`；运维手册：
 [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md)。
 
 下面是验证真机上实拍的演示标签页：

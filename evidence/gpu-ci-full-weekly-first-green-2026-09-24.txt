@@ -1,0 +1,55 @@
+=== FIRST GREEN FULL-WEEKLY GPU CI RUN — 2026-09-24 ===
+Run: 35964051504 (run_number 5, workflow gpu-nightly / job full-weekly, event workflow_dispatch, suite=full-weekly)
+status=completed conclusion=success event=workflow_dispatch headSha=09ca9fd9bd930873d6bd4687efdc2dd9d2dc79d0 run_started=2026-09-24T06:20:55Z updated=2026-09-24T06:33:25Z (job wall 06:21:01Z→06:33:24Z ≈ 12m23s)
+Runner: amd-HP-ZBook-Ultra (runner_id 21), labels [self-hosted, radeon-gfx1151]
+Dispatch: gh workflow run gpu-nightly.yml -f suite=full-weekly --ref main (after push cd46a81..09ca9fd added the artifact-persist step)
+
+=== STEPS (gh api jobs) ===
+full-weekly: Set up job=success | Sync repository=success | Environment diagnostics=success | Full GPU regression (all 38 gpu-marked nodes)=success | GPU stack sanity (fine-tune prerequisite)=success | Benchmark replication=success | Persist benchmark JSON as run artifact=success | Complete job=success
+gpu-short job: conclusion=skipped (by design — suite guard github.event.inputs.suite != 'full-weekly'; NOT a hidden failure)
+
+=== KEY LOG LINES (verbatim from gh run view --log) ===
+full-weekly	Sync repository (retrying fetch — host github.com is TLS-flaky)	2026-09-24T06:21:38.3780857Z SYNCED_TO 09ca9fd9bd930873d6bd4687efdc2dd9d2dc79d0
+full-weekly	Environment diagnostics (fail fast if host prerequisites drifted)	2026-09-24T06:21:40.0317148Z /home/amd/actions-runner/_work/Qwen3-TTS-ROCm/Qwen3-TTS-ROCm/src/qwen3_tts_rocm/__init__.py
+full-weekly	Environment diagnostics (fail fast if host prerequisites drifted)	2026-09-24T06:21:38.4664822Z GPU[0]		: GFX Version: 		gfx1151
+full-weekly	Environment diagnostics (fail fast if host prerequisites drifted)	2026-09-24T06:21:39.7143142Z 2.12.0+rocm7.14.0 True AMD Radeon 8060S Graphics
+full-weekly	Full GPU regression (all 38 gpu-marked nodes)	2026-09-24T06:26:54.9648838Z 38 passed, 313 deselected, 5 warnings in 314.08s (0:05:14)
+full-weekly	GPU stack sanity (fine-tune prerequisite)	2026-09-24T06:27:24.9752435Z SPIKE-GPU-OK
+full-weekly	GPU stack sanity (fine-tune prerequisite)	2026-09-24T06:27:24.9751536Z torch 2.12.0+rocm7.14.0 | HIP 7.14.60850
+
+=== BENCHMARK REPLICATION RESULT (verbatim summary table) ===
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6110375Z | alias | lang | len | runs | median RTF | best RTF | worst RTF | median wall s |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6111201Z |---|---|---|---|---|---|---|---|
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6111729Z | custom-voice | cn | short | 2 | 1.28 | 1.26 | 1.29 | 5.16 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6112407Z | custom-voice | cn | medium | 2 | 1.34 | 1.30 | 1.38 | 18.02 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6113000Z | custom-voice | en | short | 2 | 1.35 | 1.34 | 1.37 | 2.38 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6113576Z | custom-voice | en | medium | 2 | 1.29 | 1.28 | 1.29 | 4.78 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6114151Z | voice-design | cn | short | 2 | 1.28 | 1.27 | 1.29 | 5.08 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6114724Z | voice-design | cn | medium | 2 | 1.38 | 1.38 | 1.38 | 21.11 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6115300Z | voice-design | en | short | 2 | 1.35 | 1.33 | 1.38 | 2.22 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6115862Z | voice-design | en | medium | 2 | 1.27 | 1.27 | 1.28 | 4.74 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6117049Z | base | cn | short | 2 | 1.30 | 1.29 | 1.30 | 11.69 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6117226Z | base | cn | medium | 2 | 1.36 | 1.32 | 1.40 | 37.38 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6117394Z | base | en | short | 2 | 1.31 | 1.30 | 1.32 | 31.91 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6117560Z | base | en | medium | 2 | 1.40 | 1.34 | 1.46 | 12.89 |
+full-weekly	Benchmark replication (RTF across registered aliases)	2026-09-24T06:33:12.6117827Z [bench] wrote evidence/benchmark-nightly.json
+
+=== BENCHMARK ARTIFACT PERSISTENCE (verbatim) ===
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:14.3956568Z ##[warning]Retention days cannot be greater than the maximum allowed retention set within the repository. Using 90 instead.
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:17.9942502Z Uploaded bytes 2497
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:18.2548727Z SHA256 digest of uploaded artifact zip is 24df96d197d3250bb465ed5bd617e7e64065e942641d1898079f7c75699447d3
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:18.6738975Z Artifact benchmark-nightly-json.zip successfully finalized. Artifact ID 10793473404
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:18.6739704Z Artifact benchmark-nightly-json has been successfully uploaded! Final size is 2497 bytes. Artifact ID is 10793473404
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:18.6744415Z Artifact download URL: https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35964051504/artifacts/10793473404
+
+=== ARTIFACT POST-RUN VALIDATION (2026-09-24, implementer) ===
+gh run download 35964051504 -n benchmark-nightly-json -D /tmp/fw-artifact-check -> benchmark-nightly.json (12455 bytes)
+python3 json.load OK; results rows=12; aliases={base,custom-voice,voice-design}; meta.git_head=09ca9fd9bd930873d6bd4687efdc2dd9d2dc79d0; meta.upstream_qwen3_tts_sha=022e286b98fbec7e1e916cb940cdf532cd9f488e
+The artifact JSON is deliberately NOT committed back into the repository (runbook policy; nightly output stays a CI artifact).
+
+=== DISCLOSED WARNINGS (verbatim, not hidden) ===
+full-weekly	Persist benchmark JSON as run artifact	2026-09-24T06:33:14.3956568Z ##[warning]Retention days cannot be greater than the maximum allowed retention set within the repository. Using 90 instead.
+full-weekly	Complete job	2026-09-24T06:33:18.7536212Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/upload-artifact@v4. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-1-verification.md

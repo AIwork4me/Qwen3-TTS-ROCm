@@ -284,8 +284,12 @@ deployment — a **personal (non-org) public repository**:
    on a personal account (no org runner-group surface applies).
 4. ✅ One manual `workflow_dispatch` run of `gpu-short` → **green**
    (run `35857806038`, 2026-09-23, commit `a3a8a75`).
-5. ☐ One manual `workflow_dispatch` run of `full-weekly` → green —
-   **still pending**; schedule a convenient start time (it is long).
+5. ✅ One manual `workflow_dispatch` run of `full-weekly` → **green**
+   (run `35964051504`, 2026-09-24, commit `09ca9fd`, ~12½ min wall: all
+   38 GPU nodes passed in 314.08 s, `verify_gpu.sh` SPIKE-GPU-OK, benchmark
+   replication 12 cells median RTF 1.27–1.40, benchmark JSON persisted as
+   run artifact `benchmark-nightly-json`, Artifact ID 10793473404;
+   transcript `evidence/gpu-ci-full-weekly-first-green-2026-09-24.txt`).
 6. ✅ STATUS header + both READMEs' CI paragraphs flipped, evidence
    archived (`evidence/gpu-ci-first-green-2026-09-23.txt`), GPU CI badge
    added — the badge was added at step 4 with `full-weekly` (step 5)
