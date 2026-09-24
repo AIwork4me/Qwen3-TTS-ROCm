@@ -155,7 +155,9 @@ def main(argv: list[str] | None = None) -> int:
     _check(finite, "waveform_finite")
     _check(rms >= 1e-3, "non_silent", f"rms={rms:.4f} (>= 1e-3)")
     _check(0.5 <= dur <= 60.0, "duration_sane", f"{dur:.2f}s in [0.5, 60]")
-    gen.update({"audio_seconds": round(dur, 2), "rtf": round(dur / gen["generate_seconds"], 2)
+    gen.update({"audio_seconds": round(dur, 2),
+                # Repo-binding definition (scripts/benchmark.py): RTF = wall / audio, lower is better.
+                "rtf": round(gen["generate_seconds"] / dur, 2)
                 if gen.get("generate_seconds") else None,
                 "peak_alloc_gb": round(torch.cuda.max_memory_allocated() / 2**30, 2),
                 "peak_reserved_gb": round(torch.cuda.max_memory_reserved() / 2**30, 2)})
