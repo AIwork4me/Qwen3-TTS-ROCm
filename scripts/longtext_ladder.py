@@ -17,12 +17,14 @@ mean — no "maximum supported length" claim is made anywhere unless a real
 boundary were established experimentally (none is).
 
 Token-budget policy (binding): short/medium tiers keep the 512-token
-latency guardrail like every GPU suite; long/very-long tiers pass the
-OFFICIAL DEFAULT budget (no ``max_new_tokens`` kwarg; the checkpoint's
-``generate_config.json`` default of 2048 applies) so long inputs are not
-artificially beheaded — accepting that a degenerate sampling loop can run
-long (documented upstream behavior; the run is bounded by the 2048 cap,
-measured ≲ 23 min worst case on this iGPU).
+latency guardrail like every GPU suite; long/very-long tiers pass NO
+``max_new_tokens`` kwarg so the checkpoint's own generation default
+applies un-beheaded — the shipped checkpoints set **8192** (resolved from
+the official generation config and recorded per row; ladder attempt 2
+wrongly assumed 2048 — a training-side default — archived as evidence).
+8192 tokens ≈ 682.7 s of audio at 12 Hz, so a degenerate sampling loop
+could in principle run very long; in practice every long-tier render to
+date ended by natural EOS within ~58 s of audio.
 
 Usage::
 
@@ -123,8 +125,24 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 
 def _budget_tokens(tier: str) -> int | None:
-    """512 guardrail for short/medium; None (= official default 2048) for long tiers."""
+    """512 guardrail for short/medium; None (official default, resolved per
+    checkpoint below) for long tiers."""
     return 512 if tier in ("short", "medium") else None
+
+
+def _effective_default_budget(model) -> int | None:
+    """The checkpoint's own default max_new_tokens, read from the official
+    generation config the API merges (observation only — nothing modified).
+
+    The shipped checkpoints set 8192 (verified 2026-09-24 by the Task 5
+    verifier resolving `_merge_generate_kwargs()` live); attempt-2 of the
+    ladder wrongly assumed 2048 from v1's warmup note, which describes the
+    sft_12hz training-side default instead. Ceiling labels now record the
+    real number.
+    """
+    gc = getattr(getattr(model, "model", None), "generation_config", None)
+    val = getattr(gc, "max_new_tokens", None)
+    return int(val) if isinstance(val, int) and val > 0 else None
 
 
 def _run_tier(model, lang: str, tier: str, text: str, args) -> dict:
@@ -148,6 +166,8 @@ def _run_tier(model, lang: str, tier: str, text: str, args) -> dict:
     budget = _budget_tokens(tier)
     if budget is not None:
         kwargs["max_new_tokens"] = budget
+    else:
+        budget = _effective_default_budget(model)  # resolved, recorded below
     if torch.cuda.is_available():
         torch.cuda.reset_peak_memory_stats()
     t0 = time.perf_counter()
@@ -155,13 +175,13 @@ def _run_tier(model, lang: str, tier: str, text: str, args) -> dict:
     wall = time.perf_counter() - t0
     testing.assert_wav_sane(wavs[0], sr_expected=sr)
     dur = float(wavs[0].shape[-1]) / sr
-    ceiling = (budget if budget is not None else 2048) / HZ
+    ceiling = budget / HZ
     hit_cap = dur >= CAP_TOLERANCE * ceiling
     return {
         "lang": lang, "tier": tier, "chars": len(text), "sr": sr,
         "wall_seconds": round(wall, 2), "audio_seconds": round(dur, 2),
         "rtf": round(wall / dur, 2),
-        "token_budget": budget if budget is not None else "official_default(2048)",
+        "token_budget": budget,
         "audio_ceiling_seconds": round(ceiling, 2),
         "hit_cap": bool(hit_cap), "natural_eos_presumed": not hit_cap,
         "peak_alloc_gb": round(torch.cuda.max_memory_allocated() / 2**30, 2)
