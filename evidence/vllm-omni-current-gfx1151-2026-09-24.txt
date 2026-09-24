@@ -1,0 +1,22 @@
+=== VLLM-OMNI CURRENT TRUTH RUN — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 8. Isolated .work-vllm/venv30 — the official qwen-tts .venv was NEVER touched.
+Upstream truth captured BEFORE testing: vllm-omni main SHA 7e5897b8482d67800b561d6a7a5736a67c6485a1 (re-queried live; was 3d43571 at Task 0 baseline same day — fast-moving repo); recipe recipes/Qwen/Qwen3-TTS.md archived verbatim; supported-model table: CustomVoice/VoiceDesign/Base 1.7B (+0.6B CV/Base); recent qwen3_tts commits: 3f473a35 (09-23), a9e2117f MRV2+pipeline-opt (09-21), a2138b83 Code2Wav dtype (09-16), 5dbae2b1 codec frames (09-16), aff7d649 rebase-to-0.29 (09-10).
+Installed CURRENT stack: vllm 0.30.0+rocm723 (wheels.vllm.ai index) + vllm-omni 0.30.0rc1 (PyPI, released 2026-09-23) + onnxruntime-rocm 1.22.2.post3. Supersedes the dated 0.28.0 snapshot (2026-09-21).
+Invocation: upstream end2end.py VERBATIM at 7e5897b (fetched via api.github.com — github git transport was TLS-flaky tonight, 4 clone failures + truncated tarball; api.github.com unaffected). Models resolved via HF_HOME hub snapshot symlinks to local models/, HF_HUB_OFFLINE=1. Base used --audio-path local ref_en.wav (avoids the example's OSS URL).
+
+=== RESULTS (exit codes verbatim from the log) ===
+First ladder: EXIT_CustomVoice=0 · EXIT_VoiceDesign=1 · EXIT_Base=1 (both LocalEntryNotFoundError)
+Root cause of the two failures (honest iteration): MY hub refs/main files contained a trailing newline ('main\n' — hub then looks for snapshots/main\n/); the working 2026-09-21 CustomVoice entry has NO newline. Fixed with printf; rerun: EXIT_VoiceDesign=0 · EXIT_Base=0.
+WAVs (soundfile-verified, archived under evidence/vllm-current-wavs/):
+  customvoice-1p7b.wav 4.64s @24000Hz rms=0.0915
+  voicedesign-1p7b.wav 4.96s @24000Hz rms=0.0975
+  base-clone-1p7b.wav   4.72s @24000Hz rms=0.0991
+
+=== SCOPE / HONEST GAPS ===
+- All three 1.7B task families work on the CURRENT stack; previously only CustomVoice was proven (0.28.0, 2026-09-21).
+- 0.6B vLLM variants NOT tested (program: only after 1.7B families understood).
+- Memory observations NOT recorded this run (no rocm-smi bookends) — nothing memory-related is claimed.
+- No serving/streaming/perf claims here — those are Task 9/10.
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-8-verification.md (verifier independently checks upstream SHA and reruns one representative request)

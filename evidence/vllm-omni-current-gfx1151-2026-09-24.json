@@ -1,0 +1,59 @@
+{
+  "meta": {
+    "date_utc": "2026-09-24T15:30:00Z",
+    "program": "v0.2.1 Task 8",
+    "upstream_main_sha": "7e5897b8482d67800b561d6a7a5736a67c6485a1",
+    "installed_stack": {
+      "vllm": "0.30.0+rocm723",
+      "vllm_omni": "0.30.0rc1 (PyPI, released 2026-09-23)",
+      "onnxruntime": "1.22.2.post3 (rocm)",
+      "venv": ".work-vllm/venv30 (isolated; official .venv untouched)"
+    },
+    "end2end_provenance": "examples/offline_inference/text_to_speech/qwen3_tts/end2end.py fetched verbatim at 7e5897b via api.github.com (github git transport was TLS-flaky tonight); recipe archived at .work-vllm/omni-current-7e5897b/recipe-Qwen3-TTS.md",
+    "recent_qwen3_tts_commits": [
+      "3f473a35 2026-09-23 Breeze-TTS-2 non-streaming (#7752)",
+      "a9e2117f 2026-09-21 Enable Qwen3-TTS MRV2 + optimize pipeline (#7781)",
+      "a2138b83 2026-09-16 Code2Wav honors stage dtype (#6059)",
+      "5dbae2b1 2026-09-16 per-key codec frame accumulation (#7608)",
+      "aff7d649 2026-09-10 rebase to vLLM 0.29.0 (#7230)"
+    ],
+    "models": "local models/ via HF_HOME hub snapshot symlinks, HF_HUB_OFFLINE=1",
+    "base_ref_audio": "src/qwen3_tts_rocm/demo/assets/ref_en.wav (local, avoids the example's OSS URL)"
+  },
+  "results": [
+    {
+      "query_type": "CustomVoice",
+      "exit": 0,
+      "wav": "evidence/vllm-current-wavs/customvoice-1p7b.wav",
+      "audio_seconds": 4.64,
+      "sr": 24000,
+      "rms": 0.0915,
+      "note": "first leg of the first ladder \u2014 green on the very first try"
+    },
+    {
+      "query_type": "VoiceDesign",
+      "exit": 0,
+      "wav": "evidence/vllm-current-wavs/voicedesign-1p7b.wav",
+      "audio_seconds": 4.96,
+      "sr": 24000,
+      "rms": 0.0975,
+      "note": "first attempt exit 1: LocalEntryNotFoundError \u2014 MY hub refs/main files contained a trailing newline (the working CustomVoice entry, authored 2026-09-21, has none); fixed, rerun green"
+    },
+    {
+      "query_type": "Base",
+      "exit": 0,
+      "wav": "evidence/vllm-current-wavs/base-clone-1p7b.wav",
+      "audio_seconds": 4.72,
+      "sr": 24000,
+      "rms": 0.0991,
+      "note": "same refs-newline fix; clone from local ref_en.wav"
+    }
+  ],
+  "notes": [
+    "all three 1.7B task families work on the CURRENT stack (0.30.0rc1) \u2014 previously only CustomVoice was proven on 0.28.0 (2026-09-21)",
+    "engine stage startup/shutdown clean in all legs (StagePool logs)",
+    "no rocm-smi bookends were captured in this run \u2014 memory observations NOT recorded (honest gap; not claimed)",
+    "0.6B variants not tested (program says only after 1.7B families understood)"
+  ],
+  "full_log": ".work-vllm/task8-offline.log"
+}

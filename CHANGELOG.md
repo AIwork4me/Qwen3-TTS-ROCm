@@ -344,6 +344,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **vLLM-Omni current truth run** (v0.2.1 Task 8, 2026-09-24): the dated
+  0.28.0 snapshot (2026-09-21, CustomVoice-only) superseded by the CURRENT
+  stack — vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 + onnxruntime-rocm in a
+  fresh isolated venv — running upstream `end2end.py` verbatim at main
+  `7e5897b…`: **all three 1.7B task families green** (CustomVoice,
+  VoiceDesign, Base voice-clone; finite non-silent 24 kHz WAVs archived).
+  Upstream truth captured first (main SHA re-queried live, recipe,
+  supported-model table, recent qwen3_tts commits incl. the MRV2 pipeline
+  optimization). Evidence:
+  `evidence/vllm-omni-current-gfx1151-2026-09-24.{txt,json}` +
+  `evidence/vllm-current-wavs/`. Scope unchanged: offline only; no
+  serving/streaming/perf claims (Tasks 9–10 pending).
+
 - **Quality benchmark v2** (v0.2.1 Task 7, 2026-09-24): all 10 official
   languages scored for content correctness with whisper-small (GPU-probed
   before use; never compared against v1's whisper-tiny numbers): 9/10 at
