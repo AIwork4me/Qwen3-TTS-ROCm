@@ -410,8 +410,9 @@ per-cell stdev ≤ 0.11).
 Nothing in this section is claimed beyond its evidence-linked status lines —
 these are the rungs of the ladder, each gated on evidence before any ✅
 appears anywhere for it. Upstream features are listed here when they exist
-upstream but have **no Radeon evidence yet** (or, for vLLM-Omni, only the
-single-configuration feasibility check linked below).
+upstream but have **no Radeon evidence yet** (for vLLM-Omni, evidence so
+far is offline-scope: the 2026-09-21 feasibility snapshot plus the
+2026-09-24 current-stack three-family offline run linked below).
 
 ### vLLM-Omni on ROCm
 
@@ -432,7 +433,12 @@ skipping rungs:
    [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt)
    / [`.json`](evidence/vllm-omni-feasibility-2026-09-21.json).
    Scope: one example, single configuration, isolated venv — nothing more
-   is claimed.
+   is claimed. **Current-stack re-check 2026-09-24 (v0.2.1 Task 8): all
+   three 1.7B task families green offline** on vllm 0.30.0+rocm723 +
+   vllm-omni 0.30.0rc1, upstream `end2end.py` verbatim at main
+   `7e5897b…` — see
+   [`vllm-omni-current-gfx1151-2026-09-24.txt`](evidence/vllm-omni-current-gfx1151-2026-09-24.txt).
+   Still offline-scope only; serving/streaming rungs remain unrun.
 2. If feasible: **PyTorch / `qwen-tts` ROCm path re-used as the baseline**
    (this repository's proven path) as the reference point for correctness.
 3. **vLLM-Omni offline inference** on gfx1151 — single-request correctness

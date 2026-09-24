@@ -362,8 +362,9 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 
 本节内容**只按带证据链接的状态行声明，不做任何超出证据的结论** ——
 它们是阶梯的横档，每一级都必须先有证据，任何 ✅ 才可能出现。上游已有、
-但在 Radeon 上尚无证据的特性也列在这里（vLLM-Omni 除外 —— 它仅有下方
-链接的单一配置可行性检查）。
+但在 Radeon 上尚无证据的特性也列在这里（vLLM-Omni 目前的证据仍限于
+离线范围：2026-09-21 可行性快照 + 2026-09-24 当前栈三任务族离线运行，
+见下方链接）。
 
 ### vLLM-Omni 在 ROCm 上
 
@@ -381,6 +382,11 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
    [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt)
    / [`.json`](evidence/vllm-omni-feasibility-2026-09-21.json)。
    范围：一个示例、单一配置、独立 venv —— 不声明其他任何结论。
+   **当前栈复核 2026-09-24（v0.2.1 任务 8）：vllm 0.30.0+rocm723 +
+   vllm-omni 0.30.0rc1、逐字上游 end2end.py（main `7e5897b…`），三个
+   1.7B 任务族离线全部通过** —— 见
+   [`vllm-omni-current-gfx1151-2026-09-24.txt`](evidence/vllm-omni-current-gfx1151-2026-09-24.txt)。
+   仍仅限离线；服务/流式横档尚未运行。
 2. 若可行：**以本仓库已验证的 PyTorch / `qwen-tts` ROCm 路径为基线**，
    作为正确性参照。
 3. **vLLM-Omni 离线推理**（gfx1151）—— 先做单请求正确性对照（相对
