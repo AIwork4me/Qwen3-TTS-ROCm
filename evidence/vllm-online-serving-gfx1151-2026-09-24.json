@@ -82,7 +82,7 @@
       "when_utc": "2026-09-24T16:33:17+00:00"
     },
     "9F_long": {
-      "input_chars": 464,
+      "input_chars": 453,
       "ttfa_s": 0.222,
       "ttfa_over_wall": 0.005,
       "verdict": "INCREMENTAL",

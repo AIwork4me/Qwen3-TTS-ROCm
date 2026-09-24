@@ -71,7 +71,7 @@ intentionally not claimed**.
 | Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base · 0.6B Base | ✅ scoped — **execution-only smoke** (1.7B: prep → 12 steps → save → reload → sane synthesis, 2026-09-20; 0.6B: same protocol ×2 independent runs, 2026-09-24 — prep → 12 steps → save → fingerprint → reload → sane synthesis). NO convergence / quality / multi-speaker claims. Two disclosed upstream blockers for out-of-the-box ROCm fine-tuning: PR #373 (OPEN; flash-attn hardcode, issue #372) and the 0.6B text-projection omission (sft_12hz.py adds text+codec embeddings without the mandatory `text_projection`; shape error by construction on 0.6B; workaround confined to the gitignored clone, upstream issue drafted) ([docs](docs/finetuning-rocm.md#06b-base-execution-validation-v021-task-6-2026-09-24)) | 1.7B: [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · 0.6B: [`finetune-06b-gfx1151-run1-2026-09-24.txt`](evidence/finetune-06b-gfx1151-run1-2026-09-24.txt) · [`run2`](evidence/finetune-06b-gfx1151-run2-2026-09-24.txt) · PR #373 chain: [`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) |
 | Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently ignores `instruct`) — pinned by tests | Task 0 audit: [`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni serving (`/v1/audio/speech` + `/v1/audio/voices`) | 1.7B CustomVoice · 1.7B VoiceDesign · 1.7B Base inline clone | ✅ E2E validated on the current stack (vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1, upstream recipe invocations): all three task families served non-streaming with valid 24 kHz WAVs; Base inline clone requires the documented `ref_audio` URL/data-URL/file-URI contract + `--allowed-local-media-path` | [`vllm-online-serving-gfx1151-2026-09-24.txt`](evidence/vllm-online-serving-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-online-serving-gfx1151-2026-09-24.json) · WAVs: [`vllm-online-wavs/`](evidence/vllm-online-wavs) |
-| vLLM-Omni true streaming (HTTP PCM) | 1.7B CustomVoice | ✅ measured — client-side chunk timestamps prove incremental delivery: TTFA 0.249 s short input (ttfa/wall 0.115), TTFA 0.222 s on a 464-char input (0.005); 22/389 chunks; playback-sim underruns 1–2 (bursty cadence recorded). Upstream WebSocket client NOT working against this server build (client/server path+protocol drift, verbatim evidence — not a gfx1151 failure) | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
+| vLLM-Omni true streaming (HTTP PCM) | 1.7B CustomVoice | ✅ measured — client-side chunk timestamps prove incremental delivery: TTFA 0.249 s short input (ttfa/wall 0.115), TTFA 0.222 s on a 453-char input (0.005); 22/389 chunks; playback-sim underruns 1–2 (bursty cadence recorded). Upstream WebSocket client NOT working against this server build (client/server path+protocol drift, verbatim evidence — not a gfx1151 failure) | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
 | True streaming inference | — | 🚫 not exposed upstream — measured 2026-09-21 on gfx1151: qwen-tts 0.1.1's official Python API delivers audio only at completion (exactly 1 chunk every run; TTFB == total wall) | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [roadmap](#true-streaming-inference) |
 
 Conceptual boundary worth stating plainly (the demo and docs honour it):
@@ -411,9 +411,10 @@ per-cell stdev ≤ 0.11).
 Nothing in this section is claimed beyond its evidence-linked status lines —
 these are the rungs of the ladder, each gated on evidence before any ✅
 appears anywhere for it. Upstream features are listed here when they exist
-upstream but have **no Radeon evidence yet** (for vLLM-Omni, evidence so
-far is offline-scope: the 2026-09-21 feasibility snapshot plus the
-2026-09-24 current-stack three-family offline run linked below).
+upstream but have **no Radeon evidence yet** (for vLLM-Omni: offline,
+online serving, and HTTP-PCM streaming are now evidenced — see the
+capability matrix rows and the links below; WebSocket streaming remains
+upstream-broken on the current build).
 
 ### vLLM-Omni on ROCm
 
@@ -439,7 +440,9 @@ skipping rungs:
    vllm-omni 0.30.0rc1, upstream `end2end.py` verbatim at main
    `7e5897b…` — see
    [`vllm-omni-current-gfx1151-2026-09-24.txt`](evidence/vllm-omni-current-gfx1151-2026-09-24.txt).
-   Still offline-scope only; serving/streaming rungs remain unrun.
+   Since then (v0.2.1 Task 9, same night): online serving for all three
+   task families and HTTP-PCM true streaming are evidenced (matrix rows
+   above); the WebSocket rung remains upstream-broken.
 2. If feasible: **PyTorch / `qwen-tts` ROCm path re-used as the baseline**
    (this repository's proven path) as the reference point for correctness.
 3. **vLLM-Omni offline inference** on gfx1151 — single-request correctness

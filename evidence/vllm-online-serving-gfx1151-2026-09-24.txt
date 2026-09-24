@@ -19,7 +19,7 @@ stream=true stream_format=audio response_format=pcm, input 'Hello, how are you?'
 Upstream streaming_speech_client.py (verbatim at 7e5897b): default URL ws://localhost:8000/... → ConnectionRefused (wrong default port); ws://127.0.0.1:8091/v1/audio/speech/stream → ConnectionClosedError (path absent — server exposes /v1/realtime and /v1/duplex); /v1/realtime → server error event, the upstream client ITSELF crashes printing it (KeyError 'message' at line 270); /v1/duplex → immediate clean close 1000. No upstream code modified. NOT claimed as working; not a gfx1151-specific failure — the client targets a path this server build does not expose.
 
 === 9F LONG-TEXT STREAMING — GREEN, incremental ===
-464-char input: TTFA 0.222s (ttfa/wall = 0.005 → INCREMENTAL); 389 chunks; audio 32.4s; wall 41.29s; RTF 1.274; gap max 12.035s (initial silence before first burst) / p95 0.0s; playback-sim underruns 2 (buffer dips early in the session — cadence is bursty, see probe JSON).
+453-char input: TTFA 0.222s (ttfa/wall = 0.005 → INCREMENTAL); 389 chunks; audio 32.4s; wall 41.29s; RTF 1.274; gap max 12.035s (initial silence before first burst) / p95 0.0s; playback-sim underruns 2 (buffer dips early in the session — cadence is bursty, see probe JSON).
 
 === PUBLIC WORDING (Rule 3) ===
 official qwen-tts Python API: NO true incremental streaming (unchanged; measured 2026-09-21).

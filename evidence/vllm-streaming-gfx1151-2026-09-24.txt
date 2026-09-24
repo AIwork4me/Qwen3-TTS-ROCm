@@ -5,7 +5,7 @@ Program: v0.2.1 Task 9 (9D/9E/9F). Companion to vllm-online-serving-gfx1151-2026
 POST /v1/audio/speech stream=true stream_format=audio response_format=pcm, input 'Hello, how are you?', voice vivian:
   TTFA 0.249s · ttfa/wall 0.115 → STREAM-VERDICT: INCREMENTAL
   22 chunks · audio 1.84s · wall 2.166s · RTF 1.177 · gap max 1.9146s / median 0.0s · playback-sim underruns 1
-  Non-stream contrast: 2.03s wall single response — audio only at completion.
+  Non-stream contrast (archived machine record, cold first request): 7.832 s wall, single response — audio only at completion (verifier's warm contrast: 2.166 s).
   Machine record: evidence/vllm-streaming-9d-stream.json (+ -nonstream.json)
 
 === 9E WEBSOCKET — upstream client/server drift, NOT WORKING (verbatim) ===
@@ -16,7 +16,7 @@ POST /v1/audio/speech stream=true stream_format=audio response_format=pcm, input
 No upstream code modified. NOT claimed working; HTTP PCM is the working streaming path on this build.
 
 === 9F LONG-TEXT STREAMING — INCREMENTAL (data) ===
-464-char input: TTFA 0.222s · ttfa/wall 0.005 → INCREMENTAL · 389 chunks · audio 32.4s · wall 41.29s · RTF 1.274 · gap max 12.035s (initial silence before first burst) / p95 0.0s · playback-sim underruns 2 (early-session buffer dips — bursty cadence; full gap series derivable from chunk timestamps in the probe JSON)
+453-char input: TTFA 0.222s · ttfa/wall 0.005 → INCREMENTAL · 389 chunks · audio 32.4s · wall 41.29s · RTF 1.274 · gap max 12.035s (initial silence before first burst) / p95 0.0s · playback-sim underruns 2 (early-session buffer dips — bursty cadence; full gap series derivable from chunk timestamps in the probe JSON)
   Machine record: evidence/vllm-streaming-9f-long.json
 
 === CONCLUSION (Rule 3 wording) ===

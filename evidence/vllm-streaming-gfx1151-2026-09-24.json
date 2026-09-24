@@ -11,7 +11,8 @@
     "gap_max_s": 1.9146,
     "gap_p95_s": 0.0,
     "sim_underruns": 1,
-    "json": "evidence/vllm-streaming-9d-stream.json"
+    "json": "evidence/vllm-streaming-9d-stream.json",
+    "nonstream_contrast_note": "archived cold-first-request nonstream wall 7.832 s (single response, no incremental delivery); warm contrast measured by the verifier at 2.166 s"
   },
   "9D_nonstream_contrast": {
     "tag": "9D-nonstream",
@@ -24,7 +25,7 @@
     "when_utc": "2026-09-24T16:33:17+00:00"
   },
   "9F_long": {
-    "input_chars": 464,
+    "input_chars": 453,
     "ttfa_s": 0.222,
     "ttfa_over_wall": 0.005,
     "verdict": "INCREMENTAL",

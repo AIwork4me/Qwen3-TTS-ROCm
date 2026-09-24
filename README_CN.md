@@ -63,7 +63,8 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base · 0.6B Base | ✅ 限定范围 —— **仅执行冒烟验证**（1.7B：2026-09-20；0.6B：同一协议 ×2 次独立运行，2026-09-24 —— 准备 → 12 步 → 保存 → 指纹 → 重载 → 合成健全）。**不做**收敛/质量/多说话人声明。ROCm 开箱微调当前有两个已披露的上游阻断项：PR #373（OPEN；flash-attn 硬编码，issue #372）与 0.6B text-projection 缺失（sft_12hz.py 直接相加文本与编解码嵌入、遗漏推理路径必经的 `text_projection`；在 0.6B 上构造性形状错误；变通仅限 gitignored 克隆，上游 issue 已起草待批） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · 0.6B：[`run1`](evidence/finetune-06b-gfx1151-run1-2026-09-24.txt) · [`run2`](evidence/finetune-06b-gfx1151-run2-2026-09-24.txt) · PR #373 验证链：[`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`e2e-run1`](evidence/upstream-372-e2e-run1.txt) · [`e2e-run2`](evidence/upstream-372-e2e-run2.txt) |
 | CustomVoice 的指令控制 instruct | 0.6B | 🚫 上游未暴露（封装对 0.6B 静默忽略 `instruct`）—— 由测试钉住 | 任务 0 审计：[`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni 服务（`/v1/audio/speech` + `/v1/audio/voices`） | 1.7B CustomVoice · 1.7B VoiceDesign · 1.7B Base 内联克隆 | ✅ 当前栈端到端已验证（vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1，上游配方调用）：三个任务族非流式服务均产出有效 24 kHz WAV；Base 内联克隆需遵守文档化的 `ref_audio` URL/data-URL/file-URI 契约 + `--allowed-local-media-path` | [`vllm-online-serving-gfx1151-2026-09-24.txt`](evidence/vllm-online-serving-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-online-serving-gfx1151-2026-09-24.json) · [WAVs](evidence/vllm-online-wavs) |
-| vLLM-Omni 真流式（HTTP PCM） | 1.7B CustomVoice | ✅ 已测量 —— 客户端分片时间戳证明增量交付：短输入 TTFA 0.249 秒（ttfa/wall 0.115），464 字符输入 TTFA 0.222 秒（0.005）；22/389 分片；播放模拟欠载 1–2 次（突发节奏已记录）。上游 WebSocket 客户端在当前服务端构建上不可用（客户端/服务端路径与协议漂移，逐字证据 —— 非 gfx1151 故障） | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) || 真流式推理 | — | 🚫 上游未暴露 —— 2026-09-21 在 gfx1151 上实测：qwen-tts 0.1.1 官方 Python API 仅在调用完成时一次性返回音频（每次运行恰 1 个分片；首音频时间 == 总墙钟） | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [路线图](#真流式推理) |
+| vLLM-Omni 真流式（HTTP PCM） | 1.7B CustomVoice | ✅ 已测量 —— 客户端分片时间戳证明增量交付：短输入 TTFA 0.249 秒（ttfa/wall 0.115），453 字符输入 TTFA 0.222 秒（0.005）；22/389 分片；播放模拟欠载 1–2 次（突发节奏已记录）。上游 WebSocket 客户端在当前服务端构建上不可用（客户端/服务端路径与协议漂移，逐字证据 —— 非 gfx1151 故障） | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
+| 真流式推理 | — | 🚫 上游未暴露 —— 2026-09-21 在 gfx1151 上实测：qwen-tts 0.1.1 官方 Python API 仅在调用完成时一次性返回音频（每次运行恰 1 个分片；首音频时间 == 总墙钟） | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [路线图](#真流式推理) |
 
 有一个概念边界值得直说（演示与文档均遵守）：**CustomVoice 是预设/
 定制说话人音色生成** —— 它不从参考音频克隆。**Base 才是零样本语音克隆
@@ -362,9 +363,9 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 
 本节内容**只按带证据链接的状态行声明，不做任何超出证据的结论** ——
 它们是阶梯的横档，每一级都必须先有证据，任何 ✅ 才可能出现。上游已有、
-但在 Radeon 上尚无证据的特性也列在这里（vLLM-Omni 目前的证据仍限于
-离线范围：2026-09-21 可行性快照 + 2026-09-24 当前栈三任务族离线运行，
-见下方链接）。
+但在 Radeon 上尚无证据的特性也列在这里（vLLM-Omni 的离线、在线服务与
+HTTP-PCM 流式均已有证据 —— 见能力矩阵各行与下方链接；WebSocket 流式
+在当前构建上仍为上游客户端/服务端不兼容）。
 
 ### vLLM-Omni 在 ROCm 上
 
@@ -386,7 +387,8 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
    vllm-omni 0.30.0rc1、逐字上游 end2end.py（main `7e5897b…`），三个
    1.7B 任务族离线全部通过** —— 见
    [`vllm-omni-current-gfx1151-2026-09-24.txt`](evidence/vllm-omni-current-gfx1151-2026-09-24.txt)。
-   仍仅限离线；服务/流式横档尚未运行。
+   此后（v0.2.1 任务 9，同日深夜）：三个任务族的在线服务与 HTTP-PCM
+   真流式均已取得证据（见上方矩阵行）；WebSocket 横档仍为上游不兼容。
 2. 若可行：**以本仓库已验证的 PyTorch / `qwen-tts` ROCm 路径为基线**，
    作为正确性参照。
 3. **vLLM-Omni 离线推理**（gfx1151）—— 先做单请求正确性对照（相对

@@ -352,7 +352,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `ref_audio` URL/data-URL/file-URI contract and
   `--allowed-local-media-path`, three client-side iterations recorded
   verbatim). **True streaming measured from the client side**: HTTP PCM
-  delivers incrementally with TTFA 0.249 s (short) / 0.222 s (464 chars);
+  delivers incrementally with TTFA 0.249 s (short) / 0.222 s (453 chars);
   chunk cadence + playback-underrun simulation recorded. The upstream
   WebSocket example client does NOT work against this server build
   (client/server route+protocol drift; verbatim evidence; not claimed).

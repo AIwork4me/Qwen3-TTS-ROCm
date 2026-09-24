@@ -114,8 +114,11 @@ def probe_stream(args) -> dict:
     ttfa = (first_byte - t0) if first_byte else None
 
     # Playback-buffer simulation: consume 48 000 B/s from first audio byte.
+    # min_buffer_bytes tracks the shallowest buffer level BEFORE each refill
+    # (0.0 == never dipped below the previous chunk's credit; archived v0.2.1
+    # JSONs recorded a by-construction 0.0 — kept unedited).
     underruns = 0
-    min_buffer = 0.0
+    min_buffer = None
     if chunks:
         buf = 0.0
         t_play = first_byte
@@ -124,10 +127,10 @@ def probe_stream(args) -> dict:
             if buf < 0:
                 underruns += 1 if buf < -4096 else 0  # ignore <1-chunk dips
                 buf = 0.0
-            min_buffer = min(min_buffer, buf) if isinstance(min_buffer, float) else buf
+            min_buffer = buf if min_buffer is None else min(min_buffer, buf)
             buf += size
             t_play = arrival
-        min_buffer = min(min_buffer, 0.0)
+        min_buffer = 0.0 if min_buffer is None else round(min_buffer, 1)
 
     rec = {
         "tag": args.tag, "mode": "stream", "input_chars": len(args.input),
