@@ -351,7 +351,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   finite bf16 matmul + SDPA, torchaudio import, repository-loader 0.6B
   CustomVoice load, one official-API synthesis (3.84 s audio @ 24 kHz,
   non-silent, WAV written), plus a 4-node GPU pytest slice in-container
-  (4 passed, 38.33 s). New probe `scripts/docker_gpu_e2e.py` is embedded
+  (4 passed, 38.33 s). (The first-evidence phrasing said "17/17 checks";
+  the probe records 16 — a miscount corrected in the evidence index, with
+  an erratum appended to the transcript.) New probe
+  `scripts/docker_gpu_e2e.py` is embedded
   in the image at build time. Evidence:
   `evidence/docker-gpu-e2e-gfx1151-2026-09-24.{txt,json}` +
   `evidence/docker-gpu-e2e-gen-2026-09-24.wav` (erratum inside: the JSON's

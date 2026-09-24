@@ -58,3 +58,6 @@ evidence/docker-gpu-e2e-gfx1151-2026-09-24.json field generation.rtf=0.37 is aud
 
 === VERIFICATION ===
 Independent verifier report: docs/superpowers/reports/pc021-task-2-verification.md
+
+=== ERRATUM (appended 2026-09-24 after Task 2 verifier finding D1 — original capture above left unedited) ===
+The curated "17/17 checks" phrasing above (and in commit 1bb0684's message) is a miscount: the probe records 16 check entries (the 17th [e2e]-prefixed line is the "wrote … .json" notice, not a check). All 16 real checks passed — 16/16 — as the archived JSON's checks array and the verifier's independent rerun both confirm. Also sharpening the earlier erratum's wording per verifier D3: generation.rtf=0.37 is audio-seconds/generate-seconds (not audio/probe-wall, which would be 0.20); the repo-convention RTF (wall-audio/generate-audio) = 10.47/3.84 = 2.73 stands.
