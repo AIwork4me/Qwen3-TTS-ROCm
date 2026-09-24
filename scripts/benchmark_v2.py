@@ -95,6 +95,10 @@ def cell_stats_v2(values: list[float]) -> dict:
     """
     if not values:
         return {}
+    if len(values) == 1:
+        v = round(values[0], 2)
+        return {"n": 1, "median": v, "min": v, "max": v, "mean": v,
+                "stdev": 0.0, "p10": v, "p90": v}
     q = statistics.quantiles(values, n=100, method="inclusive")
     return {
         "n": len(values),
