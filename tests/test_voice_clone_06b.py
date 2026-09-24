@@ -269,3 +269,22 @@ def test_batch_clone(bc06_model):
     # Robust-only distinction (binding policy): identical streams would be a
     # probability-zero coincidence for two different sentences.
     assert _distinct(wavs[0], wavs[1])
+
+
+def test_batch_clone_with_reusable_prompt(bc06_model, bc06_prompt_items):
+    """Batch over a REUSED create_voice_clone_prompt item (official broadcast).
+
+    v0.2.1 Task 3 D: the reusable-prompt batch path — one 1-item prompt from
+    ``create_voice_clone_prompt`` passed to a two-item text list; qwen-tts
+    0.1.1 broadcasts it (``prompt_items * len(texts)``). Proves shape + sane
+    outputs without rebuilding the prompt per item.
+    """
+    wavs, sr = _timed_generate(
+        bc06_model, "generate_voice_clone",
+        text=[TEXT, ALT_TEXT], language="Auto",
+        voice_clone_prompt=bc06_prompt_items, max_new_tokens=MAX_NEW_TOKENS,
+    )
+    assert len(wavs) == 2
+    for w in wavs:
+        testing.assert_wav_sane(w, sr_expected=sr)
+    assert _distinct(wavs[0], wavs[1])
