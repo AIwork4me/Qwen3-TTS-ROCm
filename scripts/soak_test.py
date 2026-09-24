@@ -50,7 +50,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from benchmark import LANG_KEYS
+
+#: Official language names for the manifest keys. Deliberately does NOT
+#: reuse v1 benchmark.py's LANG_KEYS (keyed "cn"): soak attempt 1 archived
+#: the same KeyError('zh') bug class as the ladder's first attempt — every
+#: zh request failed while every en request passed (2026-09-24).
+LANG_NAMES: dict[str, str] = {"zh": "Chinese", "en": "English"}
 
 #: Deterministic request manifest — zh/en alternating, short sentences
 #: (512-token guardrail keeps every request bounded; soak measures stability,
@@ -118,7 +123,7 @@ def _generate(model, alias: str, lang: str, text: str, seed: int, args) -> dict:
 
     torch.manual_seed(seed)
     family = alias.split("-0.6b")[0]
-    kwargs: dict = {"text": text, "language": LANG_KEYS[lang]}
+    kwargs: dict = {"text": text, "language": LANG_NAMES[lang]}
     if family == "custom-voice":
         kwargs["speaker"] = model.get_supported_speakers()[args.speaker_index]
         method = "generate_custom_voice"
