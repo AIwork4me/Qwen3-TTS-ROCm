@@ -257,7 +257,9 @@ deployment — a **personal (non-org) public repository**:
   writes it into the runner workspace (`evidence/benchmark-nightly.json`
   under `_work/…`) and, since 2026-09-24, an `if: always()` step uploads
   it via GitHub's first-party `actions/upload-artifact@v4` as the run
-  artifact `benchmark-nightly-json` (365-day retention) — the workspace
+  artifact `benchmark-nightly-json` (retention requested as 365 days but
+  clamped by the repository's 90-day maximum — the run log discloses the
+  clamp warning) — the workspace
   copy is still deleted by the next run's `git clean -qfdx`, but the run
   page keeps the JSON downloadable. The only action in the workflow is
   this GitHub-first-party upload, which runs after all test steps and
@@ -274,7 +276,7 @@ deployment — a **personal (non-org) public repository**:
   in the same docs-only change set; transcript
   `evidence/gpu-ci-first-green-2026-09-23.txt`.
 
-## Go-live checklist (state as of 2026-09-23)
+## Go-live checklist (state as of 2026-09-24; steps 1–5 complete)
 
 1. ✅ Prerequisites section green on the desktop.
 2. ✅ Runner installed, registered, labeled `radeon-gfx1151`, Idle —
