@@ -37,3 +37,7 @@ RSS-after-unload: 2.77 (cycle1) -> 2.90 (cycle2) -> 2.92 (cycles 3-10, plateau).
 
 === VERIFICATION ===
 Independent verifier report: docs/superpowers/reports/pc021-task-5-verification.md (verifier independently analyzes telemetry for monotonic memory growth and failure rate)
+
+=== CORRECTIONS (appended 2026-09-24 after Task 5 verifier findings D2+D3 — original capture above left unedited) ===
+D2 — the observation "no latency drift trend" above is NOT supported by the JSONL: verifier-computed block means show wall 3.996→4.582 s (+14.6%) and exact RTF 1.296→1.425 (+10.0%) across the 60-min session, with audio duration slightly FALLING and GPU temperature falling 64.4→62.6 °C (so not thermal). Honest statement: per-request latency drifted up ~15% over the hour with ZERO failures and no memory movement — cause uncharacterized.
+D3 — attempt-1 narrative corrected from the archived JSONL: 114 zh failures / 113 en OK over 475.5 s (~7.9 min) elapsed (not "112/111 in ~22 min" — those were mid-run grep counts). Bug class and conclusion unchanged.

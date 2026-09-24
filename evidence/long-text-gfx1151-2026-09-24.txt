@@ -1,29 +1,31 @@
-=== LONG-TEXT LADDER — gfx1151 — 2026-09-24 ===
-Program: v0.2.1 Task 5A. Script: scripts/longtext_ladder.py (commit f4a46a7 after the zh-mapping fix). Model: custom-voice (1.7B CustomVoice) via official generate_custom_voice, seed 20260924 per tier.
-Budget policy: short/medium = 512-token guardrail; long/very-long = OFFICIAL DEFAULT budget (no max_new_tokens kwarg; checkpoint default 2048). hit_cap/natural_eos are inferences from audio duration vs budget ceiling at 12 Hz — the official API does not expose token counts. NO maximum-length claim is made.
+=== LONG-TEXT LADDER — gfx1151 — 2026-09-24 (attempt 3, final) ===
+Program: v0.2.1 Task 5A. Script: scripts/longtext_ladder.py (long-tier budget resolved from the checkpoint's own generation config — 8192). Model: custom-voice (1.7B), official generate_custom_voice, seed 20260924 per tier.
+Budget policy: short/medium = 512-token guardrail; long/very-long = NO max_new_tokens kwarg (checkpoint default 8192 applies, resolved and recorded per row; 8192/12 Hz ≈ 682.7 s audio ceiling). hit_cap/natural_eos are duration inferences — the official API does not expose token counts. NO maximum-length claim.
 
-=== HONEST ITERATION (attempt 1, archived /tmp/longtext-attempt1-failed.log + .json) ===
-Attempt 1 (commit 46070b6) failed all four zh tiers with KeyError('zh') — the script reused v1 benchmark.py's cn-keyed LANG_KEYS map. Failures recorded verbatim, run exited 1, en tiers green. Fix: explicit LANG_NAMES mapping (f4a46a7). Attempt 2 = the archived green run.
+=== HONEST ITERATION HISTORY ===
+Attempt 1 (46070b6): all 4 zh tiers KeyError('zh') — reused v1's cn-keyed language map; exit 1, en green. /tmp/longtext-attempt1-failed.{log,json}.
+Attempt 2 (f4a46a7): 8/8 green but long-tier budget LABEL assumed the training-side default 2048 (audio_ceiling_seconds=170.67) — verifier D1 proved the shipped checkpoints' generation default is 8192 (ceiling 682.67); hit_cap verdicts unaffected (renders 28–58 s). /tmp/longtext-attempt2-wrongceiling.{txt,json}.
+Attempt 3 (this run, script resolves the real default): 8/8 green with correct ceilings.
 
-=== RESULT TABLE (attempt 2, script stdout verbatim) ===
+=== RESULT TABLE (attempt 3, script stdout verbatim) ===
 | lang | tier | chars | wall s | audio s | RTF | budget | hit_cap | peak GiB | rss GiB |
 |---|---|---|---|---|---|---|---|---|---|
-| zh | short | 17 | 5.8 | 3.2 | 1.81 | 512 | False | 4.06 | 2.77 |
-| zh | medium | 53 | 14.29 | 11.6 | 1.23 | 512 | False | 4.3 | 2.78 |
-| zh | long | 121 | 38.73 | 30.24 | 1.28 | official_default(2048) | False | 4.66 | 2.8 |
-| zh | very-long | 245 | 77.87 | 58.16 | 1.34 | official_default(2048) | False | 4.72 | 2.85 |
-| en | short | 60 | 4.42 | 3.44 | 1.29 | 512 | False | 4.07 | 2.85 |
-| en | medium | 179 | 14.24 | 11.6 | 1.23 | 512 | False | 4.3 | 2.85 |
-| en | long | 453 | 35.97 | 28.56 | 1.26 | official_default(2048) | False | 4.66 | 2.85 |
-| en | very-long | 892 | 76.44 | 57.84 | 1.32 | official_default(2048) | False | 4.72 | 2.85 |
+| zh | short | 17 | 5.82 | 3.2 | 1.82 | 512 | False | 4.06 | 2.77 |
+| zh | medium | 53 | 14.54 | 11.6 | 1.25 | 512 | False | 4.3 | 2.78 |
+| zh | long | 121 | 38.73 | 30.24 | 1.28 | 8192 | False | 4.66 | 2.8 |
+| zh | very-long | 245 | 75.91 | 58.16 | 1.31 | 8192 | False | 4.72 | 2.84 |
+| en | short | 60 | 4.31 | 3.44 | 1.25 | 512 | False | 4.07 | 2.84 |
+| en | medium | 179 | 14.12 | 11.6 | 1.22 | 512 | False | 4.3 | 2.84 |
+| en | long | 453 | 35.62 | 28.56 | 1.25 | 8192 | False | 4.66 | 2.84 |
+| en | very-long | 892 | 75.53 | 57.84 | 1.31 | 8192 | False | 4.72 | 2.84 |
 LONGTEXT-LADDER-OK
-LONGTEXT-LADDER-OK  LADDER2_RC=0
+LONGTEXT-LADDER-OK  LADDER3_RC=0
 
 === OBSERVATIONS ===
-1. RTF stays in the 1.23–1.34 band for medium→very-long tiers in both languages (short tiers 1.29–1.81 reflect fixed startup cost over ~3 s renders); scaling with input length is graceful, no cliff at 245 zh chars / 892 en chars.
-2. NO tier hit its token budget (hit_cap=False everywhere): very-long renders ended by natural EOS at 57.8–58.2 s of audio — the highest outputs observed on this host so far; still no boundary reached, so no 'maximum length' claim.
-3. Peak torch allocated grows 4.06→4.72 GiB from short to very-long; process RSS stable 2.77–2.85 GiB across the whole ladder (no growth signal).
-4. Scope: 1.7B CustomVoice only, this host/config; other families not ladder-tested.
+1. RTF stays 1.22–1.31 for medium→very-long tiers in both languages (short tiers 1.25–1.82 = fixed startup over ~3 s renders); graceful scaling to 245 zh chars / 892 en chars.
+2. NO tier hit its token budget (hit_cap=False everywhere): very-long renders ended by natural EOS at 57.8–58.2 s of audio — far below the 682.7 s ceiling; still no boundary reached, so NO maximum-length claim.
+3. Peak torch allocated 4.06→4.72 GiB short→very-long; RSS 2.77–2.85 GiB flat.
+4. Scope: 1.7B CustomVoice (this evidence run) + verifier's independent 0.6B structural rerun (8/8, LONGTEXT-LADDER-OK); this host/config.
 
 === VERIFICATION ===
-Independent verifier report: docs/superpowers/reports/pc021-task-5-verification.md
+Independent verifier report: docs/superpowers/reports/pc021-task-5-verification.md (+ fix-round-1 re-verification)
