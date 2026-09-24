@@ -45,7 +45,12 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-from benchmark import LANG_KEYS
+
+#: Official language names for the manifest keys (v1 benchmark.py uses
+#: "cn" for the same language; this script deliberately uses the ISO-ish
+#: "zh" and maps it explicitly — first run's KeyError('zh') archived as
+#: evidence of the bug this mapping fixes).
+LANG_NAMES: dict[str, str] = {"zh": "Chinese", "en": "English"}
 
 #: Fixed ladder manifest — zh and en at four increasing lengths. Character
 #: counts (incl. punctuation/spaces) are recorded per item in the output.
@@ -128,7 +133,7 @@ def _run_tier(model, lang: str, tier: str, text: str, args) -> dict:
     from qwen3_tts_rocm import testing
 
     torch.manual_seed(args.seed)
-    kwargs: dict = {"text": text, "language": LANG_KEYS[lang]}
+    kwargs: dict = {"text": text, "language": LANG_NAMES[lang]}
     alias_family = args.alias.split("-0.6b")[0]
     if alias_family == "custom-voice":
         kwargs["speaker"] = model.get_supported_speakers()[args.speaker_index]
