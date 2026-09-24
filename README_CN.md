@@ -152,7 +152,7 @@ wav, sr, gen_s = voice_workflow.reuse_voice(  # 任意新句子，同一音色
 （运行记录：`evidence/voice-workflow-2026-09-20.txt`，机器可读计时：
 `evidence/voice-workflow-2026-09-20.json`）。
 
-CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集的是同样这 313 项 CPU 测试，
+CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集的是同样这 317 项 CPU 测试，
 其中 1 项 HIP 环境门控测试因 CI 机器没有 AMD GPU 而跳过；在未安装可选
 `[quality]` 附加组件的纯 `.[dev]` 环境中，另有 15 项**可见**跳过（12 项
 jiwer + 3 项 resemblyzer 质量基准测试；2026-09-21 声明审计将其由报错改为
@@ -171,7 +171,7 @@ ROCm 验证主机上该项也会执行，因此验证主机为 317 CPU + 40 GPU 
 `gpu-short`，32 项 GPU 测试节点，提交 `a3a8a75`），并于 2026-09-24 首次
 `full-weekly` 全绿（[运行
 35964051504](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35964051504)，
-提交 `09ca9fd`：全部 40 项 GPU 测试节点 314 秒内通过、`verify_gpu.sh`
+提交 `09ca9fd`：全部 38 项 GPU 测试节点 314 秒内通过、`verify_gpu.sh`
 栈健全性检查通过、三个 1.7B 别名的 RTF 基准复现 —— 12 个单元，中位
 RTF 1.27–1.40 —— 基准 JSON 已作为可下载的运行工件持久化）。夜间窗口为本地
 （+08:00）02:00 = 18:00 UTC，仅当验证主机在该时刻开机在线时才会运行 ——
@@ -291,7 +291,7 @@ bash scripts/run_demo.sh
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
 * **测试套件** —— 验证主机 357/357 全通过（317 CPU + 40 真机 GPU）；
-  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集同样这 313 项 CPU 测试，
+  CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集同样这 317 项 CPU 测试，
   其中 1 项 HIP 门控跳过（纯 `.[dev]` 环境中另有上文所述 15 项 `[quality]`
   附加组件可见跳过；最近一次按规模实证绿灯的 CI 运行为 267-CPU 时期：
   运行 [35545854932](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35545854932)，
@@ -462,7 +462,7 @@ RTF 1.22–1.25；长文本 66–79 s 墙钟产出 52–59 s 音频、RTF 1.28�
 ```bash
 bash scripts/verify_gpu.sh                    # ROCm 正常时打印 SPIKE-GPU-OK
 qwen3-tts-rocm-check                          # 环境自检
-python -m pytest -m "not gpu and not requires_download" -q   # 313 项 CPU 测试（无 AMD GPU 时 1 项 HIP 门控跳过；缺 .[quality] 时另有 15 项跳过）
+python -m pytest -m "not gpu and not requires_download" -q   # 317 项 CPU 测试（无 AMD GPU 时 1 项 HIP 门控跳过；缺 .[quality] 时另有 15 项跳过）
 python -m pytest -m "gpu" -q                  # 40 项 GPU 测试（需权重）
 .venv/bin/python scripts/benchmark.py         # 全新 RTF 数据
 ```
