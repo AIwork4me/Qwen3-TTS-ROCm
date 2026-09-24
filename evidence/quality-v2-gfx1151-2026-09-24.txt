@@ -13,6 +13,7 @@ ASR: whisper-small (openai-whisper, device=cuda on gfx1151) — GPU probe BEFORE
 [qv2] Russian    CER=0.0000 dur=3.2s gen=4.0s transcript='Сегодня прекрасная погода, давайте прогуляемся по парку.'
 [qv2] Portuguese WER=0.0000 dur=3.52s gen=4.4s transcript='O tempo está ótimo hoje. Vamos dar um passeio no parque.'
 [qv2] Spanish    WER=0.0000 dur=4.16s gen=5.2s transcript='Hoy hace muy buen tiempo. Vamos a dar un paseo por el parque'
+[qv2] Italian    WER=0.0000 dur=3.2s gen=3.9s transcript='Che bel tempo oggi! Andiamo a fare una passeggiata al parco!'
 
 === SECTION B — CLONE SPEAKER-SIMILARITY CONTROLS ===
 [qv2] clone control positive_a: sim(ref, out)=0.6619
