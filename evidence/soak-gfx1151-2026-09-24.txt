@@ -1,0 +1,39 @@
+=== SOAK STABILITY — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 5B. Script: scripts/soak_test.py (commit e125588 after the zh-mapping fix). Model: custom-voice (1.7B) resident; deterministic manifest (6 zh/en sentences), seed 20260925+i per request, 512-token guardrail, sanity gate per request (finite, RMS>=1e-3, 24kHz, 0.5-60s).
+
+=== HONEST ITERATION (attempt 1, archived /tmp/soak-attempt1-failed.log + -resident.jsonl) ===
+Attempt 1 ran ~22 min before being stopped: ALL 112 zh requests failed KeyError('zh') (script reused v1's cn-keyed map — same bug class as the ladder's first attempt) while all 111 en requests passed. The stack itself was stable throughout; the failures were the script's, not the GPU/model's. Fix e125588; attempt 2 = the archived green run.
+
+=== RESIDENT MODE (60-minute target, met) — verbatim [soak] tail + summary ===
+[soak] mode=resident alias=custom-voice -> evidence/soak-gfx1151-2026-09-24-resident.jsonl
+[soak] resident model loaded; session length 60.0 min
+...
+[soak] req#813 OK  wall=3.7s audio=2.64s rss=2.79GiB peak=4.04GiB cum_fail=0
+[soak] req#814 OK  wall=4.77s audio=3.28s rss=2.79GiB peak=4.06GiB cum_fail=0
+[soak] req#815 OK  wall=3.73s audio=2.4s rss=2.79GiB peak=4.04GiB cum_fail=0
+{"kind": "soak_summary", "stop_reason": "deadline", "total_requests": 815, "successes": 815, "failures": 0, "session_minutes": 60.04, "exit_code": 0}
+
+=== RESIDENT TELEMETRY ANALYSIS (implementer-computed; verifier recomputes independently) ===
+815/815 requests OK over 60.04 minutes — ZERO correctness failures.
+Process RSS: first-10 avg 2.77 GiB -> last-10 avg 2.79 GiB (+0.02 GiB across 815 requests — no monotonic growth observed in this session).
+torch peak alloc (per-request reset): first-10 avg 4.058 -> last-10 avg 4.057 GiB (flat).
+rocm-smi VRAM used (every 5th request): 1.08-1.12 GiB band all session.
+Per-request wall 2.95-14.49 s (audio 2.32-10.48 s) — no latency drift trend (full series in JSONL).
+NO 'memory leak free' claim: this is one 60-min session's observed behavior, not a proof.
+
+=== RECYCLE MODE (10x load -> generate -> unload) — verbatim ===
+[soak] cycle#1 OK load=4.76s wall=6.12s rss_after_unload=2.77GiB
+[soak] cycle#2 OK load=2.1s wall=4.66s rss_after_unload=2.9GiB
+[soak] cycle#3 OK load=2.11s wall=4.02s rss_after_unload=2.92GiB
+[soak] cycle#4 OK load=2.12s wall=5.37s rss_after_unload=2.92GiB
+[soak] cycle#5 OK load=2.04s wall=4.21s rss_after_unload=2.92GiB
+[soak] cycle#6 OK load=2.08s wall=4.45s rss_after_unload=2.92GiB
+[soak] cycle#7 OK load=2.1s wall=4.53s rss_after_unload=2.92GiB
+[soak] cycle#8 OK load=2.05s wall=4.45s rss_after_unload=2.92GiB
+[soak] cycle#9 OK load=2.09s wall=4.25s rss_after_unload=2.92GiB
+[soak] cycle#10 OK load=2.13s wall=4.83s rss_after_unload=2.92GiB
+{"kind": "soak_summary", "stop_reason": "cycles_completed", "total_requests": 10, "successes": 10, "failures": 0, "session_minutes": 1.23, "exit_code": 0}
+RSS-after-unload: 2.77 (cycle1) -> 2.90 (cycle2) -> 2.92 (cycles 3-10, plateau). +0.15 GiB step after the first cycle, then flat through cycle 10 — allocator/interpreter steady state, NOT unbounded growth; 10 cycles only.
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-5-verification.md (verifier independently analyzes telemetry for monotonic memory growth and failure rate)

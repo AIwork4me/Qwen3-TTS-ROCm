@@ -344,6 +344,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Long-text + soak stability evidence** (v0.2.1 Task 5, 2026-09-24): new
+  `scripts/longtext_ladder.py` (4-tier zh/en ladder on 1.7B CustomVoice:
+  8/8 green up to 892 chars / 58 s audio, natural EOS everywhere, no
+  maximum-length claim — token counts are not API-observable, cap-vs-EOS
+  is a duration inference) and `scripts/soak_test.py` (resident mode:
+  60.04 min / **815/815 requests OK, zero failures**, RSS +0.02 GiB
+  across the session, torch peak flat; recycle mode: 10/10
+  load→generate→unload cycles with RSS plateau after cycle 2 — no
+  "memory leak free" claim). Two honest script-bug iterations archived
+  (zh `KeyError` mapping bug hit both scripts' first attempts; the stack
+  itself was stable throughout). Evidence:
+  `evidence/long-text-gfx1151-2026-09-24.{txt,json}`,
+  `evidence/soak-gfx1151-2026-09-24.{txt,-resident.jsonl,-recycle.jsonl}`.
+
 - **Benchmark v2 — controlled reproducibility** (v0.2.1 Task 4,
   2026-09-24): new `scripts/benchmark_v2.py` (v1 untouched and still the CI
   replication path) measured all five TTS aliases × cn/en × short/medium at
