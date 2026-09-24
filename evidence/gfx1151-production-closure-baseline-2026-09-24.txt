@@ -1,0 +1,130 @@
+=== GFX1151 PRODUCTION CLOSURE v0.2.1 — BASELINE FREEZE — 2026-09-24 ===
+Program: docs/superpowers/plans/2026-09-24-gfx1151-production-closure-v0.2.1.md
+Purpose: Task 0 baseline freeze. No claims changed. Snapshot of repository + host truth before Task 1.
+
+=== GIT ===
+$ git rev-parse HEAD
+cd46a8152a56e0d475512ba8e86c80b46ae0dbe2
+$ git status --porcelain
+?? docs/superpowers/plans/2026-09-24-gfx1151-production-closure-v0.2.1.md
+?? evidence/gfx1151-production-closure-baseline-2026-09-24.txt
+(exit=0 — empty output above means clean tree)
+$ git log --oneline -3
+cd46a81 docs: gpu-ci-enablement + procurement-evaluation verifier reports (tasks A-E)
+8660f31 docs: procurement-evaluation corrections (Razer Core X V2 ships without PSU; memory phrasing; rank-2 band)
+297b930 docs: second-architecture procurement evaluation (v0.3 planning, as-of 2026-09-23)
+
+=== VERSION ===
+$ grep -m1 '^version' pyproject.toml
+version = "0.2.0"
+CHANGELOG: top released section is [0.2.0] - 2026-09-22; an [Unreleased] section exists (GPU CI live entry, first green gpu-short run 35857806038 on 2026-09-23).
+
+=== README CAPABILITY MATRIX (verbatim extract, lines 49-92) ===
+### Capability matrix (Radeon 8060S · `gfx1151`)
+
+One row per capability, each green cell linked to the verbatim artifact that
+proves it. States: ✅ **Radeon E2E validated** (real synthesis / real run on
+the validation host, asserted sane) · 🟡 **partial — load-only** (loads, no
+functional validation) · ⬜ **not validated** · 🚫 **not exposed upstream or
+intentionally not claimed**.
+
+| Capability | Model | Radeon status | Evidence |
+|---|---|---|---|
+| CustomVoice generation (preset / custom speakers) | 1.7B | ✅ E2E validated | [`gen-customvoice.txt`](evidence/gen-customvoice.txt) · RTF in [`benchmark.json`](evidence/benchmark.json) |
+| CustomVoice generation | 0.6B | ✅ E2E validated | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
+| VoiceDesign (text-described voice creation) | 1.7B | ✅ E2E validated | [`gen-voicedesign.txt`](evidence/gen-voicedesign.txt) · RTF in [`benchmark.json`](evidence/benchmark.json) |
+| Voice Clone — zero-shot cloning from reference audio | 1.7B Base | ✅ E2E validated | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · RTF in [`benchmark.json`](evidence/benchmark.json) |
+| Base family (zero-shot cloning + fine-tuning base) | 0.6B | ✅ E2E validated | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
+| Reusable clone prompt (`create_voice_clone_prompt` → save → load → reuse) | 1.7B & 0.6B Base | ✅ E2E validated | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) |
+| Design → Clone → Reuse (Voice Studio one-click flow) | VoiceDesign 1.7B + Base | ✅ E2E validated | [`voice-workflow-2026-09-20.txt`](evidence/voice-workflow-2026-09-20.txt) · [`voice-workflow-2026-09-20.json`](evidence/voice-workflow-2026-09-20.json) |
+| 12Hz tokenizer codec (encode → decode roundtrip) | Tokenizer-12Hz | ✅ E2E validated | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
+| Multilingual matrix — all 10 officially supported languages, end to end | 1.7B CustomVoice + VoiceDesign + Base | ✅ E2E validated | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
+| Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base | ✅ scoped — **execution-only smoke** (prep → 12 steps → save → reload → sane synthesis; no quality claims). ROCm E2E execution proven. Upstream portability fix submitted as Qwen3-TTS PR #373 (OPEN); current published `qwen-tts==0.1.1` still requires the documented temporary workaround ([docs](docs/finetuning-rocm.md#upstream-fix-status)) | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) · PR #373 validation chain: [`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) · [`upstream-372-round-a-loads1.txt`](evidence/upstream-372-round-a-loads1.txt) · [`upstream-372-round-a-loads2.txt`](evidence/upstream-372-round-a-loads2.txt) · [`upstream-372-round-a-loads3.txt`](evidence/upstream-372-round-a-loads3.txt) · [`upstream-372-default-semantics.txt`](evidence/upstream-372-default-semantics.txt) · [`upstream-372-diff-audit.txt`](evidence/upstream-372-diff-audit.txt) |
+| Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently ignores `instruct`) — pinned by tests | Task 0 audit: [`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
+| vLLM-Omni serving | — | 🟡 partial — offline feasibility proven only: one documented offline example on gfx1151, single configuration, isolated venv (no serving, no perf/quality claims) | [`vllm-omni-feasibility-2026-09-21.txt`](evidence/vllm-omni-feasibility-2026-09-21.txt) · [roadmap](#roadmap-not-yet-validated) |
+| True streaming inference | — | 🚫 not exposed upstream — measured 2026-09-21 on gfx1151: qwen-tts 0.1.1's official Python API delivers audio only at completion (exactly 1 chunk every run; TTFB == total wall) | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [roadmap](#true-streaming-inference) |
+
+Conceptual boundary worth stating plainly (the demo and docs honour it):
+**CustomVoice is preset-speaker / custom-voice generation** — it does not
+clone from reference audio. **Base is the zero-shot voice-cloning and
+fine-tuning family.** The per-checkpoint and multilingual tables below are
+detail views of the same evidence.
+
+Per-checkpoint validation level (load = loads through `loader.load`; E2E
+Generate = real synthesis asserted sane on GPU; Benchmark = archived RTF run):
+
+| Model | Load | E2E Generate | Benchmark |
+|---|---|---|---|
+| 1.7B CustomVoice | ✅ | ✅ | ✅ |
+| 1.7B VoiceDesign | ✅ | ✅ | ✅ |
+| 1.7B Base (clone) | ✅ | ✅ | ✅ |
+| 0.6B CustomVoice | ✅ | ✅ | ✅ (see `evidence/benchmark-06b-2026-09-20.json`) |
+| 0.6B Base (clone) | ✅ | ✅ | ✅ (same) |
+| 12Hz Tokenizer | ✅ | codec ✅ | n/a |
+
+Note: 0.6B CustomVoice has no instruction control upstream; the demo and
+docs reflect that boundary.
+
+=== CPU TEST SUITE ===
+$ .venv/bin/python -m pytest -m "not gpu" -q  (tail)
+313 passed, 38 deselected, 2 warnings in 18.07s
+
+=== GPU TEST COLLECTION ===
+$ .venv/bin/python -m pytest -m gpu --co -q  (tail)
+38/351 tests collected (313 deselected) in 4.30s
+
+=== ROCm SMI ===
+$ rocm-smi --showproductname --showuse --showmeminfo vram
+
+
+============================ ROCm System Management Interface ============================
+=================================== % time GPU is busy ===================================
+GPU[0]		: GPU use (%): 7
+==========================================================================================
+================================== Memory Usage (Bytes) ==================================
+GPU[0]		: VRAM Total Memory (B): 34359738368
+GPU[0]		: VRAM Total Used Memory (B): 1132118016
+==========================================================================================
+====================================== Product Info ======================================
+GPU[0]		: Card Series: 		AMD Radeon Graphics
+GPU[0]		: Card Model: 		0x1586
+GPU[0]		: Card Vendor: 		Advanced Micro Devices, Inc. [AMD/ATI]
+GPU[0]		: Card SKU: 		STRXLGEN
+GPU[0]		: Subsystem ID: 	-0x72ff
+GPU[0]		: Device Rev: 		0xd1
+GPU[0]		: Node ID: 		1
+GPU[0]		: GUID: 		21984
+GPU[0]		: GFX Version: 		gfx1151
+==========================================================================================
+================================== End of ROCm SMI Log ===================================
+
+=== TORCH / HIP / GPU / PYTHON ===
+torch 2.12.0+rocm7.14.0
+HIP 7.14.60850
+cuda_available True
+GPU AMD Radeon 8060S Graphics
+arch gfx1151
+python 3.12.3
+
+=== QWEN-TTS PACKAGE ===
+Name: qwen-tts
+Version: 0.1.1
+Location: /home/amd/Desktop/Qwen3-TTS-ROCm/.venv/lib/python3.12/site-packages
+
+=== MODEL DIRECTORIES (models/) ===
+Qwen3-TTS-12Hz-0.6B-Base
+Qwen3-TTS-12Hz-0.6B-CustomVoice
+Qwen3-TTS-12Hz-1.7B-Base
+Qwen3-TTS-12Hz-1.7B-CustomVoice
+Qwen3-TTS-12Hz-1.7B-VoiceDesign
+Qwen3-TTS-Tokenizer-12Hz
+
+=== UPSTREAM QwenLM/Qwen3-TTS ISSUE #372 / PR #373 (queried 2026-09-24 via api.github.com) ===
+$ gh api repos/QwenLM/Qwen3-TTS/issues/372
+{"number":372,"state":"open","title":"finetuning/sft_12hz.py hard-codes attn_implementation=\"flash_attention_2\" — official fine-tuning fails out-of-the-box on ROCm (no flash-attn build)"}
+$ gh api repos/QwenLM/Qwen3-TTS/pulls/373
+{"head_sha":"48b8644aac8512e6fdc0f4442788bf399c425fdb","merged":false,"number":373,"state":"open","title":"fix(finetuning): make attention implementation configurable"}
+
+=== VLLM-OMNI MAIN SHA (queried 2026-09-24) ===
+$ gh api repos/vllm-project/vllm-omni/commits/main --jq .sha
+3d43571b94f1683412023c45bd886f9ce30f76bd
