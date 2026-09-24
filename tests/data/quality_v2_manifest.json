@@ -1,0 +1,25 @@
+{
+  "manifest_version": "quality-v2-2026-09-24",
+  "seed_base": 20260926,
+  "max_new_tokens": 512,
+  "speaker_index": 0,
+  "asr_model": "whisper-small (openai-whisper, downloaded checkpoint small.pt; GPU-probed on gfx1151 before use — see evidence)",
+  "note": "Same content intent across all 10 official languages for cross-language comparability. v1 quality evidence (2026-09-21) used whisper-tiny; scores are NOT comparable across ASR models and are never merged.",
+  "languages": [
+    {"language": "Chinese", "whisper_lang": "zh", "text": "今天天气很好，我们去公园散步吧。"},
+    {"language": "English", "whisper_lang": "en", "text": "The weather is lovely today, perfect for a walk in the park."},
+    {"language": "Japanese", "whisper_lang": "ja", "text": "今日はいい天気ですね、公園を散歩しましょう。"},
+    {"language": "Korean", "whisper_lang": "ko", "text": "오늘 날씨가 정말 좋네요, 공원으로 산책 갑시다."},
+    {"language": "German", "whisper_lang": "de", "text": "Das Wetter ist heute schön, lass uns im Park spazieren gehen."},
+    {"language": "French", "whisper_lang": "fr", "text": "Il fait très beau aujourd'hui, allons nous promener au parc."},
+    {"language": "Russian", "whisper_lang": "ru", "text": "Сегодня прекрасная погода, давайте прогуляемся по парку."},
+    {"language": "Portuguese", "whisper_lang": "pt", "text": "O tempo está ótimo hoje, vamos dar um passeio no parque."},
+    {"language": "Spanish", "whisper_lang": "es", "text": "Hoy hace muy buen tiempo, vamos a dar un paseo por el parque."},
+    {"language": "Italian", "whisper_lang": "it", "text": "Che bel tempo oggi, andiamo a fare una passeggiata al parco."}
+  ],
+  "clone_controls": [
+    {"case": "positive_a", "text": "This tiny synthetic voice was cloned for automated testing.", "origin": "ref_en.wav via generate_voice_clone"},
+    {"case": "positive_b", "text": "Reuse means one prompt can serve many different sentences.", "origin": "ref_en.wav via generate_voice_clone (same reference, different text)"},
+    {"case": "negative", "text": "The weather is lovely today, perfect for a walk in the park.", "origin": "1.7B CustomVoice preset speaker (different speaker by construction)"}
+  ]
+}
