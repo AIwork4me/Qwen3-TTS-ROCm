@@ -253,14 +253,17 @@ deployment — a **personal (non-org) public repository**:
   or silently keeping the modification). Any future step must leave the
   checkout untouched except for untracked scratch paths (which the next
   run's clean removes).
-- **`benchmark-nightly.json` is ephemeral**: `full-weekly` writes it into
-  the runner workspace (`evidence/benchmark-nightly.json` under
-  `_work/…`), and nothing uploads it anywhere — the workflow deliberately
-  uses no actions at all, so it is *not* on the run page as an artifact;
-  the next run's `git clean -qfdx` deletes it. To keep a nightly
-  benchmark, copy it off the runner (or add an artifact-upload step with
-  that exact caveat in mind) before the next run, and commit it under a
-  dated name if it should become evidence.
+- **`benchmark-nightly.json` persists as a run artifact**: `full-weekly`
+  writes it into the runner workspace (`evidence/benchmark-nightly.json`
+  under `_work/…`) and, since 2026-09-24, an `if: always()` step uploads
+  it via GitHub's first-party `actions/upload-artifact@v4` as the run
+  artifact `benchmark-nightly-json` (365-day retention) — the workspace
+  copy is still deleted by the next run's `git clean -qfdx`, but the run
+  page keeps the JSON downloadable. The only action in the workflow is
+  this GitHub-first-party upload, which runs after all test steps and
+  touches no code. The JSON is deliberately NOT committed back into the
+  repository; a nightly that should become evidence is downloaded from the
+  run page and committed under a dated name by a human decision.
 - **Timeouts**: 120 min (short) / 720 min (full) cover the observed suite
   (38 nodes ≈ 5–10 min warm) plus one cold model-load margin — the first
   green run took ~18 min wall including ~10 min of sync retries through a

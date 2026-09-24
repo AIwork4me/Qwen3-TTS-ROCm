@@ -50,9 +50,12 @@
 #   "studio" selects 0 GPU nodes and is therefore not used.
 #
 # Supply chain: no third-party actions are used at all (the sync step is
-# plain git against the public repo URL, no token needed); least privileges
-# (contents: read). No pull_request trigger: a self-hosted runner on a
-# private desktop must never execute fork code.
+# plain git against the public repo URL, no token needed); the single
+# exception is GitHub's first-party actions/upload-artifact in full-weekly
+# (durable persistence of the nightly benchmark JSON — added 2026-09-24,
+# first full-weekly closure task; it runs AFTER all test steps and touches
+# no code). Least privileges (contents: read). No pull_request trigger: a
+# self-hosted runner on a private desktop must never execute fork code.
 
 name: gpu-nightly
 
@@ -212,3 +215,18 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}/src
         run: |
           "$HOST_REPO/.venv/bin/python" scripts/benchmark.py --json-out evidence/benchmark-nightly.json
+
+      # Durable persistence of the nightly benchmark output: the runner
+      # workspace (and its evidence/benchmark-nightly.json) is wiped by the
+      # next run's `git clean -qfdx`, so the JSON is uploaded as a run
+      # artifact (GitHub first-party action, added 2026-09-24). if: always()
+      # preserves partial output for diagnosis even when the benchmark step
+      # itself fails; the JSON is NOT committed back into the repository.
+      - name: Persist benchmark JSON as run artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-nightly-json
+          path: evidence/benchmark-nightly.json
+          if-no-files-found: warn
+          retention-days: 365
