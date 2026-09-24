@@ -344,6 +344,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Benchmark v2 — controlled reproducibility** (v0.2.1 Task 4,
+  2026-09-24): new `scripts/benchmark_v2.py` (v1 untouched and still the CI
+  replication path) measured all five TTS aliases × cn/en × short/medium at
+  n=5 seeded runs per cell — 20 cells, 100 measured generations, zero
+  failures — with cold-start load / recorded warmup / warm-model runs
+  separated, rocm-smi bookends per alias, and median/min/max/mean/stdev
+  (+p10/p90 interpolation hints) per cell. RTF medians 1.04–1.52, per-cell
+  stdev ≤ 0.11. New `docs/benchmarks-v2.md` documents methodology and the
+  what-these-numbers-do-NOT-measure caveats; evidence
+  `evidence/benchmark-v2-gfx1151-2026-09-24.{txt,json}`. Four new CPU unit
+  tests pin the stats helper (suite: 317 CPU + 40 GPU).
+
 - **Official API batch inference closure** (v0.2.1 Task 3, 2026-09-24): new
   `scripts/benchmark_batch.py` drives the official qwen-tts list-of-texts
   API (zero custom batching) for all five families — 0.6B/1.7B

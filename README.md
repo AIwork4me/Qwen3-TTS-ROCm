@@ -394,7 +394,12 @@ followed a 1396 s warmup — see the cross-day section of
 ranges, not latency promises: numbers drift with clocks, thermals, memory
 pressure and background load on shared-pool unified memory. Full per-cell
 tables, methodology, n=2 caveats and the reproduce block:
-[`docs/benchmarks.md`](docs/benchmarks.md).
+[`docs/benchmarks.md`](docs/benchmarks.md). **Benchmark v2 (2026-09-24)**
+adds controlled reproducibility — all five aliases (1.7B + 0.6B per
+family), n=5 seeded runs per cell, cold-start/warmup/measured phases
+separated, per-cell median/min/max/mean/stdev — in
+[`docs/benchmarks-v2.md`](docs/benchmarks-v2.md) (RTF medians 1.04–1.52,
+per-cell stdev ≤ 0.11).
 
 <a id="roadmap-not-yet-validated"></a>
 

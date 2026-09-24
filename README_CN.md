@@ -351,7 +351,8 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 1.27 – 1.40（基线 `base` 各格紧随 1396 秒预热——见
 [`docs/benchmarks.md`](docs/benchmarks.md) 跨天复测章节）。我们只给区间，不做绝对延迟承诺：统一内存共享池上，数字随时钟、温度、内存
 压力与后台负载漂移。完整分格表格、方法学、n=2 注意事项与复现命令见
-[`docs/benchmarks.md`](docs/benchmarks.md)。
+[`docs/benchmarks.md`](docs/benchmarks.md)。**基准 v2（2026-09-24）**补充了可控复现性——五个别名（每家族 1.7B + 0.6B）、每格 n=5 固定种子、冷启动/预热/测量三阶段分离、每格 median/min/max/mean/stdev——见
+[`docs/benchmarks-v2.md`](docs/benchmarks-v2.md)（RTF 中位数 1.04–1.52，每格标准差 ≤ 0.11）。
 
 <a id="路线图尚未验证"></a>
 
