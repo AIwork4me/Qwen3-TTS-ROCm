@@ -139,9 +139,18 @@ def main(argv: list[str] | None = None) -> int:
     _check(len(wavs) == 1, "one_waveform", f"n={len(wavs)}")
 
     wav = wavs[0]
-    dur = float(wav.shape[-1]) / sr
-    rms = float(wav.pow(2).mean().sqrt())
-    finite = bool(torch.isfinite(wav).all())
+    # The official API returns numpy float waveforms; normalize to torch for
+    # uniform assertions (found live in the first E2E attempt, 2026-09-24:
+    # assuming torch tensors crashed the probe AFTER a successful render).
+    import numpy as np
+
+    if isinstance(wav, np.ndarray):
+        wav_t = torch.from_numpy(wav.astype("float32"))
+    else:
+        wav_t = wav.detach().cpu().float()
+    dur = float(wav_t.shape[-1]) / sr
+    rms = float(wav_t.pow(2).mean().sqrt())
+    finite = bool(torch.isfinite(wav_t).all())
     _check(sr == args.expect_sr, "sample_rate", f"{sr} (expected {args.expect_sr})")
     _check(finite, "waveform_finite")
     _check(rms >= 1e-3, "non_silent", f"rms={rms:.4f} (>= 1e-3)")
@@ -156,10 +165,10 @@ def main(argv: list[str] | None = None) -> int:
     os.makedirs(os.path.dirname(args.wav) or ".", exist_ok=True)
     try:
         import soundfile as sf
-        sf.write(args.wav, wav.detach().cpu().float().numpy(), sr)
+        sf.write(args.wav, wav_t.numpy(), sr)
         writer = "soundfile"
     except ImportError:
-        torchaudio.save(args.wav, wav.detach().cpu().float().unsqueeze(0), sr)
+        torchaudio.save(args.wav, wav_t.unsqueeze(0), sr)
         writer = "torchaudio"
     size = os.path.getsize(args.wav)
     _check(size > 0, "wav_written", f"{args.wav} {size} bytes via {writer}")
