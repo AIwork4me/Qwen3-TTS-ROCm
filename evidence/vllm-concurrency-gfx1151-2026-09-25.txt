@@ -1,0 +1,29 @@
+=== VLLM-OMNI CONCURRENCY / THROUGHPUT — gfx1151 — 2026-09-25 ===
+Program: v0.2.1 Task 10 (after Task 9 serving PASS). Stack: vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 (isolated venv30). Workload: 8 short CustomVoice prompts (vivian), 8 requests per level, HTTP PCM streaming, client-side timing. Probe: scripts/vllm_concurrency_probe.py; per-request records in the JSONs. Two configs: packaged default deploy yaml, and a single-staged-change variant (stage-1 max_num_seqs 64→1) per the config's OWN comment 'CustomVoice / VoiceDesign are TTFA-optimal at 1'.
+
+=== DEFAULT CONFIG — all levels 8/8 OK, but c>=4 queues severely ===
+| c | TTFA p50 | TTFA p95 | E2E p50 | audio/wall | req/min |
+|---|---|---|---|---|---|
+| 1 | 0.207 | 0.991 | 3.732 | 0.528 | 12.32 |
+| 2 | 0.296 | 0.352 | 4.881 | 1.149 | 24.36 |
+| 4 | 0.435 | 6.148 | 35.826 | 0.180 | 3.83 |
+| 8 | 15.098 | 15.101 | 273.332 | 0.079 | 1.76 |
+
+=== STAGE-1 max_num_seqs=1 VARIANT — all levels 8/8 OK, monotone and useful to c=8 ===
+| c | TTFA p50 | TTFA p95 | E2E p50 | audio/wall | req/min |
+|---|---|---|---|---|---|
+| 1 | 0.212 | 1.420 | 3.705 | 0.530 | 12.37 |
+| 2 | 0.283 | 0.337 | 4.311 | 1.083 | 23.29 |
+| 4 | 0.466 | 0.510 | 6.413 | 1.363 | 28.49 |
+| 8 | 0.739 | 0.959 | 8.628 | 1.499 | 34.87 |
+
+=== ANSWER TO THE TASK QUESTION ===
+What is the highest concurrency that is stable and useful on Radeon 8060S for this stack? — With the PACKAGED DEFAULT config: c=2 (24.4 req/min; c>=4 collapses into queueing: c=8 E2E p50 273 s). With the config's own recommended stage-1 max_num_seqs=1: c=8 is stable and useful (TTFA p50 0.74 s, E2E p50 8.63 s, 34.9 req/min, 1.50 audio-s/wall-s) — ~20x better c=8 E2E than default. NO failures / OOM / HIP errors at any level in either config. NOT a universal-best-configuration claim: this host, this stack, short-prompt workload only.
+
+=== HONEST LIMITATIONS ===
+1. rocm-smi dedicated VRAM read ~0.72 GiB flat across both ladders — on this APU the engine's memory lives in the unified GTT pool; dedicated VRAM is NOT a utilization signal. No VRAM-pressure numbers claimed.
+2. Server-RSS sampling returned 0.0 (invalid) — process RSS NOT claimed.
+3. Base config-matrix leg deliberately NOT run (program: small defensible matrix only; CustomVoice default-vs-seq1 answers the question for this stack).
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-10-verification.md (verifier recomputes p50/p95 and throughput directly from the per-request JSON)

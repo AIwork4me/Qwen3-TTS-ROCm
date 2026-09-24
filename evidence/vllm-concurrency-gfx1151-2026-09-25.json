@@ -1,0 +1,108 @@
+{
+  "meta": {
+    "date_utc": "2026-09-24T17:30:00Z",
+    "program": "v0.2.1 Task 10",
+    "stack": "vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 (isolated venv30)",
+    "workload": "8 short CustomVoice prompts (vivian), 8 requests per concurrency level, HTTP PCM streaming (same interface as Task 9), client-side timing",
+    "configs": {
+      "default": "packaged qwen3_tts.yaml (stage-0 max_num_seqs 64, stage-1 max_num_seqs 64)",
+      "stage1seq1": "single staged change \u2014 stage-1 max_num_seqs 64\u21921, per the config's own comment 'CustomVoice / VoiceDesign are TTFA-optimal at 1'"
+    },
+    "env_notes": [
+      "rocm-smi dedicated VRAM read ~0.72 GiB throughout both ladders \u2014 on this APU the engine's memory sits in the unified GTT pool, so dedicated VRAM is NOT a utilization signal (honest limitation)",
+      "server RSS sampling returned 0.0 (invalid) \u2014 process-RSS NOT claimed",
+      "no OOM / HIP errors / request failures at ANY level in either config"
+    ]
+  },
+  "default": {
+    "rows": [
+      {
+        "level": 1,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.207,
+        "ttfa_p95_s": 0.991,
+        "e2e_p50_s": 3.732,
+        "e2e_p95_s": 9.85,
+        "audio_per_wall_s": 0.528,
+        "req_per_min": 12.32
+      },
+      {
+        "level": 2,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.296,
+        "ttfa_p95_s": 0.352,
+        "e2e_p50_s": 4.881,
+        "e2e_p95_s": 5.6,
+        "audio_per_wall_s": 1.149,
+        "req_per_min": 24.36
+      },
+      {
+        "level": 4,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.435,
+        "ttfa_p95_s": 6.148,
+        "e2e_p50_s": 35.826,
+        "e2e_p95_s": 116.41,
+        "audio_per_wall_s": 0.18,
+        "req_per_min": 3.83
+      },
+      {
+        "level": 8,
+        "ok": "8/8",
+        "ttfa_p50_s": 15.098,
+        "ttfa_p95_s": 15.101,
+        "e2e_p50_s": 273.332,
+        "e2e_p95_s": 273.333,
+        "audio_per_wall_s": 0.079,
+        "req_per_min": 1.76
+      }
+    ],
+    "ladder_stopped_at": null
+  },
+  "stage1seq1": {
+    "rows": [
+      {
+        "level": 1,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.212,
+        "ttfa_p95_s": 1.42,
+        "e2e_p50_s": 3.705,
+        "e2e_p95_s": 9.79,
+        "audio_per_wall_s": 0.53,
+        "req_per_min": 12.37
+      },
+      {
+        "level": 2,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.283,
+        "ttfa_p95_s": 0.337,
+        "e2e_p50_s": 4.311,
+        "e2e_p95_s": 6.32,
+        "audio_per_wall_s": 1.083,
+        "req_per_min": 23.29
+      },
+      {
+        "level": 4,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.466,
+        "ttfa_p95_s": 0.51,
+        "e2e_p50_s": 6.413,
+        "e2e_p95_s": 8.539,
+        "audio_per_wall_s": 1.363,
+        "req_per_min": 28.49
+      },
+      {
+        "level": 8,
+        "ok": "8/8",
+        "ttfa_p50_s": 0.739,
+        "ttfa_p95_s": 0.959,
+        "e2e_p50_s": 8.628,
+        "e2e_p95_s": 13.218,
+        "audio_per_wall_s": 1.499,
+        "req_per_min": 34.87
+      }
+    ],
+    "ladder_stopped_at": null
+  },
+  "answer": "Highest stable-and-useful concurrency on Radeon 8060S for this stack: with the packaged default config, c=2 (24.4 req/min, TTFA p50 0.30 s); c>=4 queues severely (c=8 E2E p50 273 s). With stage-1 max_num_seqs=1 (the config's own TTFA note): c=8 is stable and useful \u2014 TTFA p50 0.74 s, E2E p50 8.63 s, 34.9 req/min, audio/wall 1.50. NOT a universal-best claim; this host/config only."
+}

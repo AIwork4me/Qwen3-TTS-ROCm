@@ -344,6 +344,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **vLLM-Omni concurrency characterization on gfx1151** (v0.2.1 Task 10,
+  2026-09-25): new `scripts/vllm_concurrency_probe.py` measured 8-request
+  short-prompt ladders (c=1,2,4,8) against the live CustomVoice server in
+  two configurations. Packaged default config collapses past c=2 (c=8 E2E
+  p50 273 s); the deploy config's own TTFA note (stage-1
+  `max_num_seqs: 1` for CustomVoice) is decisively confirmed — c=8 stable
+  and useful (TTFA p50 0.74 s, E2E p50 8.63 s, 34.9 req/min, 1.50
+  audio-s/wall-s), zero failures/OOM anywhere. New serving guide
+  `docs/vllm-omni-gfx1151-serving.md`; evidence
+  `evidence/vllm-concurrency-gfx1151-2026-09-25.{txt,json}` + per-request
+  JSONs. Scope: this host/stack/workload only.
+
 - **vLLM-Omni online serving + true streaming on gfx1151** (v0.2.1 Task 9,
   2026-09-24): the upstream-recipe `vllm serve` path is E2E validated on
   the current stack for all three 1.7B task families (CustomVoice

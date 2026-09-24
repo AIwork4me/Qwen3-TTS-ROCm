@@ -1,0 +1,348 @@
+{
+  "tag": "stage1seq1",
+  "url": "http://127.0.0.1:8091",
+  "levels_requested": [
+    1,
+    2,
+    4,
+    8
+  ],
+  "requests_per_level": 8,
+  "when_utc": "2026-09-24T17:17:55+00:00",
+  "server_pid": 201927,
+  "levels": [
+    {
+      "level": 1,
+      "requests": 8,
+      "successes": 8,
+      "failures": 0,
+      "ttfa_p50_s": 0.212,
+      "ttfa_p95_s": 1.42,
+      "e2e_p50_s": 3.705,
+      "e2e_p95_s": 9.79,
+      "audio_seconds_total": 20.56,
+      "audio_per_wall_second": 0.53,
+      "requests_per_minute": 12.37,
+      "level_wall_s": 38.81,
+      "peak_vram_gb": 0.72,
+      "server_rss_gb_last": 0.0,
+      "failures_verbatim": [],
+      "per_request": [
+        {
+          "ok": true,
+          "prompt": "Hello, how are you today?",
+          "ttfa_s": 2.065,
+          "e2e_s": 7.834,
+          "audio_s": 1.76,
+          "bytes": 84480
+        },
+        {
+          "ok": true,
+          "prompt": "The weather is lovely outside.",
+          "ttfa_s": 0.213,
+          "e2e_s": 2.245,
+          "audio_s": 2.0,
+          "bytes": 96000
+        },
+        {
+          "ok": true,
+          "prompt": "This is a concurrent synthesis test.",
+          "ttfa_s": 0.212,
+          "e2e_s": 10.843,
+          "audio_s": 2.96,
+          "bytes": 142080
+        },
+        {
+          "ok": true,
+          "prompt": "Audio streams in parallel on one GPU.",
+          "ttfa_s": 0.211,
+          "e2e_s": 3.619,
+          "audio_s": 2.88,
+          "bytes": 138240
+        },
+        {
+          "ok": true,
+          "prompt": "Numbers help calibrate expectations.",
+          "ttfa_s": 0.211,
+          "e2e_s": 3.791,
+          "audio_s": 3.12,
+          "bytes": 149760
+        },
+        {
+          "ok": true,
+          "prompt": "Concurrency measures the serving stack.",
+          "ttfa_s": 0.205,
+          "e2e_s": 3.391,
+          "audio_s": 2.48,
+          "bytes": 119040
+        },
+        {
+          "ok": true,
+          "prompt": "Every request is timed from the client.",
+          "ttfa_s": 0.221,
+          "e2e_s": 3.863,
+          "audio_s": 3.2,
+          "bytes": 153600
+        },
+        {
+          "ok": true,
+          "prompt": "Thanks for listening to this sentence.",
+          "ttfa_s": 0.214,
+          "e2e_s": 3.219,
+          "audio_s": 2.16,
+          "bytes": 103680
+        }
+      ]
+    },
+    {
+      "level": 2,
+      "requests": 8,
+      "successes": 8,
+      "failures": 0,
+      "ttfa_p50_s": 0.283,
+      "ttfa_p95_s": 0.337,
+      "e2e_p50_s": 4.311,
+      "e2e_p95_s": 6.32,
+      "audio_seconds_total": 22.32,
+      "audio_per_wall_second": 1.083,
+      "requests_per_minute": 23.29,
+      "level_wall_s": 20.61,
+      "peak_vram_gb": 0.72,
+      "server_rss_gb_last": 0.0,
+      "failures_verbatim": [],
+      "per_request": [
+        {
+          "ok": true,
+          "prompt": "Hello, how are you today?",
+          "ttfa_s": 0.247,
+          "e2e_s": 4.258,
+          "audio_s": 2.96,
+          "bytes": 142080
+        },
+        {
+          "ok": true,
+          "prompt": "The weather is lovely outside.",
+          "ttfa_s": 0.338,
+          "e2e_s": 2.428,
+          "audio_s": 1.76,
+          "bytes": 84480
+        },
+        {
+          "ok": true,
+          "prompt": "This is a concurrent synthesis test.",
+          "ttfa_s": 0.334,
+          "e2e_s": 4.743,
+          "audio_s": 2.56,
+          "bytes": 122880
+        },
+        {
+          "ok": true,
+          "prompt": "Audio streams in parallel on one GPU.",
+          "ttfa_s": 0.24,
+          "e2e_s": 6.889,
+          "audio_s": 4.4,
+          "bytes": 211200
+        },
+        {
+          "ok": true,
+          "prompt": "Numbers help calibrate expectations.",
+          "ttfa_s": 0.284,
+          "e2e_s": 4.365,
+          "audio_s": 2.72,
+          "bytes": 130560
+        },
+        {
+          "ok": true,
+          "prompt": "Concurrency measures the serving stack.",
+          "ttfa_s": 0.283,
+          "e2e_s": 5.263,
+          "audio_s": 3.12,
+          "bytes": 149760
+        },
+        {
+          "ok": true,
+          "prompt": "Every request is timed from the client.",
+          "ttfa_s": 0.249,
+          "e2e_s": 4.191,
+          "audio_s": 2.72,
+          "bytes": 130560
+        },
+        {
+          "ok": true,
+          "prompt": "Thanks for listening to this sentence.",
+          "ttfa_s": 0.329,
+          "e2e_s": 3.281,
+          "audio_s": 2.08,
+          "bytes": 99840
+        }
+      ]
+    },
+    {
+      "level": 4,
+      "requests": 8,
+      "successes": 8,
+      "failures": 0,
+      "ttfa_p50_s": 0.466,
+      "ttfa_p95_s": 0.51,
+      "e2e_p50_s": 6.413,
+      "e2e_p95_s": 8.539,
+      "audio_seconds_total": 22.96,
+      "audio_per_wall_second": 1.363,
+      "requests_per_minute": 28.49,
+      "level_wall_s": 16.85,
+      "peak_vram_gb": 0.72,
+      "server_rss_gb_last": 0.0,
+      "failures_verbatim": [],
+      "per_request": [
+        {
+          "ok": true,
+          "prompt": "Hello, how are you today?",
+          "ttfa_s": 0.257,
+          "e2e_s": 4.842,
+          "audio_s": 2.32,
+          "bytes": 111360
+        },
+        {
+          "ok": true,
+          "prompt": "The weather is lovely outside.",
+          "ttfa_s": 0.43,
+          "e2e_s": 8.036,
+          "audio_s": 2.32,
+          "bytes": 111360
+        },
+        {
+          "ok": true,
+          "prompt": "This is a concurrent synthesis test.",
+          "ttfa_s": 0.51,
+          "e2e_s": 5.562,
+          "audio_s": 2.08,
+          "bytes": 99840
+        },
+        {
+          "ok": true,
+          "prompt": "Audio streams in parallel on one GPU.",
+          "ttfa_s": 0.51,
+          "e2e_s": 6.485,
+          "audio_s": 3.92,
+          "bytes": 188160
+        },
+        {
+          "ok": true,
+          "prompt": "Numbers help calibrate expectations.",
+          "ttfa_s": 0.253,
+          "e2e_s": 7.249,
+          "audio_s": 3.2,
+          "bytes": 153600
+        },
+        {
+          "ok": true,
+          "prompt": "Concurrency measures the serving stack.",
+          "ttfa_s": 0.422,
+          "e2e_s": 8.81,
+          "audio_s": 3.36,
+          "bytes": 161280
+        },
+        {
+          "ok": true,
+          "prompt": "Every request is timed from the client.",
+          "ttfa_s": 0.503,
+          "e2e_s": 6.342,
+          "audio_s": 3.6,
+          "bytes": 172800
+        },
+        {
+          "ok": true,
+          "prompt": "Thanks for listening to this sentence.",
+          "ttfa_s": 0.503,
+          "e2e_s": 5.432,
+          "audio_s": 2.16,
+          "bytes": 103680
+        }
+      ]
+    },
+    {
+      "level": 8,
+      "requests": 8,
+      "successes": 8,
+      "failures": 0,
+      "ttfa_p50_s": 0.739,
+      "ttfa_p95_s": 0.959,
+      "e2e_p50_s": 8.628,
+      "e2e_p95_s": 13.218,
+      "audio_seconds_total": 20.64,
+      "audio_per_wall_second": 1.499,
+      "requests_per_minute": 34.87,
+      "level_wall_s": 13.77,
+      "peak_vram_gb": 0.72,
+      "server_rss_gb_last": 0.0,
+      "failures_verbatim": [],
+      "per_request": [
+        {
+          "ok": true,
+          "prompt": "Hello, how are you today?",
+          "ttfa_s": 0.277,
+          "e2e_s": 4.765,
+          "audio_s": 2.08,
+          "bytes": 99840
+        },
+        {
+          "ok": true,
+          "prompt": "The weather is lovely outside.",
+          "ttfa_s": 0.523,
+          "e2e_s": 3.46,
+          "audio_s": 1.44,
+          "bytes": 69120
+        },
+        {
+          "ok": true,
+          "prompt": "This is a concurrent synthesis test.",
+          "ttfa_s": 0.606,
+          "e2e_s": 13.763,
+          "audio_s": 2.8,
+          "bytes": 134400
+        },
+        {
+          "ok": true,
+          "prompt": "Audio streams in parallel on one GPU.",
+          "ttfa_s": 0.699,
+          "e2e_s": 12.207,
+          "audio_s": 3.44,
+          "bytes": 165120
+        },
+        {
+          "ok": true,
+          "prompt": "Numbers help calibrate expectations.",
+          "ttfa_s": 0.878,
+          "e2e_s": 9.09,
+          "audio_s": 3.52,
+          "bytes": 168960
+        },
+        {
+          "ok": true,
+          "prompt": "Concurrency measures the serving stack.",
+          "ttfa_s": 0.78,
+          "e2e_s": 11.286,
+          "audio_s": 2.4,
+          "bytes": 115200
+        },
+        {
+          "ok": true,
+          "prompt": "Every request is timed from the client.",
+          "ttfa_s": 0.959,
+          "e2e_s": 8.166,
+          "audio_s": 2.96,
+          "bytes": 142080
+        },
+        {
+          "ok": true,
+          "prompt": "Thanks for listening to this sentence.",
+          "ttfa_s": 0.958,
+          "e2e_s": 5.642,
+          "audio_s": 2.0,
+          "bytes": 96000
+        }
+      ]
+    }
+  ],
+  "ladder_stopped_at": null
+}
