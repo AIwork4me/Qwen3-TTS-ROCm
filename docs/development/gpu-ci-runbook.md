@@ -31,8 +31,8 @@ Max+ PRO 395 / Radeon 8060S, `gfx1151`, ROCm 7.14.0, Ubuntu kernel
 
 | Job | When | Timeout | Content |
 |---|---|---|---|
-| `gpu-short` | nightly cron `0 18 * * *` (18:00 **UTC** = 02:00 **local** +08:00 — GitHub schedules in UTC, not runner-local time; scheduled runs can also be delayed by load, so treat dispatch as the reliable path) or `workflow_dispatch` with `suite=gpu-short`/default | 120 min | environment diagnostics, then 32 of the 38 GPU test nodes in three disjoint `-k` slices (below) |
-| `full-weekly` | `workflow_dispatch` with `suite=full-weekly` only (no cron yet — flip the schedule on once a weekly cadence is actually wanted) | 720 min | all 38 GPU nodes + `scripts/verify_gpu.sh` stack sanity + `scripts/benchmark.py` RTF replication |
+| `gpu-short` | nightly cron `0 18 * * *` (18:00 **UTC** = 02:00 **local** +08:00 — GitHub schedules in UTC, not runner-local time; scheduled runs can also be delayed by load, so treat dispatch as the reliable path) or `workflow_dispatch` with `suite=gpu-short`/default | 120 min | environment diagnostics, then 34 of the 40 GPU test nodes in three disjoint `-k` slices (below; 32/38 until 2026-09-24, +2 reusable-prompt batch tests) |
+| `full-weekly` | `workflow_dispatch` with `suite=full-weekly` only (no cron yet — flip the schedule on once a weekly cadence is actually wanted) | 720 min | all 40 GPU nodes (38 until 2026-09-24) + `scripts/verify_gpu.sh` stack sanity + `scripts/benchmark.py` RTF replication |
 
 Unlike the CPU workflow (`ci.yml`, ubuntu-latest, hermetic per-job install),
 the runner **installs nothing per job**: it reuses the persistent host
@@ -81,7 +81,7 @@ These are exactly the validated stack — the same environment every
 ## Suite selection — filter → node mapping
 
 Derived 2026-09-21 from `.venv/bin/python -m pytest -m gpu --co -q`
-(38 nodes; full lists in the validation transcript). `-k` matches substrings
+(40 nodes as of 2026-09-24, 38 before; full lists in the validation transcript). `-k` matches substrings
 of the whole node ID, file path included — that is why `official_demo`
 selects by file and `voice_clone` selects both clone files at once.
 
@@ -267,7 +267,7 @@ deployment — a **personal (non-org) public repository**:
   repository; a nightly that should become evidence is downloaded from the
   run page and committed under a dated name by a human decision.
 - **Timeouts**: 120 min (short) / 720 min (full) cover the observed suite
-  (38 nodes ≈ 5–10 min warm) plus one cold model-load margin — the first
+  (40 nodes ≈ 5–10 min warm) plus one cold model-load margin — the first
   green run took ~18 min wall including ~10 min of sync retries through a
   TLS-flaky window; if the nightly starts timing out, fix the cause — do
   not raise the cap silently.

@@ -1,0 +1,90 @@
+=== OFFICIAL API BATCH INFERENCE — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 3. Script: scripts/benchmark_batch.py (commit 0824e11, embedded in meta.git_head). No custom batching layer — official qwen-tts 0.1.1 list-of-texts API only.
+Families: A custom-voice-0.6b · B custom-voice (1.7B) · C voice-design (1.7B) · D base-0.6b (reusable clone prompt) · E base (1.7B, reusable clone prompt)
+Ladder: B = 1, 2, 4, 8 per family; torch.manual_seed(20260924) before every call; max_new_tokens=512; one discarded warmup per family; first failure would stop the family ladder (none occurred).
+
+=== VERBATIM [batch] PROGRESS LINES (full raw log: /tmp/batch-bench-full.log, MIOpen/sdpa console chatter omitted here) ===
+[batch] loading alias=custom-voice-0.6b ...
+[batch] loaded alias=custom-voice-0.6b took=4.5s vram_before=1.11 GiB
+[batch] warmup alias=custom-voice-0.6b done (discarded)
+[batch] OK family=custom-voice-0.6b B=1 wall=3.49s audio_total=3.44s rtf=1.01 peak_alloc=2.18 GiB
+[batch] OK family=custom-voice-0.6b B=2 wall=3.98s audio_total=7.04s rtf=0.57 peak_alloc=2.29 GiB
+[batch] OK family=custom-voice-0.6b B=4 wall=7.42s audio_total=13.92s rtf=0.53 peak_alloc=2.53 GiB
+[batch] OK family=custom-voice-0.6b B=8 wall=10.48s audio_total=28.88s rtf=0.36 peak_alloc=3.02 GiB
+[batch] family=custom-voice-0.6b max_stable_batch=8 vram_after=1.08 GiB
+[batch] loading alias=custom-voice ...
+[batch] loaded alias=custom-voice took=3.9s vram_before=1.08 GiB
+[batch] warmup alias=custom-voice done (discarded)
+[batch] OK family=custom-voice B=1 wall=3.73s audio_total=3.12s rtf=1.19 peak_alloc=4.06 GiB
+[batch] OK family=custom-voice B=2 wall=4.52s audio_total=6.56s rtf=0.69 peak_alloc=4.17 GiB
+[batch] OK family=custom-voice B=4 wall=7.82s audio_total=12.16s rtf=0.64 peak_alloc=4.39 GiB
+[batch] OK family=custom-voice B=8 wall=11.13s audio_total=22.96s rtf=0.48 peak_alloc=4.86 GiB
+[batch] family=custom-voice max_stable_batch=8 vram_after=1.09 GiB
+[batch] loading alias=voice-design ...
+[batch] loaded alias=voice-design took=3.7s vram_before=1.09 GiB
+[batch] warmup alias=voice-design done (discarded)
+[batch] OK family=voice-design B=1 wall=3.74s audio_total=3.04s rtf=1.23 peak_alloc=4.06 GiB
+[batch] OK family=voice-design B=2 wall=6.23s audio_total=7.04s rtf=0.88 peak_alloc=4.24 GiB
+[batch] OK family=voice-design B=4 wall=8.24s audio_total=12.56s rtf=0.66 peak_alloc=4.41 GiB
+[batch] OK family=voice-design B=8 wall=10.31s audio_total=21.92s rtf=0.47 peak_alloc=4.8 GiB
+[batch] family=voice-design max_stable_batch=8 vram_after=1.09 GiB
+[batch] loading alias=base-0.6b ...
+[batch] loaded alias=base-0.6b took=1.7s vram_before=1.09 GiB
+[batch] warmup alias=base-0.6b done (discarded)
+[batch] OK family=base-0.6b B=1 wall=8.4s audio_total=8.0s rtf=1.05 peak_alloc=2.44 GiB
+[batch] OK family=base-0.6b B=2 wall=13.32s audio_total=17.36s rtf=0.77 peak_alloc=3.0 GiB
+[batch] OK family=base-0.6b B=4 wall=26.58s audio_total=42.48s rtf=0.63 peak_alloc=4.05 GiB
+[batch] OK family=base-0.6b B=8 wall=120.6s audio_total=100.64s rtf=1.2 peak_alloc=7.65 GiB
+[batch] family=base-0.6b max_stable_batch=8 vram_after=1.09 GiB
+[batch] loading alias=base ...
+[batch] loaded alias=base took=2.3s vram_before=1.09 GiB
+[batch] warmup alias=base done (discarded)
+[batch] OK family=base B=1 wall=51.34s audio_total=40.88s rtf=1.26 peak_alloc=4.71 GiB
+[batch] OK family=base B=2 wall=64.18s audio_total=81.76s rtf=0.78 peak_alloc=5.71 GiB
+[batch] OK family=base B=4 wall=89.78s audio_total=65.92s rtf=1.36 peak_alloc=6.79 GiB
+[batch] OK family=base B=8 wall=78.45s audio_total=158.0s rtf=0.5 peak_alloc=9.55 GiB
+[batch] family=base max_stable_batch=8 vram_after=1.09 GiB
+[batch] wrote evidence/batch-inference-gfx1151-2026-09-24.json
+
+=== RESULT TABLE (script stdout, verbatim) ===
+| family | alias | B | wall s | audio s/item | total audio s | audio/wall s | RTF | peak alloc GiB | all sane |
+|---|---|---|---|---|---|---|---|---|---|
+| custom-voice-0.6b | custom-voice-0.6b | 1 | 3.49 | [3.44] | 3.44 | 0.99 | 1.01 | 2.18 | yes |
+| custom-voice-0.6b | custom-voice-0.6b | 2 | 3.98 | [3.52, 3.52] | 7.04 | 1.77 | 0.57 | 2.29 | yes |
+| custom-voice-0.6b | custom-voice-0.6b | 4 | 7.42 | [3.92, 3.12, 3.84, 3.04] | 13.92 | 1.88 | 0.53 | 2.53 | yes |
+| custom-voice-0.6b | custom-voice-0.6b | 8 | 10.48 | [3.76, 4.08, 3.84, 3.28, 3.12, 3.04, 4.0, 3.76] | 28.88 | 2.75 | 0.36 | 3.02 | yes |
+| custom-voice | custom-voice | 1 | 3.73 | [3.12] | 3.12 | 0.84 | 1.19 | 4.06 | yes |
+| custom-voice | custom-voice | 2 | 4.52 | [3.04, 3.52] | 6.56 | 1.45 | 0.69 | 4.17 | yes |
+| custom-voice | custom-voice | 4 | 7.82 | [3.68, 3.36, 2.8, 2.32] | 12.16 | 1.55 | 0.64 | 4.39 | yes |
+| custom-voice | custom-voice | 8 | 11.13 | [3.76, 3.12, 2.8, 2.24, 2.08, 2.24, 2.88, 3.84] | 22.96 | 2.06 | 0.48 | 4.86 | yes |
+| voice-design | voice-design | 1 | 3.74 | [3.04] | 3.04 | 0.81 | 1.23 | 4.06 | yes |
+| voice-design | voice-design | 2 | 6.23 | [3.92, 3.12] | 7.04 | 1.13 | 0.88 | 4.24 | yes |
+| voice-design | voice-design | 4 | 8.24 | [3.28, 3.28, 3.84, 2.16] | 12.56 | 1.52 | 0.66 | 4.41 | yes |
+| voice-design | voice-design | 8 | 10.31 | [3.12, 2.96, 2.96, 2.16, 3.6, 2.0, 2.8, 2.32] | 21.92 | 2.13 | 0.47 | 4.8 | yes |
+| base-0.6b | base-0.6b | 1 | 8.4 | [8.0] | 8.0 | 0.95 | 1.05 | 2.44 | yes |
+| base-0.6b | base-0.6b | 2 | 13.32 | [7.76, 9.6] | 17.36 | 1.3 | 0.77 | 3.0 | yes |
+| base-0.6b | base-0.6b | 4 | 26.58 | [8.96, 10.32, 9.36, 13.84] | 42.48 | 1.6 | 0.63 | 4.05 | yes |
+| base-0.6b | base-0.6b | 8 | 120.6 | [10.8, 8.56, 10.08, 10.48, 5.76, 40.88, 7.12, 6.96] | 100.64 | 0.83 | 1.2 | 7.65 | yes |
+| base | base | 1 | 51.34 | [40.88] | 40.88 | 0.8 | 1.26 | 4.71 | yes |
+| base | base | 2 | 64.18 | [40.88, 40.88] | 81.76 | 1.27 | 0.78 | 5.71 | yes |
+| base | base | 4 | 89.78 | [8.8, 8.48, 7.76, 40.88] | 65.92 | 0.73 | 1.36 | 6.79 | yes |
+| base | base | 8 | 78.45 | [40.88, 40.88, 8.08, 7.84, 7.68, 5.68, 6.08, 40.88] | 158.0 | 2.01 | 0.5 | 9.55 | yes |
+BATCH-BENCHMARK-OK
+BATCH-BENCHMARK-OK
+
+=== META (from evidence/batch-inference-gfx1151-2026-09-24.json) ===
+gpu=AMD Radeon 8060S Graphics (gfx1151) torch=2.12.0+rocm7.14.0 hip=7.14.60850 git_head=0824e1116584094f2364bdc30bd34f6119621dba seed=20260924
+per_family_max_stable: ALL FIVE = 8 (20/20 cells ok=true; every output finite, non-silent RMS>=1e-3, 24000 Hz, durations within [0.5,60] s)
+
+=== OBSERVATIONS (interpretation, not claims beyond data) ===
+1. Batching amortizes wall time: at B=8, per-family RTF (wall/total-audio): custom-voice-0.6b 0.36, custom-voice 0.48, voice-design 0.47, base-0.6b 1.20 (B=4 was 0.63), base 0.50. B=1 RTFs were 1.01–1.26.
+2. Peak torch allocated grows monotonically with B: 2.18→3.02 GiB (cv-0.6b), 4.06→4.86 (cv), 4.06→4.80 (vd), 2.44→7.65 (base-0.6b), 4.71→9.55 GiB (base 1.7B B=8) — all far below the 32 GiB VRAM. No OOM, no HIP errors.
+3. Clone-family (base/base-0.6b) render durations are highly variable: some items render near the 512-token cap (e.g. base B=1 audio 40.88 s for a 16-char sentence; B=2 both items ~40.9 s) — stochastic long-render behavior of clone mode, bounded by the official guardrail; outputs remain finite/non-silent. Throughput cells for base families therefore mix variable-length items; per-item durations are in the JSON.
+4. rocm-smi VRAM total-used sampled per family boundaries hovered at ~1.08–1.11 GiB desktop baseline (models unloaded between families); torch peak allocated (per-call reset) is the meaningful in-process memory metric and is recorded per cell.
+5. Scope: this host/configuration only (Radeon 8060S iGPU, bf16+sdpa, torch 2.12.0+rocm7.14.0). Batch sizes beyond 8 were NOT tested.
+
+=== GPU REGRESSION TESTS ADDED (Task 3 requirement) ===
+tests/test_voice_clone_06b.py::test_batch_clone_with_reusable_prompt and tests/test_voice_clone_workflow.py::test_batch_clone_with_reusable_prompt — B=2 reusable-prompt batch, shape+sane+distinct assertions; live run: 2 passed in 45.90 s. Existing B=2 batch tests already covered custom-voice 1.7B/0.6B, voice-design, base-0.6b/1.7B (ref_audio broadcast). Suite now 313 CPU + 40 GPU.
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-3-verification.md

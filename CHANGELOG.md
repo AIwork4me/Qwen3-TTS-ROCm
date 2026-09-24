@@ -344,6 +344,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Official API batch inference closure** (v0.2.1 Task 3, 2026-09-24): new
+  `scripts/benchmark_batch.py` drives the official qwen-tts list-of-texts
+  API (zero custom batching) for all five families — 0.6B/1.7B
+  CustomVoice, 1.7B VoiceDesign, and 0.6B/1.7B Base through the reusable
+  `create_voice_clone_prompt` broadcast — up the ladder B ∈ {1,2,4,8}:
+  20/20 cells green, max validated batch size 8 for every family on this
+  host/config (batching amortizes wall time: B=8 RTF 0.36–1.20; peak torch
+  allocated up to 9.55 GiB, no OOM). Two new GPU regression tests pin the
+  reusable-prompt batch path (`test_batch_clone_with_reusable_prompt`,
+  0.6B + 1.7B) — suite grows to **313 CPU + 40 GPU = 353** (CI slice
+  counts updated: gpu-short 34/40). Evidence:
+  `evidence/batch-inference-gfx1151-2026-09-24.{txt,json}`; capability
+  matrix row added in both READMEs.
+
 - **Docker real-GPU E2E closure** (v0.2.1 Task 2, 2026-09-24): a fresh
   `docker build --no-cache` image (tag `qwen3-tts-rocm:gfx1151-e2e`, HEAD
   `488a028`) executed the complete GPU synthesis path inside the container

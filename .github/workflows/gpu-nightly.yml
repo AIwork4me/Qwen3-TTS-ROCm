@@ -28,16 +28,18 @@
 # instead of cancelling it (cancel-in-progress: false).
 #
 # Suite selection (validated against `.venv/bin/python -m pytest -m gpu
-# --co -q` on 2026-09-21 — 38 GPU nodes total; see the runbook's filter
-# mapping table):
-#   nightly gpu-short = 32 of the 38 nodes, in three disjoint slices:
+# --co -q`; 38 GPU nodes on 2026-09-21, 40 since 2026-09-24 — +2
+# reusable-prompt batch tests in the clone suites; see the runbook's
+# filter mapping table):
+#   nightly gpu-short = 34 of the 40 nodes, in three disjoint slices:
 #     1. "official_demo or tokenizer"    ->  6 nodes (upstream parity proof
 #        incl. one real synthesis through the official demo's Gradio
 #        closures + tokenizer codec/load)
 #     2. "custom_voice or voice_design or voice_clone"
-#                                      -> 22 nodes (CustomVoice 1.7B + 0.6B,
+#                                      -> 24 nodes (CustomVoice 1.7B + 0.6B,
 #        VoiceDesign, Base clone 1.7B + 0.6B incl. the reusable
-#        create_voice_clone_prompt path in both clone suites)
+#        create_voice_clone_prompt path and both B=2 batch tests in the
+#        clone suites)
 #     3. "voice_workflow"               ->  4 nodes (Voice Studio workflow:
 #        design -> preview -> save -> reuse on real weights)
 #   The other 6 nodes (5 test_loader_all_models load smokes +
@@ -193,7 +195,7 @@ jobs:
           PYTHONPATH="$GITHUB_WORKSPACE/src" "$HOST_REPO/.venv/bin/python" -c "import qwen3_tts_rocm; p=qwen3_tts_rocm.__file__; print(p); import sys; sys.exit(0 if '/_work/' in p else 1)" \
             || { echo "ERROR: qwen3_tts_rocm resolved outside the runner workspace — the host editable install won over PYTHONPATH=\$GITHUB_WORKSPACE/src; do not trust this run's code provenance"; exit 1; }
 
-      - name: Full GPU regression (all 38 gpu-marked nodes)
+      - name: Full GPU regression (all 40 gpu-marked nodes)
         env:
           PYTHONPATH: ${{ github.workspace }}/src
         run: |

@@ -1,0 +1,608 @@
+{
+  "meta": {
+    "date": "2026-09-24T09:18:06+00:00",
+    "host": "amd-HP-ZBook-Ultra",
+    "gpu": "AMD Radeon 8060S Graphics (gfx1151)",
+    "torch": "2.12.0+rocm7.14.0",
+    "hip": "7.14.60850",
+    "git_head": "0824e1116584094f2364bdc30bd34f6119621dba",
+    "seed": 20260924,
+    "max_new_tokens": 512,
+    "manifest": [
+      "今天的天气真不错，适合去公园散步。",
+      "书桌上放着一杯热茶和几本旧书。",
+      "窗外的鸟叫声让人心情愉快。",
+      "请帮我查一下明天下午的会议安排。",
+      "这条街的夜晚总是很热闹。",
+      "孩子们在操场上追逐嬉戏。",
+      "咖啡的香气弥漫在整个房间里。",
+      "远处的山峦在晨雾中若隐若现。"
+    ],
+    "batch_sizes_requested": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "per_family_max_stable": {
+      "custom-voice-0.6b": 8,
+      "custom-voice": 8,
+      "voice-design": 8,
+      "base-0.6b": 8,
+      "base": 8
+    },
+    "results_count": 20
+  },
+  "results": [
+    {
+      "family": "custom-voice-0.6b",
+      "alias": "custom-voice-0.6b",
+      "kind": "custom_voice",
+      "batch_size": 1,
+      "prompt_char_lengths": [
+        17
+      ],
+      "wall_seconds": 3.49,
+      "audio_seconds_per_item": [
+        3.44
+      ],
+      "total_audio_seconds": 3.44,
+      "audio_per_wall_second": 0.99,
+      "rtf": 1.01,
+      "peak_alloc_gb": 2.18,
+      "peak_reserved_gb": 2.23,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 4.46,
+      "vram_used_gb_before_family": 1.11,
+      "vram_used_gb_after_family": 1.08
+    },
+    {
+      "family": "custom-voice-0.6b",
+      "alias": "custom-voice-0.6b",
+      "kind": "custom_voice",
+      "batch_size": 2,
+      "prompt_char_lengths": [
+        17,
+        15
+      ],
+      "wall_seconds": 3.98,
+      "audio_seconds_per_item": [
+        3.52,
+        3.52
+      ],
+      "total_audio_seconds": 7.04,
+      "audio_per_wall_second": 1.77,
+      "rtf": 0.57,
+      "peak_alloc_gb": 2.29,
+      "peak_reserved_gb": 2.35,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 4.46,
+      "vram_used_gb_before_family": 1.11,
+      "vram_used_gb_after_family": 1.08
+    },
+    {
+      "family": "custom-voice-0.6b",
+      "alias": "custom-voice-0.6b",
+      "kind": "custom_voice",
+      "batch_size": 4,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16
+      ],
+      "wall_seconds": 7.42,
+      "audio_seconds_per_item": [
+        3.92,
+        3.12,
+        3.84,
+        3.04
+      ],
+      "total_audio_seconds": 13.92,
+      "audio_per_wall_second": 1.88,
+      "rtf": 0.53,
+      "peak_alloc_gb": 2.53,
+      "peak_reserved_gb": 2.66,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 4.46,
+      "vram_used_gb_before_family": 1.11,
+      "vram_used_gb_after_family": 1.08
+    },
+    {
+      "family": "custom-voice-0.6b",
+      "alias": "custom-voice-0.6b",
+      "kind": "custom_voice",
+      "batch_size": 8,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16,
+        12,
+        12,
+        14,
+        14
+      ],
+      "wall_seconds": 10.48,
+      "audio_seconds_per_item": [
+        3.76,
+        4.08,
+        3.84,
+        3.28,
+        3.12,
+        3.04,
+        4.0,
+        3.76
+      ],
+      "total_audio_seconds": 28.88,
+      "audio_per_wall_second": 2.75,
+      "rtf": 0.36,
+      "peak_alloc_gb": 3.02,
+      "peak_reserved_gb": 3.21,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 4.46,
+      "vram_used_gb_before_family": 1.11,
+      "vram_used_gb_after_family": 1.08
+    },
+    {
+      "family": "custom-voice",
+      "alias": "custom-voice",
+      "kind": "custom_voice",
+      "batch_size": 1,
+      "prompt_char_lengths": [
+        17
+      ],
+      "wall_seconds": 3.73,
+      "audio_seconds_per_item": [
+        3.12
+      ],
+      "total_audio_seconds": 3.12,
+      "audio_per_wall_second": 0.84,
+      "rtf": 1.19,
+      "peak_alloc_gb": 4.06,
+      "peak_reserved_gb": 4.11,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.93,
+      "vram_used_gb_before_family": 1.08,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "custom-voice",
+      "alias": "custom-voice",
+      "kind": "custom_voice",
+      "batch_size": 2,
+      "prompt_char_lengths": [
+        17,
+        15
+      ],
+      "wall_seconds": 4.52,
+      "audio_seconds_per_item": [
+        3.04,
+        3.52
+      ],
+      "total_audio_seconds": 6.56,
+      "audio_per_wall_second": 1.45,
+      "rtf": 0.69,
+      "peak_alloc_gb": 4.17,
+      "peak_reserved_gb": 4.27,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.93,
+      "vram_used_gb_before_family": 1.08,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "custom-voice",
+      "alias": "custom-voice",
+      "kind": "custom_voice",
+      "batch_size": 4,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16
+      ],
+      "wall_seconds": 7.82,
+      "audio_seconds_per_item": [
+        3.68,
+        3.36,
+        2.8,
+        2.32
+      ],
+      "total_audio_seconds": 12.16,
+      "audio_per_wall_second": 1.55,
+      "rtf": 0.64,
+      "peak_alloc_gb": 4.39,
+      "peak_reserved_gb": 4.54,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.93,
+      "vram_used_gb_before_family": 1.08,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "custom-voice",
+      "alias": "custom-voice",
+      "kind": "custom_voice",
+      "batch_size": 8,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16,
+        12,
+        12,
+        14,
+        14
+      ],
+      "wall_seconds": 11.13,
+      "audio_seconds_per_item": [
+        3.76,
+        3.12,
+        2.8,
+        2.24,
+        2.08,
+        2.24,
+        2.88,
+        3.84
+      ],
+      "total_audio_seconds": 22.96,
+      "audio_per_wall_second": 2.06,
+      "rtf": 0.48,
+      "peak_alloc_gb": 4.86,
+      "peak_reserved_gb": 5.18,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.93,
+      "vram_used_gb_before_family": 1.08,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "voice-design",
+      "alias": "voice-design",
+      "kind": "voice_design",
+      "batch_size": 1,
+      "prompt_char_lengths": [
+        17
+      ],
+      "wall_seconds": 3.74,
+      "audio_seconds_per_item": [
+        3.04
+      ],
+      "total_audio_seconds": 3.04,
+      "audio_per_wall_second": 0.81,
+      "rtf": 1.23,
+      "peak_alloc_gb": 4.06,
+      "peak_reserved_gb": 4.11,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.71,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "voice-design",
+      "alias": "voice-design",
+      "kind": "voice_design",
+      "batch_size": 2,
+      "prompt_char_lengths": [
+        17,
+        15
+      ],
+      "wall_seconds": 6.23,
+      "audio_seconds_per_item": [
+        3.92,
+        3.12
+      ],
+      "total_audio_seconds": 7.04,
+      "audio_per_wall_second": 1.13,
+      "rtf": 0.88,
+      "peak_alloc_gb": 4.24,
+      "peak_reserved_gb": 4.4,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.71,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "voice-design",
+      "alias": "voice-design",
+      "kind": "voice_design",
+      "batch_size": 4,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16
+      ],
+      "wall_seconds": 8.24,
+      "audio_seconds_per_item": [
+        3.28,
+        3.28,
+        3.84,
+        2.16
+      ],
+      "total_audio_seconds": 12.56,
+      "audio_per_wall_second": 1.52,
+      "rtf": 0.66,
+      "peak_alloc_gb": 4.41,
+      "peak_reserved_gb": 4.56,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.71,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "voice-design",
+      "alias": "voice-design",
+      "kind": "voice_design",
+      "batch_size": 8,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16,
+        12,
+        12,
+        14,
+        14
+      ],
+      "wall_seconds": 10.31,
+      "audio_seconds_per_item": [
+        3.12,
+        2.96,
+        2.96,
+        2.16,
+        3.6,
+        2.0,
+        2.8,
+        2.32
+      ],
+      "total_audio_seconds": 21.92,
+      "audio_per_wall_second": 2.13,
+      "rtf": 0.47,
+      "peak_alloc_gb": 4.8,
+      "peak_reserved_gb": 5.12,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 3.71,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base-0.6b",
+      "alias": "base-0.6b",
+      "kind": "clone_prompt",
+      "batch_size": 1,
+      "prompt_char_lengths": [
+        17
+      ],
+      "wall_seconds": 8.4,
+      "audio_seconds_per_item": [
+        8.0
+      ],
+      "total_audio_seconds": 8.0,
+      "audio_per_wall_second": 0.95,
+      "rtf": 1.05,
+      "peak_alloc_gb": 2.44,
+      "peak_reserved_gb": 2.55,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 1.7,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base-0.6b",
+      "alias": "base-0.6b",
+      "kind": "clone_prompt",
+      "batch_size": 2,
+      "prompt_char_lengths": [
+        17,
+        15
+      ],
+      "wall_seconds": 13.32,
+      "audio_seconds_per_item": [
+        7.76,
+        9.6
+      ],
+      "total_audio_seconds": 17.36,
+      "audio_per_wall_second": 1.3,
+      "rtf": 0.77,
+      "peak_alloc_gb": 3.0,
+      "peak_reserved_gb": 3.24,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 1.7,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base-0.6b",
+      "alias": "base-0.6b",
+      "kind": "clone_prompt",
+      "batch_size": 4,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16
+      ],
+      "wall_seconds": 26.58,
+      "audio_seconds_per_item": [
+        8.96,
+        10.32,
+        9.36,
+        13.84
+      ],
+      "total_audio_seconds": 42.48,
+      "audio_per_wall_second": 1.6,
+      "rtf": 0.63,
+      "peak_alloc_gb": 4.05,
+      "peak_reserved_gb": 4.71,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 1.7,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base-0.6b",
+      "alias": "base-0.6b",
+      "kind": "clone_prompt",
+      "batch_size": 8,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16,
+        12,
+        12,
+        14,
+        14
+      ],
+      "wall_seconds": 120.6,
+      "audio_seconds_per_item": [
+        10.8,
+        8.56,
+        10.08,
+        10.48,
+        5.76,
+        40.88,
+        7.12,
+        6.96
+      ],
+      "total_audio_seconds": 100.64,
+      "audio_per_wall_second": 0.83,
+      "rtf": 1.2,
+      "peak_alloc_gb": 7.65,
+      "peak_reserved_gb": 8.98,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 1.7,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base",
+      "alias": "base",
+      "kind": "clone_prompt",
+      "batch_size": 1,
+      "prompt_char_lengths": [
+        17
+      ],
+      "wall_seconds": 51.34,
+      "audio_seconds_per_item": [
+        40.88
+      ],
+      "total_audio_seconds": 40.88,
+      "audio_per_wall_second": 0.8,
+      "rtf": 1.26,
+      "peak_alloc_gb": 4.71,
+      "peak_reserved_gb": 5.25,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 2.3,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base",
+      "alias": "base",
+      "kind": "clone_prompt",
+      "batch_size": 2,
+      "prompt_char_lengths": [
+        17,
+        15
+      ],
+      "wall_seconds": 64.18,
+      "audio_seconds_per_item": [
+        40.88,
+        40.88
+      ],
+      "total_audio_seconds": 81.76,
+      "audio_per_wall_second": 1.27,
+      "rtf": 0.78,
+      "peak_alloc_gb": 5.71,
+      "peak_reserved_gb": 6.41,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 2.3,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base",
+      "alias": "base",
+      "kind": "clone_prompt",
+      "batch_size": 4,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16
+      ],
+      "wall_seconds": 89.78,
+      "audio_seconds_per_item": [
+        8.8,
+        8.48,
+        7.76,
+        40.88
+      ],
+      "total_audio_seconds": 65.92,
+      "audio_per_wall_second": 0.73,
+      "rtf": 1.36,
+      "peak_alloc_gb": 6.79,
+      "peak_reserved_gb": 7.52,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 2.3,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    },
+    {
+      "family": "base",
+      "alias": "base",
+      "kind": "clone_prompt",
+      "batch_size": 8,
+      "prompt_char_lengths": [
+        17,
+        15,
+        13,
+        16,
+        12,
+        12,
+        14,
+        14
+      ],
+      "wall_seconds": 78.45,
+      "audio_seconds_per_item": [
+        40.88,
+        40.88,
+        8.08,
+        7.84,
+        7.68,
+        5.68,
+        6.08,
+        40.88
+      ],
+      "total_audio_seconds": 158.0,
+      "audio_per_wall_second": 2.01,
+      "rtf": 0.5,
+      "peak_alloc_gb": 9.55,
+      "peak_reserved_gb": 13.72,
+      "sample_rate": 24000,
+      "ok": true,
+      "load_seconds": 2.3,
+      "vram_used_gb_before_family": 1.09,
+      "vram_used_gb_after_family": 1.09
+    }
+  ]
+}

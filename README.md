@@ -40,7 +40,7 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **351 / 351 on validation host** — 313 CPU + 38 real-GPU |
+| Automated tests | **353 / 353 on validation host** — 313 CPU + 40 real-GPU (40 since 2026-09-24: +2 reusable-prompt batch tests) |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
@@ -63,6 +63,7 @@ intentionally not claimed**.
 | Base family (zero-shot cloning + fine-tuning base) | 0.6B | ✅ E2E validated | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
 | Reusable clone prompt (`create_voice_clone_prompt` → save → load → reuse) | 1.7B & 0.6B Base | ✅ E2E validated | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) |
 | Design → Clone → Reuse (Voice Studio one-click flow) | VoiceDesign 1.7B + Base | ✅ E2E validated | [`voice-workflow-2026-09-20.txt`](evidence/voice-workflow-2026-09-20.txt) · [`voice-workflow-2026-09-20.json`](evidence/voice-workflow-2026-09-20.json) |
+| Official API batch inference (list-of-texts, zero custom batching) | 0.6B & 1.7B CustomVoice · 1.7B VoiceDesign · 0.6B & 1.7B Base via reusable clone prompt | ✅ E2E validated — B ∈ {1,2,4,8} all green, max validated B = 8 for all five families (this host/config only) | [`batch-inference-gfx1151-2026-09-24.txt`](evidence/batch-inference-gfx1151-2026-09-24.txt) · [`batch-inference-gfx1151-2026-09-24.json`](evidence/batch-inference-gfx1151-2026-09-24.json) |
 | 12Hz tokenizer codec (encode → decode roundtrip) | Tokenizer-12Hz | ✅ E2E validated | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
 | Multilingual matrix — all 10 officially supported languages, end to end | 1.7B CustomVoice + VoiceDesign + Base | ✅ E2E validated | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
 | Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base | ✅ scoped — **execution-only smoke** (prep → 12 steps → save → reload → sane synthesis; no quality claims). ROCm E2E execution proven. Upstream portability fix submitted as Qwen3-TTS PR #373 (OPEN); current published `qwen-tts==0.1.1` still requires the documented temporary workaround ([docs](docs/finetuning-rocm.md#upstream-fix-status)) | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) · PR #373 validation chain: [`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) · [`upstream-372-round-a-loads1.txt`](evidence/upstream-372-round-a-loads1.txt) · [`upstream-372-round-a-loads2.txt`](evidence/upstream-372-round-a-loads2.txt) · [`upstream-372-round-a-loads3.txt`](evidence/upstream-372-round-a-loads3.txt) · [`upstream-372-default-semantics.txt`](evidence/upstream-372-default-semantics.txt) · [`upstream-372-diff-audit.txt`](evidence/upstream-372-diff-audit.txt) |
@@ -173,7 +174,7 @@ runner — plus, in a plain `.[dev]` environment without the optional
 quality-benchmark tests; fixed to skip instead of error by the 2026-09-21
 claims audit after Task 14's unguarded `import jiwer` had turned CI red).
 On the validated ROCm host that test also runs, giving 313 CPU +
-38 GPU = 351 / 351. First verified CI run on this suite: all jobs green at
+38 GPU = 351 / 351 at that time (suite since grew to 313 + 40 = 353 on 2026-09-24 with the batch-inference tests). First verified CI run on this suite: all jobs green at
 push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415),
 `251 passed, 1 skipped, 38 deselected` per Python job — verified 2026-09-21
 when the suite stood at 252 CPU tests; the suite has since grown to the
@@ -317,7 +318,7 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 351/351 on the validated ROCm host (313 CPU + 38
+* **Test suite** — 353/353 on the validated ROCm host (313 CPU + 40
   real-GPU); the CPU-only CI matrix collects the same 313 CPU tests on
   Python 3.10 / 3.11 / 3.12 with 1 HIP-gated skip (and the 15 visible
   `[quality]`-extras skips noted above in a plain `.[dev]` environment;
@@ -326,7 +327,7 @@ bilingual environment self-check any time (read-only, never raises).
   `266 passed, 1 skipped` — the 313-CPU era had been red from Task 14's
   undeclared jiwer import until the claims-audit fix; see
   [`evidence/claims-audit-2026-09-21.md`](evidence/claims-audit-2026-09-21.md)).
-  The upstream-parity proof below is one of the 38 GPU tests — it runs on
+  The upstream-parity proof below is one of the 40 GPU tests — it runs on
   the validation host, not in CPU-only CI (a
   prepared-but-blocked self-hosted GPU workflow exists; see the GPU CI state
   note above and [`docs/development/gpu-ci-runbook.md`](docs/development/gpu-ci-runbook.md)).

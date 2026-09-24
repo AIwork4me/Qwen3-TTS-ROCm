@@ -33,7 +33,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 351 / 351 全通过** —— 313 CPU + 38 真机 GPU |
+| 自动化测试 | **验证主机 353 / 353 全通过** —— 313 CPU + 40 真机 GPU（2026-09-24 起 +2 项可复用提示批量测试） |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
@@ -55,6 +55,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | Base 家族（零样本克隆 + 微调基座） | 0.6B | ✅ 端到端已验证 | [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) · [`benchmark-06b-2026-09-20.json`](evidence/benchmark-06b-2026-09-20.json) |
 | 可复用克隆提示（`create_voice_clone_prompt` → 保存 → 加载 → 复用） | 1.7B 与 0.6B Base | ✅ 端到端已验证 | [`gen-voiceclone.txt`](evidence/gen-voiceclone.txt) · [`gpu-suite-2026-09-20.txt`](evidence/gpu-suite-2026-09-20.txt) |
 | 设计 → 克隆 → 复用（音色工坊一键流程） | VoiceDesign 1.7B + Base | ✅ 端到端已验证 | [`voice-workflow-2026-09-20.txt`](evidence/voice-workflow-2026-09-20.txt) · [`voice-workflow-2026-09-20.json`](evidence/voice-workflow-2026-09-20.json) |
+| 官方 API 批量推理（文本列表，零自定义批处理层） | 0.6B 与 1.7B CustomVoice · 1.7B VoiceDesign · 0.6B 与 1.7B Base（可复用克隆提示路径） | ✅ 端到端已验证 —— B ∈ {1,2,4,8} 全绿，五个家族最大验证批量 B = 8（仅限本机/本配置） | [`batch-inference-gfx1151-2026-09-24.txt`](evidence/batch-inference-gfx1151-2026-09-24.txt) · [`batch-inference-gfx1151-2026-09-24.json`](evidence/batch-inference-gfx1151-2026-09-24.json) |
 | 12Hz 分词器编解码（编码 → 解码往返） | Tokenizer-12Hz | ✅ 端到端已验证 | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
 | 多语言矩阵 —— 全部 10 种官方支持语言端到端 | 1.7B CustomVoice + VoiceDesign + Base | ✅ 端到端已验证 | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
 | 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base | ✅ 限定范围 —— **仅执行冒烟验证**（准备 → 12 步 → 保存 → 重载 → 合成健全；无质量结论）。ROCm 端到端执行已验证。上游可移植性修复已作为 Qwen3-TTS PR #373 提交（OPEN）；当前已发布的 `qwen-tts==0.1.1` 仍需按文档使用临时变通方案（[文档](docs/finetuning-rocm.md#upstream-fix-status)） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · [`finetune-smoke-2026-09-20.json`](evidence/finetune-smoke-2026-09-20.json) · PR #373 验证链：[`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) · [`upstream-372-round-a-loads1.txt`](evidence/upstream-372-round-a-loads1.txt) · [`upstream-372-round-a-loads2.txt`](evidence/upstream-372-round-a-loads2.txt) · [`upstream-372-round-a-loads3.txt`](evidence/upstream-372-round-a-loads3.txt) · [`upstream-372-default-semantics.txt`](evidence/upstream-372-default-semantics.txt) · [`upstream-372-diff-audit.txt`](evidence/upstream-372-diff-audit.txt) |
@@ -152,7 +153,7 @@ CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集的是同样这 313 项 CPU �
 `[quality]` 附加组件的纯 `.[dev]` 环境中，另有 15 项**可见**跳过（12 项
 jiwer + 3 项 resemblyzer 质量基准测试；2026-09-21 声明审计将其由报错改为
 可见跳过 —— 此前 Task 14 未加保护的 `import jiwer` 曾使 CI 变红）。在实际
-ROCm 验证主机上该项也会执行，因此最终为 313 CPU + 38 GPU = 351 / 351
+ROCm 验证主机上该项也会执行，因此验证主机为 313 CPU + 40 GPU = 353 / 353（2026-09-24 起新增 2 项批量推理测试）
 全通过。本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415)，
 每个 Python job `251 passed, 1 skipped, 38 deselected`——于 2026-09-21 验证，
@@ -285,7 +286,7 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 351/351 全通过（313 CPU + 38 真机 GPU）；
+* **测试套件** —— 验证主机 353/353 全通过（313 CPU + 40 真机 GPU）；
   CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集同样这 313 项 CPU 测试，
   其中 1 项 HIP 门控跳过（纯 `.[dev]` 环境中另有上文所述 15 项 `[quality]`
   附加组件可见跳过；最近一次按规模实证绿灯的 CI 运行为 267-CPU 时期：
