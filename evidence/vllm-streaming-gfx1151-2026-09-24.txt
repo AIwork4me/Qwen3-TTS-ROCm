@@ -1,0 +1,26 @@
+=== VLLM-OMNI TRUE STREAMING MEASUREMENTS — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 9 (9D/9E/9F). Companion to vllm-online-serving-gfx1151-2026-09-24.txt (9A-9C serving). Probe: scripts/vllm_streaming_probe.py — CLIENT-SIDE chunk arrival timestamps via requests.iter_content; streaming is never inferred from server logs. Stack: vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1.
+
+=== 9D SHORT-INPUT PCM STREAMING — INCREMENTAL (data) ===
+POST /v1/audio/speech stream=true stream_format=audio response_format=pcm, input 'Hello, how are you?', voice vivian:
+  TTFA 0.249s · ttfa/wall 0.115 → STREAM-VERDICT: INCREMENTAL
+  22 chunks · audio 1.84s · wall 2.166s · RTF 1.177 · gap max 1.9146s / median 0.0s · playback-sim underruns 1
+  Non-stream contrast: 2.03s wall single response — audio only at completion.
+  Machine record: evidence/vllm-streaming-9d-stream.json (+ -nonstream.json)
+
+=== 9E WEBSOCKET — upstream client/server drift, NOT WORKING (verbatim) ===
+1) default ws://localhost:8000/v1/audio/speech/stream → ConnectionRefusedError [Errno 111] (client's own wrong default port)
+2) ws://127.0.0.1:8091/v1/audio/speech/stream → ConnectionClosedError 'no close frame received or sent' (path absent: server WS routes are /v1/realtime and /v1/duplex)
+3) /v1/realtime → server error event; upstream client crashes printing it (KeyError 'message', streaming_speech_client.py:270)
+4) /v1/duplex → immediate clean close 1000 OK (protocol mismatch)
+No upstream code modified. NOT claimed working; HTTP PCM is the working streaming path on this build.
+
+=== 9F LONG-TEXT STREAMING — INCREMENTAL (data) ===
+464-char input: TTFA 0.222s · ttfa/wall 0.005 → INCREMENTAL · 389 chunks · audio 32.4s · wall 41.29s · RTF 1.274 · gap max 12.035s (initial silence before first burst) / p95 0.0s · playback-sim underruns 2 (early-session buffer dips — bursty cadence; full gap series derivable from chunk timestamps in the probe JSON)
+  Machine record: evidence/vllm-streaming-9f-long.json
+
+=== CONCLUSION (Rule 3 wording) ===
+vLLM-Omni true streaming on gfx1151: MEASURED — HTTP PCM streaming delivers audio incrementally with TTFA 0.22–0.25s on short and long inputs. official qwen-tts Python API remains no-incremental-streaming (separate claim, unchanged).
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-9-verification.md

@@ -1,0 +1,10 @@
+{
+  "tag": "9D-nonstream",
+  "mode": "nonstream",
+  "input_chars": 19,
+  "task_type": "CustomVoice",
+  "total_wall_seconds": 7.832,
+  "response_bytes": 80684,
+  "content_type": "audio/wav",
+  "when_utc": "2026-09-24T16:33:17+00:00"
+}

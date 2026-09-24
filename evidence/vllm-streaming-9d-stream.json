@@ -1,0 +1,26 @@
+{
+  "tag": "9D-stream",
+  "mode": "stream",
+  "input_chars": 19,
+  "task_type": "CustomVoice",
+  "ttfa_seconds": 0.249,
+  "first_chunk_seconds": 0.249,
+  "chunk_count": 22,
+  "chunk_bytes_total": 88320,
+  "chunk_size_min": 2560,
+  "chunk_size_max": 4096,
+  "chunk_size_median": 4096.0,
+  "interchunk_gap_count": 21,
+  "interchunk_gap_median_s": 0.0,
+  "interchunk_gap_max_s": 1.9146,
+  "interchunk_gap_p95_s": 0.0,
+  "total_wall_seconds": 2.166,
+  "decoded_audio_seconds": 1.84,
+  "total_rtf_wall_over_audio": 1.177,
+  "ttfa_over_wall": 0.115,
+  "playback_sim": {
+    "underruns": 1,
+    "min_buffer_bytes": 0.0
+  },
+  "when_utc": "2026-09-24T16:33:19+00:00"
+}

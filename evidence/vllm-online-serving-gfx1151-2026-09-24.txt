@@ -1,0 +1,29 @@
+=== VLLM-OMNI ONLINE SERVING + TRUE STREAMING — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 9 (ladder 9A-9F). Stack: vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 (isolated .work-vllm/venv30). Server: upstream recipe command (vllm serve Qwen/<model> --deploy-config <packaged qwen3_tts.yaml> --omni --port 8091; packaged deploy config unmodified). Full logs: .work-vllm/task9-*.log + server-*.log.
+
+=== 9A CUSTOMVOICE NON-STREAMING SERVER — GREEN ===
+READY after ~135s (poll /v1/audio/voices → 200). Voices: aiden default dylan eric ono_anna ryan serena sohee uncle_fu vivian (+uploaded_voices empty). POST /v1/audio/speech (recipe smoke, vivian): 200, 23.25s, 80684B → evidence/vllm-online-wavs/9a-customvoice.wav (1.68s @24kHz rms 0.0980).
+
+=== 9B VOICEDESIGN SERVING — GREEN ===
+Restart VoiceDesign: READY ~135s. Request task_type=VoiceDesign instructions='A warm, friendly female voice': 200, 7.76s, 49964B → 9b-voicedesign.wav (1.04s @24kHz rms 0.1303).
+
+=== 9C BASE VOICE-CLONE SERVING — GREEN after 3 honest client-side iterations ===
+Inline ref_audio+ref_text finally green: 200, 88.82s, 311084B → 9c-base-clone.wav (6.48s @24kHz rms 0.1529). Iterations (all verbatim in logs): (1) inline b64 in shell curl hit ARG_MAX (request never sent); (2) raw-base64 ref_audio → 400 'ref_audio must be a URL (http/https), base64 data URL (data:...), or file URI (file://...)'; (3) file:// URI → 400 'Cannot load local files without --allowed-local-media-path'; (4) server restarted with the vLLM core flag --allowed-local-media-path → 200. Precomputed voice NOT tested (program: only after simple Base proven — proven here; ladder stopped per scope).
+
+=== 9D PCM STREAMING — TRUE INCREMENTAL STREAMING MEASURED (client-side timestamps; scripts/vllm_streaming_probe.py) ===
+stream=true stream_format=audio response_format=pcm, input 'Hello, how are you?':
+  TTFA 0.249s (ttfa/wall = 0.115 → STREAM-VERDICT: INCREMENTAL); 22 chunks; audio 1.84s; wall 2.166s; RTF 1.177; gap max 1.9146s / p95 0.0s; playback-sim underruns 1.
+  Non-stream contrast: 7.832s wall, 80684B — single response, no incremental delivery.
+
+=== 9E WEBSOCKET — UPSTREAM CLIENT/SERVER DRIFT, NOT WORKING (verbatim attempts) ===
+Upstream streaming_speech_client.py (verbatim at 7e5897b): default URL ws://localhost:8000/... → ConnectionRefused (wrong default port); ws://127.0.0.1:8091/v1/audio/speech/stream → ConnectionClosedError (path absent — server exposes /v1/realtime and /v1/duplex); /v1/realtime → server error event, the upstream client ITSELF crashes printing it (KeyError 'message' at line 270); /v1/duplex → immediate clean close 1000. No upstream code modified. NOT claimed as working; not a gfx1151-specific failure — the client targets a path this server build does not expose.
+
+=== 9F LONG-TEXT STREAMING — GREEN, incremental ===
+464-char input: TTFA 0.222s (ttfa/wall = 0.005 → INCREMENTAL); 389 chunks; audio 32.4s; wall 41.29s; RTF 1.274; gap max 12.035s (initial silence before first burst) / p95 0.0s; playback-sim underruns 2 (buffer dips early in the session — cadence is bursty, see probe JSON).
+
+=== PUBLIC WORDING (Rule 3) ===
+official qwen-tts Python API: NO true incremental streaming (unchanged; measured 2026-09-21).
+vLLM-Omni runtime on gfx1151: TRUE STREAMING MEASURED via HTTP PCM — TTFA 0.22–0.25s, incremental delivery confirmed from client-side chunk timestamps (never inferred from server logs).
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-9-verification.md (verifier must inspect actual client-side chunk timestamps)

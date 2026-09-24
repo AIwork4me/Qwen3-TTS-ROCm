@@ -344,6 +344,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **vLLM-Omni online serving + true streaming on gfx1151** (v0.2.1 Task 9,
+  2026-09-24): the upstream-recipe `vllm serve` path is E2E validated on
+  the current stack for all three 1.7B task families (CustomVoice
+  `/v1/audio/voices` + speech; VoiceDesign natural-language description;
+  Base inline clone — the latter after pinning the documented
+  `ref_audio` URL/data-URL/file-URI contract and
+  `--allowed-local-media-path`, three client-side iterations recorded
+  verbatim). **True streaming measured from the client side**: HTTP PCM
+  delivers incrementally with TTFA 0.249 s (short) / 0.222 s (464 chars);
+  chunk cadence + playback-underrun simulation recorded. The upstream
+  WebSocket example client does NOT work against this server build
+  (client/server route+protocol drift; verbatim evidence; not claimed).
+  New `scripts/vllm_streaming_probe.py`. Rule-3 wording enforced: the
+  qwen-tts Python API row still says no incremental streaming.
+
 - **vLLM-Omni current truth run** (v0.2.1 Task 8, 2026-09-24): the dated
   0.28.0 snapshot (2026-09-21, CustomVoice-only) superseded by the CURRENT
   stack — vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 + onnxruntime-rocm in a

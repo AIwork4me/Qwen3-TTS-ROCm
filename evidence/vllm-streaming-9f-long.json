@@ -1,0 +1,26 @@
+{
+  "tag": "9F-long-stream",
+  "mode": "stream",
+  "input_chars": 453,
+  "task_type": "CustomVoice",
+  "ttfa_seconds": 0.222,
+  "first_chunk_seconds": 0.222,
+  "chunk_count": 389,
+  "chunk_bytes_total": 1555200,
+  "chunk_size_min": 1792,
+  "chunk_size_max": 4096,
+  "chunk_size_median": 4096,
+  "interchunk_gap_count": 388,
+  "interchunk_gap_median_s": 0.0,
+  "interchunk_gap_max_s": 12.035,
+  "interchunk_gap_p95_s": 0.0,
+  "total_wall_seconds": 41.289,
+  "decoded_audio_seconds": 32.4,
+  "total_rtf_wall_over_audio": 1.274,
+  "ttfa_over_wall": 0.005,
+  "playback_sim": {
+    "underruns": 2,
+    "min_buffer_bytes": 0.0
+  },
+  "when_utc": "2026-09-24T16:34:00+00:00"
+}

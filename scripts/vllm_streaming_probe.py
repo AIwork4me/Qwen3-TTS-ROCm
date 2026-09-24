@@ -75,10 +75,10 @@ def build_body(args) -> dict:
             body["language"] = args.language
     elif args.task_type == "Base":
         if args.ref_audio_path:
-            import base64
-
-            with open(args.ref_audio_path, "rb") as f:
-                body["ref_audio"] = base64.b64encode(f.read()).decode()
+            # Upstream API contract (learned live in Task 9C, 400 verbatim):
+            # ref_audio must be a URL, data:...base64 URL, or file:// URI —
+            # raw base64 is rejected. file:// is the cleanest local form.
+            body["ref_audio"] = "file://" + str(args.ref_audio_path)
             if args.ref_text:
                 body["ref_text"] = args.ref_text
     if args.max_new_tokens:

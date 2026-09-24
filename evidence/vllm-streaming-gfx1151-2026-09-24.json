@@ -1,0 +1,50 @@
+{
+  "9D_short": {
+    "input": "Hello, how are you?",
+    "ttfa_s": 0.249,
+    "ttfa_over_wall": 0.115,
+    "verdict": "INCREMENTAL",
+    "chunks": 22,
+    "audio_s": 1.84,
+    "wall_s": 2.166,
+    "rtf": 1.177,
+    "gap_max_s": 1.9146,
+    "gap_p95_s": 0.0,
+    "sim_underruns": 1,
+    "json": "evidence/vllm-streaming-9d-stream.json"
+  },
+  "9D_nonstream_contrast": {
+    "tag": "9D-nonstream",
+    "mode": "nonstream",
+    "input_chars": 19,
+    "task_type": "CustomVoice",
+    "total_wall_seconds": 7.832,
+    "response_bytes": 80684,
+    "content_type": "audio/wav",
+    "when_utc": "2026-09-24T16:33:17+00:00"
+  },
+  "9F_long": {
+    "input_chars": 464,
+    "ttfa_s": 0.222,
+    "ttfa_over_wall": 0.005,
+    "verdict": "INCREMENTAL",
+    "chunks": 389,
+    "audio_s": 32.4,
+    "wall_s": 41.289,
+    "rtf": 1.274,
+    "gap_max_s": 12.035,
+    "gap_p95_s": 0.0,
+    "sim_underruns": 2,
+    "json": "evidence/vllm-streaming-9f-long.json"
+  },
+  "9E_websocket": {
+    "verdict": "UPSTREAM CLIENT/SERVER DRIFT \u2014 NOT WORKING on current build",
+    "attempts": [
+      "default ws://localhost:8000/v1/audio/speech/stream -> ConnectionRefused (wrong port default)",
+      "ws://127.0.0.1:8091/v1/audio/speech/stream -> ConnectionClosedError no close frame (path absent: server routes are /v1/realtime and /v1/duplex)",
+      "/v1/realtime -> server error event; upstream client itself crashes printing it (KeyError 'message' at streaming_speech_client.py:270)",
+      "/v1/duplex -> clean close 1000 immediately (protocol mismatch)"
+    ],
+    "note": "client fetched verbatim at 7e5897b; no upstream code modified; NOT a gfx1151-specific failure \u2014 HTTP PCM streaming is the working streaming path"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "meta": {
+    "date_utc": "2026-09-24T16:40:00Z",
+    "program": "v0.2.1 Task 9",
+    "stack": "vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 (isolated .work-vllm/venv30)",
+    "server": "vllm serve Qwen/<model> --deploy-config <packaged qwen3_tts.yaml> --omni --port 8091 (upstream recipe command; packaged deploy config unmodified)",
+    "models": "local models/ via HF_HOME symlinks",
+    "probe": "scripts/vllm_streaming_probe.py (client-side chunk timestamps)"
+  },
+  "serving": {
+    "9A_CustomVoice": {
+      "ready_seconds": 135,
+      "voices": [
+        "aiden",
+        "default",
+        "dylan",
+        "eric",
+        "ono_anna",
+        "ryan",
+        "serena",
+        "sohee",
+        "uncle_fu",
+        "vivian"
+      ],
+      "speech_http": 200,
+      "speech_wall_s": 23.25,
+      "wav": "evidence/vllm-online-wavs/9a-customvoice.wav",
+      "audio_s": 1.68,
+      "sr": 24000,
+      "rms": 0.098
+    },
+    "9B_VoiceDesign": {
+      "ready_seconds": 135,
+      "speech_http": 200,
+      "speech_wall_s": 7.76,
+      "wav": "evidence/vllm-online-wavs/9b-voicedesign.wav",
+      "audio_s": 1.04,
+      "sr": 24000,
+      "rms": 0.1303,
+      "request": "instructions='A warm, friendly female voice'"
+    },
+    "9C_Base_inline_clone": {
+      "ready_seconds": 60,
+      "speech_http": 200,
+      "speech_wall_s": 88.82,
+      "wav": "evidence/vllm-online-wavs/9c-base-clone.wav",
+      "audio_s": 6.48,
+      "sr": 24000,
+      "rms": 0.1529,
+      "iterations": [
+        "1) inline b64 in shell curl -> ARG_MAX (request never sent)",
+        "2) body via file, raw base64 ref_audio -> 400 'ref_audio must be a URL (http/https), base64 data URL (data:...), or file URI (file://...)'",
+        "3) file:// URI -> 400 'Cannot load local files without --allowed-local-media-path'",
+        "4) server restarted with vLLM core flag --allowed-local-media-path -> 200"
+      ],
+      "precomputed_voice": "not tested (program: only after simple Base request proven; inline proven here)"
+    }
+  },
+  "streaming": {
+    "9D_short": {
+      "input": "Hello, how are you?",
+      "ttfa_s": 0.249,
+      "ttfa_over_wall": 0.115,
+      "verdict": "INCREMENTAL",
+      "chunks": 22,
+      "audio_s": 1.84,
+      "wall_s": 2.166,
+      "rtf": 1.177,
+      "gap_max_s": 1.9146,
+      "gap_p95_s": 0.0,
+      "sim_underruns": 1,
+      "json": "evidence/vllm-streaming-9d-stream.json"
+    },
+    "9D_nonstream_contrast": {
+      "tag": "9D-nonstream",
+      "mode": "nonstream",
+      "input_chars": 19,
+      "task_type": "CustomVoice",
+      "total_wall_seconds": 7.832,
+      "response_bytes": 80684,
+      "content_type": "audio/wav",
+      "when_utc": "2026-09-24T16:33:17+00:00"
+    },
+    "9F_long": {
+      "input_chars": 464,
+      "ttfa_s": 0.222,
+      "ttfa_over_wall": 0.005,
+      "verdict": "INCREMENTAL",
+      "chunks": 389,
+      "audio_s": 32.4,
+      "wall_s": 41.289,
+      "rtf": 1.274,
+      "gap_max_s": 12.035,
+      "gap_p95_s": 0.0,
+      "sim_underruns": 2,
+      "json": "evidence/vllm-streaming-9f-long.json"
+    },
+    "9E_websocket": {
+      "verdict": "UPSTREAM CLIENT/SERVER DRIFT \u2014 NOT WORKING on current build",
+      "attempts": [
+        "default ws://localhost:8000/v1/audio/speech/stream -> ConnectionRefused (wrong port default)",
+        "ws://127.0.0.1:8091/v1/audio/speech/stream -> ConnectionClosedError no close frame (path absent: server routes are /v1/realtime and /v1/duplex)",
+        "/v1/realtime -> server error event; upstream client itself crashes printing it (KeyError 'message' at streaming_speech_client.py:270)",
+        "/v1/duplex -> clean close 1000 immediately (protocol mismatch)"
+      ],
+      "note": "client fetched verbatim at 7e5897b; no upstream code modified; NOT a gfx1151-specific failure \u2014 HTTP PCM streaming is the working streaming path"
+    }
+  },
+  "public_wording": {
+    "qwen_tts_python_api": "no true incremental streaming (unchanged, measured 2026-09-21)",
+    "vllm_omni": "true streaming MEASURED on gfx1151 via HTTP PCM: TTFA 0.22-0.25 s, incremental delivery confirmed by client-side chunk timestamps"
+  }
+}
