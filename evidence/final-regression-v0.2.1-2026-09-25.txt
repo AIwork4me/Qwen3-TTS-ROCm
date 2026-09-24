@@ -1,0 +1,10 @@
+=== v0.2.1 FINAL FULL REGRESSION — 2026-09-25T01:37:34+08:00 ===
+--- CPU suite ---
+317 passed, 40 deselected, 2 warnings in 16.90s
+--- GPU suite (all nodes) ---
+40 passed, 317 deselected, 5 warnings in 318.14s (0:05:18)
+--- ruff ---
+All checks passed!
+--- git HEAD ---
+72676c39dfd9e8c81c6b64ab49451c6265274825
+REGRESSION_DONE

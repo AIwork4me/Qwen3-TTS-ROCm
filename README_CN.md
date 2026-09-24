@@ -319,7 +319,7 @@ bash scripts/run_demo.sh
 | ROCm 环境自检 | — | ✅ |
 | ModelScope 优先下载器 | — | ✅ |
 | AMD iGPU 上的 RTF 基准证据 | — | ✅ |
-| 官方微调工作流（SFT）在 ROCm 上 | ✅（文档面向 CUDA + FlashAttention） | ✅ 限定为**仅执行验证（冒烟）**：数据准备 → 12 步训练 → checkpoint 保存 → 重载 → 合成通过健全性检查（不涉及音色相似度/收敛/质量结论）。ROCm 端到端执行已验证。上游可移植性修复已作为 Qwen3-TTS PR #373 提交（OPEN）——其验证链为：原始失败双重复现 → 最小修复受控隔离 → 3 次针对性加载验证 → 修复分支两次独立 E2E → 默认 `flash_attention_2` 语义保持 → 独立链路校验 PASS。在合并之前，当前已发布的 `qwen-tts==0.1.1` 仍需以下已披露的临时变通：上游硬编码的 `flash_attention_2` → `sdpa`，仅在 gitignored 的 `.upstream` 克隆内改动并已还原。详见 [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
+| 官方微调工作流（SFT）在 ROCm 上 | ✅（文档面向 CUDA + FlashAttention） | ✅ 限定为**仅执行验证（冒烟）**：数据准备 → 12 步训练 → checkpoint 保存 → 重载 → 合成通过健全性检查（不涉及音色相似度/收敛/质量结论）——1.7B Base（2026-09-20）与 0.6B Base（×2 次独立运行，2026-09-24）均已执行验证。ROCm 端到端执行已验证；开箱微调存在两个已披露的上游阻断项（PR #373 OPEN + 0.6B text-projection 缺失，见上方能力矩阵行）。上游可移植性修复已作为 Qwen3-TTS PR #373 提交（OPEN）——其验证链为：原始失败双重复现 → 最小修复受控隔离 → 3 次针对性加载验证 → 修复分支两次独立 E2E → 默认 `flash_attention_2` 语义保持 → 独立链路校验 PASS。在合并之前，当前已发布的 `qwen-tts==0.1.1` 仍需以下已披露的临时变通：上游硬编码的 `flash_attention_2` → `sdpa`，仅在 gitignored 的 `.upstream` 克隆内改动并已还原。详见 [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
 
 <a id="兼容性"></a>
 

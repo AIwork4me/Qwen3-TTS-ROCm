@@ -344,6 +344,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **v0.2.1 gfx1151 production closure** (2026-09-25): all ten program
+  tasks executed with independent verifier PASS (see
+  `docs/gfx1151-production-closure-v0.2.1.md` for the task-by-task table,
+  capability before/after, known gaps, and no-overclaim audit). Final
+  regression: **317 CPU + 40 GPU = 357/357 green, ruff clean**
+  (`evidence/final-regression-v0.2.1-2026-09-25.txt`). Release readiness:
+  READY pending the final release-verification subagent and the user's
+  explicit approval to tag/publish.
+
 - **vLLM-Omni concurrency characterization on gfx1151** (v0.2.1 Task 10,
   2026-09-25): new `scripts/vllm_concurrency_probe.py` measured 8-request
   short-prompt ladders (c=1,2,4,8) against the live CustomVoice server in
