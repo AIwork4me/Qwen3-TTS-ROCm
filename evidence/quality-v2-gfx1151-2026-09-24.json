@@ -1,0 +1,209 @@
+{
+  "meta": {
+    "date": "2026-09-24T13:52:03+00:00",
+    "git_head": "110701496188a54c2a4791fd4b6abba859cb0b18",
+    "manifest_version": "quality-v2-2026-09-24",
+    "asr": {
+      "model": "small",
+      "package": "openai-whisper",
+      "device": "cuda",
+      "probe": {
+        "clip": "ref_en.wav",
+        "transcript": "Buzzing",
+        "load_seconds": 166.5,
+        "transcribe_seconds": 2.3
+      }
+    },
+    "seed_base": 20260926,
+    "metric_provenance": {
+      "cer": "jiwer character error rate on normalize_cer_text (punct/ws-stripped, lowercased latin)",
+      "wer": "jiwer word error rate on normalize_wer_text (lowercased, punct-stripped)",
+      "speaker_sim": "resemblyzer VoiceEncoder embedding cosine (CPU), quality_eval.speaker_sim"
+    },
+    "claims_policy": [
+      "no composite quality score",
+      "no MOS claim",
+      "instruction/emotion adherence NOT objectively scored",
+      "v1 (whisper-tiny) scores never compared to v2 (whisper-small)"
+    ]
+  },
+  "results": [
+    {
+      "section": "languages",
+      "language": "Chinese",
+      "whisper_lang": "zh",
+      "metric": "CER",
+      "normalization": "normalize_cer_text",
+      "intended": "今天天气很好，我们去公园散步吧。",
+      "transcript": "今天天气很好,我们去公园散步吧。",
+      "error_rate": 0.0,
+      "audio_seconds": 2.72,
+      "seed": 20260926,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 4.1,
+      "wav": "evidence/quality-v2-wavs/lang_zh.wav"
+    },
+    {
+      "section": "languages",
+      "language": "English",
+      "whisper_lang": "en",
+      "metric": "WER",
+      "normalization": "normalize_wer_text",
+      "intended": "The weather is lovely today, perfect for a walk in the park.",
+      "transcript": "The weather is lovely today. Perfect for a walk in the park.",
+      "error_rate": 0.0,
+      "audio_seconds": 3.68,
+      "seed": 20260927,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 4.5,
+      "wav": "evidence/quality-v2-wavs/lang_en.wav"
+    },
+    {
+      "section": "languages",
+      "language": "Japanese",
+      "whisper_lang": "ja",
+      "metric": "CER",
+      "normalization": "normalize_cer_text",
+      "intended": "今日はいい天気ですね、公園を散歩しましょう。",
+      "transcript": "今日は良い天気ですね、公園を散歩しましょう",
+      "error_rate": 0.05,
+      "audio_seconds": 3.04,
+      "seed": 20260928,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 3.8,
+      "wav": "evidence/quality-v2-wavs/lang_ja.wav"
+    },
+    {
+      "section": "languages",
+      "language": "Korean",
+      "whisper_lang": "ko",
+      "metric": "CER",
+      "normalization": "normalize_cer_text",
+      "intended": "오늘 날씨가 정말 좋네요, 공원으로 산책 갑시다.",
+      "transcript": "오늘 날씨가 정말 좋네요. 공원으로 산책 갑시다.",
+      "error_rate": 0.0,
+      "audio_seconds": 4.08,
+      "seed": 20260929,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 5.0,
+      "wav": "evidence/quality-v2-wavs/lang_ko.wav"
+    },
+    {
+      "section": "languages",
+      "language": "German",
+      "whisper_lang": "de",
+      "metric": "WER",
+      "normalization": "normalize_wer_text",
+      "intended": "Das Wetter ist heute schön, lass uns im Park spazieren gehen.",
+      "transcript": "Das Wetter ist heute schon. Lessons in Park Pizzierengain.",
+      "error_rate": 0.5455,
+      "audio_seconds": 3.12,
+      "seed": 20260930,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 3.8,
+      "wav": "evidence/quality-v2-wavs/lang_de.wav"
+    },
+    {
+      "section": "languages",
+      "language": "French",
+      "whisper_lang": "fr",
+      "metric": "WER",
+      "normalization": "normalize_wer_text",
+      "intended": "Il fait très beau aujourd'hui, allons nous promener au parc.",
+      "transcript": "Il fait très beau aujourd'hui, allons nous promener au parc.",
+      "error_rate": 0.0,
+      "audio_seconds": 4.24,
+      "seed": 20260931,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 5.3,
+      "wav": "evidence/quality-v2-wavs/lang_fr.wav"
+    },
+    {
+      "section": "languages",
+      "language": "Russian",
+      "whisper_lang": "ru",
+      "metric": "CER",
+      "normalization": "normalize_cer_text",
+      "intended": "Сегодня прекрасная погода, давайте прогуляемся по парку.",
+      "transcript": "Сегодня прекрасная погода, давайте прогуляемся по парку.",
+      "error_rate": 0.0,
+      "audio_seconds": 3.2,
+      "seed": 20260932,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 4.0,
+      "wav": "evidence/quality-v2-wavs/lang_ru.wav"
+    },
+    {
+      "section": "languages",
+      "language": "Portuguese",
+      "whisper_lang": "pt",
+      "metric": "WER",
+      "normalization": "normalize_wer_text",
+      "intended": "O tempo está ótimo hoje, vamos dar um passeio no parque.",
+      "transcript": "O tempo está ótimo hoje. Vamos dar um passeio no parque.",
+      "error_rate": 0.0,
+      "audio_seconds": 3.52,
+      "seed": 20260933,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 4.4,
+      "wav": "evidence/quality-v2-wavs/lang_pt.wav"
+    },
+    {
+      "section": "languages",
+      "language": "Spanish",
+      "whisper_lang": "es",
+      "metric": "WER",
+      "normalization": "normalize_wer_text",
+      "intended": "Hoy hace muy buen tiempo, vamos a dar un paseo por el parque.",
+      "transcript": "Hoy hace muy buen tiempo. Vamos a dar un paseo por el parque.",
+      "error_rate": 0.0,
+      "audio_seconds": 4.16,
+      "seed": 20260934,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 5.2,
+      "wav": "evidence/quality-v2-wavs/lang_es.wav"
+    },
+    {
+      "section": "languages",
+      "language": "Italian",
+      "whisper_lang": "it",
+      "metric": "WER",
+      "normalization": "normalize_wer_text",
+      "intended": "Che bel tempo oggi, andiamo a fare una passeggiata al parco.",
+      "transcript": "Che bel tempo oggi! Andiamo a fare una passeggiata al parco!",
+      "error_rate": 0.0,
+      "audio_seconds": 3.2,
+      "seed": 20260935,
+      "model": "custom-voice (1.7B)",
+      "speaker": "aiden",
+      "generate_seconds": 3.9,
+      "wav": "evidence/quality-v2-wavs/lang_it.wav"
+    },
+    {
+      "section": "clone_similarity",
+      "metric": "resemblyzer cosine",
+      "similarities": {
+        "ref_vs_positive_a": 0.6619,
+        "ref_vs_positive_b": 0.6296,
+        "ref_vs_negative": 0.5776,
+        "positive_a_vs_positive_b": 0.6794,
+        "positive_a_vs_negative": 0.6001
+      },
+      "controls": {
+        "positive_a": "ref_en.wav via generate_voice_clone",
+        "positive_b": "ref_en.wav via generate_voice_clone (same reference, different text)",
+        "negative": "1.7B CustomVoice preset speaker (different speaker by construction)"
+      },
+      "note": "no universal threshold claimed — distributions only"
+    }
+  ]
+}

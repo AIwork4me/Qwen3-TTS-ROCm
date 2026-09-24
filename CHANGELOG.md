@@ -344,6 +344,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Quality benchmark v2** (v0.2.1 Task 7, 2026-09-24): all 10 official
+  languages scored for content correctness with whisper-small (GPU-probed
+  before use; never compared against v1's whisper-tiny numbers): 9/10 at
+  CER/WER 0.00–0.05, German 0.5455 recorded as an honest ASR-agreement
+  outlier. Clone speaker-similarity controls: positives 0.63–0.68 >
+  negatives 0.58–0.60, no thresholds claimed. New
+  `scripts/quality_eval_v2.py` + versioned manifest + `docs/quality-v2.md`
+  (explicitly documents what the metrics do NOT measure); 13 WAVs archived
+  under `evidence/quality-v2-wavs/`. No composite score, no MOS.
+
 - **0.6B Base fine-tuning execution validation** (v0.2.1 Task 6,
   2026-09-24): the disciplined fine-tuning protocol ran twice, fully
   independently, on Qwen3-TTS-12Hz-0.6B-Base — prep → 12 optimizer steps →

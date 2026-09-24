@@ -1,0 +1,30 @@
+=== QUALITY BENCHMARK V2 — gfx1151 — 2026-09-24 ===
+Program: v0.2.1 Task 7. Script: scripts/quality_eval_v2.py (commit 1107014), manifest tests/data/quality_v2_manifest.json (versioned quality-v2-2026-09-24, seed_base 20260926). WAVs archived at evidence/quality-v2-wavs/ (13 files).
+ASR: whisper-small (openai-whisper, device=cuda on gfx1151) — GPU probe BEFORE scoring: load 166.5 s (one-time checkpoint download), transcribe 2.3 s, probe transcript 'Buzzing' (the synthetic ref clip's true content — the probe proves the model RUNS, not that the clip has words). v1 evidence (2026-09-21) used whisper-tiny; scores are NEVER compared across ASR models.
+
+=== SECTION A — 10-LANGUAGE CONTENT CORRECTNESS (verbatim [qv2] lines) ===
+[qv2] ASR probe: model=small device=cuda load=166.5s transcribe=2.3s transcript='Buzzing'
+[qv2] Chinese    CER=0.0000 dur=2.72s gen=4.1s transcript='今天天气很好,我们去公园散步吧。'
+[qv2] English    WER=0.0000 dur=3.68s gen=4.5s transcript='The weather is lovely today. Perfect for a walk in the park.'
+[qv2] Japanese   CER=0.0500 dur=3.04s gen=3.8s transcript='今日は良い天気ですね、公園を散歩しましょう'
+[qv2] Korean     CER=0.0000 dur=4.08s gen=5.0s transcript='오늘 날씨가 정말 좋네요. 공원으로 산책 갑시다.'
+[qv2] German     WER=0.5455 dur=3.12s gen=3.8s transcript='Das Wetter ist heute schon. Lessons in Park Pizzierengain.'
+[qv2] French     WER=0.0000 dur=4.24s gen=5.3s transcript="Il fait très beau aujourd'hui, allons nous promener au parc."
+[qv2] Russian    CER=0.0000 dur=3.2s gen=4.0s transcript='Сегодня прекрасная погода, давайте прогуляемся по парку.'
+[qv2] Portuguese WER=0.0000 dur=3.52s gen=4.4s transcript='O tempo está ótimo hoje. Vamos dar um passeio no parque.'
+[qv2] Spanish    WER=0.0000 dur=4.16s gen=5.2s transcript='Hoy hace muy buen tiempo. Vamos a dar un paseo por el parque'
+
+=== SECTION B — CLONE SPEAKER-SIMILARITY CONTROLS ===
+[qv2] clone control positive_a: sim(ref, out)=0.6619
+[qv2] clone control positive_b: sim(ref, out)=0.6296
+[qv2] clone control negative: sim(ref, out)=0.5776
+[qv2] cross sims: a_vs_b=0.6794 a_vs_negative=0.6001
+
+=== OBSERVATIONS (measurements, not quality verdicts) ===
+1. 9/10 languages score 0.0000–0.0500 error rate (zh/ko/ru CER 0; en/fr/pt/es/it WER 0; ja CER 0.05). German WER 0.5455 is the outlier: whisper-small transcribed 'schön'→'schon', 'lass uns'→'Lessons', 'spazieren gehen'→'Pizzierengain' — an ASR-agreement measurement; whether the drift is TTS-side pronunciation, ASR-side weakness, or both is NOT established by this metric (see docs/quality-v2.md).
+2. Clone similarities (resemblyzer cosine): positives ref→positive_a 0.6619, ref→positive_b 0.6296, positive_a↔positive_b 0.6794; negatives ref→negative 0.5776, positive_a↔negative 0.6001. Positives exceed negatives in every pairing — directionally consistent with cloning; margins are small and NO universal threshold is claimed.
+3. What these metrics measure / do NOT measure: ASR error rates measure agreement between the transcript and intended text under a pinned ASR model + normalization; speaker_sim measures embedding cosine under resemblyzer. They do NOT measure human perceptual quality, naturalness, expressiveness, or instruction/emotion adherence (not objectively scored). No composite score. No MOS.
+4. Scope: 1.7B CustomVoice (languages) + 1.7B Base (clones) on this host/config, one render per cell (seeded); single-sample cells are measurements, not statistics.
+
+=== VERIFICATION ===
+Independent verifier report: docs/superpowers/reports/pc021-task-7-verification.md (verifier recomputes a sample of metrics from the raw WAVs)
