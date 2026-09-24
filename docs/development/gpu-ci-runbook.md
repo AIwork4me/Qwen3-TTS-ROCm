@@ -90,14 +90,15 @@ selects by file and `voice_clone` selects both clone files at once.
 | Upstream parity (official demo builds, executes via Gradio closures, one real synthesis) + tokenizer | step 1: `official_demo or tokenizer` | 6 | `test_official_demo_parity.py::test_upstream_blocks_constructed`, `::test_official_closure_executes_via_gradio_fns`, `::test_real_synthesis_through_upstream_callback`; `test_tokenizer_codec.py::test_metadata_getters_populated`, `::test_encode_decode_roundtrip_sane_and_duration_bound`; `test_loader_all_models.py::test_tokenizer_load` |
 | 1.7B + 0.6B CustomVoice | step 2: `custom_voice or voice_design or voice_clone` | 8 | `test_generate_custom_voice.py::{test_single, test_batch, test_instruct_changes_output, test_sampling_kwarg_passthrough_effect}` + `test_generate_custom_voice_06b.py::{test_single, test_batch, test_instruct_behavior, test_kwargs_passthrough}` |
 | VoiceDesign | step 2 (same expression) | 4 | `test_voice_design.py::{test_single_sane, test_batch_of_two_sane, test_two_instructions_both_sane_and_distinct, test_unsupported_language_raises_valueerror}` |
-| 1.7B + 0.6B Base clone, incl. reusable prompt | step 2 (same expression) | 10 | `test_voice_clone_workflow.py` + `test_voice_clone_06b.py`, each `::{test_clone_with_ref_text, test_clone_x_vector_only, test_create_prompt_reuse, test_save_load_roundtrip_parity, test_batch_clone}` |
+| 1.7B + 0.6B Base clone, incl. reusable prompt | step 2 (same expression) | 12 | `test_voice_clone_workflow.py` + `test_voice_clone_06b.py`, each `::{test_clone_with_ref_text, test_clone_x_vector_only, test_create_prompt_reuse, test_save_load_roundtrip_parity, test_batch_clone, test_batch_clone_with_reusable_prompt}` (the last one added 2026-09-24, v0.2.1 Task 3) |
 | Voice Studio workflow + demo backend (GPU side) | step 3: `voice_workflow` | 4 | `test_voice_workflow.py::{test_design_voice_creates_prompt_and_preview, test_reuse_across_two_sentences, test_save_load_roundtrip_then_reuse, test_official_schema_preserved}` |
 
-The three workflow steps (disjoint slices, 32 nodes total):
+The three workflow steps (disjoint slices, 34 nodes total since
+2026-09-24 — 32 before the two v0.2.1 Task 3 batch tests):
 
 1. `-k "official_demo or tokenizer"` → **6** nodes.
-2. `-k "custom_voice or voice_design or voice_clone"` → **22** nodes
-   (8 CustomVoice + 4 VoiceDesign + 10 clone).
+2. `-k "custom_voice or voice_design or voice_clone"` → **24** nodes
+   (8 CustomVoice + 4 VoiceDesign + 12 clone).
 3. `-k "voice_workflow"` → **4** nodes.
 
 Deliberately **not selected** by the nightly short suite (documented, never
