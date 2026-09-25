@@ -344,7 +344,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 (nothing yet)
 
-## [0.2.1] — 2026-09-25 — [gfx1151 Production Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/compare/v0.2.0...main) (program opened 2026-09-24; all ten tasks executed with independent verifier PASS; closure report: [`docs/gfx1151-production-closure-v0.2.1.md`](docs/gfx1151-production-closure-v0.2.1.md))
+## [0.2.1] — 2026-09-25 — [gfx1151 Production Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/compare/v0.2.0...v0.2.1) (program opened 2026-09-24; all ten tasks executed with independent verifier PASS; closure report: [`docs/gfx1151-production-closure-v0.2.1.md`](docs/gfx1151-production-closure-v0.2.1.md))
 
 **Release notes in brief:** the Radeon 8060S / gfx1151 reference deepens across every axis the v0.2.1 program named — GPU CI now has a green full-weekly run with persisted benchmark artifacts; Docker is GPU-runtime-validated end to end; official-API batch inference is characterized to B=8 on all five families; benchmark v2 brings n=5 seeded statistics with phase separation; long-text and 60-minute soak stability are evidenced; fine-tuning execution now covers BOTH the 1.7B and 0.6B Base checkpoints (with a second upstream defect root-caused and disclosed); quality evidence spans all 10 official languages; and the vLLM-Omni leg moves from a dated offline snapshot to the current stack with online serving, client-side-measured TRUE streaming (TTFA 0.22–0.25 s), and concurrency guidance — while the qwen-tts Python API keeps its honest no-streaming row and zero-upstream-patch semantics hold (pristine clone untouched; installed package byte-verified). Final regression 357/357 (317 CPU + 40 GPU), ruff clean.
 
