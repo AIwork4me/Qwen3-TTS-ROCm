@@ -314,11 +314,11 @@ bash scripts/run_demo.sh
 |---|---|---|
 | 官方 Qwen3-TTS API | ✅ | ✅（未修改） |
 | 官方模型权重 | ✅ | ✅（不再分发） |
-| gfx1151 ROCm 路径已验证 | — | ✅ |
+| ROCm 路径已验证（`gfx1151` iGPU、`gfx1100` dGPU） | — | ✅ |
 | 一条命令安装 ROCm 轮子 | — | ✅ |
 | ROCm 环境自检 | — | ✅ |
 | ModelScope 优先下载器 | — | ✅ |
-| AMD iGPU 上的 RTF 基准证据 | — | ✅ |
+| AMD iGPU + dGPU 上的 RTF 基准证据 | — | ✅ |
 | 官方微调工作流（SFT）在 ROCm 上 | ✅（文档面向 CUDA + FlashAttention） | ✅ 限定为**仅执行验证（冒烟）**：数据准备 → 12 步训练 → checkpoint 保存 → 重载 → 合成通过健全性检查（不涉及音色相似度/收敛/质量结论）——1.7B Base（2026-09-20）与 0.6B Base（×2 次独立运行，2026-09-24）均已执行验证。ROCm 端到端执行已验证；开箱微调存在两个已披露的上游阻断项（PR #373 OPEN + 0.6B text-projection 缺失，见上方能力矩阵行）。上游可移植性修复已作为 Qwen3-TTS PR #373 提交（OPEN）——其验证链为：原始失败双重复现 → 最小修复受控隔离 → 3 次针对性加载验证 → 修复分支两次独立 E2E → 默认 `flash_attention_2` 语义保持 → 独立链路校验 PASS。在合并之前，当前已发布的 `qwen-tts==0.1.1` 仍需以下已披露的临时变通：上游硬编码的 `flash_attention_2` → `sdpa`，仅在 gitignored 的 `.upstream` 克隆内改动并已还原。详见 [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
 
 <a id="兼容性"></a>
@@ -327,14 +327,18 @@ bash scripts/run_demo.sh
 
 | GPU / 平台 | 架构 | ROCm | 状态 | 证据 |
 |---|---|---|---|---|
-| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ 已验证 —— 唯一经过独立验证的配置 | [`evidence/`](evidence/README.md) |
+| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ 已验证 —— 参考配置（锁定 `device-gfx1151` 轮子） | [`evidence/`](evidence/README.md) |
+| Radeon Pro W7900D（48 GB） | `gfx1100` | 7.14.0 | ✅ 已验证 —— 锁定轮子栈，`install.sh` 仅把 extras 换为 `device-gfx1100`（317 CPU + 40 GPU 全绿；并在第二套栈上复现） | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) |
 | 其他 ROCm capable AMD GPU | — | — | 🧪 **尚未验证 —— 欢迎社区实测** | 提交 issue 并附上 `qwen3-tts-rocm-check` 输出 |
 
-loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都只追溯到上表这一
-个已验证配置。请勿臆断其他显卡能或不能用——非常欢迎其他 ROCm 硬件的实测
-反馈，验证后会在表中列出。注意：仓库自带 `scripts/install.sh` 是已验证的
-`gfx1151` 安装路径（锁定 `device-gfx1151` 轮子）；测试其他架构时，请使用
-对应的 ROCm PyTorch 栈，并在验证报告中记录完整安装方式。
+loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都只追溯到上表已
+验证的配置。请勿臆断其他显卡能或不能用——非常欢迎其他 ROCm 硬件的实测
+反馈，验证后会在表中列出。注意：仓库自带 `scripts/install.sh` 锁定的是已
+验证的 `gfx1151` 安装路径（`device-gfx1151` 轮子）；`gfx1100` 的验证仅在
+同一脚本中把 extras 换为 `device-gfx1100`
+（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) 内含完整安装
+命令与两套栈的 diff）；测试更多架构时，请使用对应的 ROCm PyTorch 栈，并在
+验证报告中记录完整安装方式。
 
 **在其他 AMD GPU 上跑通了？[提交硬件验证报告](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)**——只收实测结果，验证后兼容性矩阵随你扩展。
 
@@ -343,6 +347,9 @@ loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都�
 在 Ryzen AI Max+ PRO 395、bfloat16/sdpa、短句与中等长度文本、上限
 `max_new_tokens=512` 条件下实测的**中位 RTF**——*每生成一秒音频消耗的实际
 秒数，越低越好*。RTF 1.3 的含义是：生成 1 秒音频约消耗 1.3 秒计算时间。
+在 Radeon Pro W7900D（`gfx1100`，ROCm 7.14.0 锁定轮子栈）上，同一套件实测
+中位 RTF 为 1.18–1.43（v1）与 1.14–1.22（v2）——完整表格与 JSON 见
+[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)。
 
 | 工作负载 | 中位 RTF |
 |---|---:|
@@ -489,8 +496,9 @@ python -m pytest -m "gpu" -q                  # 40 项 GPU 测试（需权重）
 * **网络** —— 需可达 ModelScope（`modelscope.cn`）；`huggingface.co` 被阻断
   时回退传输自动改走 `hf-mirror.com`。记录中的验证主机在中国大陆网络下全程
   免 VPN 完成了全部下载——其他网络环境可能有差异。
-* **GPU** —— 仅在 `gfx1151` 上验证过（见[兼容性](#兼容性)）；需要 `amdgpu`
-  DRM 驱动正常工作，且能访问 `/dev/kfd` + `/dev/dri`（`render`/`video` 组）。
+* **GPU** —— 已在 `gfx1151` 与 `gfx1100` 上验证过（见[兼容性](#兼容性)）；
+  需要 `amdgpu` DRM 驱动正常工作，且能访问 `/dev/kfd` + `/dev/dri`
+  （`render`/`video` 组）。
 * **内存** —— 我们会话中驻留的 1.7B 模型（bf16）占用统一内存池约 4.6 GiB；
   更小内存机器的最低要求**未经实测**。共享统一内存池上，关闭吃内存的桌面
   应用可获得更好 RTF。
