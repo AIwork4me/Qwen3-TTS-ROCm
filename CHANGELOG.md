@@ -342,7 +342,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-(nothing yet)
+### Added
+
+- Compatibility matrix: `gfx1100` (Radeon Pro W7900D, 48 GB, ROCm 7.14.0)
+  joins `gfx1151` as an independently validated configuration — pinned wheel
+  stack with only the `device-gfx1100` extras swap in `scripts/install.sh`;
+  full suite green on the validated host (317 CPU + 40 GPU; v0.2.1 @
+  `39236a7`), replicated on a second stack, both benchmark suites completed
+  (median RTF 1.18–1.43 v1 / 1.14–1.22 v2). Evidence attached to
+  [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1); README,
+  README_CN, and the evidence-index pointer updated to match (the
+  "only validated configuration" phrasing retired everywhere).
 
 ## [0.2.1] — 2026-09-25 — [gfx1151 Production Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/compare/v0.2.0...v0.2.1) (program opened 2026-09-24; all ten tasks executed with independent verifier PASS; closure report: [`docs/gfx1151-production-closure-v0.2.1.md`](docs/gfx1151-production-closure-v0.2.1.md))
 

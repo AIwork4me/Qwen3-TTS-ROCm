@@ -147,3 +147,11 @@ audit, Task 16):
   RTFs drift with thermals and background load on unified memory.
 * Historical transcripts may reference internal task numbers or pre-remote
   workflow states; those were accurate at recording time and are kept verbatim.
+* `gfx1100` (Radeon Pro W7900D) validation evidence (2026-09-28) lives
+  outside this directory: the full package — verbatim tee transcripts for
+  two complete stacks (pinned `device-gfx1100` extras wheel stack primary,
+  TheRock/torch-2.14 substitute secondary), four benchmark JSONs, both
+  install diffs, pip freezes and a `SHA256SUMS` manifest — is attached to
+  [issue #1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)
+  (`evidence-gfx1100-2026-09-28.tar.gz`, sha256 `9a411842…f2ef`), produced
+  under the same append-only, no-hand-edit discipline.

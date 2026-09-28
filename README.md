@@ -350,11 +350,11 @@ demo UI. Not a fork; no vendored or patched upstream source, ever.
 |---|---|---|
 | Official Qwen3-TTS APIs | ✅ | ✅ (unmodified) |
 | Official model weights | ✅ | ✅ (not redistributed) |
-| gfx1151 ROCm path validated | — | ✅ |
+| ROCm paths validated (`gfx1151` iGPU, `gfx1100` dGPU) | — | ✅ |
 | One-command ROCm wheel install | — | ✅ |
 | ROCm environment self-check | — | ✅ |
 | ModelScope-first downloader | — | ✅ |
-| RTF benchmark evidence on AMD iGPU | — | ✅ |
+| RTF benchmark evidence on AMD iGPU + dGPU | — | ✅ |
 | Official fine-tuning workflow (SFT) on ROCm | ✅ (CUDA + FlashAttention docs) | ✅ scoped — **execution-only smoke** (prep → 12 steps → checkpoint save → reload → sane synthesis; no quality/convergence claims) on BOTH 1.7B Base (2026-09-20) and 0.6B Base (×2 independent runs, 2026-09-24). ROCm E2E execution proven; two disclosed upstream blockers for out-of-the-box fine-tuning (PR #373 OPEN + the 0.6B text-projection omission — see the capability row above). Upstream portability fix submitted as Qwen3-TTS PR #373 (OPEN) — validated by a pristine double reproduction of the failure, a minimal-fix controlled isolation, 3× targeted loader validations, two independent E2E runs from the fix branch, preserved default `flash_attention_2` semantics, and an independent chain-verifier PASS. Until it merges, current published `qwen-tts==0.1.1` still requires the documented temporary workaround: upstream's hard-coded `flash_attention_2` → `sdpa`, applied inside a gitignored clone, restored pristine. See [`docs/finetuning-rocm.md`](docs/finetuning-rocm.md) |
 
 <a id="compatibility"></a>
@@ -363,16 +363,20 @@ demo UI. Not a fork; no vendored or patched upstream source, ever.
 
 | GPU / Platform | Arch | ROCm | Status | Evidence |
 |---|---|---|---|---|
-| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ Verified — the only independently validated configuration | [`evidence/`](evidence/README.md) |
+| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ Verified — reference configuration (pinned `device-gfx1151` wheels) | [`evidence/`](evidence/README.md) |
+| Radeon Pro W7900D (48 GB) | `gfx1100` | 7.14.0 | ✅ Verified — pinned wheel stack with only the `device-gfx1100` extras swap in `install.sh` (317 CPU + 40 GPU green; replicated on a second stack) | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) |
 | Other ROCm-capable AMD GPUs | — | — | 🧪 **Not yet validated — community testing wanted** | open an issue with your `qwen3-tts-rocm-check` output |
 
 The loader's HIP defaults are generic, but every number and claim in this
-repository traces to the one validated configuration above. Please don't
+repository traces to the validated configurations above. Please don't
 assume other cards work (or don't) — reports from other ROCm hardware are
 very welcome and will be listed here. Note that the bundled
-`scripts/install.sh` is the validated `gfx1151` path (pinned
-`device-gfx1151` wheels); for other architectures, use an appropriate ROCm
-PyTorch stack and report the exact install method in your validation report.
+`scripts/install.sh` pins the validated `gfx1151` path (`device-gfx1151`
+wheels); `gfx1100` is validated with the same script changing only the
+extras to `device-gfx1100` ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) —
+exact commands and both stack diffs are in that report); for further
+architectures, use an appropriate ROCm PyTorch stack and report the exact
+install method in your validation report.
 
 **Tested another AMD GPU? [Submit a hardware validation report](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)** — measured results only, and the matrix grows.
 
@@ -381,7 +385,10 @@ PyTorch stack and report the exact install method in your validation report.
 Measured median **RTF** — *wall-clock seconds per second of generated audio;
 lower is better* — on Ryzen AI Max+ PRO 395, bfloat16/sdpa, short/medium
 texts, capped at `max_new_tokens=512`. RTF 1.3 means roughly 1.3 seconds of
-compute for 1 second of audio.
+compute for 1 second of audio. On Radeon Pro W7900D (`gfx1100`, ROCm 7.14.0
+pinned wheel stack) the same suites measured median RTF 1.18–1.43 (v1) and
+1.14–1.22 (v2) — full tables and JSONs in
+[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1).
 
 | Workload | Median RTF |
 |---|---:|
@@ -558,7 +565,7 @@ required"):
   `huggingface.co` is blocked the fallback routes via `hf-mirror.com`. The
   recorded validation host completed all downloads from a CN network without
   a VPN — other networks may vary.
-* **GPU** — validated only on `gfx1151` (see
+* **GPU** — validated on `gfx1151` and `gfx1100` (see
   [Compatibility](#compatibility)); a working `amdgpu` DRM driver and
   `/dev/kfd` + `/dev/dri` access are required (`render`/`video` groups).
 * **Memory** — a loaded 1.7B model (bf16) used ~4.6 GiB of the unified pool
