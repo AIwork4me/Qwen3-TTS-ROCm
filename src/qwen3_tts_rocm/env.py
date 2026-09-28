@@ -11,6 +11,8 @@ from __future__ import annotations
 import os
 from dataclasses import dataclass, field
 
+from . import gfx
+
 __all__ = [
     "GTT_HINT",
     "EnvReport",
@@ -26,8 +28,6 @@ _AMD_ROCM_INDEX = "https://repo.amd.com/rocm/whl-multi-arch/"
 
 GTT_HINT = ("If generation hits out-of-memory on unified-memory APUs, consider lowering "
             "max_new_tokens or switching to a 0.6B model.")
-
-_ARCHS_KNOWN_APU = {"gfx1150", "gfx1151"}  # Strix family APUs / iGPUs
 
 
 @dataclass
@@ -158,13 +158,16 @@ def collect() -> EnvReport:
     except OSError as exc:  # pragma: no cover - exotic platforms
         report.warnings.append(f"WARN: could not stat /dev/kfd (无法读取 /dev/kfd): {exc}")
 
-    # HSA_OVERRIDE_GFX_VERSION workarounds break more than they help on gfx1151.
+    # HSA_OVERRIDE_GFX_VERSION workarounds break more than they help on the
+    # validated targets of this project (gfx1100, gfx1151) on ROCm 7.x.
     override = os.environ.get("HSA_OVERRIDE_GFX_VERSION")
     if override:
         report.warnings.append(
-            f'WARN: HSA_OVERRIDE_GFX_VERSION="{override}" is set, but gfx1151 needs NO '
-            "override on ROCm 7.x — remove it to avoid mis-targeted code objects "
-            "(gfx1151 在新版 ROCm 上无需设置 HSA_OVERRIDE_GFX_VERSION，建议取消)."
+            f'WARN: HSA_OVERRIDE_GFX_VERSION="{override}" is set, but the validated '
+            "targets of this project (gfx1100, gfx1151) need NO override on ROCm 7.x "
+            "— remove it to avoid mis-targeted code objects "
+            "(已验证的目标架构（gfx1100/gfx1151）在 ROCm 7.x 上无需设置 "
+            "HSA_OVERRIDE_GFX_VERSION，建议取消)."
         )
 
     # CUDA_VISIBLE_DEVICES applies to ROCm/HIP too (对该变量提示其同样生效).
@@ -177,13 +180,16 @@ def collect() -> EnvReport:
 
     # Unified-memory APU/iGPU: OOM risk factors are structural, so always advise.
     # Requires at least one enumerated GPU (all()/any() over empty lists would
-    # otherwise fabricate an APU verdict when cuda reports OK but probes find none).
+    # otherwise fabricate an APU verdict when cuda reports OK but probes find
+    # none). Arch-first classification: gfx115x parts are APUs; a gfx1100-class
+    # discrete GPU with dedicated VRAM (W7900D reports the marketing name
+    # "AMD Radeon Graphics") must NOT be misread as an APU by its name — the
+    # name heuristic only applies when the arch is genuinely unavailable.
     try:
-        is_apu = bool(gpus) and (
-            any(
-                (g.arch or "").lower() in _ARCHS_KNOWN_APU or "graphics" in g.name.lower()
-                for g in gpus
-            ) or all("radeon graphics" in g.name.lower() for g in gpus)
+        is_apu = bool(gpus) and any(
+            gfx.is_apu_arch(g.arch)
+            or (g.arch is None and "radeon graphics" in g.name.lower())
+            for g in gpus
         )
         if is_apu:
             report.warnings.append(
@@ -253,6 +259,11 @@ def rocm_check(verbose: bool = True) -> EnvReport:
         f"可见 GPU {len(report.gpus)} 块，警告 {n_warn} 条，"
         f"提示 {n_info} 条，错误 {n_err} 条。"
     )
+    # Architecture validation-state classification (one line per DISTINCT
+    # visible arch): validated (current) vs historically validated (gfx1151:
+    # evidence predates v0.3, not rerun during v0.3) vs not validated.
+    for seen_arch in dict.fromkeys(g.arch for g in report.gpus if g.arch):
+        print(gfx.classification_line(seen_arch))
     # Generic docs pointer, printed ONCE after the summary rather than tacked
     # onto every line (UX-fix U2: 排障文档统一指向，避免刷屏).
     print("→ 更多排障步骤: docs/troubleshooting.md (more: troubleshooting guide)")
