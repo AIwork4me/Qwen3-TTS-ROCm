@@ -5,9 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
-
-### Added (v0.3 — gfx1100 first-class Radeon reference closure; in progress)
+## [0.3.0] - 2026-09-29 — gfx1100 First-Class Radeon Reference Closure (all eighteen v0.3 tasks executed with independent verifier PASS; closure report: [`docs/v0.3-gfx1100-reference-closure.md`](docs/v0.3-gfx1100-reference-closure.md))
 
 - **Multi-architecture support contract** (v0.3 Tasks 1–5): `gfx1100` and
   `gfx1151` are both first-class, evidence-backed wheel targets
