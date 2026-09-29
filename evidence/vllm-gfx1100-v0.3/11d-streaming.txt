@@ -1,0 +1,27 @@
+=== 11D: HTTP PCM true streaming (client-side timestamps) ===
+--- mode=stream (short input) ---
+  "ttfa_over_wall": 1.0,
+  "playback_sim": {
+    "underruns": 0,
+    "min_buffer_bytes": 0.0
+  },
+  "when_utc": "2026-09-29T07:16:44+00:00"
+}
+STREAM-VERDICT: NOT-INCREMENTAL (ttfa/wall=1.0)
+--- mode=nonstream (short input) ---
+  "mode": "nonstream",
+  "input_chars": 25,
+  "task_type": "CustomVoice",
+  "total_wall_seconds": 14.287,
+  "response_bytes": 111404,
+  "content_type": "audio/wav",
+  "when_utc": "2026-09-29T07:16:59+00:00"
+}
+  "total_wall_seconds": 137.117,
+  "decoded_audio_seconds": 81.92,
+  "total_rtf_wall_over_audio": 1.674,
+  "ttfa_over_wall": 0.022,
+    "underruns": 40,
+STREAM-VERDICT: INCREMENTAL (ttfa/wall=0.022)
+11d-stream.json | wall 10.496 | ttfa 10.495 | chunks 20 | audio_s 1.68 | underruns 0
+11d-long.json | wall 137.117 | ttfa 3.032 | chunks 983 | audio_s 81.92 | underruns 40

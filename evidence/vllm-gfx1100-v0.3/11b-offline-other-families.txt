@@ -1,0 +1,8 @@
+=== 11B cont.: VoiceDesign family ===
+05:39:48
+vd_rc=0
+05:42:06
+=== 11B cont.: Base (clone) family ===
+05:42:06
+base_rc=124
+06:22:06

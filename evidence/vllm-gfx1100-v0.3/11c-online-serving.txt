@@ -1,0 +1,9 @@
+=== 11C: online serving on gfx1100 ===
+--- GET /v1/audio/voices ---
+http=200 time=0.001718s
+{"voices":["aiden","dylan","eric","ono_anna","ryan","serena","sohee","uncle_fu","vivian"]}
+--- POST /v1/audio/speech (non-streaming) ---
+07:15:21
+http=200 time=30.795821s size=268844
+07:15:52
+/workspace/evidence-gfx1100-v0.3/vllm/vllm-online-gen.wav: RIFF (little-endian) data, WAVE audio, Microsoft PCM, 16 bit, mono 24000 Hz

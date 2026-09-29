@@ -1,0 +1,26 @@
+{
+  "tag": "",
+  "mode": "stream",
+  "input_chars": 300,
+  "task_type": "CustomVoice",
+  "ttfa_seconds": 3.032,
+  "first_chunk_seconds": 3.032,
+  "chunk_count": 983,
+  "chunk_bytes_total": 3932160,
+  "chunk_size_min": 1792,
+  "chunk_size_max": 4096,
+  "chunk_size_median": 4096,
+  "interchunk_gap_count": 982,
+  "interchunk_gap_median_s": 0.0,
+  "interchunk_gap_max_s": 20.9494,
+  "interchunk_gap_p95_s": 0.0,
+  "total_wall_seconds": 137.117,
+  "decoded_audio_seconds": 81.92,
+  "total_rtf_wall_over_audio": 1.674,
+  "ttfa_over_wall": 0.022,
+  "playback_sim": {
+    "underruns": 40,
+    "min_buffer_bytes": 0.0
+  },
+  "when_utc": "2026-09-29T07:19:26+00:00"
+}

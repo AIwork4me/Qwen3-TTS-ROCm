@@ -1,0 +1,20 @@
+79c79
+<     model_name = "Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+---
+>     model_name = "/workspace/repo/models/Qwen3-TTS-12Hz-1.7B-CustomVoice"
+134c134
+<     model_name = "Qwen/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
+---
+>     model_name = "/workspace/repo/models/Qwen3-TTS-12Hz-1.7B-VoiceDesign"
+194,195c194,201
+<     model_name = "Qwen/Qwen3-TTS-12Hz-1.7B-Base"
+<     ref_audio_path_1 = "https://qianwen-res.oss-cn-beijing.aliyuncs.com/Qwen3-TTS-Repo/clone_2.wav"
+---
+>     model_name = "/workspace/repo/models/Qwen3-TTS-12Hz-1.7B-Base"
+>     # v0.3 gfx1100 deviation (2nd): the 0.16.0 worker refuses http(s) ref_audio
+>     # ("must be resolved by the serving layer"); embed the repo's own
+>     # self-generated reference clip as a base64 data URI (accepted path).
+>     import base64 as _b64
+>     with open("/workspace/repo/.work-finetune/data/ref_speaker.wav", "rb") as _f:
+>         _wav_b = _f.read()
+>     ref_audio_path_1 = "data:audio/wav;base64," + _b64.b64encode(_wav_b).decode()

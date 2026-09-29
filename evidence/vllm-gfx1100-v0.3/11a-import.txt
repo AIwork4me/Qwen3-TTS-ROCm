@@ -1,0 +1,4 @@
+=== 11A: vLLM stack gfx1100 feasibility (system AMD lab build; wheels.vllm.ai BLOCKED by env proxy — see status doc) ===
+vllm 0.16.1.dev0+g89a77b108.d20260317 | torch 2.9.1+gitff65f5b | hip 7.2.53211-e1a6bc5663
+platform: RocmPlatform | capability: DeviceCapability(major=11, minor=0)
+gpu: AMD Radeon Graphics gfx1100

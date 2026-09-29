@@ -1,0 +1,14 @@
+=== 11E: concurrency ladder (c=1,2,4,8 x 8 short requests; default config) ===
+07:19:49
+[conc] level=1 tag=gfx1100-default ...
+[conc] level=1: ok=8/8 ttfa_p50=3.041 ttfa_p95=8.683 e2e_p50=8.452 audio/wall=0.269 req/min=5.79 peak_vram=15.88
+[conc] level=2 tag=gfx1100-default ...
+[conc] level=2: ok=8/8 ttfa_p50=4.734 ttfa_p95=21.199 e2e_p50=18.568 audio/wall=0.317 req/min=6.71 peak_vram=15.88
+[conc] level=4 tag=gfx1100-default ...
+[conc] level=4: ok=8/8 ttfa_p50=8.693 ttfa_p95=16.436 e2e_p50=11.417 audio/wall=0.379 req/min=8.55 peak_vram=15.97
+[conc] level=8 tag=gfx1100-default ...
+[conc] level=8: ok=8/8 ttfa_p50=16.359 ttfa_p95=36.095 e2e_p50=17.688 audio/wall=0.431 req/min=9.04 peak_vram=16.11
+[conc] wrote /workspace/evidence-gfx1100-v0.3/vllm/11e-concurrency.json
+CONCURRENCY-PROBE-DONE
+probe_rc=0
+07:24:16
