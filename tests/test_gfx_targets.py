@@ -290,13 +290,6 @@ def _run_verify_simulated(arch: str, target_env: str, tmp_path):
     The child imports the REAL ``qwen3_tts_rocm.gfx`` contract and exercises
     the exact verify logic against the fake stack — CODE LOGIC ONLY."""
 
-    class _Finite:
-        def __matmul__(self, other):
-            return _FiniteResult()
-
-    class _FiniteResult(_Finite):
-        pass
-
     preamble = f'''
 import sys, types
 sys.path.insert(0, {str(REPO / "src")!r})
