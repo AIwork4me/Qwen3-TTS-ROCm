@@ -360,6 +360,34 @@ def test_verify_gpu_mismatch_message_is_configuration_error(tmp_path):
     assert "not a validation" in proc.stderr
 
 
+# --- Docker build-time architecture contract (Task 5) ------------------------
+
+
+def test_dockerfile_build_arg_contract():
+    text = (REPO / "docker" / "Dockerfile").read_text(encoding="utf-8")
+    assert "ARG QWEN3_TTS_ROCM_GFX_TARGET" in text
+    # forwarded verbatim to install.sh (no duplicated pip lines in the image)
+    assert '--gfx-target "${QWEN3_TTS_ROCM_GFX_TARGET}"' in text
+    assert "whl-multi-arch" not in text  # wheel logic stays in install.sh
+    assert "device-gfx11" not in text    # no hard-coded extras in the image
+
+
+def test_dockerfile_oci_metadata_is_multiarch():
+    text = (REPO / "docker" / "Dockerfile").read_text(encoding="utf-8")
+    desc = re.search(r'org\.opencontainers\.image\.description="([^"]+)"', text)
+    assert desc, "OCI description label missing"
+    assert "gfx1100" in desc.group(1) and "gfx1151" in desc.group(1)
+    # gfx1151-ONLY wording (the pre-v0.3 label) must not be the whole story
+    assert "gfx1100" in desc.group(1)
+
+
+def test_docker_readme_documents_both_targets():
+    text = (REPO / "docker" / "README.md").read_text(encoding="utf-8")
+    assert "--build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1100" in text
+    assert "--build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1151" in text
+    assert "fail-closed" in text or "fails the build" in text
+
+
 # --- gfx1151 branch regression (audit companion, Task 7) ---------------------
 
 

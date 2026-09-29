@@ -1,4 +1,4 @@
-# Docker for Qwen3-TTS-ROCm (ROCm / gfx1151)
+# Docker for Qwen3-TTS-ROCm (ROCm / gfx1100 · gfx1151)
 
 Everything about running the project in a container lives here on purpose —
 `README.md` / `README_CN.md` stay short and freeze review state.
@@ -6,22 +6,40 @@ Everything about running the project in a container lives here on purpose —
 ## Build
 
 The build context is the **repo root** (`install.sh` needs the whole tree),
-so pass `-f` explicitly:
+so pass `-f` explicitly. The architecture is a **build-time argument** — a
+build layer has no GPU, so auto-detection cannot run there and the target
+must be passed explicitly (both validated targets work identically):
 
 ```bash
-docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
+# gfx1100 (Radeon Pro W7900D class — validated in v0.3)
+docker build -f docker/Dockerfile \
+    --build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1100 \
+    -t qwen3-tts-rocm:gfx1100 .
+
+# gfx1151 (Radeon 8060S class — historically validated; see README compat table)
+docker build -f docker/Dockerfile \
+    --build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1151 \
+    -t qwen3-tts-rocm:gfx1151 .
 ```
 
 Expect roughly 10–25 minutes: inside an image layer, `scripts/install.sh`
 downloads the pinned AMD ROCm torch wheel stack (≈ 2 GB of wheels, per the
-archived build log) from `repo.amd.com`, exactly like a bare-metal host does.
-The pip logic is not duplicated in the Dockerfile — it *calls*
-`scripts/install.sh`.
+archived build log) from `repo.amd.com`, exactly like a bare-metal host does
+(only the device extras differ per target). The pip logic is not duplicated
+in the Dockerfile — it *calls* `scripts/install.sh --gfx-target …`. An
+unset, invalid, or `auto` target fails the build immediately inside
+`install.sh` (fail-closed; `auto` can never work in a GPU-less build layer).
+
+> GPU-runtime evidence status: the archived in-container E2E validation
+> (2026-09-24) covers **gfx1151** (historical; the then-validation host).
+> The gfx1100 image path is exercised in v0.3 — see the GPU runtime
+> validation section below.
 
 ## Run with GPU passthrough
 
-gfx1151 APUs expose themselves through `/dev/kfd` + `/dev/dri`; give the
-container access and the right supplementary groups:
+AMD GPUs (gfx1151 APUs and gfx1100-class discrete cards alike) expose
+themselves through `/dev/kfd` + `/dev/dri`; give the container access and
+the right supplementary groups (tag per the image you built):
 
 ```bash
 docker run --rm \
@@ -77,10 +95,10 @@ docker run --rm --entrypoint bash qwen3-tts-rocm:dev \
     -c 'exec bash scripts/run_demo.sh --device cpu --dtype float32'
 ```
 
-## GPU runtime validation (state: E2E validated 2026-09-24, v0.2.1 Task 2)
+## GPU runtime validation — gfx1151 (state: E2E validated 2026-09-24, v0.2.1 Task 2 — HISTORICAL)
 
 A fresh `--no-cache` image built at a known HEAD proved the complete GPU
-synthesis path inside the container on the validation host (Radeon 8060S /
+synthesis path inside the container on the then-validation host (Radeon 8060S /
 gfx1151): ROCm torch 2.12.0+rocm7.14.0 / HIP 7.14.60850 / gfx1151
 diagnostics, finite bf16 matmul + SDPA, torchaudio import,
 `loader.load("custom-voice-0.6b")` against the mounted models tree, one
@@ -88,7 +106,8 @@ official-API synthesis (3.84 s of audio @ 24 kHz, RMS 0.0909, WAV written
 via soundfile), and a 4-node GPU pytest slice (`pytest -m gpu
 tests/test_generate_custom_voice_06b.py`, 4 passed in 38.33 s). The probe
 is `scripts/docker_gpu_e2e.py`, embedded in the image at build time so the
-image's own copy is what runs:
+image's own copy is what runs (pass `--expect-arch` per target — the
+script's gfx1100 runs use `--expect-arch gfx1100`):
 
 ```bash
 docker run --rm --device /dev/kfd --device /dev/dri \

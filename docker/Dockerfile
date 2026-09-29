@@ -3,11 +3,21 @@
 # round-trip for the frontend image before anything else runs (fine upstream,
 # fatal offline). Only classic Dockerfile features are used.
 # =============================================================================
-# Qwen3-TTS-ROCm — container image (AMD ROCm / gfx1151 focused).
+# Qwen3-TTS-ROCm — container image (AMD ROCm; gfx1100 / gfx1151 targets).
 #
-# Build (from the repo root — note the -f, the context is the whole repo):
+# Build (from the repo root — note the -f, the context is the whole repo).
+# The architecture is selected at BUILD time; a build layer has no GPU, so
+# auto-detection cannot work there — pass one of the validated targets
+# explicitly (docs/development/multiarch-design.md):
 #
-#     docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
+#     docker build -f docker/Dockerfile \
+#         --build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1100 \
+#         -t qwen3-tts-rocm:gfx1100 .
+#
+# (gfx1151 likewise with --build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1151.)
+# An empty or invalid value fails the build inside scripts/install.sh before
+# any wheel download; "auto" also fails by design in a build layer (no
+# /dev/kfd), keeping the image path honest.
 #
 # Run with GPU passthrough (see docker/README.md for the full story):
 #
@@ -15,7 +25,7 @@
 #         --device /dev/kfd --device /dev/dri \
 #         --group-add video --group-add render \
 #         -v /path/to/models:/workspace/models \
-#         -p 8000:8000 qwen3-tts-rocm:dev
+#         -p 8000:8000 qwen3-tts-rocm:gfx1100
 #
 # Design notes:
 # * Base is stock ubuntu:24.04, which ships Python 3.12 natively — no
@@ -23,15 +33,24 @@
 # * The pip stack (pinned AMD ROCm torch wheels + `-e ".[dev,demo]"`) is
 #   installed by calling scripts/install.sh VERBATIM — it stays the single
 #   source of truth; there are deliberately NO duplicated pip lines here.
-#   The only knob is QWEN3_TTS_ROCM_SKIP_VERIFY=1, which skips install.sh's
-#   final verify_gpu.sh step because /dev/kfd does not exist inside a build
-#   RUN layer. It changes nothing about WHAT gets installed.
+#   The only knobs are QWEN3_TTS_ROCM_SKIP_VERIFY=1, which skips
+#   install.sh's final verify_gpu.sh step because /dev/kfd does not exist
+#   inside a build RUN layer (it changes nothing about WHAT gets installed),
+#   and the --gfx-target value forwarded from the build arg above.
+# * GPU runtime verification inside the container stays a RUN-time concern
+#   (see scripts/docker_gpu_e2e.py and docker/README.md).
 # =============================================================================
 
 FROM ubuntu:24.04
 
+# Architecture contract: gfx1100 (validated in v0.3 on Radeon Pro W7900D) or
+# gfx1151 (historically validated on Radeon 8060S). No default — an unset
+# value fails the build immediately instead of guessing.
+ARG QWEN3_TTS_ROCM_GFX_TARGET
+
 LABEL org.opencontainers.image.title="Qwen3-TTS-ROCm" \
-      org.opencontainers.image.description="ROCm (gfx1151) runtime adapter, model manager and enhanced Gradio demo for Qwen3-TTS" \
+      org.opencontainers.image.description="ROCm (gfx1100 / gfx1151) runtime adapter, model manager and enhanced Gradio demo for Qwen3-TTS" \
+      org.opencontainers.image.version="0.2.1" \
       org.opencontainers.image.licenses="Apache-2.0"
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -69,10 +88,12 @@ WORKDIR /workspace
 # mount, never baked into the image.
 COPY . /workspace
 
-# Single source of truth: the same scripts/install.sh a bare-metal host runs.
+# Single source of truth: the same scripts/install.sh a bare-metal host runs,
+# with the architecture forwarded from the build arg (gfx1100 | gfx1151).
 # SKIP_VERIFY=1 documented above; cache cleanup stays in the SAME layer so the
 # ~GB of wheel downloads do not linger in image size.
 RUN QWEN3_TTS_ROCM_SKIP_VERIFY=1 bash scripts/install.sh \
+        --gfx-target "${QWEN3_TTS_ROCM_GFX_TARGET}" \
     && rm -rf /root/.cache/pip /root/.cache/uv
 
 # --- Runtime configuration ---------------------------------------------------
