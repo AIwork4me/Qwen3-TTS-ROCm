@@ -13,9 +13,10 @@ Layer contract (Task 16)
   :func:`build_callbacks`, a service-bound dict of Blocks-free callables that
   pytest drives end-to-end without a browser; :func:`build_ui` merely lays out
   components and wires those very functions onto events.
-* **Single-GPU queue ruling** -- the app targets gfx1151-style unified-memory
-  APUs where exactly ONE TTS model stays resident, so deployments run the
-  queue at ``default_concurrency_limit=1`` (see the visible footer note).
+* **Single-GPU queue ruling** -- the app targets single-GPU Radeon hosts
+  (validated on gfx1151 APUs and the gfx1100 W7900D) where exactly ONE TTS
+  model stays resident, so deployments run the queue at
+  ``default_concurrency_limit=1`` (see the visible footer note).
 * **Hermetic imports** -- like the backend layer, no torch/qwen_tts import at
   module scope; both appear lazily inside the few callbacks that touch files.
 

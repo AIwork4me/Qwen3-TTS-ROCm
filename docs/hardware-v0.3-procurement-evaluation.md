@@ -1,11 +1,20 @@
 # Second-architecture (gfx1100-class) hardware procurement evaluation — v0.3 planning
 
+> **SUPERSEDED PREMISE (2026-09-28) — kept as historical planning material.**
+> This document was written before gfx1100 hardware was available to this
+> project. A **Radeon Pro W7900D (gfx1100, 48 GB) is now present and
+> validated** ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1);
+> pinned `device-gfx1100` stack), so the procurement decision below is no
+> longer pending. Read the tables as the as-of-2026-09-23 market research
+> that informed the (now moot) buy decision; nothing here changes any
+> capability claim.
+>
 > **PLANNING DOCUMENT — not a capability claim; no hardware purchased; all prices as-of 2026-09-23.**
 > Nothing in this file changes any repo capability claim, README statement, or
 > compatibility-matrix row. It exists to support a purchase decision for the
 > v0.3 North Star: validate official Qwen3-TTS on a SECOND, materially
 > different Radeon architecture — preferred **gfx1100** (discrete RDNA3 with
-> dedicated VRAM) vs the current validated host (gfx1151, Radeon 8060S iGPU,
+> dedicated VRAM) vs the then-current validated host (gfx1151, Radeon 8060S iGPU,
 > unified memory, ROCm 7.14.0, torch 2.12.0+rocm7.14.0).
 
 Measured memory envelopes this decision is sized against (from program evidence):

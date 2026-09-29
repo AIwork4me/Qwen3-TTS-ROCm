@@ -13,14 +13,21 @@
 > Every capability claim marked ✅ below was exercised end to end on the
 > real Radeon 8060S (`gfx1151`) validation host through unmodified official
 > `qwen-tts` APIs and links the verbatim evidence transcript that proves it.
-> What is not proven is labelled as such. No percentage scores, no
-> generalization beyond the validated configuration.
+> Those rows are **historical gfx1151 evidence** (2026-08/09). The
+> **Radeon Pro W7900D (`gfx1100`)** is the second validated architecture
+> ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)) and the
+> fresh v0.3 execution target; v0.3 gfx1100 evidence lands in the rows as
+> it is produced. What is not proven is labelled as such. No percentage
+> scores, no generalization beyond the validated configurations.
 
 Run the unmodified official [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS)
-package on AMD Ryzen AI Max+ PRO 395 / Radeon 8060S (`gfx1151`): one command
-installs AMD's pinned ROCm 7.14.0 PyTorch wheels, the next downloads the
-official checkpoints, the third opens a bilingual six-tab Gradio demo on
-`http://localhost:8000`. Every synthesis call stays on official APIs.
+package on validated AMD Radeon ROCm hardware — Radeon Pro W7900D
+(`gfx1100`) or AMD Ryzen AI Max+ PRO 395 / Radeon 8060S (`gfx1151`): one
+command (architecture auto-detected fail-closed, or `--gfx-target
+gfx1100|gfx1151`) installs AMD's pinned ROCm 7.14.0 PyTorch wheels, the
+next downloads the official checkpoints, the third opens a bilingual
+six-tab Gradio demo on `http://localhost:8000`. Every synthesis call stays
+on official APIs.
 
 **English** | [简体中文](README_CN.md)
 
@@ -30,7 +37,7 @@ official checkpoints, the third opens a bilingual six-tab Gradio demo on
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
 [![ROCm](https://img.shields.io/badge/ROCm-7.14.0-orange.svg)](https://rocm.docs.amd.com/)
-[![Hardware](https://img.shields.io/badge/hardware-gfx1151%20%7C%20Radeon%208060S-red.svg)](docs/benchmarks.md#platform)
+[![Hardware](https://img.shields.io/badge/hardware-gfx1100%20%7C%20gfx1151-red.svg)](#compatibility)
 
 Unofficial community project — not affiliated with or endorsed by Alibaba or
 AMD. See [Attribution](#attribution--disclaimer).
@@ -40,19 +47,22 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **357 / 357 on validation host** — 317 CPU + 40 real-GPU (40 since 2026-09-24: +2 reusable-prompt batch tests) |
+| Automated tests | **357 / 357 on the gfx1151 reference host** (2026-09-25; 317 CPU + 40 real-GPU, +2 batch tests since 2026-09-24) — **reproduced 317 CPU + 40 GPU on gfx1100** ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)); the v0.3 suite (355 CPU incl. 41 new architecture-contract tests + 40 GPU) is re-counted in the v0.3 closure report |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
-| GPU · ROCm | Radeon 8060S (`gfx1151`) · ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`) |
+| GPU · ROCm | Radeon Pro W7900D (`gfx1100`, 48 GB) · Radeon 8060S (`gfx1151`) · both ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`, `device-gfx1100`/`device-gfx1151` wheel extras) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
 | Evidence | Verbatim transcripts in [`evidence/`](evidence/README.md) |
 
-### Capability matrix (Radeon 8060S · `gfx1151`)
+### Capability matrix — historical gfx1151 evidence (v0.2/v0.2.1)
 
 One row per capability, each green cell linked to the verbatim artifact that
-proves it. States: ✅ **Radeon E2E validated** (real synthesis / real run on
-the validation host, asserted sane) · 🟡 **partial — load-only** (loads, no
-functional validation) · ⬜ **not validated** · 🚫 **not exposed upstream or
-intentionally not claimed**.
+proves it on the **Radeon 8060S (`gfx1151`) reference host**. v0.3 re-executes
+selected capabilities on **gfx1100** (W7900D) and will add per-row gfx1100
+evidence links as it lands (install/verify/fresh-checkout first — see
+[Compatibility](#compatibility)). States: ✅ **Radeon E2E validated**
+(real synthesis / real run on the validation host, asserted sane) · 🟡
+**partial — load-only** (loads, no functional validation) · ⬜ **not
+validated** · 🚫 **not exposed upstream or intentionally not claimed**.
 
 | Capability | Model | Radeon status | Evidence |
 |---|---|---|---|
@@ -68,7 +78,7 @@ intentionally not claimed**.
 | 12Hz tokenizer codec (encode → decode roundtrip) | Tokenizer-12Hz | ✅ E2E validated | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
 | Multilingual matrix — all 10 officially supported languages, end to end | 1.7B CustomVoice + VoiceDesign + Base | ✅ E2E validated | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
 | ASR-based content correctness + clone-similarity controls (quality v2) | 1.7B CustomVoice ×10 languages · 1.7B Base clones | ✅ measured — whisper-small CER/WER 0.00–0.05 for 9/10 languages (German 0.55 outlier, ASR-agreement only); clone cosines positives 0.63–0.68 > negatives 0.58–0.60; no thresholds, no composite score, no MOS | [`quality-v2-gfx1151-2026-09-24.txt`](evidence/quality-v2-gfx1151-2026-09-24.txt) · [docs](docs/quality-v2.md) |
-| Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base · 0.6B Base | ✅ scoped — **execution-only smoke** (1.7B: prep → 12 steps → save → reload → sane synthesis, 2026-09-20; 0.6B: same protocol ×2 independent runs, 2026-09-24 — prep → 12 steps → save → fingerprint → reload → sane synthesis). NO convergence / quality / multi-speaker claims. Two disclosed upstream blockers for out-of-the-box ROCm fine-tuning: PR #373 (OPEN; flash-attn hardcode, issue #372) and the 0.6B text-projection omission (sft_12hz.py adds text+codec embeddings without the mandatory `text_projection`; shape error by construction on 0.6B; workaround confined to the gitignored clone, upstream issue drafted) ([docs](docs/finetuning-rocm.md#06b-base-execution-validation-v021-task-6-2026-09-24)) | 1.7B: [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · 0.6B: [`finetune-06b-gfx1151-run1-2026-09-24.txt`](evidence/finetune-06b-gfx1151-run1-2026-09-24.txt) · [`run2`](evidence/finetune-06b-gfx1151-run2-2026-09-24.txt) · PR #373 chain: [`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) |
+| Fine-tuning (official `finetuning/` SFT workflow) | 1.7B Base · 0.6B Base | ✅ scoped — **execution-only smoke** (1.7B: prep → 12 steps → save → reload → sane synthesis, 2026-09-20; 0.6B: same protocol ×2 independent runs, 2026-09-24 — prep → 12 steps → save → fingerprint → reload → sane synthesis). NO convergence / quality / multi-speaker claims. Two disclosed upstream blockers for out-of-the-box ROCm fine-tuning: PR #373 (OPEN; flash-attn hardcode, issue #372) and the 0.6B text-projection omission (sft_12hz.py adds text+codec embeddings without the mandatory `text_projection`; shape error by construction on 0.6B; workaround confined to the gitignored clone; upstream PR #336 (OPEN) now proposes that fix) ([docs](docs/finetuning-rocm.md#06b-base-execution-validation-v021-task-6-2026-09-24)) | 1.7B: [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · 0.6B: [`finetune-06b-gfx1151-run1-2026-09-24.txt`](evidence/finetune-06b-gfx1151-run1-2026-09-24.txt) · [`run2`](evidence/finetune-06b-gfx1151-run2-2026-09-24.txt) · PR #373 chain: [`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`upstream-372-e2e-run1.txt`](evidence/upstream-372-e2e-run1.txt) · [`upstream-372-e2e-run2.txt`](evidence/upstream-372-e2e-run2.txt) |
 | Instruction control on CustomVoice | 0.6B | 🚫 not exposed upstream (wrapper silently ignores `instruct`) — pinned by tests | Task 0 audit: [`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni serving (`/v1/audio/speech` + `/v1/audio/voices`) | 1.7B CustomVoice · 1.7B VoiceDesign · 1.7B Base inline clone | ✅ E2E validated on the current stack (vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1, upstream recipe invocations): all three task families served non-streaming with valid 24 kHz WAVs; Base inline clone requires the documented `ref_audio` URL/data-URL/file-URI contract + `--allowed-local-media-path` | [`vllm-online-serving-gfx1151-2026-09-24.txt`](evidence/vllm-online-serving-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-online-serving-gfx1151-2026-09-24.json) · WAVs: [`vllm-online-wavs/`](evidence/vllm-online-wavs) |
 | vLLM-Omni true streaming (HTTP PCM) | 1.7B CustomVoice | ✅ measured — client-side chunk timestamps prove incremental delivery: TTFA 0.249 s short input (ttfa/wall 0.115), TTFA 0.222 s on a 453-char input (0.005); 22/389 chunks; playback-sim underruns 1–2 (bursty cadence recorded). Upstream WebSocket client NOT working against this server build (client/server path+protocol drift, verbatim evidence — not a gfx1151 failure) | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
@@ -171,14 +181,18 @@ per sentence. Reproduce with
 (transcript: `evidence/voice-workflow-2026-09-20.txt`, machine-readable
 timings: `evidence/voice-workflow-2026-09-20.json`).
 
-The CPU-only CI matrix collects the same 317 CPU tests on Python 3.10 / 3.11 /
+The CPU-only CI matrix collects the CPU suite on Python 3.10 / 3.11 /
 3.12, with 1 HIP-gated test skipped because no AMD GPU is present on the
 runner — plus, in a plain `.[dev]` environment without the optional
 `[quality]` extra, 15 further *visible* skips (12 jiwer + 3 resemblyzer
 quality-benchmark tests; fixed to skip instead of error by the 2026-09-21
 claims audit after Task 14's unguarded `import jiwer` had turned CI red).
-On the validated ROCm host that test also runs, giving 317 CPU +
-40 GPU = 357 / 357 today (grew across 2026-09-24/25: +2 batch-inference GPU tests, +4 benchmark-v2 CPU tests). First verified CI run on this suite: all jobs green at
+On the validated gfx1151 host that test also ran, giving 317 CPU +
+40 GPU = 357 / 357 (2026-09-25; grew across 2026-09-24/25: +2 batch-inference
+GPU tests, +4 benchmark-v2 CPU tests); gfx1100 reproduced 317 + 40
+([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)). v0.3 adds the
+architecture-contract suite (41 CPU tests — totals re-counted in the v0.3
+closure report). First verified CI run on this suite: all jobs green at
 push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415),
 `251 passed, 1 skipped, 38 deselected` per Python job — verified 2026-09-21
 when the suite stood at 252 CPU tests; the suite has since grown to the
@@ -222,6 +236,8 @@ demo's **Preset Speakers** and **Codec** tabs:
 git clone https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
 cd Qwen3-TTS-ROCm
 bash scripts/install.sh                              # venv + pinned AMD ROCm wheels + GPU gate
+                                                     # (arch auto-detected fail-closed; or
+                                                     #  --gfx-target gfx1100|gfx1151 explicitly)
 bash scripts/download_models.sh tokenizer custom-voice   # ~5 GB, ModelScope-first
 bash scripts/run_demo.sh                             # -> http://localhost:8000
 ```
@@ -233,7 +249,7 @@ quickstart):
 ```python
 from qwen3_tts_rocm import loader
 
-tts = loader.load("custom-voice")            # sdpa/bf16 defaults on gfx1151
+tts = loader.load("custom-voice")            # sdpa/bf16 defaults on Radeon (gfx1100/gfx1151)
 wavs, sr = tts.generate_custom_voice(text="你好，ROCm。", language="auto",
                                      speaker=tts.get_supported_speakers()[0])
 
@@ -322,8 +338,10 @@ bilingual environment self-check any time (read-only, never raises).
   methodology and archived raw output.
 * **Docker image** with `/dev/kfd` + `/dev/dri` passthrough
   ([docker/README.md](docker/README.md)).
-* **Test suite** — 357/357 on the validated ROCm host (317 CPU + 40
-  real-GPU); the CPU-only CI matrix collects the same 317 CPU tests on
+* **Test suite** — 357/357 on the gfx1151 reference host (2026-09-25;
+  317 CPU + 40 real-GPU), reproduced 317 + 40 on gfx1100 ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1));
+  v0.3 adds 41 architecture-contract CPU tests (re-counted in the closure
+  report); the CPU-only CI matrix collects the same CPU tests on
   Python 3.10 / 3.11 / 3.12 with 1 HIP-gated skip (and the 15 visible
   `[quality]`-extras skips noted above in a plain `.[dev]` environment;
   last size-verified green CI run: the 267-CPU era, run
@@ -341,7 +359,7 @@ bilingual environment self-check any time (read-only, never raises).
 ## Why Qwen3-TTS-ROCm?
 
 Upstream Qwen3-TTS primarily documents CUDA / FlashAttention deployment.
-This project adds a validated `gfx1151` ROCm deployment path while keeping
+This project adds validated `gfx1100` and `gfx1151` ROCm deployment paths while keeping
 the official `qwen-tts` package unmodified — a thin shim of environment
 diagnostics, a smart-default loader, a dual-source downloader and an enhanced
 demo UI. Not a fork; no vendored or patched upstream source, ever.
@@ -363,20 +381,25 @@ demo UI. Not a fork; no vendored or patched upstream source, ever.
 
 | GPU / Platform | Arch | ROCm | Status | Evidence |
 |---|---|---|---|---|
-| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ Verified — reference configuration (pinned `device-gfx1151` wheels) | [`evidence/`](evidence/README.md) |
-| Radeon Pro W7900D (48 GB) | `gfx1100` | 7.14.0 | ✅ Verified — pinned wheel stack with only the `device-gfx1100` extras swap in `install.sh` (317 CPU + 40 GPU green; replicated on a second stack) | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) |
+| Radeon Pro W7900D (48 GB) | `gfx1100` | 7.14.0 | ✅ Verified — v0.3 fresh-execution target; `install.sh` natively selects `device-gfx1100` wheels (`--gfx-target gfx1100` or fail-closed auto) | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) (pre-v0.3 pinned-stack validation) + v0.3 tasks (fresh-checkout run in the closure report) |
+| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ Verified — historical reference configuration (v0.2/v0.2.1 evidence; not rerun during v0.3) | [`evidence/`](evidence/README.md) |
 | Other ROCm-capable AMD GPUs | — | — | 🧪 **Not yet validated — community testing wanted** | open an issue with your `qwen3-tts-rocm-check` output |
 
 The loader's HIP defaults are generic, but every number and claim in this
 repository traces to the validated configurations above. Please don't
 assume other cards work (or don't) — reports from other ROCm hardware are
-very welcome and will be listed here. Note that the bundled
-`scripts/install.sh` pins the validated `gfx1151` path (`device-gfx1151`
-wheels); `gfx1100` is validated with the same script changing only the
-extras to `device-gfx1100` ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) —
-exact commands and both stack diffs are in that report); for further
-architectures, use an appropriate ROCm PyTorch stack and report the exact
-install method in your validation report.
+very welcome and will be listed here. `scripts/install.sh` is
+architecture-aware since v0.3: `--gfx-target gfx1100` / `--gfx-target
+gfx1151` select the validated wheel extras explicitly, and the default
+(`auto`) resolves the target fail-closed from the visible compute agents —
+unknown or ambiguous hardware is an error, never a guess (design:
+[`docs/development/multiarch-design.md`](docs/development/multiarch-design.md)).
+`scripts/verify_gpu.sh` applies the same exact-match contract
+(`QWEN3_TTS_ROCM_GFX_TARGET`), and `qwen3-tts-rocm-check` reports each
+visible architecture as *validated* (gfx1100), *historically validated*
+(gfx1151), or *ROCm-visible but not validated*. For further architectures,
+use an appropriate ROCm PyTorch stack and report the exact install method
+in your validation report.
 
 **Tested another AMD GPU? [Submit a hardware validation report](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)** — measured results only, and the matrix grows.
 
@@ -536,7 +559,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # 317 CPU tests (1 HIP-gated skip without an AMD GPU; 15 more skip without .[quality])
+python -m pytest -m "not gpu and not requires_download" -q   # CPU tests (1 HIP-gated skip without an AMD GPU; 15 more skip without .[quality]; 355 collected in v0.3)
 python -m pytest -m "gpu" -q                  # 40 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
@@ -546,16 +569,15 @@ Every quoted number traces to a verbatim artifact listed in
 
 ## Verified configuration
 
-Developed and validated on exactly this machine ("tested", not "minimum
-required"):
+"Tested", not "minimum required". Two evidence classes:
 
-| Fact | Value |
-|---|---|
-| APU | AMD Ryzen AI Max+ PRO 395 w/ Radeon 8060S (`gfx1151`, Strix Halo class) |
-| Memory | 94 GB LPDDR5X unified pool, ~80 GiB visible to torch/HIP |
-| Kernel | Linux 6.17.0-1032-oem with `amdgpu` DRM driver (check `rocm-smi`) |
-| ROCm / torch | 7.14.0-era wheels from `repo.amd.com`: `torch[device-gfx1151]==2.12.0+rocm7.14.0` (+torchvision/torchaudio) — installed automatically by `scripts/install.sh`, never typed by hand |
-| Python | 3.12 on the validation host; the CPU CI matrix runs 3.10 / 3.11 / 3.12 |
+| Fact | gfx1151 reference host (historical, v0.2/v0.2.1) | gfx1100 host (v0.3 fresh-execution target) |
+|---|---|---|
+| GPU | AMD Ryzen AI Max+ PRO 395 w/ Radeon 8060S (`gfx1151`, Strix Halo class) | AMD Radeon Pro W7900D (`gfx1100`, 48 GB discrete) |
+| Memory | 94 GB LPDDR5X unified pool, ~80 GiB visible to torch/HIP | 503 GB system RAM + 48 GB dedicated GDDR6 |
+| Kernel | Linux 6.17.0-1032-oem with `amdgpu` DRM driver (check `rocm-smi`) | Linux 6.8.0-79-generic with `amdgpu` DRM driver ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)) |
+| ROCm / torch | 7.14.0-era wheels from `repo.amd.com`: `torch[device-gfx1151]==2.12.0+rocm7.14.0` (+torchvision/torchaudio) | same pins with `device-gfx1100` extras — both installed automatically by `scripts/install.sh`, never typed by hand |
+| Python | 3.12 on the validation host; the CPU CI matrix runs 3.10 / 3.11 / 3.12 | 3.12.3 ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)) |
 
 ### Requirements & known constraints
 
@@ -566,8 +588,10 @@ required"):
   recorded validation host completed all downloads from a CN network without
   a VPN — other networks may vary.
 * **GPU** — validated on `gfx1151` and `gfx1100` (see
-  [Compatibility](#compatibility)); a working `amdgpu` DRM driver and
-  `/dev/kfd` + `/dev/dri` access are required (`render`/`video` groups).
+  [Compatibility](#compatibility)); `scripts/install.sh --gfx-target
+  gfx1100|gfx1151` (or fail-closed auto) selects the matching pinned wheels;
+  a working `amdgpu` DRM driver and `/dev/kfd` + `/dev/dri` access are
+  required (`render`/`video` groups).
 * **Memory** — a loaded 1.7B model (bf16) used ~4.6 GiB of the unified pool
   in our session readouts; minimum total-system-memory requirements for
   smaller machines have **not** been measured. On a shared unified pool,

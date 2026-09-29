@@ -13,9 +13,9 @@ optional sampling flags), PLUS the qwen3-tts-rocm conveniences:
   ``$QWEN3_TTS_ROCM_MODELS_DIR``;
 * loading goes through :class:`~qwen3_tts_rocm.demo.backend.SynthesisService`
   so the UI model switcher keeps exactly ONE model resident (LRU of one);
-* ``--concurrency`` defaults to **1** on purpose: single-GPU unified-memory
-  queue serializes generation (the upstream default of 16 makes no sense on
-  one gfx1151 APU);
+* ``--concurrency`` defaults to **1** on purpose: a single GPU serializes
+  generation anyway (the upstream default of 16 makes no sense on one
+  Radeon GPU);
 * SSR stays disabled (server machines have no node runtime).
 """
 
@@ -60,7 +60,7 @@ def build_parser() -> argparse.ArgumentParser:
         prog="qwen3-tts-rocm-demo",
         description=(
             "Launch the enhanced bilingual Gradio demo for Qwen3-TTS on AMD "
-            "ROCm (gfx1151).\n\n"
+            "ROCm (gfx1100 / gfx1151).\n\n"
             "Examples:\n"
             "  qwen3-tts-rocm-demo --alias custom-voice --port 8000\n"
             "  qwen3-tts-rocm-demo Qwen/Qwen3-TTS-12Hz-1.7B-CustomVoice\n"

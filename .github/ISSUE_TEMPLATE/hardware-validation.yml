@@ -12,12 +12,14 @@ body:
         the README. If a field is unknown, write "unknown" rather than
         guessing.
 
-        > **Testing a non-gfx1151 GPU?** The bundled `scripts/install.sh` is
-        > the validated **gfx1151** installation path (pinned
-        > `device-gfx1151` wheels). For another GPU architecture, use the
-        > ROCm/PyTorch stack appropriate for your device and paste the exact
-        > installation commands below. A gfx1151-wheel installation failure
-        > is **not** evidence that your GPU is unsupported.
+        > **Testing a GPU other than gfx1100/gfx1151?** The bundled
+        > `scripts/install.sh --gfx-target gfx1100|gfx1151` (or fail-closed
+        > auto) covers the two validated architectures of this project
+        > (pinned `device-gfx1100`/`device-gfx1151` wheels). For another
+        > GPU architecture, use the ROCm/PyTorch stack appropriate for your
+        > device and paste the exact installation commands below. A
+        > validated-target wheel installation failure is **not** evidence
+        > that your GPU is unsupported.
 
   - type: input
     id: gpu-model

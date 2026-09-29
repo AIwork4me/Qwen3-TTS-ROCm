@@ -265,8 +265,14 @@ On 1.7B the two dims coincidentally match (2048/2048); on 0.6B
 (`text_hidden_size` 2048 ≠ `hidden_size` 1024) the addition is a shape
 RuntimeError **by construction** — the first 0.6B attempt failed exactly
 there (verbatim transcript referenced in the run-1 evidence). The one-line
-workaround mirrors official inference semantics. An upstream issue is
-drafted but NOT filed (user-gated). The pristine pinned clone
+workaround mirrors official inference semantics. **Upstream status update
+(2026-09-28):** upstream PR
+[QwenLM/Qwen3-TTS#336](https://github.com/QwenLM/Qwen3-TTS/pull/336)
+("Fix 0.6B fine-tuning crash: project text embedding before adding to
+codec embeddings") is now OPEN (head `701938b`, base `022e286`) — the fix
+proposal that was earlier described here as "drafted" now exists upstream
+and is referenced instead. It is NOT merged; until it merges the documented
+gitignored-worktree workaround remains the execution path. The pristine pinned clone
 `.upstream/Qwen3-TTS` (022e286) is untouched — porcelain 0 verified by the
 implementer before and after the runs (outside the driver protocol, which
 checks the fix worktree) and independently re-verified by the Task 6

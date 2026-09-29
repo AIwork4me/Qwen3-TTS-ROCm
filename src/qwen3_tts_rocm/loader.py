@@ -72,8 +72,9 @@ if TYPE_CHECKING:  # editors only; never executed (lazy-import discipline)
 
 __all__ = ["DEFAULT_DTYPE", "load", "resolve_attn", "unload"]
 
-#: Default precision handed to ``from_pretrained`` (bf16 is the sweet spot for
-#: gfx1151 unified-memory APUs; switch to "float32"/torch.float32 for CPU).
+#: Default precision handed to ``from_pretrained`` (bf16 is the sweet spot on
+#: the validated Radeon targets — gfx1151 iGPU and gfx1100 dGPU alike; switch
+#: to "float32"/torch.float32 for CPU).
 DEFAULT_DTYPE = "bfloat16"
 
 _FLASH_KEY = "flash_attention_2"

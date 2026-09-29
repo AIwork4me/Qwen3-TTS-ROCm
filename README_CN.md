@@ -8,13 +8,19 @@
 >
 > 下文每一个标注 ✅ 的能力结论，都是在真实 Radeon 8060S（`gfx1151`）
 > 验证主机上、经未经修改的官方 `qwen-tts` API 端到端跑出来的，并附上
-> 证明它的逐字运行记录链接。未验证的内容会如实标注。不打百分比分数，
-> 不做超出已验证配置的泛化。
+> 证明它的逐字运行记录链接——这些行属于**gfx1151 历史证据**（2026-08/09）。
+> **Radeon Pro W7900D（`gfx1100`）** 是第二个已验证架构
+> （[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)），也是 v0.3
+> 的全新执行目标；v0.3 的 gfx1100 证据将随产出逐行补充。未验证的内容会
+> 如实标注。不打百分比分数，不做超出已验证配置的泛化。
 
-在 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S（`gfx1151`）上原样运行官方
-[`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS) 包：一条命令安装 AMD 锁定
-版本的 ROCm 7.14.0 PyTorch 轮子，一条下载官方权重，一条启动双语六标签页
-Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经修改的官方 API。
+在已验证的 AMD Radeon ROCm 硬件上原样运行官方
+[`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS) 包 —— Radeon Pro W7900D
+（`gfx1100`）或 AMD Ryzen AI Max+ PRO 395 / Radeon 8060S（`gfx1151`）：
+一条命令（架构自动检测、失败即停，或显式 `--gfx-target gfx1100|gfx1151`）
+安装 AMD 锁定版本的 ROCm 7.14.0 PyTorch 轮子，一条下载官方权重，一条启动
+双语六标签页 Gradio 演示（`http://localhost:8000`）。所有合成调用全部走
+未经修改的官方 API。
 
 [English](README.md) | **简体中文**
 
@@ -24,7 +30,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-%E2%89%A53.10-blue.svg)](https://www.python.org/)
 [![ROCm](https://img.shields.io/badge/ROCm-7.14.0-orange.svg)](https://rocm.docs.amd.com/)
-[![Hardware](https://img.shields.io/badge/hardware-gfx1151%20%7C%20Radeon%208060S-red.svg)](docs/benchmarks.md#platform)
+[![Hardware](https://img.shields.io/badge/hardware-gfx1100%20%7C%20gfx1151-red.svg)](#兼容性)
 
 非官方社区项目 —— 与阿里巴巴及 AMD 无隶属或背书关系，见[归属与免责声明](#归属与免责声明)。
 
@@ -33,15 +39,17 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **验证主机 357 / 357 全通过** —— 317 CPU + 40 真机 GPU（2026-09-24 起 +2 项可复用提示批量测试） |
+| 自动化测试 | **gfx1151 参考主机 357 / 357 全通过**（2026-09-25；317 CPU + 40 真机 GPU）—— **gfx1100 复现 317 CPU + 40 GPU**（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）；v0.3 套件（含 41 项新架构契约 CPU 测试的 355 CPU + 40 GPU）在 v0.3 收尾报告中重新计数 |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
-| GPU · ROCm | Radeon 8060S（`gfx1151`）· ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`） |
+| GPU · ROCm | Radeon Pro W7900D（`gfx1100`，48 GB）· Radeon 8060S（`gfx1151`）· 均为 ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`，`device-gfx1100`/`device-gfx1151` 轮子 extras） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
 | 证据 | 逐字运行记录见 [`evidence/`](evidence/README.md) |
 
-### 能力矩阵（Radeon 8060S · `gfx1151`）
+### 能力矩阵 —— gfx1151 历史证据（v0.2/v0.2.1）
 
-一行一项能力，每个绿色单元格都链接到证明它的逐字存档。状态含义：
+以下各行均为 **Radeon 8060S（`gfx1151`）参考主机** 上的逐字存档证据；
+v0.3 正在 **gfx1100**（W7900D）上重新执行部分能力，gfx1100 证据链接将随
+产出逐行补充（安装/验证/全新检出优先 —— 见[兼容性](#兼容性)）。状态含义：
 ✅ **Radeon 端到端已验证**（验证主机上真实合成 / 真实运行，且通过健全性
 断言）· 🟡 **部分验证 —— 仅加载**（能加载，无功能验证）· ⬜ **未验证** ·
 🚫 **上游未暴露或本项目有意不声明**。
@@ -60,7 +68,7 @@ Gradio 演示（`http://localhost:8000`）。所有合成调用全部走未经�
 | 12Hz 分词器编解码（编码 → 解码往返） | Tokenizer-12Hz | ✅ 端到端已验证 | [`tokenizer-codec.txt`](evidence/tokenizer-codec.txt) |
 | 多语言矩阵 —— 全部 10 种官方支持语言端到端 | 1.7B CustomVoice + VoiceDesign + Base | ✅ 端到端已验证 | [`multilingual-matrix.txt`](evidence/multilingual-matrix.txt) · [`multilingual-matrix.json`](evidence/multilingual-matrix.json) |
 | 基于 ASR 的内容正确性 + 克隆相似度对照（质量基准 v2） | 1.7B CustomVoice ×10 语言 · 1.7B Base 克隆 | ✅ 已测量 —— whisper-small CER/WER：9/10 语言 0.00–0.05（德语 0.55 离群，仅为 ASR 一致性度量）；克隆余弦 正例 0.63–0.68 > 负例 0.58–0.60；不设阈值、无综合分、不声明 MOS | [`quality-v2-gfx1151-2026-09-24.txt`](evidence/quality-v2-gfx1151-2026-09-24.txt) · [文档](docs/quality-v2.md) |
-| 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base · 0.6B Base | ✅ 限定范围 —— **仅执行冒烟验证**（1.7B：2026-09-20；0.6B：同一协议 ×2 次独立运行，2026-09-24 —— 准备 → 12 步 → 保存 → 指纹 → 重载 → 合成健全）。**不做**收敛/质量/多说话人声明。ROCm 开箱微调当前有两个已披露的上游阻断项：PR #373（OPEN；flash-attn 硬编码，issue #372）与 0.6B text-projection 缺失（sft_12hz.py 直接相加文本与编解码嵌入、遗漏推理路径必经的 `text_projection`；在 0.6B 上构造性形状错误；变通仅限 gitignored 克隆，上游 issue 已起草待批） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · 0.6B：[`run1`](evidence/finetune-06b-gfx1151-run1-2026-09-24.txt) · [`run2`](evidence/finetune-06b-gfx1151-run2-2026-09-24.txt) · PR #373 验证链：[`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`e2e-run1`](evidence/upstream-372-e2e-run1.txt) · [`e2e-run2`](evidence/upstream-372-e2e-run2.txt) |
+| 微调（官方 `finetuning/` SFT 工作流） | 1.7B Base · 0.6B Base | ✅ 限定范围 —— **仅执行冒烟验证**（1.7B：2026-09-20；0.6B：同一协议 ×2 次独立运行，2026-09-24 —— 准备 → 12 步 → 保存 → 指纹 → 重载 → 合成健全）。**不做**收敛/质量/多说话人声明。ROCm 开箱微调当前有两个已披露的上游阻断项：PR #373（OPEN；flash-attn 硬编码，issue #372）与 0.6B text-projection 缺失（sft_12hz.py 直接相加文本与编解码嵌入、遗漏推理路径必经的 `text_projection`；在 0.6B 上构造性形状错误；变通仅限 gitignored 克隆，上游 PR #336（OPEN）现以此为修复提案） | [`finetune-smoke-2026-09-20.txt`](evidence/finetune-smoke-2026-09-20.txt) · 0.6B：[`run1`](evidence/finetune-06b-gfx1151-run1-2026-09-24.txt) · [`run2`](evidence/finetune-06b-gfx1151-run2-2026-09-24.txt) · PR #373 验证链：[`upstream-372-root-cause.md`](evidence/upstream-372-root-cause.md) · [`e2e-run1`](evidence/upstream-372-e2e-run1.txt) · [`e2e-run2`](evidence/upstream-372-e2e-run2.txt) |
 | CustomVoice 的指令控制 instruct | 0.6B | 🚫 上游未暴露（封装对 0.6B 静默忽略 `instruct`）—— 由测试钉住 | 任务 0 审计：[`ground-truth-2026-09-20.md`](evidence/ground-truth-2026-09-20.md) |
 | vLLM-Omni 服务（`/v1/audio/speech` + `/v1/audio/voices`） | 1.7B CustomVoice · 1.7B VoiceDesign · 1.7B Base 内联克隆 | ✅ 当前栈端到端已验证（vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1，上游配方调用）：三个任务族非流式服务均产出有效 24 kHz WAV；Base 内联克隆需遵守文档化的 `ref_audio` URL/data-URL/file-URI 契约 + `--allowed-local-media-path` | [`vllm-online-serving-gfx1151-2026-09-24.txt`](evidence/vllm-online-serving-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-online-serving-gfx1151-2026-09-24.json) · [WAVs](evidence/vllm-online-wavs) |
 | vLLM-Omni 真流式（HTTP PCM） | 1.7B CustomVoice | ✅ 已测量 —— 客户端分片时间戳证明增量交付：短输入 TTFA 0.249 秒（ttfa/wall 0.115），453 字符输入 TTFA 0.222 秒（0.005）；22/389 分片；播放模拟欠载 1–2 次（突发节奏已记录）。上游 WebSocket 客户端在当前服务端构建上不可用（客户端/服务端路径与协议漂移，逐字证据 —— 非 gfx1151 故障） | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
@@ -157,8 +165,10 @@ CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集的是同样这 317 项 CPU �
 `[quality]` 附加组件的纯 `.[dev]` 环境中，另有 15 项**可见**跳过（12 项
 jiwer + 3 项 resemblyzer 质量基准测试；2026-09-21 声明审计将其由报错改为
 可见跳过 —— 此前 Task 14 未加保护的 `import jiwer` 曾使 CI 变红）。在实际
-ROCm 验证主机上该项也会执行，因此验证主机为 317 CPU + 40 GPU = 357 / 357（2026-09-24 起新增 2 项批量推理测试）
-全通过。本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
+ROCm 验证主机上该项也会执行，因此 gfx1151 参考主机为 317 CPU + 40 GPU = 357 / 357
+（2026-09-25；2026-09-24 起新增 2 项批量推理测试）全通过；gfx1100 复现
+317 + 40（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）。v0.3
+新增架构契约套件（41 项 CPU 测试 —— 总数在 v0.3 收尾报告中重新计数）。本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415)，
 每个 Python job `251 passed, 1 skipped, 38 deselected`——于 2026-09-21 验证，
 当时套件为 252 项 CPU 测试，其后套件已增长到上列数量——转录见
@@ -200,6 +210,8 @@ RTF 1.27–1.40 —— 基准 JSON 已作为可下载的运行工件持久化）
 git clone https://github.com/AIwork4me/Qwen3-TTS-ROCm.git
 cd Qwen3-TTS-ROCm
 bash scripts/install.sh                              # venv + AMD 锁定 ROCm 轮子 + GPU 闸门
+                                                     #（架构自动检测、失败即停；或显式
+                                                     #  --gfx-target gfx1100|gfx1151）
 bash scripts/download_models.sh tokenizer custom-voice   # 约 5 GB，ModelScope 优先
 bash scripts/run_demo.sh                             # -> http://localhost:8000
 ```
@@ -210,7 +222,7 @@ bash scripts/run_demo.sh                             # -> http://localhost:8000
 ```python
 from qwen3_tts_rocm import loader
 
-tts = loader.load("custom-voice")            # sdpa/bf16 defaults on gfx1151
+tts = loader.load("custom-voice")            # Radeon（gfx1100/gfx1151）上 sdpa/bf16 默认值
 wavs, sr = tts.generate_custom_voice(text="你好，ROCm。", language="auto",
                                      speaker=tts.get_supported_speakers()[0])
 
@@ -290,7 +302,9 @@ bash scripts/run_demo.sh
 * **可复现的 RTF 基准**（`scripts/benchmark.py`），方法学公开、原始输出存档。
 * **Docker 镜像**，含 `/dev/kfd` + `/dev/dri` 直通
   （[docker/README.md](docker/README.md)）。
-* **测试套件** —— 验证主机 357/357 全通过（317 CPU + 40 真机 GPU）；
+* **测试套件** —— gfx1151 参考主机 357/357（2026-09-25；317 CPU + 40 真机
+  GPU），gfx1100 复现 317 + 40（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）；
+  v0.3 新增 41 项架构契约 CPU 测试（总数在收尾报告中重新计数）；
   CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集同样这 317 项 CPU 测试，
   其中 1 项 HIP 门控跳过（纯 `.[dev]` 环境中另有上文所述 15 项 `[quality]`
   附加组件可见跳过；最近一次按规模实证绿灯的 CI 运行为 267-CPU 时期：
@@ -327,18 +341,21 @@ bash scripts/run_demo.sh
 
 | GPU / 平台 | 架构 | ROCm | 状态 | 证据 |
 |---|---|---|---|---|
-| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ 已验证 —— 参考配置（锁定 `device-gfx1151` 轮子） | [`evidence/`](evidence/README.md) |
-| Radeon Pro W7900D（48 GB） | `gfx1100` | 7.14.0 | ✅ 已验证 —— 锁定轮子栈，`install.sh` 仅把 extras 换为 `device-gfx1100`（317 CPU + 40 GPU 全绿；并在第二套栈上复现） | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) |
+| Radeon Pro W7900D（48 GB） | `gfx1100` | 7.14.0 | ✅ 已验证 —— v0.3 全新执行目标；`install.sh` 原生选择 `device-gfx1100` 轮子（`--gfx-target gfx1100` 或失败即停的自动检测） | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)（v0.3 前锁定栈验证）+ v0.3 任务（全新检出运行见收尾报告） |
+| Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ 已验证 —— 历史参考配置（v0.2/v0.2.1 证据；v0.3 期间未重跑） | [`evidence/`](evidence/README.md) |
 | 其他 ROCm capable AMD GPU | — | — | 🧪 **尚未验证 —— 欢迎社区实测** | 提交 issue 并附上 `qwen3-tts-rocm-check` 输出 |
 
 loader 的 HIP 默认值是通用的，但本仓库的每个数字与结论都只追溯到上表已
 验证的配置。请勿臆断其他显卡能或不能用——非常欢迎其他 ROCm 硬件的实测
-反馈，验证后会在表中列出。注意：仓库自带 `scripts/install.sh` 锁定的是已
-验证的 `gfx1151` 安装路径（`device-gfx1151` 轮子）；`gfx1100` 的验证仅在
-同一脚本中把 extras 换为 `device-gfx1100`
-（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) 内含完整安装
-命令与两套栈的 diff）；测试更多架构时，请使用对应的 ROCm PyTorch 栈，并在
-验证报告中记录完整安装方式。
+反馈，验证后会在表中列出。`scripts/install.sh` 自 v0.3 起支持多架构：
+`--gfx-target gfx1100` / `--gfx-target gfx1151` 显式选择已验证的轮子
+extras，默认（`auto`）以失败即停方式从可见计算代理解析目标——未知或含混
+的硬件直接报错，绝不猜测（设计：
+[`docs/development/multiarch-design.md`](docs/development/multiarch-design.md)）。
+`scripts/verify_gpu.sh` 采用同样的精确匹配契约（`QWEN3_TTS_ROCM_GFX_TARGET`），
+`qwen3-tts-rocm-check` 将每个可见架构报告为 *已验证*（gfx1100）、*历史已验证*
+（gfx1151）或 *ROCm 可见但未验证*。测试更多架构时，请使用对应的 ROCm
+PyTorch 栈，并在验证报告中记录完整安装方式。
 
 **在其他 AMD GPU 上跑通了？[提交硬件验证报告](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/new?template=hardware-validation.yml)**——只收实测结果，验证后兼容性矩阵随你扩展。
 
@@ -479,15 +496,15 @@ python -m pytest -m "gpu" -q                  # 40 项 GPU 测试（需权重）
 
 ## 已验证配置
 
-开发与验证均在这台机器上完成（这是"实测配置"，不是"最低要求"）：
+这是"实测配置"，不是"最低要求"。两类证据：
 
-| 事实 | 数值 |
-|---|---|
-| APU | AMD Ryzen AI Max+ PRO 395（Radeon 8060S，`gfx1151`，Strix Halo 级） |
-| 内存 | 94 GB LPDDR5X 统一内存池，torch/HIP 可见约 80 GiB |
-| 内核 | Linux 6.17.0-1032-oem，`amdgpu` DRM 驱动（用 `rocm-smi` 确认） |
-| ROCm / torch | 来自 `repo.amd.com` 的 7.14.0 代际轮子：`torch[device-gfx1151]==2.12.0+rocm7.14.0`（含 torchvision/torchaudio）—— 由 `scripts/install.sh` 自动安装，无需手敲 |
-| Python | 验证主机为 3.12；CPU CI 矩阵运行 3.10 / 3.11 / 3.12 |
+| 事实 | gfx1151 参考主机（历史，v0.2/v0.2.1） | gfx1100 主机（v0.3 全新执行目标） |
+|---|---|---|
+| GPU | AMD Ryzen AI Max+ PRO 395（Radeon 8060S，`gfx1151`，Strix Halo 级） | AMD Radeon Pro W7900D（`gfx1100`，48 GB 独立显卡） |
+| 内存 | 94 GB LPDDR5X 统一内存池，torch/HIP 可见约 80 GiB | 503 GB 系统内存 + 48 GB 专用 GDDR6 |
+| 内核 | Linux 6.17.0-1032-oem，`amdgpu` DRM 驱动 | Linux 6.8.0-79-generic，`amdgpu` DRM 驱动（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)） |
+| ROCm / torch | 来自 `repo.amd.com` 的 7.14.0 代际轮子：`torch[device-gfx1151]==2.12.0+rocm7.14.0`（含 torchvision/torchaudio） | 同版本号、`device-gfx1100` extras —— 均由 `scripts/install.sh` 自动安装，无需手敲 |
+| Python | 验证主机为 3.12；CPU CI 矩阵运行 3.10 / 3.11 / 3.12 | 3.12.3（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)） |
 
 ### 需求与已知约束
 

@@ -5,6 +5,271 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added (v0.3 — gfx1100 first-class Radeon reference closure; in progress)
+
+- **Multi-architecture support contract** (v0.3 Tasks 1–5): `gfx1100` and
+  `gfx1151` are both first-class, evidence-backed wheel targets
+  (`device-gfx1100` / `device-gfx1151` from the pinned
+  `repo.amd.com/rocm/whl-multi-arch/` stack — torch 2.12.0+rocm7.14.0,
+  torchvision 0.27.0+rocm7.14.0, torchaudio 2.11.0+rocm7.14.0).
+  `scripts/install.sh` gains `--gfx-target {gfx1100,gfx1151,auto}`
+  (default `auto`, fail-closed: unknown/ambiguous/no-tool/no-GPU all hard
+  error; target resolved and printed before any download; explicit empty
+  value exits 2). `scripts/verify_gpu.sh` replaces the hard-coded
+  `gfx1151` assert with an exact-match contract
+  (`QWEN3_TTS_ROCM_GFX_TARGET`, default auto): gfx1151 stays an accepted,
+  *historically validated* target; unknown gfx targets never receive a
+  validated verdict; requested-vs-actual mismatch is a hard failure.
+  `qwen3-tts-rocm-check` now classifies each visible architecture as
+  *validated* (gfx1100), *historically validated* (gfx1151 — not rerun on
+  hardware during v0.3), or *ROCm-visible but not validated*. New canonical
+  contract module `qwen3_tts_rocm.gfx`. Design:
+  `docs/development/multiarch-design.md`; ground truth:
+  `docs/v0.3-ground-truth.md`.
+- **Docker build-time architecture selection**: `--build-arg
+  QWEN3_TTS_ROCM_GFX_TARGET=gfx1100|gfx1151` forwarded verbatim to
+  `install.sh --gfx-target`; unset/invalid/`auto` fails the build
+  fail-closed (a build layer has no GPU). OCI label is multi-arch.
+  (Historical in-container gfx1151 E2E evidence stays scoped 2026-09-24.)
+- **Architecture regression suite** (`tests/test_gfx_targets.py`, 41 CPU
+  tests): mapping + bash/python table parity, install-command generation
+  with pinned versions, invalid/family-pattern target rejection,
+  fail-closed auto detection, no-silent-fallback index ban, shell syntax,
+  simulated verify_gpu.sh arch logic (CODE LOGIC ONLY — gfx1151
+  simulations are explicitly not hardware evidence), validation-state
+  classification, gfx1100-dGPU-not-APU advisory regression, and the
+  preserved gfx1151 branch wheel configuration. CPU suite now collects
+  355 tests on a full-extras host.
+- **env.py advisories generalized**: the unified-memory APU heuristic is
+  now arch-first (the W7900D dGPU's "AMD Radeon Graphics" marketing name
+  no longer misfires an APU advisory); the `HSA_OVERRIDE_GFX_VERSION`
+  warning names both validated targets.
+
+### Changed (v0.3)
+
+- Public metadata truth pass (EN+CN in lockstep): hardware badge is
+  `gfx1100 | gfx1151`; the capability matrix is explicitly labelled
+  historical-gfx1151 evidence with the v0.3 gfx1100 re-execution plan;
+  the compatibility table no longer describes gfx1100 as requiring a
+  manual `install.sh` extras edit (the contract is now native);
+  `pyproject.toml` description/keywords and the package docstring are
+  multi-arch; the fine-tuning row's 0.6B text-projection status now names
+  upstream **PR #336 (OPEN)** instead of "issue drafted" (verified OPEN,
+  head `701938b`, base `022e286`); CHANGELOG reordered to normal reverse
+  chronology (Unreleased → 0.2.1 → 0.2.0 → 0.1.0).
+
+### Added
+
+- Compatibility matrix: `gfx1100` (Radeon Pro W7900D, 48 GB, ROCm 7.14.0)
+  joins `gfx1151` as an independently validated configuration — pinned wheel
+  stack with only the `device-gfx1100` extras swap in `scripts/install.sh`;
+  full suite green on the validated host (317 CPU + 40 GPU; v0.2.1 @
+  `39236a7`), replicated on a second stack, both benchmark suites completed
+  (median RTF 1.18–1.43 v1 / 1.14–1.22 v2). Evidence attached to
+  [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1); README,
+  README_CN, and the evidence-index pointer updated to match (the
+  "only validated configuration" phrasing retired everywhere).
+  (Superseded within Unreleased by the v0.3 contract above: the extras
+  swap is no longer a manual edit — `--gfx-target` is native.)
+
+### Historical note
+
+- gfx1151 evidence in this repository predates v0.3 and is preserved as-is.
+  **No fresh gfx1151 hardware execution was performed during v0.3** (that
+  hardware is not available in this program); gfx1151 coverage in v0.3 is
+  CPU/static regression only.
+
+## [0.2.1] — 2026-09-25 — [gfx1151 Production Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/compare/v0.2.0...v0.2.1) (program opened 2026-09-24; all ten tasks executed with independent verifier PASS; closure report: [`docs/gfx1151-production-closure-v0.2.1.md`](docs/gfx1151-production-closure-v0.2.1.md))
+
+**Release notes in brief:** the Radeon 8060S / gfx1151 reference deepens across every axis the v0.2.1 program named — GPU CI now has a green full-weekly run with persisted benchmark artifacts; Docker is GPU-runtime-validated end to end; official-API batch inference is characterized to B=8 on all five families; benchmark v2 brings n=5 seeded statistics with phase separation; long-text and 60-minute soak stability are evidenced; fine-tuning execution now covers BOTH the 1.7B and 0.6B Base checkpoints (with a second upstream defect root-caused and disclosed); quality evidence spans all 10 official languages; and the vLLM-Omni leg moves from a dated offline snapshot to the current stack with online serving, client-side-measured TRUE streaming (TTFA 0.22–0.25 s), and concurrency guidance — while the qwen-tts Python API keeps its honest no-streaming row and zero-upstream-patch semantics hold (pristine clone untouched; installed package byte-verified). Final regression 357/357 (317 CPU + 40 GPU), ruff clean.
+
+### Added (2026-09-25): all ten program
+  tasks executed with independent verifier PASS (see
+  `docs/gfx1151-production-closure-v0.2.1.md` for the task-by-task table,
+  capability before/after, known gaps, and no-overclaim audit). Final
+  regression: **317 CPU + 40 GPU = 357/357 green, ruff clean**
+  (`evidence/final-regression-v0.2.1-2026-09-25.txt`). Release readiness:
+  READY pending the final release-verification subagent and the user's
+  explicit approval to tag/publish.
+
+- **vLLM-Omni concurrency characterization on gfx1151** (v0.2.1 Task 10,
+  2026-09-25): new `scripts/vllm_concurrency_probe.py` measured 8-request
+  short-prompt ladders (c=1,2,4,8) against the live CustomVoice server in
+  two configurations. Packaged default config collapses past c=2 (c=8 E2E
+  p50 273 s); the deploy config's own TTFA note (stage-1
+  `max_num_seqs: 1` for CustomVoice) is decisively confirmed — c=8 stable
+  and useful (TTFA p50 0.74 s, E2E p50 8.63 s, 34.9 req/min, 1.50
+  audio-s/wall-s), zero failures/OOM anywhere. New serving guide
+  `docs/vllm-omni-gfx1151-serving.md`; evidence
+  `evidence/vllm-concurrency-gfx1151-2026-09-25.{txt,json}` + per-request
+  JSONs. Scope: this host/stack/workload only.
+
+- **vLLM-Omni online serving + true streaming on gfx1151** (v0.2.1 Task 9,
+  2026-09-24): the upstream-recipe `vllm serve` path is E2E validated on
+  the current stack for all three 1.7B task families (CustomVoice
+  `/v1/audio/voices` + speech; VoiceDesign natural-language description;
+  Base inline clone — the latter after pinning the documented
+  `ref_audio` URL/data-URL/file-URI contract and
+  `--allowed-local-media-path`, three client-side iterations recorded
+  verbatim). **True streaming measured from the client side**: HTTP PCM
+  delivers incrementally with TTFA 0.249 s (short) / 0.222 s (453 chars);
+  chunk cadence + playback-underrun simulation recorded. The upstream
+  WebSocket example client does NOT work against this server build
+  (client/server route+protocol drift; verbatim evidence; not claimed).
+  New `scripts/vllm_streaming_probe.py`. Rule-3 wording enforced: the
+  qwen-tts Python API row still says no incremental streaming.
+
+- **vLLM-Omni current truth run** (v0.2.1 Task 8, 2026-09-24): the dated
+  0.28.0 snapshot (2026-09-21, CustomVoice-only) superseded by the CURRENT
+  stack — vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 + onnxruntime-rocm in a
+  fresh isolated venv — running upstream `end2end.py` verbatim at main
+  `7e5897b…`: **all three 1.7B task families green** (CustomVoice,
+  VoiceDesign, Base voice-clone; finite non-silent 24 kHz WAVs archived).
+  Upstream truth captured first (main SHA re-queried live, recipe,
+  supported-model table, recent qwen3_tts commits incl. the MRV2 pipeline
+  optimization). Evidence:
+  `evidence/vllm-omni-current-gfx1151-2026-09-24.{txt,json}` +
+  `evidence/vllm-current-wavs/`. Scope unchanged: offline only; no
+  serving/streaming/perf claims (Tasks 9–10 pending).
+
+- **Quality benchmark v2** (v0.2.1 Task 7, 2026-09-24): all 10 official
+  languages scored for content correctness with whisper-small (GPU-probed
+  before use; never compared against v1's whisper-tiny numbers): 9/10 at
+  CER/WER 0.00–0.05, German 0.5455 recorded as an honest ASR-agreement
+  outlier. Clone speaker-similarity controls: positives 0.63–0.68 >
+  negatives 0.58–0.60, no thresholds claimed. New
+  `scripts/quality_eval_v2.py` + versioned manifest + `docs/quality-v2.md`
+  (explicitly documents what the metrics do NOT measure); 13 WAVs archived
+  under `evidence/quality-v2-wavs/`. No composite score, no MOS.
+
+- **0.6B Base fine-tuning execution validation** (v0.2.1 Task 6,
+  2026-09-24): the disciplined fine-tuning protocol ran twice, fully
+  independently, on Qwen3-TTS-12Hz-0.6B-Base — prep → 12 optimizer steps →
+  fingerprinted checkpoints → official-API reload → sane synthesis (both
+  runs RELOAD-AND-SYNTHESIS-OK; walls 19.5/26.5 s; peaks 8.65 GiB).
+  Execution-only: no convergence, quality, or multi-speaker claims.
+  **Second upstream defect root-caused and disclosed**: `sft_12hz.py`
+  adds text+codec embeddings without the talker's mandatory
+  `text_projection` — a shape RuntimeError by construction on 0.6B
+  (text_hidden 2048 ≠ hidden 1024; first attempt failed verbatim exactly
+  there). One-line inference-faithful workaround confined to the gitignored
+  fix worktree (`512db9b`); pristine clone untouched; upstream issue
+  drafted, not filed (user-gated). Evidence:
+  `evidence/finetune-06b-gfx1151-run{1,2}-2026-09-24.txt`;
+  `docs/finetuning-rocm.md` gained the 0.6B section; fine-tuning rows in
+  both READMEs now distinguish 1.7B vs 0.6B execution validation.
+
+- **Long-text + soak stability evidence** (v0.2.1 Task 5, 2026-09-24): new
+  `scripts/longtext_ladder.py` (4-tier zh/en ladder on 1.7B CustomVoice:
+  8/8 green up to 892 chars / 58 s audio, natural EOS everywhere, no
+  maximum-length claim — token counts are not API-observable, cap-vs-EOS
+  is a duration inference) and `scripts/soak_test.py` (resident mode:
+  60.04 min / **815/815 requests OK, zero failures**, RSS +0.02 GiB
+  across the session, torch peak flat; recycle mode: 10/10
+  load→generate→unload cycles with RSS plateau after cycle 2 — no
+  "memory leak free" claim). Two honest script-bug iterations archived
+  (zh `KeyError` mapping bug hit both scripts' first attempts; the stack
+  itself was stable throughout). Evidence:
+  `evidence/long-text-gfx1151-2026-09-24.{txt,json}`,
+  `evidence/soak-gfx1151-2026-09-24.{txt,-resident.jsonl,-recycle.jsonl}`.
+
+- **Benchmark v2 — controlled reproducibility** (v0.2.1 Task 4,
+  2026-09-24): new `scripts/benchmark_v2.py` (v1 untouched and still the CI
+  replication path) measured all five TTS aliases × cn/en × short/medium at
+  n=5 seeded runs per cell — 20 cells, 100 measured generations, zero
+  failures — with cold-start load / recorded warmup / warm-model runs
+  separated, rocm-smi bookends per alias, and median/min/max/mean/stdev
+  (+p10/p90 interpolation hints) per cell. RTF medians 1.04–1.52, per-cell
+  stdev ≤ 0.11. New `docs/benchmarks-v2.md` documents methodology and the
+  what-these-numbers-do-NOT-measure caveats; evidence
+  `evidence/benchmark-v2-gfx1151-2026-09-24.{txt,json}`. Four new CPU unit
+  tests pin the stats helper (suite: 317 CPU + 40 GPU).
+
+- **Official API batch inference closure** (v0.2.1 Task 3, 2026-09-24): new
+  `scripts/benchmark_batch.py` drives the official qwen-tts list-of-texts
+  API (zero custom batching) for all five families — 0.6B/1.7B
+  CustomVoice, 1.7B VoiceDesign, and 0.6B/1.7B Base through the reusable
+  `create_voice_clone_prompt` broadcast — up the ladder B ∈ {1,2,4,8}:
+  20/20 cells green, max validated batch size 8 for every family on this
+  host/config (batching amortizes wall time: B=8 RTF 0.36–1.20; peak torch
+  allocated up to 9.55 GiB, no OOM). Two new GPU regression tests pin the
+  reusable-prompt batch path (`test_batch_clone_with_reusable_prompt`,
+  0.6B + 1.7B) — suite grows to **313 CPU + 40 GPU = 353** (CI slice
+  counts updated: gpu-short 34/40). Evidence:
+  `evidence/batch-inference-gfx1151-2026-09-24.{txt,json}`; capability
+  matrix row added in both READMEs.
+
+- **Docker real-GPU E2E closure** (v0.2.1 Task 2, 2026-09-24): a fresh
+  `docker build --no-cache` image (tag `qwen3-tts-rocm:gfx1151-e2e`, HEAD
+  `488a028`) executed the complete GPU synthesis path inside the container
+  on the Radeon 8060S — 17/17 checks: ROCm/HIP/GPU/arch diagnostics,
+  finite bf16 matmul + SDPA, torchaudio import, repository-loader 0.6B
+  CustomVoice load, one official-API synthesis (3.84 s audio @ 24 kHz,
+  non-silent, WAV written), plus a 4-node GPU pytest slice in-container
+  (4 passed, 38.33 s). (The first-evidence phrasing said "17/17 checks";
+  the probe records 16 — a miscount corrected in the evidence index, with
+  an erratum appended to the transcript.) New probe
+  `scripts/docker_gpu_e2e.py` is embedded
+  in the image at build time. Evidence:
+  `evidence/docker-gpu-e2e-gfx1151-2026-09-24.{txt,json}` +
+  `evidence/docker-gpu-e2e-gen-2026-09-24.wav` (erratum inside: the JSON's
+  `generation.rtf` recorded the reciprocal throughput 0.37; repo-convention
+  RTF = 2.73; probe fixed in `96bc051`). README Docker wording upgraded
+  from build-validated to GPU-runtime-validated; `docker/README.md` gained
+  the GPU runtime validation section.
+
+- **First green `full-weekly` GPU CI run** (v0.2.1 Task 1, 2026-09-24):
+  run `35964051504` (`gpu-nightly` / `full-weekly`, event
+  `workflow_dispatch`, suite=full-weekly, commit `09ca9fd`) — every step
+  green on the self-hosted `gfx1151` runner in ~12½ min: all 38 GPU test
+  nodes passed in 314.08 s (including the 5 all-model load smokes + GPU
+  fixture smoke that only `full-weekly` runs), `verify_gpu.sh` stack
+  sanity SPIKE-GPU-OK, and RTF benchmark replication across the three 1.7B
+  aliases (12 cells, median RTF 1.27–1.40). Transcript:
+  `evidence/gpu-ci-full-weekly-first-green-2026-09-24.txt`. The runbook's
+  go-live checklist step 5 is ✅; both READMEs' GPU CI paragraphs now
+  record the full-weekly first green.
+
+### Changed
+
+- **`full-weekly` benchmark output persists as a run artifact.** A new
+  `if: always()` step uploads `evidence/benchmark-nightly.json` via
+  GitHub's first-party `actions/upload-artifact@v4` (artifact name
+  `benchmark-nightly-json`; retention request 365 d is clamped by the
+  repository's 90-day maximum — warning disclosed in the transcript).
+  Previously the JSON was ephemeral (wiped by the next run's
+  `git clean`); the runbook's ephemerality caveat is updated accordingly.
+  The JSON is still deliberately not committed back into the repository.
+- **GPU CI is live.** The self-hosted Radeon regression workflow
+  (`.github/workflows/gpu-nightly.yml`, added prepared-but-blocked in
+  0.2.0) executed its first real green run on 2026-09-23: run
+  `35857806038` (`gpu-short`, event `workflow_dispatch`, commit `a3a8a75`)
+  — 32/38 GPU test nodes in three disjoint slices, all passing, ~18 min
+  wall including ~10 min of sync retries through the host's TLS-flaky
+  github.com window (transcript:
+  `evidence/gpu-ci-first-green-2026-09-23.txt`). The runner
+  (amd-HP-ZBook-Ultra, labels `[self-hosted, Linux, X64,
+  radeon-gfx1151]`) is a user-level systemd service
+  (`~/.config/systemd/user/github-runner.service`, `ExecStart run.sh`,
+  `Restart=on-failure`, linger enabled, service user `amd` — not root).
+  The same hardening commit `a3a8a75` made real execution reliable:
+  retrying `git fetch` sync replacing `actions/checkout` (no third-party
+  actions), absolute host `.venv`/`models/` paths, a
+  `PYTHONPATH=$GITHUB_WORKSPACE/src` provenance assertion (code under
+  test = the pushed commit), and a `gpu-nightly` concurrency group with
+  `cancel-in-progress: false`. Nightly window: `0 18 * * *` UTC = 02:00
+  local (+08:00); runs when the validation host is powered/online at the
+  window — a missed window can be re-dispatched manually. README /
+  README_CN gained the GPU CI badge and the live-state paragraph;
+  the runbook (`docs/development/gpu-ci-runbook.md`) was corrected to the
+  as-built procedure (POST for the registration token, release-asset-API
+  digest instead of a nonexistent `.sha256` sidecar, user-systemd + linger
+  install with `sudo svc.sh` as the documented alternative,
+  personal-repo security posture, current cron, tracked-file-write
+  caveat, `benchmark-nightly.json` ephemerality).
+
 ## [0.2.0] - 2026-09-22 — [Radeon Reference Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/releases/tag/v0.2.0) (opened 2026-09-20; previously Unreleased; tag `v0.2.0` on `bec162c` after final release-verifier PASS)
 
 ### Added
@@ -339,209 +604,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `--port`, loader/download/refusal diagnostics carry troubleshooting
   pointers, the startup banner is humanized and `scripts/install.sh` prints
   stage banners with a NEXT hint.
-
-## [Unreleased]
-
-### Added
-
-- Compatibility matrix: `gfx1100` (Radeon Pro W7900D, 48 GB, ROCm 7.14.0)
-  joins `gfx1151` as an independently validated configuration — pinned wheel
-  stack with only the `device-gfx1100` extras swap in `scripts/install.sh`;
-  full suite green on the validated host (317 CPU + 40 GPU; v0.2.1 @
-  `39236a7`), replicated on a second stack, both benchmark suites completed
-  (median RTF 1.18–1.43 v1 / 1.14–1.22 v2). Evidence attached to
-  [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1); README,
-  README_CN, and the evidence-index pointer updated to match (the
-  "only validated configuration" phrasing retired everywhere).
-
-## [0.2.1] — 2026-09-25 — [gfx1151 Production Closure](https://github.com/AIwork4me/Qwen3-TTS-ROCm/compare/v0.2.0...v0.2.1) (program opened 2026-09-24; all ten tasks executed with independent verifier PASS; closure report: [`docs/gfx1151-production-closure-v0.2.1.md`](docs/gfx1151-production-closure-v0.2.1.md))
-
-**Release notes in brief:** the Radeon 8060S / gfx1151 reference deepens across every axis the v0.2.1 program named — GPU CI now has a green full-weekly run with persisted benchmark artifacts; Docker is GPU-runtime-validated end to end; official-API batch inference is characterized to B=8 on all five families; benchmark v2 brings n=5 seeded statistics with phase separation; long-text and 60-minute soak stability are evidenced; fine-tuning execution now covers BOTH the 1.7B and 0.6B Base checkpoints (with a second upstream defect root-caused and disclosed); quality evidence spans all 10 official languages; and the vLLM-Omni leg moves from a dated offline snapshot to the current stack with online serving, client-side-measured TRUE streaming (TTFA 0.22–0.25 s), and concurrency guidance — while the qwen-tts Python API keeps its honest no-streaming row and zero-upstream-patch semantics hold (pristine clone untouched; installed package byte-verified). Final regression 357/357 (317 CPU + 40 GPU), ruff clean.
-
-### Added (2026-09-25): all ten program
-  tasks executed with independent verifier PASS (see
-  `docs/gfx1151-production-closure-v0.2.1.md` for the task-by-task table,
-  capability before/after, known gaps, and no-overclaim audit). Final
-  regression: **317 CPU + 40 GPU = 357/357 green, ruff clean**
-  (`evidence/final-regression-v0.2.1-2026-09-25.txt`). Release readiness:
-  READY pending the final release-verification subagent and the user's
-  explicit approval to tag/publish.
-
-- **vLLM-Omni concurrency characterization on gfx1151** (v0.2.1 Task 10,
-  2026-09-25): new `scripts/vllm_concurrency_probe.py` measured 8-request
-  short-prompt ladders (c=1,2,4,8) against the live CustomVoice server in
-  two configurations. Packaged default config collapses past c=2 (c=8 E2E
-  p50 273 s); the deploy config's own TTFA note (stage-1
-  `max_num_seqs: 1` for CustomVoice) is decisively confirmed — c=8 stable
-  and useful (TTFA p50 0.74 s, E2E p50 8.63 s, 34.9 req/min, 1.50
-  audio-s/wall-s), zero failures/OOM anywhere. New serving guide
-  `docs/vllm-omni-gfx1151-serving.md`; evidence
-  `evidence/vllm-concurrency-gfx1151-2026-09-25.{txt,json}` + per-request
-  JSONs. Scope: this host/stack/workload only.
-
-- **vLLM-Omni online serving + true streaming on gfx1151** (v0.2.1 Task 9,
-  2026-09-24): the upstream-recipe `vllm serve` path is E2E validated on
-  the current stack for all three 1.7B task families (CustomVoice
-  `/v1/audio/voices` + speech; VoiceDesign natural-language description;
-  Base inline clone — the latter after pinning the documented
-  `ref_audio` URL/data-URL/file-URI contract and
-  `--allowed-local-media-path`, three client-side iterations recorded
-  verbatim). **True streaming measured from the client side**: HTTP PCM
-  delivers incrementally with TTFA 0.249 s (short) / 0.222 s (453 chars);
-  chunk cadence + playback-underrun simulation recorded. The upstream
-  WebSocket example client does NOT work against this server build
-  (client/server route+protocol drift; verbatim evidence; not claimed).
-  New `scripts/vllm_streaming_probe.py`. Rule-3 wording enforced: the
-  qwen-tts Python API row still says no incremental streaming.
-
-- **vLLM-Omni current truth run** (v0.2.1 Task 8, 2026-09-24): the dated
-  0.28.0 snapshot (2026-09-21, CustomVoice-only) superseded by the CURRENT
-  stack — vllm 0.30.0+rocm723 + vllm-omni 0.30.0rc1 + onnxruntime-rocm in a
-  fresh isolated venv — running upstream `end2end.py` verbatim at main
-  `7e5897b…`: **all three 1.7B task families green** (CustomVoice,
-  VoiceDesign, Base voice-clone; finite non-silent 24 kHz WAVs archived).
-  Upstream truth captured first (main SHA re-queried live, recipe,
-  supported-model table, recent qwen3_tts commits incl. the MRV2 pipeline
-  optimization). Evidence:
-  `evidence/vllm-omni-current-gfx1151-2026-09-24.{txt,json}` +
-  `evidence/vllm-current-wavs/`. Scope unchanged: offline only; no
-  serving/streaming/perf claims (Tasks 9–10 pending).
-
-- **Quality benchmark v2** (v0.2.1 Task 7, 2026-09-24): all 10 official
-  languages scored for content correctness with whisper-small (GPU-probed
-  before use; never compared against v1's whisper-tiny numbers): 9/10 at
-  CER/WER 0.00–0.05, German 0.5455 recorded as an honest ASR-agreement
-  outlier. Clone speaker-similarity controls: positives 0.63–0.68 >
-  negatives 0.58–0.60, no thresholds claimed. New
-  `scripts/quality_eval_v2.py` + versioned manifest + `docs/quality-v2.md`
-  (explicitly documents what the metrics do NOT measure); 13 WAVs archived
-  under `evidence/quality-v2-wavs/`. No composite score, no MOS.
-
-- **0.6B Base fine-tuning execution validation** (v0.2.1 Task 6,
-  2026-09-24): the disciplined fine-tuning protocol ran twice, fully
-  independently, on Qwen3-TTS-12Hz-0.6B-Base — prep → 12 optimizer steps →
-  fingerprinted checkpoints → official-API reload → sane synthesis (both
-  runs RELOAD-AND-SYNTHESIS-OK; walls 19.5/26.5 s; peaks 8.65 GiB).
-  Execution-only: no convergence, quality, or multi-speaker claims.
-  **Second upstream defect root-caused and disclosed**: `sft_12hz.py`
-  adds text+codec embeddings without the talker's mandatory
-  `text_projection` — a shape RuntimeError by construction on 0.6B
-  (text_hidden 2048 ≠ hidden 1024; first attempt failed verbatim exactly
-  there). One-line inference-faithful workaround confined to the gitignored
-  fix worktree (`512db9b`); pristine clone untouched; upstream issue
-  drafted, not filed (user-gated). Evidence:
-  `evidence/finetune-06b-gfx1151-run{1,2}-2026-09-24.txt`;
-  `docs/finetuning-rocm.md` gained the 0.6B section; fine-tuning rows in
-  both READMEs now distinguish 1.7B vs 0.6B execution validation.
-
-- **Long-text + soak stability evidence** (v0.2.1 Task 5, 2026-09-24): new
-  `scripts/longtext_ladder.py` (4-tier zh/en ladder on 1.7B CustomVoice:
-  8/8 green up to 892 chars / 58 s audio, natural EOS everywhere, no
-  maximum-length claim — token counts are not API-observable, cap-vs-EOS
-  is a duration inference) and `scripts/soak_test.py` (resident mode:
-  60.04 min / **815/815 requests OK, zero failures**, RSS +0.02 GiB
-  across the session, torch peak flat; recycle mode: 10/10
-  load→generate→unload cycles with RSS plateau after cycle 2 — no
-  "memory leak free" claim). Two honest script-bug iterations archived
-  (zh `KeyError` mapping bug hit both scripts' first attempts; the stack
-  itself was stable throughout). Evidence:
-  `evidence/long-text-gfx1151-2026-09-24.{txt,json}`,
-  `evidence/soak-gfx1151-2026-09-24.{txt,-resident.jsonl,-recycle.jsonl}`.
-
-- **Benchmark v2 — controlled reproducibility** (v0.2.1 Task 4,
-  2026-09-24): new `scripts/benchmark_v2.py` (v1 untouched and still the CI
-  replication path) measured all five TTS aliases × cn/en × short/medium at
-  n=5 seeded runs per cell — 20 cells, 100 measured generations, zero
-  failures — with cold-start load / recorded warmup / warm-model runs
-  separated, rocm-smi bookends per alias, and median/min/max/mean/stdev
-  (+p10/p90 interpolation hints) per cell. RTF medians 1.04–1.52, per-cell
-  stdev ≤ 0.11. New `docs/benchmarks-v2.md` documents methodology and the
-  what-these-numbers-do-NOT-measure caveats; evidence
-  `evidence/benchmark-v2-gfx1151-2026-09-24.{txt,json}`. Four new CPU unit
-  tests pin the stats helper (suite: 317 CPU + 40 GPU).
-
-- **Official API batch inference closure** (v0.2.1 Task 3, 2026-09-24): new
-  `scripts/benchmark_batch.py` drives the official qwen-tts list-of-texts
-  API (zero custom batching) for all five families — 0.6B/1.7B
-  CustomVoice, 1.7B VoiceDesign, and 0.6B/1.7B Base through the reusable
-  `create_voice_clone_prompt` broadcast — up the ladder B ∈ {1,2,4,8}:
-  20/20 cells green, max validated batch size 8 for every family on this
-  host/config (batching amortizes wall time: B=8 RTF 0.36–1.20; peak torch
-  allocated up to 9.55 GiB, no OOM). Two new GPU regression tests pin the
-  reusable-prompt batch path (`test_batch_clone_with_reusable_prompt`,
-  0.6B + 1.7B) — suite grows to **313 CPU + 40 GPU = 353** (CI slice
-  counts updated: gpu-short 34/40). Evidence:
-  `evidence/batch-inference-gfx1151-2026-09-24.{txt,json}`; capability
-  matrix row added in both READMEs.
-
-- **Docker real-GPU E2E closure** (v0.2.1 Task 2, 2026-09-24): a fresh
-  `docker build --no-cache` image (tag `qwen3-tts-rocm:gfx1151-e2e`, HEAD
-  `488a028`) executed the complete GPU synthesis path inside the container
-  on the Radeon 8060S — 17/17 checks: ROCm/HIP/GPU/arch diagnostics,
-  finite bf16 matmul + SDPA, torchaudio import, repository-loader 0.6B
-  CustomVoice load, one official-API synthesis (3.84 s audio @ 24 kHz,
-  non-silent, WAV written), plus a 4-node GPU pytest slice in-container
-  (4 passed, 38.33 s). (The first-evidence phrasing said "17/17 checks";
-  the probe records 16 — a miscount corrected in the evidence index, with
-  an erratum appended to the transcript.) New probe
-  `scripts/docker_gpu_e2e.py` is embedded
-  in the image at build time. Evidence:
-  `evidence/docker-gpu-e2e-gfx1151-2026-09-24.{txt,json}` +
-  `evidence/docker-gpu-e2e-gen-2026-09-24.wav` (erratum inside: the JSON's
-  `generation.rtf` recorded the reciprocal throughput 0.37; repo-convention
-  RTF = 2.73; probe fixed in `96bc051`). README Docker wording upgraded
-  from build-validated to GPU-runtime-validated; `docker/README.md` gained
-  the GPU runtime validation section.
-
-- **First green `full-weekly` GPU CI run** (v0.2.1 Task 1, 2026-09-24):
-  run `35964051504` (`gpu-nightly` / `full-weekly`, event
-  `workflow_dispatch`, suite=full-weekly, commit `09ca9fd`) — every step
-  green on the self-hosted `gfx1151` runner in ~12½ min: all 38 GPU test
-  nodes passed in 314.08 s (including the 5 all-model load smokes + GPU
-  fixture smoke that only `full-weekly` runs), `verify_gpu.sh` stack
-  sanity SPIKE-GPU-OK, and RTF benchmark replication across the three 1.7B
-  aliases (12 cells, median RTF 1.27–1.40). Transcript:
-  `evidence/gpu-ci-full-weekly-first-green-2026-09-24.txt`. The runbook's
-  go-live checklist step 5 is ✅; both READMEs' GPU CI paragraphs now
-  record the full-weekly first green.
-
-### Changed
-
-- **`full-weekly` benchmark output persists as a run artifact.** A new
-  `if: always()` step uploads `evidence/benchmark-nightly.json` via
-  GitHub's first-party `actions/upload-artifact@v4` (artifact name
-  `benchmark-nightly-json`; retention request 365 d is clamped by the
-  repository's 90-day maximum — warning disclosed in the transcript).
-  Previously the JSON was ephemeral (wiped by the next run's
-  `git clean`); the runbook's ephemerality caveat is updated accordingly.
-  The JSON is still deliberately not committed back into the repository.
-- **GPU CI is live.** The self-hosted Radeon regression workflow
-  (`.github/workflows/gpu-nightly.yml`, added prepared-but-blocked in
-  0.2.0) executed its first real green run on 2026-09-23: run
-  `35857806038` (`gpu-short`, event `workflow_dispatch`, commit `a3a8a75`)
-  — 32/38 GPU test nodes in three disjoint slices, all passing, ~18 min
-  wall including ~10 min of sync retries through the host's TLS-flaky
-  github.com window (transcript:
-  `evidence/gpu-ci-first-green-2026-09-23.txt`). The runner
-  (amd-HP-ZBook-Ultra, labels `[self-hosted, Linux, X64,
-  radeon-gfx1151]`) is a user-level systemd service
-  (`~/.config/systemd/user/github-runner.service`, `ExecStart run.sh`,
-  `Restart=on-failure`, linger enabled, service user `amd` — not root).
-  The same hardening commit `a3a8a75` made real execution reliable:
-  retrying `git fetch` sync replacing `actions/checkout` (no third-party
-  actions), absolute host `.venv`/`models/` paths, a
-  `PYTHONPATH=$GITHUB_WORKSPACE/src` provenance assertion (code under
-  test = the pushed commit), and a `gpu-nightly` concurrency group with
-  `cancel-in-progress: false`. Nightly window: `0 18 * * *` UTC = 02:00
-  local (+08:00); runs when the validation host is powered/online at the
-  window — a missed window can be re-dispatched manually. README /
-  README_CN gained the GPU CI badge and the live-state paragraph;
-  the runbook (`docs/development/gpu-ci-runbook.md`) was corrected to the
-  as-built procedure (POST for the registration token, release-asset-API
-  digest instead of a nonexistent `.sha256` sidecar, user-systemd + linger
-  install with `sudo svc.sh` as the documented alternative,
-  personal-repo security posture, current cron, tracked-file-write
-  caveat, `benchmark-nightly.json` ephemerality).
 
 ## [0.1.0] - 2026-08-27
 

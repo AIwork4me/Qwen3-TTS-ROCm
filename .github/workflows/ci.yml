@@ -4,7 +4,7 @@
 # resolution of `pip install -e ".[dev]"` (qwen-tts -> torchaudio -> torch)
 # reuses it instead of pulling the multi-gigabyte CUDA-bundled stack from
 # PyPI. This job never synthesizes audio or touches a GPU; ROCm wheels are
-# installed by scripts/install.sh on gfx1151 hardware only.
+# installed by scripts/install.sh on gfx1100/gfx1151 hardware only.
 #
 # Supply chain: third-party actions are pinned to full commit SHAs (the
 # comment keeps the human-readable version); the workflow runs with the

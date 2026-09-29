@@ -39,8 +39,8 @@ pip install torch --index-url https://repo.amd.com/rocm/whl-multi-arch/
 ```
 
 or simply re-run `bash scripts/install.sh`, which pins the full stack
-(`torch[device-gfx1151]==2.12.0+rocm7.14.0`, `torchvision`, `torchaudio`)
-from that index.
+(`torch[device-gfx1100|device-gfx1151]==2.12.0+rocm7.14.0` — extras per
+`--gfx-target`, `torchvision`, `torchaudio`) from that index.
 
 ### E2 · `The installed PyTorch is NOT an AMD ROCm/HIP build ...`
 
@@ -103,10 +103,10 @@ stack came up but the process cannot use the device again later (model init
 may fail), and once, as "permissions are the most likely root cause", when no
 device was visible at all.
 
-### W3 · `HSA_OVERRIDE_GFX_VERSION="..." is set, but gfx1151 needs NO override on ROCm 7.x`
+### W3 · `HSA_OVERRIDE_GFX_VERSION="..." is set, but the validated targets (gfx1100/gfx1151) need NO override on ROCm 7.x`
 
-gfx1151 is natively supported by the ROCm 7.x toolchain that ships in the AMD
-wheels. The override forces mis-targeted code objects and breaks more than it
+gfx1100 and gfx1151 are both natively supported by the ROCm 7.x toolchain
+that ships in the AMD wheels. The override forces mis-targeted code objects and breaks more than it
 fixes. Remove it:
 
 ```bash
