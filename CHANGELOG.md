@@ -41,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   simulations are explicitly not hardware evidence), validation-state
   classification, gfx1100-dGPU-not-APU advisory regression, and the
   preserved gfx1151 branch wheel configuration. CPU suite now collects
-  355 tests on a full-extras host.
+  358 tests on a full-extras host.
 - **env.py advisories generalized**: the unified-memory APU heuristic is
   now arch-first (the W7900D dGPU's "AMD Radeon Graphics" marketing name
   no longer misfires an APU advisory); the `HSA_OVERRIDE_GFX_VERSION`

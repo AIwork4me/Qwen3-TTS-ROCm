@@ -155,3 +155,15 @@ audit, Task 16):
   [issue #1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)
   (`evidence-gfx1100-2026-09-28.tar.gz`, sha256 `9a411842…f2ef`), produced
   under the same append-only, no-hand-edit discipline.
+
+## v0.3 evidence (gfx1100 fresh execution, 2026-09-29)
+
+| Directory | Contents | Reproduce |
+|---|---|---|
+| `gfx1100-v0.3/` | **v0.3 primary gate**: pristine fresh-checkout validation of candidate `01273a8` (tree `6784315a…`) — environment freeze, zero-edit install (`SPIKE-GPU-OK`), verify/check, CPU 343+15→358, GPU 40/40 in 307.70 s, benchmark v1/v2 (+ complete run2 transcripts), synthesis wav, final integrity (git diff 0, porcelain 0), provenance addendum, SHA256SUMS | commands embedded verbatim per phase |
+| `gfx1100-v0.3/docker-blocked/` | Task 9: container-runtime BLOCK preflight (seccomp/registry) + image-content build logs + 16/16 `docker_gpu_e2e.py` checks on the image's own venv (NOT in-container) + GPU pytest slice | `00-STATUS.md` |
+| `finetune-17b-gfx1100-v0.3/` | Task 10A: 1.7B Base execution smoke (sdpa deviation diff archived) | `09-summary.txt` |
+| `finetune-06b-gfx1100-v0.3/` | Task 10B/14: 0.6B baseline failure verbatim + upstream PR #336 head `701938b` validation | `09-summary.txt` |
+| `finetune-pr373-gfx1100-v0.3/` | Task 15: upstream PR #373 head `48b8644` validation (pristine worktree) | `00-STATUS.md` |
+| `durability-gfx1100-v0.3/` | Task 12: long-text ladder 8/8, soak 307/307 (20-min disclosed), recycle 10/10, multilingual 24/24+4/4, quality-v2 blocked note | `00-STATUS.md` |
+| `vllm-gfx1100-v0.3/` | Task 11: 11A–11E rungs on the reachable 0.16-era stack (0.30 wheels blocked); WAVs + JSONs + concurrency ladder | `00-STATUS.md` |

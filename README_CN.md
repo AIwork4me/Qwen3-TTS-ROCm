@@ -185,7 +185,7 @@ jiwer + 3 项 resemblyzer 质量基准测试；2026-09-21 声明审计将其由�
 ROCm 验证主机上该项也会执行，因此 gfx1151 参考主机为 317 CPU + 40 GPU = 357 / 357
 （2026-09-25；2026-09-24 起新增 2 项批量推理测试）全通过；gfx1100 复现
 317 + 40（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）。v0.3
-新增架构契约套件（41 项 CPU 测试 —— 总数在 v0.3 收尾报告中重新计数）。本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
+新增架构契约套件（41 项 CPU 测试 —— 总数见 v0.3 证据摘要）。本套件的首次实证 CI 运行：推送 `8815238` 全部 job 绿灯（[运行
 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415)，
 每个 Python job `251 passed, 1 skipped, 38 deselected`——于 2026-09-21 验证，
 当时套件为 252 项 CPU 测试，其后套件已增长到上列数量——转录见
@@ -321,7 +321,7 @@ bash scripts/run_demo.sh
   （[docker/README.md](docker/README.md)）。
 * **测试套件** —— gfx1151 参考主机 357/357（2026-09-25；317 CPU + 40 真机
   GPU），gfx1100 复现 317 + 40（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）；
-  v0.3 新增 41 项架构契约 CPU 测试（总数在收尾报告中重新计数）；
+  v0.3 新增 41 项架构契约 CPU 测试（总数见 v0.3 证据摘要）；
   CPU-only CI 在 Python 3.10 / 3.11 / 3.12 上收集 CPU 套件（v0.3 起为 358 项），
   其中 1 项 HIP 门控跳过（纯 `.[dev]` 环境中另有上文所述 15 项 `[quality]`
   附加组件可见跳过；最近一次按规模实证绿灯的 CI 运行为 267-CPU 时期：
@@ -359,7 +359,7 @@ bash scripts/run_demo.sh
 
 | GPU / 平台 | 架构 | ROCm | 状态 | 证据 |
 |---|---|---|---|---|
-| Radeon Pro W7900D（48 GB） | `gfx1100` | 7.14.0 | ✅ 已验证 —— v0.3 全新执行目标；`install.sh` 原生选择 `device-gfx1100` 轮子（`--gfx-target gfx1100` 或失败即停的自动检测） | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)（v0.3 前锁定栈验证）+ v0.3 任务（全新检出运行见收尾报告） |
+| Radeon Pro W7900D（48 GB） | `gfx1100` | 7.14.0 | ✅ 已验证 —— v0.3 全新执行目标；`install.sh` 原生选择 `device-gfx1100` 轮子（`--gfx-target gfx1100` 或失败即停的自动检测） | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)（v0.3 前锁定栈验证）+ v0.3 任务（全新检出运行见 [`evidence/gfx1100-v0.3/`](evidence/gfx1100-v0.3/)） |
 | Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ 已验证 —— 历史参考配置（v0.2/v0.2.1 证据；v0.3 期间未重跑） | [`evidence/`](evidence/README.md) |
 | 其他 ROCm capable AMD GPU | — | — | 🧪 **尚未验证 —— 欢迎社区实测** | 提交 issue 并附上 `qwen3-tts-rocm-check` 输出 |
 

@@ -211,8 +211,8 @@ On the validated gfx1151 host that test also ran, giving 317 CPU +
 40 GPU = 357 / 357 (2026-09-25; grew across 2026-09-24/25: +2 batch-inference
 GPU tests, +4 benchmark-v2 CPU tests); gfx1100 reproduced 317 + 40
 ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)). v0.3 adds the
-architecture-contract suite (41 CPU tests — totals re-counted in the v0.3
-closure report). First verified CI run on this suite: all jobs green at
+architecture-contract suite (41 CPU tests; totals recorded in
+[`evidence/gfx1100-v0.3/09-summary.txt`](evidence/gfx1100-v0.3/09-summary.txt)). First verified CI run on this suite: all jobs green at
 push `8815238` ([run 35526426415](https://github.com/AIwork4me/Qwen3-TTS-ROCm/actions/runs/35526426415),
 `251 passed, 1 skipped, 38 deselected` per Python job — verified 2026-09-21
 when the suite stood at 252 CPU tests; the suite has since grown to the
@@ -401,7 +401,7 @@ demo UI. Not a fork; no vendored or patched upstream source, ever.
 
 | GPU / Platform | Arch | ROCm | Status | Evidence |
 |---|---|---|---|---|
-| Radeon Pro W7900D (48 GB) | `gfx1100` | 7.14.0 | ✅ Verified — v0.3 fresh-execution target; `install.sh` natively selects `device-gfx1100` wheels (`--gfx-target gfx1100` or fail-closed auto) | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) (pre-v0.3 pinned-stack validation) + v0.3 tasks (fresh-checkout run in the closure report) |
+| Radeon Pro W7900D (48 GB) | `gfx1100` | 7.14.0 | ✅ Verified — v0.3 fresh-execution target; `install.sh` natively selects `device-gfx1100` wheels (`--gfx-target gfx1100` or fail-closed auto) | [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1) (pre-v0.3 pinned-stack validation) + v0.3 tasks (fresh-checkout run: [`evidence/gfx1100-v0.3/`](evidence/gfx1100-v0.3/)) |
 | Radeon 8060S / Ryzen AI Max+ PRO 395 | `gfx1151` | 7.14.0 | ✅ Verified — historical reference configuration (v0.2/v0.2.1 evidence; not rerun during v0.3) | [`evidence/`](evidence/README.md) |
 | Other ROCm-capable AMD GPUs | — | — | 🧪 **Not yet validated — community testing wanted** | open an issue with your `qwen3-tts-rocm-check` output |
 
