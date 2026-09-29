@@ -61,3 +61,17 @@ results remain historical gfx1151 evidence and are not transferred.
 | resident soak | ✅ 307/307, 0 fail | 20 min vs reference 60 min — disclosed |
 | multilingual matrix | ✅ 24/24 + 4/4 | identical |
 | quality v2 | 🚫 blocked (whisper weights unreachable) | n/a — no numbers claimed |
+
+## Errata / hygiene (post-verification, round 1 — appended)
+
+1. "peak 4.06 GiB constant": the full JSONL range is 4.03–4.19 GiB
+   (no upward trend; the tail lines read 4.06). Cosmetic over-rounding.
+2. The multilingual script's DEFAULT output paths wrote gfx1100 results
+   over the worktree copies of the historical
+   `evidence/multilingual-matrix.{txt,json}` (gfx1151, 2026-09-20). The
+   historical files were restored from git immediately after the round-1
+   verification flagged it; the gfx1100 results live ONLY under this
+   evidence dir (multilingual-gfx1100-2026-09-29.txt +
+   multilingual-matrix.json here, copied before restoration). The
+   historical gfx1151 artifacts in git were never modified or committed
+   over.
