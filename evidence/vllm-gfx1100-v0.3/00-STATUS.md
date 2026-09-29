@@ -95,3 +95,18 @@ deploy-config finding); the packaged default config was measured as-is.
 - No results on the current 0.30.x stack (install-blocked, above).
 - No WebSocket rung (upstream-broken historically; not retried here).
 - No quality claims; no cross-GPU comparisons; numbers are this-host-only.
+
+## Errata (post-verification, round 1 — appended, nothing above altered)
+
+1. 11D long input length: the JSON ground truth is `input_chars: 300`
+   (the "~342 chars" figure above counted the generating expression, not
+   the delivered input).
+2. 11A compiled-target list: `_C.abi3.so` also embeds gfx950-family code
+   objects beyond the 8 listed; gfx1100 remains present as stated. The
+   word "exactly" overreached.
+3. 11A failed-attempt disclosure: the two harness failures (stdin re-exec;
+   missing __main__ guard) are described HERE in the status doc; the
+   archived `11a-minimal-inference.txt` contains only the final green run.
+4. Supplementary observation (for completeness): the 11B Base-family WAV is
+   163.8 s — the upstream example's default `max_new_tokens: [2048]` allows
+   very long generations; no duration constraint was imposed.
