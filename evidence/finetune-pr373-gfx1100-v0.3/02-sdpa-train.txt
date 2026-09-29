@@ -1,0 +1,12 @@
+=== PR373 check 2: explicit --attn_implementation sdpa -> full 1.7B fine-tuning smoke ===
+08:28:20
+********
+ 
+Epoch 0 | Step 0 | Loss: 13.5619
+Epoch 1 | Step 0 | Loss: 10.7977
+[launcher] train() wall: 40.1 s
+[launcher] peak allocated: 18.01 GiB
+[launcher] peak reserved:   18.40 GiB
+TRAIN-OK
+sdpa_rc=0
+08:29:05

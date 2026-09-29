@@ -1,0 +1,8 @@
+=== PR373 check 3: checkpoint reload + synthesis sanity (sdpa-trained 1.7B) ===
+08:29:25
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[reload] speaker=pr373_sdpa sr=24000 dur=3.04s peak=0.3477 rms=0.0504
+RELOAD-AND-SYNTHESIS-OK
+reload_rc=0
+08:29:41
+=== PR373 check 4: loader path (repo loader = sdpa on HIP; from_pretrained sdpa kwarg reachability shown by the training import above) ===
