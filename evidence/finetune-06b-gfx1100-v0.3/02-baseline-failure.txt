@@ -1,0 +1,10 @@
+=== 10B-3: BASELINE 0.6B training (upstream 022e286 + sdpa override only) — EXPECTED FAILURE ===
+02:54:30
+  File "/workspace/repo/.work-finetune/run_sft_launcher.py", line 51, in main
+    mod.train()
+  File "/workspace/repo/.upstream/Qwen3-TTS/finetuning/sft_12hz.py", line 93, in train
+    input_embeddings = input_text_embedding + input_codec_embedding
+                       ~~~~~~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+RuntimeError: The size of tensor a (2048) must match the size of tensor b (1024) at non-singleton dimension 2
+baseline_rc=1
+02:54:40

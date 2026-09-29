@@ -1,0 +1,12 @@
+=== 10B-4: 0.6B training with upstream PR #336 head 701938b (+ the separate sdpa override, PR #373 still open) ===
+02:54:57
+********
+ 
+Epoch 0 | Step 0 | Loss: 14.7048
+Epoch 1 | Step 0 | Loss: 6.7610
+[launcher] train() wall: 20.0 s
+[launcher] peak allocated: 8.66 GiB
+[launcher] peak reserved:   8.99 GiB
+TRAIN-OK
+pr336_rc=0
+02:55:22

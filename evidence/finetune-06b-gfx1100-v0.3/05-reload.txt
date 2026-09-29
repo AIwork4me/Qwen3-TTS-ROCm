@@ -1,0 +1,7 @@
+=== 10B-5: reload + official-API synthesis (PR #336-trained 0.6B checkpoint) ===
+02:55:51
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[reload] speaker=base_speaker sr=24000 dur=11.60s peak=1.0000 rms=0.3097
+RELOAD-AND-SYNTHESIS-OK
+reload_rc=0
+02:56:17

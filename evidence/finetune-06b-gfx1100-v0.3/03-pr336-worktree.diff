@@ -1,0 +1,13 @@
+diff --git a/finetuning/sft_12hz.py b/finetuning/sft_12hz.py
+index 89f9864..f0b15bb 100644
+--- a/finetuning/sft_12hz.py
++++ b/finetuning/sft_12hz.py
+@@ -48,7 +48,7 @@ def train():
+     qwen3tts = Qwen3TTSModel.from_pretrained(
+         MODEL_PATH,
+         torch_dtype=torch.bfloat16,
+-        attn_implementation="flash_attention_2",
++        attn_implementation="sdpa",
+     )
+     config = AutoConfig.from_pretrained(MODEL_PATH)
+ 

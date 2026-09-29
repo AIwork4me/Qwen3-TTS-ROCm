@@ -1,0 +1,35 @@
+=== Task 10B — 0.6B Base fine-tuning execution smoke on gfx1100 (W7900D) ===
+Scope claim: EXECUTION VALIDATED ONLY. The TWO upstream issues are kept
+explicitly separate:
+
+  ISSUE 1 (attention backend portability): sft_12hz.py hard-codes
+    flash_attention_2 (PR #373, OPEN, proposes configurability). Workaround:
+    the same one-line sdpa override as 10A, applied to BOTH worktrees,
+    diffs archived (03-pr336-worktree.diff shows #336's projection fix PLUS
+    the sdpa line; the sdpa-only diff for baseline is ft17/00).
+  ISSUE 2 (0.6B text-projection dimension bug): sft_12hz.py adds text+codec
+    embeddings WITHOUT the talker's mandatory text_projection; on 0.6B
+    text_hidden 2048 != hidden 1024. Validated with the EXACT upstream fix:
+    PR #336 head 701938bb6bdf22c091ec0a0952990bf9b7ae457d (tree verified
+    37/37 via GitHub API; the fix projects text embeddings before the add).
+
+Protocol (fresh dataset, independent run):
+1) fresh self-generated dataset (12 utts, official model, seed 1234) +
+   official prepare_data.py AS-IS: 12 coded lines (01-prep.txt)
+2) BASELINE REPRO (022e286 + sdpa only): training fails VERBATIM at
+   sft_12hz.py:93 "RuntimeError: The size of tensor a (2048) must match the
+   size of tensor b (1024)" (02-baseline-failure.txt) — the exact
+   documented defect, reproduced on gfx1100
+3) FIX RUN (PR #336 head + sdpa): 12 optimizer steps; losses
+   "Epoch 0 | Step 0 | Loss: 14.7048" / "Epoch 1 | Step 0 | Loss: 6.7610";
+   wall 20.0 s; peak allocated 8.66 GiB / reserved 8.99 GiB (historical
+   gfx1151 comparand: 8.65 GiB); checkpoints saved (04-pr336-train.txt)
+4) reload via repo loader (sdpa default) + official-API synthesis:
+   speaker base_speaker, 11.60 s @ 24 kHz, peak 1.0000, rms 0.3097,
+   assert_wav_sane PASS — RELOAD-AND-SYNTHESIS-OK (05-reload.txt)
+
+Hardware: AMD Radeon Pro W7900D, gfx1100; torch 2.12.0+rocm7.14.0 / HIP
+7.14.60850 (repo .venv, device-gfx1100 extras). Upstream PRs #336/#373 both
+OPEN/unmerged at execution time. Repository source untouched; all upstream
+work confined to gitignored .upstream clones.
+RESULT: TASK-10B-EXECUTION-VALIDATED (with upstream PR #336 exact head)
