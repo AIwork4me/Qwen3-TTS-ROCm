@@ -1,0 +1,18 @@
+=== 12-1: long-text ladder (custom-voice 1.7B, same methodology as gfx1151 2026-09-24) ===
+07:42:58
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[longtext] OK en/very-long chars=892 wall=70.86s audio=57.84s rtf=1.23 budget=8192 hit_cap=False peak=4.72GiB rss=2.91GiB
+[longtext] wrote /workspace/evidence-gfx1100-v0.3/durability/longtext-gfx1100-2026-09-29.json
+| lang | tier | chars | wall s | audio s | RTF | budget | hit_cap | peak GiB | rss GiB |
+|---|---|---|---|---|---|---|---|---|---|
+| zh | short | 17 | 7.51 | 3.68 | 2.04 | 512 | False | 4.07 | 2.86 |
+| zh | medium | 53 | 15.57 | 12.72 | 1.22 | 512 | False | 4.33 | 2.86 |
+| zh | long | 121 | 41.68 | 33.92 | 1.23 | 8192 | False | 4.66 | 2.88 |
+| zh | very-long | 245 | 72.41 | 58.24 | 1.24 | 8192 | False | 5.28 | 2.9 |
+| en | short | 60 | 4.71 | 3.84 | 1.23 | 512 | False | 4.08 | 2.9 |
+| en | medium | 179 | 13.58 | 11.04 | 1.23 | 512 | False | 4.29 | 2.9 |
+| en | long | 453 | 34.61 | 27.84 | 1.24 | 8192 | False | 4.66 | 2.9 |
+| en | very-long | 892 | 70.86 | 57.84 | 1.23 | 8192 | False | 4.72 | 2.91 |
+LONGTEXT-LADDER-OK
+ladder_rc=0
+07:47:29

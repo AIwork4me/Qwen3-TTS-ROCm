@@ -1,0 +1,12 @@
+=== 12-2: load->generate->unload recycle cycles (10 cycles, same methodology as gfx1151) ===
+07:47:38
+[soak] cycle#8 OK load=2.93s wall=4.08s rss_after_unload=3.03GiB
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[soak] cycle#9 OK load=2.8s wall=3.89s rss_after_unload=3.03GiB
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[soak] cycle#10 OK load=2.78s wall=4.42s rss_after_unload=3.04GiB
+SOAK-OK
+recycle_rc=0
+07:49:00

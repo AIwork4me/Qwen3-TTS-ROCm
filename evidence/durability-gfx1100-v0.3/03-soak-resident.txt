@@ -1,0 +1,12 @@
+=== 12-3: resident soak ===
+METHODOLOGY DISCLOSURE: gfx1151 reference ran 60 minutes; this gfx1100 run is 20 minutes.
+Duration differs; request cadence/assertions identical. No cross-run threshold claims made.
+07:49:09
+[soak] req#303 OK  wall=3.79s audio=3.28s rss=2.89GiB peak=4.06GiB cum_fail=0
+[soak] req#304 OK  wall=3.95s audio=3.44s rss=2.89GiB peak=4.06GiB cum_fail=0
+[soak] req#305 OK  wall=3.71s audio=3.2s rss=2.89GiB peak=4.06GiB cum_fail=0
+[soak] req#306 OK  wall=4.04s audio=3.2s rss=2.89GiB peak=4.06GiB cum_fail=0
+[soak] req#307 OK  wall=4.13s audio=3.28s rss=2.89GiB peak=4.06GiB cum_fail=0
+SOAK-OK
+resident_rc=0
+08:09:15
