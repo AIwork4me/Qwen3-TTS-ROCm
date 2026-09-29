@@ -77,3 +77,11 @@ All logs are in this directory; every command is recorded verbatim.
 
 The gfx1151 in-container E2E (2026-09-24) remains the historical reference
 for the container-runtime path.
+
+## Erratum (post-verification)
+
+`10-apt-layer-proot.txt` is 0 bytes (the hung proot/apt attempt was killed
+before any output flushed); it documents that the attempt produced nothing,
+not the hang itself. The hang was observed interactively; the preflight and
+the dpkg-deb fallback path remain the substantive evidence. Noted by the
+Task 9 verifier; appended without altering any earlier text.
