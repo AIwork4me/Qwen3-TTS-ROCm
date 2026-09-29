@@ -32,8 +32,10 @@ unset, invalid, or `auto` target fails the build immediately inside
 
 > GPU-runtime evidence status: the archived in-container E2E validation
 > (2026-09-24) covers **gfx1151** (historical; the then-validation host).
-> The gfx1100 image path is exercised in v0.3 — see the GPU runtime
-> validation section below.
+> A fresh in-container gfx1100 E2E run is planned as part of v0.3 (Task 9);
+> until that evidence exists and is linked below, no gfx1100 Docker claim
+> is made. See the GPU runtime validation section below for the historical
+> gfx1151 evidence.
 
 ## Run with GPU passthrough
 

@@ -576,17 +576,19 @@ required"):
 ## Docker
 
 Reproducible Docker build with `/dev/kfd` + `/dev/dri` passthrough for ROCm
-execution; mount your `models/` directory into the image's declared
-volume:
+execution; pass your validated architecture at build time and mount your
+`models/` directory into the image's declared volume:
 
 ```bash
-docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
+docker build -f docker/Dockerfile \
+    --build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1100 \
+    -t qwen3-tts-rocm:gfx1100 .
 docker run --rm \
     --device /dev/kfd --device /dev/dri \
     --group-add video --group-add render \
     -v "$PWD/models:/workspace/models" \
     -p 8000:8000 \
-    qwen3-tts-rocm:dev
+    qwen3-tts-rocm:gfx1100
 ```
 
 Image validation transcripts: build-only era

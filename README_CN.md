@@ -505,17 +505,19 @@ python -m pytest -m "gpu" -q                  # 40 项 GPU 测试（需权重）
 
 ## Docker
 
-可复现的 Docker 构建，通过 `/dev/kfd` + `/dev/dri` 直通在 ROCm 上运行；把
-宿主机的 `models/` 目录挂载进镜像声明的卷即可：
+可复现的 Docker 构建，通过 `/dev/kfd` + `/dev/dri` 直通在 ROCm 上运行；
+构建时传入已验证的目标架构，并把宿主机的 `models/` 目录挂载进镜像声明的卷：
 
 ```bash
-docker build -f docker/Dockerfile -t qwen3-tts-rocm:dev .
+docker build -f docker/Dockerfile \
+    --build-arg QWEN3_TTS_ROCM_GFX_TARGET=gfx1100 \
+    -t qwen3-tts-rocm:gfx1100 .
 docker run --rm \
     --device /dev/kfd --device /dev/dri \
     --group-add video --group-add render \
     -v "$PWD/models:/workspace/models" \
     -p 8000:8000 \
-    qwen3-tts-rocm:dev
+    qwen3-tts-rocm:gfx1100
 ```
 
 镜像验证记录：仅构建时代为 [`evidence/docker-build-final.txt`](evidence/docker-build-final.txt)；
