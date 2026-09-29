@@ -74,6 +74,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (Superseded within Unreleased by the v0.3 contract above: the extras
   swap is no longer a manual edit — `--gfx-target` is native.)
 
+### Blocked / disclosed (v0.3 Task 9)
+
+- **gfx1100 in-container Docker E2E: BLOCKED in the v0.3 program
+  environment** — that environment denies all namespace-creating syscalls
+  (seccomp), so `docker build`/`docker import`/`docker run` cannot execute
+  there, and registry-1.docker.io is proxy-forbidden (preflight archived at
+  `evidence/gfx1100-v0.3/docker-blocked/preflight.txt`). What was validated
+  on the real W7900D instead: the image **content** (official Ubuntu 24.04
+  rootfs + the Dockerfile's exact package set + the verbatim
+  `install.sh --gfx-target gfx1100` install RUN) passes the repository's
+  16-check `docker_gpu_e2e.py` probe (16/16 OK,
+  `DOCKER-GPU-E2E-OK`: HIP 7.14.60850, gfx1100 arch, finite bf16/SDPA,
+  torchaudio, 0.6B loader, 4.16 s official-API synthesis) and a 4-node GPU
+  pytest slice (4 passed, 37.31 s), executed with the image's own venv on
+  the host kernel WITHOUT container isolation. No "gfx1100 Docker
+  validated" claim is made; the in-container run stays pending for a
+  runtime-capable host. The historical gfx1151 in-container E2E
+  (2026-09-24) remains the container-runtime reference.
+
 ### Historical note
 
 - gfx1151 evidence in this repository predates v0.3 and is preserved as-is.

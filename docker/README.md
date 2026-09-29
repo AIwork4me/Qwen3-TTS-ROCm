@@ -32,10 +32,17 @@ unset, invalid, or `auto` target fails the build immediately inside
 
 > GPU-runtime evidence status: the archived in-container E2E validation
 > (2026-09-24) covers **gfx1151** (historical; the then-validation host).
-> A fresh in-container gfx1100 E2E run is planned as part of v0.3 (Task 9);
-> until that evidence exists and is linked below, no gfx1100 Docker claim
-> is made. See the GPU runtime validation section below for the historical
-> gfx1151 evidence.
+> A fresh in-container **gfx1100** E2E could not be executed during the
+> v0.3 program: that program environment blocks all namespace-creating
+> syscalls (seccomp), so no OCI build/run is possible there. What was
+> validated instead — the image **content** (Ubuntu 24.04 rootfs +
+> Dockerfile package set + `install.sh --gfx-target gfx1100` wheel stack)
+> passing the full 16-check GPU probe and a GPU pytest slice on the real
+> W7900D outside a container runtime — is archived under
+> `evidence/gfx1100-v0.3/docker-blocked/` with the blocked-runtime
+> preflight. The in-container gfx1100 run remains **pending** for a
+> runtime-capable host; see the historical gfx1151 evidence below for the
+> container-runtime reference path.
 
 ## Run with GPU passthrough
 

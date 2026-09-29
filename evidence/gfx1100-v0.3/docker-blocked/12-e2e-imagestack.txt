@@ -1,0 +1,28 @@
+[e2e] OK   torch_is_rocm_build — 2.12.0+rocm7.14.0
+[e2e] OK   hip_version — 7.14.60850
+[e2e] OK   cuda_available
+[e2e] OK   gpu_name — AMD Radeon Pro W7900D
+[e2e] OK   gfx_arch — gfx1100
+[e2e] OK   bf16_matmul_finite — shape=(512, 512) min=-97.000 max=114.000
+[e2e] OK   sdpa_finite — shape=(2, 4, 64, 32)
+[e2e] OK   torchaudio_import — 2.11.0+rocm7.14.0
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-0.6B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[e2e] OK   loader_load — alias=custom-voice-0.6b load_seconds=5.85
+[e2e] OK   speakers_surface — n=9 first=aiden
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 17891328, provided ptr: 0x727e04c92400 size: 13396992
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 17891328, provided ptr: 0x727e04ca4400 size: 13452288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x727e06298a00 size: 14857728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x727e0629e600 size: 14885376
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 89456640, provided ptr: 0x727e08726600 size: 26082048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 89456640, provided ptr: 0x727e08729600 size: 26095872
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 134184960, provided ptr: 0x727e0810c800 size: 38471168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 134184960, provided ptr: 0x727e0810c400 size: 38478080
+[e2e] OK   one_waveform — n=1
+[e2e] OK   sample_rate — 24000 (expected 24000)
+[e2e] OK   waveform_finite
+[e2e] OK   non_silent — rms=0.1348 (>= 1e-3)
+[e2e] OK   duration_sane — 4.16s in [0.5, 60]
+[e2e] OK   wav_written — /workspace/evidence-gfx1100-v0.3/docker-blocked/docker-gpu-e2e-gen-gfx1100.wav 199724 bytes via soundfile
+[e2e] wrote /workspace/evidence-gfx1100-v0.3/docker-blocked/docker-gpu-e2e-gfx1100-imagestack.json
+DOCKER-GPU-E2E-OK
