@@ -579,7 +579,7 @@ Re-run the proof yourself:
 ```bash
 bash scripts/verify_gpu.sh                    # SPIKE-GPU-OK on working ROCm
 qwen3-tts-rocm-check                          # environment self-check
-python -m pytest -m "not gpu and not requires_download" -q   # CPU tests (1 HIP-gated skip without an AMD GPU; 15 more skip without .[quality]; 355 collected in v0.3)
+python -m pytest -m "not gpu and not requires_download" -q   # CPU tests (1 HIP-gated skip without an AMD GPU; 15 more skip without .[quality]; 358 collected in v0.3)
 python -m pytest -m "gpu" -q                  # 40 on-GPU tests (weights required)
 .venv/bin/python scripts/benchmark.py         # fresh RTF numbers
 ```
