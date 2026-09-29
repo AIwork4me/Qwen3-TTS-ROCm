@@ -13,7 +13,7 @@ configurable" (fixes #372)
 | mergeable | true (`clean`) |
 | comments / reviews | 0 / 0 |
 
-The EXACT PR head was fetched and tree-verified (37/37 blobs == the GitHub
+The EXACT PR head was fetched and tree-verified (38/38 blobs == the GitHub
 API tree of `48b8644`), imported into the gitignored
 `.upstream/Qwen3-TTS-pr373`. **The worktree stayed PRISTINE for the entire
 validation — zero local edits** (`git status --porcelain` empty after all
