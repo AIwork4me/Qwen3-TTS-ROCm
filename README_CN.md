@@ -320,7 +320,8 @@ bash scripts/run_demo.sh
 ## 为什么选择 Qwen3-TTS-ROCm？
 
 上游 Qwen3-TTS 的部署文档以 CUDA / FlashAttention 为主。本项目在不修改官方
-`qwen-tts` 包的前提下，补充一条经过验证的 `gfx1151` ROCm 部署路径——只是一层
+`qwen-tts` 包的前提下，补充经过验证的 `gfx1100` 与 `gfx1151` 两条 ROCm 部署
+路径——只是一层
 薄壳：环境诊断、智能默认加载器、双源下载器和增强版演示界面。不是 fork；
 永远不内置、不补丁上游源码。
 

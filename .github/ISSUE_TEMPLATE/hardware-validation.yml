@@ -121,9 +121,10 @@ body:
         Paste the exact commands, Dockerfile, or image tag you actually used
         to install your ROCm / PyTorch stack so the report is reproducible.
 
-        For gfx1151, `bash scripts/install.sh` is the validated path.
-        When validating another GPU architecture, use the ROCm / PyTorch stack
-        appropriate for that device and paste the exact commands here.
+        For gfx1100/gfx1151, `bash scripts/install.sh --gfx-target <arch>`
+        (or fail-closed auto) is the validated path. When validating another
+        GPU architecture, use the ROCm / PyTorch stack appropriate for that
+        device and paste the exact commands here.
       render: shell
     validations:
       required: true
