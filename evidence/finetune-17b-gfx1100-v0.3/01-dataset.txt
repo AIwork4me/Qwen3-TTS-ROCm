@@ -1,0 +1,10 @@
+=== 10A-1: dataset generation (official custom-voice 1.7B, seed 1234) ===
+02:42:48
+[utt] en05 (English): A narrow trail leads up to the old stone bridge.
+[render] took=4.2s sr=24000 lang=English chars=48
+[utt] en06 (English): The children collected shells along the northern shore.
+[render] took=3.9s sr=24000 lang=English chars=55
+[done] 12 records -> /workspace/repo/.work-finetune/data/train_raw.jsonl
+[done] shared ref_audio -> /workspace/repo/.work-finetune/data/ref_speaker.wav
+rc=0
+02:43:54

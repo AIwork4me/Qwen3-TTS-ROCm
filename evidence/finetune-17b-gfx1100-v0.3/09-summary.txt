@@ -1,0 +1,28 @@
+=== Task 10A — 1.7B Base fine-tuning execution smoke on gfx1100 (W7900D) ===
+Scope claim: EXECUTION VALIDATED ONLY (prep -> 12 steps -> checkpoint -> reload
+-> sane synthesis). NO convergence / quality / optimal / production claims.
+
+Upstream: QwenLM/Qwen3-TTS @ 022e286 (tree verified via GitHub API, 37/37 blobs),
+gitignored clone .upstream/Qwen3-TTS. ONE deviation (the documented temporary
+workaround, PR #373 still OPEN upstream): sft_12hz.py:51 attn_implementation
+"flash_attention_2" -> "sdpa"; exact diff in 00-sdpa-override.diff; repo
+source untouched.
+
+1) Dataset: scripts/make_finetune_dataset.py — 12 utterances (6 zh + 6 en) +
+   shared ref, official custom-voice 1.7B renders, seed 1234 (01-dataset.txt)
+2) Official prepare_data.py AS-IS: exit 0, 12 lines with audio_codes
+   (02-prepare-data.txt)
+3) Training: upstream train() via launcher (verbatim module import; upstream
+   defaults batch 2 / lr 2e-5 / 2 epochs): 12 optimizer steps; loss lines
+   "Epoch 0 | Step 0 | Loss: 13.9853" / "Epoch 1 | Step 0 | Loss: 9.7586";
+   wall 41.1 s; peak allocated 18.02 GiB / reserved 18.37 GiB; checkpoints
+   checkpoint-epoch-{0,1} saved (03-train.txt)
+4) Reload + official-API synthesis through the repo loader (sdpa default):
+   speaker smoke_speaker, 3.12 s @ 24 kHz, peak 0.2969, rms 0.0501,
+   assert_wav_sane PASS — RELOAD-AND-SYNTHESIS-OK (04-reload.txt; two earlier
+   attempts failed on MY scratch script's assert call signature/dtype —
+   disclosed inline; upstream flow unchanged)
+
+Hardware: AMD Radeon Pro W7900D, gfx1100; stack torch 2.12.0+rocm7.14.0 /
+HIP 7.14.60850 (repo .venv, device-gfx1100 extras).
+RESULT: TASK-10A-EXECUTION-VALIDATED

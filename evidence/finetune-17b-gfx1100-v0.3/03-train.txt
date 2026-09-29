@@ -1,0 +1,16 @@
+=== 10A-3: training smoke (1.7B Base, batch 2 / lr 2e-5 / 2 epochs, upstream defaults) ===
+02:45:03
+`torch_dtype` is deprecated! Use `dtype` instead!
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+Epoch 0 | Step 0 | Loss: 13.9853
+Epoch 1 | Step 0 | Loss: 9.7586
+[launcher] train() wall: 41.1 s
+[launcher] peak allocated: 18.02 GiB
+[launcher] peak reserved:   18.37 GiB
+TRAIN-OK
+train_rc=0
+02:45:55

@@ -1,0 +1,7 @@
+=== 10A-2: official prepare_data.py (upstream 022e286, AS-IS) ===
+
+********
+Warning: flash-attn is not installed. Will only run the manual PyTorch version. Please install flash-attn for faster inference.
+********
+ 
+rc=0

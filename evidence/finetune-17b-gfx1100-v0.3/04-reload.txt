@@ -1,0 +1,25 @@
+=== 10A-4: checkpoint reload + official-API synthesis sanity ===
+02:46:09
+Traceback (most recent call last):
+  File "/workspace/repo/.work-finetune/reload_check.py", line 26, in <module>
+    assert_wav_sane({"audio": wav, "sample_rate": sr})
+  File "/workspace/repo/src/qwen3_tts_rocm/testing.py", line 168, in assert_wav_sane
+    raise _bilingual(
+AssertionError: wav must have a floating-point dtype before sanity checks, got dtype object; cast explicitly at the source (波形必须是浮点数组才能做健全性检查，实际为 object，请先显式转换类型)
+reload_rc=0
+02:46:31
+=== 10A-4 (retry after scratch dtype fix) ===
+02:46:40
+    assert_wav_sane({"audio": wav, "sample_rate": sr})
+  File "/workspace/repo/src/qwen3_tts_rocm/testing.py", line 168, in assert_wav_sane
+    raise _bilingual(
+AssertionError: wav must have a floating-point dtype before sanity checks, got dtype object; cast explicitly at the source (波形必须是浮点数组才能做健全性检查，实际为 object，请先显式转换类型)
+reload_pipeline_rc=1
+02:46:56
+=== 10A-4 (retry 2: fixed assert_wav_sane call signature — dict was my scratch bug, upstream flow unchanged) ===
+02:48:25
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[reload] speaker=smoke_speaker sr=24000 dur=3.12s peak=0.2969 rms=0.0501
+RELOAD-AND-SYNTHESIS-OK
+reload_pipeline_rc=0
+02:48:42
