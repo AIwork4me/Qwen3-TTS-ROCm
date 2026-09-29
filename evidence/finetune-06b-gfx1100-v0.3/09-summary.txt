@@ -33,3 +33,11 @@ Hardware: AMD Radeon Pro W7900D, gfx1100; torch 2.12.0+rocm7.14.0 / HIP
 OPEN/unmerged at execution time. Repository source untouched; all upstream
 work confined to gitignored .upstream clones.
 RESULT: TASK-10B-EXECUTION-VALIDATED (with upstream PR #336 exact head)
+
+## Clarification (post-verification, round 1)
+
+The sentence "03-pr336-worktree.diff shows #336's projection fix PLUS the
+sdpa line" was ambiguously worded — that diff contains ONLY the sdpa
+substitution hunk (the local deviation). The projection fix itself is part
+of the committed PR-head import (verified 37/37 against the GitHub API
+tree), not a local edit. No earlier text altered; appended only.
