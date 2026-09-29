@@ -9,10 +9,12 @@
 > 下文每一个标注 ✅ 的能力结论，都是在真实 Radeon 8060S（`gfx1151`）
 > 验证主机上、经未经修改的官方 `qwen-tts` API 端到端跑出来的，并附上
 > 证明它的逐字运行记录链接——这些行属于**gfx1151 历史证据**（2026-08/09）。
-> **Radeon Pro W7900D（`gfx1100`）** 是第二个已验证架构
-> （[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)），也是 v0.3
-> 的全新执行目标；v0.3 的 gfx1100 证据将随产出逐行补充。未验证的内容会
-> 如实标注。不打百分比分数，不做超出已验证配置的泛化。
+> **Radeon Pro W7900D（`gfx1100`）** 是第二个已验证架构：
+> v0.3 前的锁定栈验证见
+> [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)，v0.3 的全新
+> 执行结果（零源码修改的全新检出安装/验证、全套件、基准、微调、耐久性、
+> vLLM 阶梯、上游 PR 验证）见下文各节。未验证的内容会如实标注。不打百分比
+> 分数，不做超出已验证配置的泛化。
 
 在已验证的 AMD Radeon ROCm 硬件上原样运行官方
 [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS) 包 —— Radeon Pro W7900D
@@ -39,7 +41,7 @@
 | 验证项 | 结果 |
 |---|---|
 | 官方模型仓库 | **6 / 6 已通过加载验证** —— 5 个 TTS checkpoint + tokenizer |
-| 自动化测试 | **gfx1151 参考主机 357 / 357 全通过**（2026-09-25；317 CPU + 40 真机 GPU）—— **gfx1100 复现 317 CPU + 40 GPU**（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）；v0.3 套件（含 41 项新架构契约 CPU 测试的 355 CPU + 40 GPU）在 v0.3 收尾报告中重新计数 |
+| 自动化测试 | gfx1151 参考主机 **357/357**（2026-09-25；317 CPU + 40 GPU）—— v0.3 前 gfx1100 复现 317 + 40（[#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)）—— **v0.3 全新检出 gfx1100：358 CPU + 40 GPU 全绿，ruff 干净**（[证据](evidence/gfx1100-v0.3/)） |
 | 对上游 `qwen-tts` 的补丁 | **0** —— 由专门的一致性测试强制保证 |
 | GPU · ROCm | Radeon Pro W7900D（`gfx1100`，48 GB）· Radeon 8060S（`gfx1151`）· 均为 ROCm 7.14.0（`torch 2.12.0+rocm7.14.0`，`device-gfx1100`/`device-gfx1151` 轮子 extras） |
 | 精度 / 注意力 | bfloat16 · PyTorch SDPA —— 本次验证栈未启用 FlashAttention |
@@ -74,6 +76,21 @@ v0.3 正在 **gfx1100**（W7900D）上重新执行部分能力，gfx1100 证据�
 | vLLM-Omni 真流式（HTTP PCM） | 1.7B CustomVoice | ✅ 已测量 —— 客户端分片时间戳证明增量交付：短输入 TTFA 0.249 秒（ttfa/wall 0.115），453 字符输入 TTFA 0.222 秒（0.005）；22/389 分片；播放模拟欠载 1–2 次（突发节奏已记录）。上游 WebSocket 客户端在当前服务端构建上不可用（客户端/服务端路径与协议漂移，逐字证据 —— 非 gfx1151 故障） | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
 | vLLM-Omni 服务并发（单 GPU） | 1.7B CustomVoice，短提示 | ✅ 已测量 —— 默认配置：c=2 可用（24.4 请求/分），c≥4 严重排队（c=8 E2E p50 273 秒）；stage-1 `max_num_seqs:1`（配置自带 TTFA 注释）：c=8 稳定可用（TTFA p50 0.74 秒、E2E 8.6 秒、34.9 请求/分、1.50 音频秒/墙钟秒）；所有级别零失败/零 OOM；仅限本机 | [`vllm-concurrency-gfx1151-2026-09-25.txt`](evidence/vllm-concurrency-gfx1151-2026-09-25.txt) · [服务指南](docs/vllm-omni-gfx1151-serving.md) |
 | 真流式推理 | — | 🚫 上游未暴露 —— 2026-09-21 在 gfx1151 上实测：qwen-tts 0.1.1 官方 Python API 仅在调用完成时一次性返回音频（每次运行恰 1 个分片；首音频时间 == 总墙钟） | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [路线图](#真流式推理) |
+
+### v0.3 gfx1100 全新执行结果（Radeon Pro W7900D）
+
+v0.3 期间在 gfx1100 上零仓库修改地重新执行了以下能力（原始转录与校验和见
+[`evidence/gfx1100-v0.3/`](evidence/gfx1100-v0.3/) 及各 `evidence/*-gfx1100-v0.3/` 目录）：
+
+| 能力 | gfx1100 结果 | 证据 |
+|---|---|---|
+| 全新检出安装 + 验证 + 全套件 + 基准 | ✅ 零修改；358 CPU + 40 GPU；RTF v1 1.18–1.51 / v2 1.16–1.33 | [`gfx1100-v0.3/09-summary.txt`](evidence/gfx1100-v0.3/09-summary.txt) |
+| 微调 1.7B Base（执行冒烟） | ✅ 12 步 → checkpoint → 重载 → 合成健全（已记录的 sdpa 偏差） | [`finetune-17b-gfx1100-v0.3/`](evidence/finetune-17b-gfx1100-v0.3/) |
+| 微调 0.6B Base —— 上游 PR #336 精确 head | ✅ 基线故障逐字复现；PR head 端到端可训练 | [`finetune-06b-gfx1100-v0.3/`](evidence/finetune-06b-gfx1100-v0.3/) |
+| 长文本阶梯 / 常驻压力 / 循环加载 / 多语言 | ✅ 8/8 · 307/307 零失败（20 分钟，已披露）· 10/10 · 24/24+4/4 | [`durability-gfx1100-v0.3/`](evidence/durability-gfx1100-v0.3/) |
+| vLLM-Omni（可达的 0.16 代栈；0.30 轮子源在 v0.3 环境被墙） | ✅ 离线 3/3 任务族 · 在线服务 200 · 长输入流式增量（TTFA 3.03 秒）· 并发 32/32 | [`vllm-gfx1100-v0.3/`](evidence/vllm-gfx1100-v0.3/) |
+| Docker（镜像内容；容器运行时在 v0.3 环境受阻） | 🟡 镜像自身栈 16/16 GPU 探针检查，非容器内 | [`gfx1100-v0.3/docker-blocked/`](evidence/gfx1100-v0.3/docker-blocked/) |
+| 质量 v2 ASR 评分 | 🚫 受阻（v0.3 环境无法访问 whisper 权重源）—— 不声明任何数字 | [`durability-gfx1100-v0.3/00-STATUS.md`](evidence/durability-gfx1100-v0.3/00-STATUS.md) |
 
 有一个概念边界值得直说（演示与文档均遵守）：**CustomVoice 是预设/
 定制说话人音色生成** —— 它不从参考音频克隆。**Base 才是零样本语音克隆

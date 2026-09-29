@@ -14,11 +14,14 @@
 > real Radeon 8060S (`gfx1151`) validation host through unmodified official
 > `qwen-tts` APIs and links the verbatim evidence transcript that proves it.
 > Those rows are **historical gfx1151 evidence** (2026-08/09). The
-> **Radeon Pro W7900D (`gfx1100`)** is the second validated architecture
-> ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)) and the
-> fresh v0.3 execution target; v0.3 gfx1100 evidence lands in the rows as
-> it is produced. What is not proven is labelled as such. No percentage
-> scores, no generalization beyond the validated configurations.
+> **Radeon Pro W7900D (`gfx1100`)** is the second validated architecture:
+> pre-v0.3 pinned-stack validation in
+> [#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1), plus v0.3
+> fresh-execution results (zero-source-edit install/verify on a pristine
+> checkout, full suites, benchmarks, fine-tuning, durability, vLLM rungs,
+> upstream-PR validations — evidence links in the sections below). What is
+> not proven is labelled as such. No percentage scores, no generalization
+> beyond the validated configurations.
 
 Run the unmodified official [`qwen-tts`](https://github.com/QwenLM/Qwen3-TTS)
 package on validated AMD Radeon ROCm hardware — Radeon Pro W7900D
@@ -47,7 +50,7 @@ AMD. See [Attribution](#attribution--disclaimer).
 | Validation | Result |
 |---|---|
 | Official model repositories | **6 / 6 load-validated** — 5 TTS checkpoints + tokenizer |
-| Automated tests | **357 / 357 on the gfx1151 reference host** (2026-09-25; 317 CPU + 40 real-GPU, +2 batch tests since 2026-09-24) — **reproduced 317 CPU + 40 GPU on gfx1100** ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)); the v0.3 suite (355 CPU incl. 41 new architecture-contract tests + 40 GPU) is re-counted in the v0.3 closure report |
+| Automated tests | gfx1151 reference host **357 / 357** (2026-09-25; 317 CPU + 40 GPU) — pre-v0.3 gfx1100 reproduced 317 + 40 ([#1](https://github.com/AIwork4me/Qwen3-TTS-ROCm/issues/1)) — **v0.3 pristine-checkout run on gfx1100: 358 CPU + 40 GPU green, ruff clean** ([evidence](evidence/gfx1100-v0.3/)) |
 | Patches to upstream `qwen-tts` | **0** — enforced by a dedicated parity test |
 | GPU · ROCm | Radeon Pro W7900D (`gfx1100`, 48 GB) · Radeon 8060S (`gfx1151`) · both ROCm 7.14.0 (`torch 2.12.0+rocm7.14.0`, `device-gfx1100`/`device-gfx1151` wheel extras) |
 | Precision / attention | bfloat16 · PyTorch SDPA — FlashAttention not used in the validated stack |
@@ -84,6 +87,23 @@ validated** · 🚫 **not exposed upstream or intentionally not claimed**.
 | vLLM-Omni true streaming (HTTP PCM) | 1.7B CustomVoice | ✅ measured — client-side chunk timestamps prove incremental delivery: TTFA 0.249 s short input (ttfa/wall 0.115), TTFA 0.222 s on a 453-char input (0.005); 22/389 chunks; playback-sim underruns 1–2 (bursty cadence recorded). Upstream WebSocket client NOT working against this server build (client/server path+protocol drift, verbatim evidence — not a gfx1151 failure) | [`vllm-streaming-gfx1151-2026-09-24.txt`](evidence/vllm-streaming-gfx1151-2026-09-24.txt) · [JSON](evidence/vllm-streaming-gfx1151-2026-09-24.json) |
 | vLLM-Omni serving concurrency (single GPU) | 1.7B CustomVoice, short prompts | ✅ measured — default config: c=2 useful (24.4 req/min), c≥4 queues severely (c=8 E2E p50 273 s); stage-1 `max_num_seqs:1` (the config's own TTFA note): c=8 stable & useful (TTFA p50 0.74 s, E2E 8.6 s, 34.9 req/min, 1.50 audio-s/wall-s); zero failures/OOM at every level; this host only | [`vllm-concurrency-gfx1151-2026-09-25.txt`](evidence/vllm-concurrency-gfx1151-2026-09-25.txt) · [serving guide](docs/vllm-omni-gfx1151-serving.md) |
 | True streaming inference | — | 🚫 not exposed upstream — measured 2026-09-21 on gfx1151: qwen-tts 0.1.1's official Python API delivers audio only at completion (exactly 1 chunk every run; TTFB == total wall) | [`streaming-2026-09-21.txt`](evidence/streaming-2026-09-21.txt) · [roadmap](#true-streaming-inference) |
+
+### v0.3 gfx1100 fresh-execution results (Radeon Pro W7900D)
+
+Selected capabilities were re-executed from scratch on gfx1100 during
+v0.3 (zero repository edits; raw transcripts + checksums under
+[`evidence/gfx1100-v0.3/`](evidence/gfx1100-v0.3/) and sibling
+`evidence/*-gfx1100-v0.3/` dirs):
+
+| Capability | gfx1100 v0.3 result | Evidence |
+|---|---|---|
+| Fresh-checkout install + verify + full suites + benchmarks | ✅ zero-edit; 358 CPU + 40 GPU; RTF v1 1.18–1.51 / v2 1.16–1.33 | [`gfx1100-v0.3/09-summary.txt`](evidence/gfx1100-v0.3/09-summary.txt) |
+| Fine-tuning 1.7B Base (execution smoke) | ✅ 12 steps → checkpoint → reload → sane synthesis (documented sdpa deviation) | [`finetune-17b-gfx1100-v0.3/`](evidence/finetune-17b-gfx1100-v0.3/) |
+| Fine-tuning 0.6B Base — exact upstream PR #336 head | ✅ baseline failure reproduced verbatim; PR head trains end to end | [`finetune-06b-gfx1100-v0.3/`](evidence/finetune-06b-gfx1100-v0.3/) |
+| Long-text ladder / soak / recycle / multilingual | ✅ 8/8 · 307/307 zero-fail (20-min disclosed) · 10/10 · 24/24+4/4 | [`durability-gfx1100-v0.3/`](evidence/durability-gfx1100-v0.3/) |
+| vLLM-Omni (reachable 0.16-era stack; 0.30 wheels blocked here) | ✅ offline 3/3 families · online serving 200 · long-input streaming incremental (TTFA 3.03 s) · concurrency 32/32 | [`vllm-gfx1100-v0.3/`](evidence/vllm-gfx1100-v0.3/) |
+| Docker (image content; container runtime blocked in v0.3 env) | 🟡 16/16 GPU probe checks on the image's own stack, NOT in-container | [`gfx1100-v0.3/docker-blocked/`](evidence/gfx1100-v0.3/docker-blocked/) |
+| Quality-v2 ASR scoring | 🚫 blocked (whisper weight host unreachable in v0.3 env) — no numbers claimed | [`durability-gfx1100-v0.3/00-STATUS.md`](evidence/durability-gfx1100-v0.3/00-STATUS.md) |
 
 Conceptual boundary worth stating plainly (the demo and docs honour it):
 **CustomVoice is preset-speaker / custom-voice generation** — it does not

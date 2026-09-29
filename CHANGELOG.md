@@ -93,6 +93,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   runtime-capable host. The historical gfx1151 in-container E2E
   (2026-09-24) remains the container-runtime reference.
 
+### Verified (v0.3, 2026-09-29 — gfx1100 fresh execution on Radeon Pro W7900D)
+
+- **Zero-source-edit fresh-checkout validation (primary gate)**: a clean
+  candidate (`01273a8`, tree `6784315a…`, provenance-verified) ran the
+  NORMAL flow with no repository edits — `install.sh` auto-resolved
+  gfx1100, installed the pinned `device-gfx1100` stack, and finished with
+  `SPIKE-GPU-OK`; `verify_gpu.sh` (auto + explicit) green;
+  `qwen3-tts-rocm-check` errors 0 with the validated-architecture
+  classification line; CPU suite 343 passed + 15 skipped in the default
+  env and **358 passed** with `[quality]`; **GPU suite 40 passed** in
+  307.70 s (real synthesis on all paths); benchmark v1 12-cell medians
+  RTF 1.18–1.51 (complete run2: 1.16–1.27); benchmark v2 20-cell n=5
+  medians 1.16–1.33 (run2: 1.14–1.20); one official-API synthesis 6.64 s
+  @ 24 kHz; final `git diff` 0 lines, porcelain clean. Evidence:
+  `evidence/gfx1100-v0.3/` (raw transcripts + SHA256SUMS, append-only).
+- **Fine-tuning on gfx1100**: 1.7B Base execution smoke
+  (`evidence/finetune-17b-gfx1100-v0.3/`: official prepare_data AS-IS, 12
+  finite steps, peak 18.02 GiB, checkpoints, reload, sane synthesis; the
+  documented one-line sdpa deviation diff-archived) and 0.6B Base with the
+  EXACT upstream PR #336 head `701938b` (tree-verified): baseline
+  `022e286` reproduces the 2048-vs-1024 shape failure verbatim, the PR head
+  trains end to end (peak 8.66 GiB), reload + sane synthesis.
+- **Upstream PR validations**: PR #336 and PR #373 both live-verified
+  OPEN/unmerged with exact-head gfx1100 validation records and prepared
+  (NOT posted) comments — `docs/development/upstream-pr{336,373}-gfx1100-comment-draft.md`.
+  PR #373 validation needed ZERO local edits (its `--attn_implementation`
+  flag suffices; default flash_attention_2 semantics preserved verbatim).
+- **Durability on gfx1100**: long-text ladder 8/8 to 892 chars / 57.8 s
+  (natural EOS everywhere); recycle 10/10 load→generate→unload cycles;
+  resident soak 307/307 zero failures (20 min — methodology difference vs
+  the 60-min gfx1151 reference disclosed); multilingual matrix 24/24 +
+  4/4 clone references. `evidence/durability-gfx1100-v0.3/`.
+- **vLLM-Omni on gfx1100 (reachable-stack rung)**: the current 0.30.x
+  serving stack is install-blocked here (wheels.vllm.ai proxy-403);
+  on the closest real stack (system AMD vllm 0.16.1.dev0+rocm721 +
+  vllm-omni 0.16.0, isolated venv): gfx1100 is a compiled target of the
+  vllm extension; minimal real LLM generation; upstream offline example
+  green on all three 1.7B task families; online serving `/v1/audio/voices`
+  + `/v1/audio/speech` 200 with valid WAV; client-side PCM streaming
+  measured (short input single-delivery; long input TRUE incremental,
+  TTFA 3.03 s of 137.1 s wall, 983 chunks); concurrency ladder 32/32 OK
+  zero failures, peak 16.11 GiB. `evidence/vllm-gfx1100-v0.3/`.
+- **Docker on gfx1100**: container runtime BLOCKED in this environment
+  (seccomp denies namespaces; registry blocked) — image CONTENT built per
+  the Dockerfile's exact steps and GPU-validated outside a runtime (16/16
+  probe checks + GPU pytest slice); no in-container claim made.
+  `evidence/gfx1100-v0.3/docker-blocked/`.
+- **gfx1151 evidence-integrity audit** (no hardware rerun):
+  `docs/development/gfx1151-v0.3-regression-audit.md` — historical
+  artifacts untouched; gfx1151 branch regression-pinned on CPU.
+
 ### Historical note
 
 - gfx1151 evidence in this repository predates v0.3 and is preserved as-is.
