@@ -81,3 +81,9 @@ claim that the PR is merged.
 - worktree: `git status --porcelain` EMPTY after all runs (no edits)
 - repo source: clean throughout (`git status --porcelain` empty)
 - raw transcripts + SHA256SUMS in `evidence/finetune-pr373-gfx1100-v0.3/`
+
+## Posting record (2026-09-29)
+
+Posted with maintainer approval as
+[issuecomment-5887587779](https://github.com/QwenLM/Qwen3-TTS/pull/373#issuecomment-5887587779)
+(body identical to the prepared draft above; single comment, no repeats).

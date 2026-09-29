@@ -84,3 +84,9 @@ speech-quality assessment.
 - local worktree diff vs PR head: the single sdpa line only
 - repo source: `git status --porcelain` clean throughout
 - raw transcripts + SHA256SUMS in `evidence/finetune-06b-gfx1100-v0.3/`
+
+## Posting record (2026-09-29)
+
+Posted with maintainer approval as
+[issuecomment-5887585812](https://github.com/QwenLM/Qwen3-TTS/pull/336#issuecomment-5887585812)
+(body identical to the prepared draft above; single comment, no repeats).
