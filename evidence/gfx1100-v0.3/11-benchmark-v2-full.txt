@@ -1,0 +1,765 @@
+=== PHASE 5b-rerun (COMPLETE transcript): benchmark v2 ===
+01:10:26
+== qwen3-tts-rocm RTF benchmark v2 ==
+# date=2026-09-29T01:10:28+00:00 host=j-ywqny2nuwfmbn5jeo3wff4j6vc
+# gpu=AMD Radeon Pro W7900D (gfx1100) torch=2.12.0+rocm7.14.0 (HIP 7.14.60850)
+# aliases=['custom-voice', 'custom-voice-0.6b', 'voice-design', 'base', 'base-0.6b'] runs=5 seed_base=20260924 max_new_tokens=512
+[v2] alias=custom-voice: smi bookend BEFORE LOAD
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-1.7B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[v2] alias=custom-voice loaded in 6.1s (COLD-START load time)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15138816, provided ptr: 0x708f55732400 size: 12610560
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15138816, provided ptr: 0x708f55744400 size: 12665856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x708f569d8a00 size: 12891648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x708f569de600 size: 12919296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 75694080, provided ptr: 0x708f17a00000 size: 22149888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 75694080, provided ptr: 0x708f17a00000 size: 22163712
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x708f14600000 size: 32572928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x708f14600000 size: 32579840
+[v2] alias=custom-voice warmup (cn/short, recorded, excluded from stats): wall=7.05s audio=3.52s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18579456, provided ptr: 0x708f5589a400 size: 13593600
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18579456, provided ptr: 0x708f558ac400 size: 13648896
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 46448640, provided ptr: 0x708f562cfa00 size: 15349248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 46448640, provided ptr: 0x708f562cfa00 size: 15376896
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 92897280, provided ptr: 0x708f14000000 size: 27065088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 92897280, provided ptr: 0x708f14000000 size: 27078912
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 139345920, provided ptr: 0x708f16800000 size: 39945728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 139345920, provided ptr: 0x708f16800000 size: 39952640
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12730368, provided ptr: 0x708f5547a400 size: 11922432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12730368, provided ptr: 0x708f5548c400 size: 11977728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 31825920, provided ptr: 0x708f5642ca00 size: 11171328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 31825920, provided ptr: 0x708f56432600 size: 11198976
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63651840, provided ptr: 0x708f14800000 size: 18709248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63651840, provided ptr: 0x708f55b7c400 size: 18723072
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 95477760, provided ptr: 0x708f11400000 size: 27411968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 95477760, provided ptr: 0x708f55e02000 size: 27418880
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 26664960, provided ptr: 0x708f55d72a00 size: 9696768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 26664960, provided ptr: 0x708f55d72a00 size: 9724416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 53329920, provided ptr: 0x708f564b5000 size: 15760128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 53329920, provided ptr: 0x708f564b5000 size: 15773952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 79994880, provided ptr: 0x708f566cce00 size: 22988288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 79994880, provided ptr: 0x708f566cce00 size: 22995200
+[v2] alias=custom-voice cn/short: RTF median=1.18 min=1.16 max=1.19 mean=1.17 stdev=0.01 p10=1.16 p90=1.19 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 66060288, provided ptr: 0x708f10c00000 size: 27159552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 66060288, provided ptr: 0x708f07a00000 size: 27214848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 165150720, provided ptr: 0x708f03400000 size: 49264128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 165150720, provided ptr: 0x708f03400000 size: 49291776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 330301440, provided ptr: 0x708ef7a00000 size: 94894848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 330301440, provided ptr: 0x708ef7a00000 size: 94908672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 495452160, provided ptr: 0x708ee6600000 size: 141690368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 495452160, provided ptr: 0x708ee6600000 size: 141697280
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62619648, provided ptr: 0x708f07a00000 size: 26176512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62619648, provided ptr: 0x708f55d19000 size: 26231808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 156549120, provided ptr: 0x708efd600000 size: 46806528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 156549120, provided ptr: 0x708efd600000 size: 46834176
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 313098240, provided ptr: 0x708eef000000 size: 89979648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 313098240, provided ptr: 0x708eef000000 size: 89993472
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 469647360, provided ptr: 0x708edea00000 size: 134317568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 469647360, provided ptr: 0x708edea00000 size: 134324480
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 71909376, provided ptr: 0x708f05a00000 size: 28830720
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 71909376, provided ptr: 0x708f05a00000 size: 28886016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 179773440, provided ptr: 0x708ef1200000 size: 53442048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 179773440, provided ptr: 0x708ef1200000 size: 53469696
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 359546880, provided ptr: 0x708edfe00000 size: 103250688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 359546880, provided ptr: 0x708edfe00000 size: 103264512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 539320320, provided ptr: 0x708ecd200000 size: 154224128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 539320320, provided ptr: 0x708ed6800000 size: 154231040
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 66748416, provided ptr: 0x708f18c00000 size: 27356160
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 66748416, provided ptr: 0x708f55de5000 size: 27411456
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 166871040, provided ptr: 0x708efbc00000 size: 49755648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 166871040, provided ptr: 0x708efbc00000 size: 49783296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 333742080, provided ptr: 0x708eddc00000 size: 95877888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 333742080, provided ptr: 0x708ee6a00000 size: 95891712
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 500613120, provided ptr: 0x708ecc400000 size: 143164928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 500613120, provided ptr: 0x708ecc400000 size: 143171840
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 57458688, provided ptr: 0x708f19000000 size: 24701952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 57458688, provided ptr: 0x708f5629d000 size: 24757248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 143646720, provided ptr: 0x708f0da00000 size: 43120128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 143646720, provided ptr: 0x708f0da00000 size: 43147776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 287293440, provided ptr: 0x708ee2400000 size: 82606848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 287293440, provided ptr: 0x708ee2400000 size: 82620672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 430940160, provided ptr: 0x708ecf600000 size: 123258368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 430940160, provided ptr: 0x708ecf600000 size: 123265280
+[v2] alias=custom-voice cn/medium: RTF median=1.16 min=1.16 max=1.16 mean=1.16 stdev=0.0 p10=1.16 p90=1.16 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x708f55755200 size: 6501888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x708f5575e200 size: 6529536
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 30965760, provided ptr: 0x708f56624400 size: 9370368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 30965760, provided ptr: 0x708f56627400 size: 9384192
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 46448640, provided ptr: 0x708f570af400 size: 13403648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 46448640, provided ptr: 0x708f570af400 size: 13410560
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14622720, provided ptr: 0x708f554fc000 size: 6256128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14622720, provided ptr: 0x708f55506200 size: 6283776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 29245440, provided ptr: 0x708f55ef4200 size: 8878848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 29245440, provided ptr: 0x708f55ef9400 size: 8892672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43868160, provided ptr: 0x708f56ee3800 size: 12666368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43868160, provided ptr: 0x708f56ee5000 size: 12673280
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x708f554c0000 size: 6010368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x708f554ca200 size: 6038016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 27525120, provided ptr: 0x708f55e2c400 size: 8387328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 27525120, provided ptr: 0x708f55e2c400 size: 8401152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41287680, provided ptr: 0x708f56d2ba00 size: 11929088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41287680, provided ptr: 0x708f56d2d200 size: 11936000
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 19783680, provided ptr: 0x708f5591a600 size: 7730688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 19783680, provided ptr: 0x708f5591a600 size: 7758336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 39567360, provided ptr: 0x708f56945200 size: 11827968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 39567360, provided ptr: 0x708f56948200 size: 11841792
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 59351040, provided ptr: 0x708f12000000 size: 17090048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 59351040, provided ptr: 0x708f12000000 size: 17096960
+[v2] alias=custom-voice en/short: RTF median=1.2 min=1.17 max=1.22 mean=1.2 stdev=0.02 p10=1.18 p90=1.22 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15826944, provided ptr: 0x708f5577a400 size: 12807168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15826944, provided ptr: 0x708f5578c400 size: 12862464
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 39567360, provided ptr: 0x708f56af8a00 size: 13383168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 39567360, provided ptr: 0x708f56afe600 size: 13410816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 79134720, provided ptr: 0x708f0de00000 size: 23132928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 79134720, provided ptr: 0x708f0de00000 size: 23146752
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 118702080, provided ptr: 0x708f0ba00000 size: 34047488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 118702080, provided ptr: 0x708f0ba00000 size: 34054400
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x708f55756400 size: 12708864
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 15482880, provided ptr: 0x708f55768400 size: 12764160
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x708f56a68a00 size: 13137408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x708f56a6e600 size: 13165056
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x708f0c000000 size: 22641408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x708f0c000000 size: 22655232
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x708f09e00000 size: 33310208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x708f09e00000 size: 33317120
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14106624, provided ptr: 0x708f554da400 size: 12315648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14106624, provided ptr: 0x708f554ec400 size: 12370944
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35266560, provided ptr: 0x708f5663ca00 size: 12154368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35266560, provided ptr: 0x708f56642600 size: 12182016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 70533120, provided ptr: 0x708f0a600000 size: 20675328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 70533120, provided ptr: 0x708f55c9c400 size: 20689152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x708f03600000 size: 30361088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x708f55f6a000 size: 30368000
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x708f554c2400 size: 12217344
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 13762560, provided ptr: 0x708f554d4400 size: 12272640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x708f565b8a00 size: 11908608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34406400, provided ptr: 0x708f565be600 size: 11936256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x708f04000000 size: 20183808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 68812800, provided ptr: 0x708f55c54400 size: 20197632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x708ef7200000 size: 29623808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x708f55f10000 size: 29630720
+[v2] alias=custom-voice en/medium: RTF median=1.17 min=1.15 max=1.18 mean=1.17 stdev=0.01 p10=1.16 p90=1.18 (n=5)
+[v2] alias=custom-voice: smi bookend AFTER; peak_alloc=4.448949813842773 GiB peak_reserved=4.57 GiB — unloading
+[v2] alias=custom-voice-0.6b: smi bookend BEFORE LOAD
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-0.6B-CustomVoice … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[v2] alias=custom-voice-0.6b loaded in 2.0s (COLD-START load time)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=custom-voice-0.6b warmup (cn/short, recorded, excluded from stats): wall=4.05s audio=3.52s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 16859136, provided ptr: 0x709074226400 size: 13102080
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 16859136, provided ptr: 0x709074238400 size: 13157376
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42147840, provided ptr: 0x7090756e8a00 size: 14120448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42147840, provided ptr: 0x7090756ee600 size: 14148096
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 84295680, provided ptr: 0x70907795a600 size: 24607488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 84295680, provided ptr: 0x70907795d600 size: 24621312
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 126443520, provided ptr: 0x70907739a800 size: 36259328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 126443520, provided ptr: 0x70907739a400 size: 36266240
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=custom-voice-0.6b cn/short: RTF median=1.15 min=1.14 max=1.17 mean=1.15 stdev=0.01 p10=1.14 p90=1.16 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 60899328, provided ptr: 0x709076200400 size: 25684992
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 60899328, provided ptr: 0x709075ffc400 size: 25740288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 152248320, provided ptr: 0x7090778cf600 size: 45577728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 152248320, provided ptr: 0x7090778cf600 size: 45605376
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 304496640, provided ptr: 0x709040200000 size: 87522048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 304496640, provided ptr: 0x709040200000 size: 87535872
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 456744960, provided ptr: 0x709030200000 size: 130631168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 456744960, provided ptr: 0x709030200000 size: 130638080
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62963712, provided ptr: 0x709076350400 size: 26274816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62963712, provided ptr: 0x70907613a400 size: 26330112
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 157409280, provided ptr: 0x709077ae5600 size: 47052288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 157409280, provided ptr: 0x709077ae5600 size: 47079936
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 314818560, provided ptr: 0x70903c200000 size: 90471168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 314818560, provided ptr: 0x70903c200000 size: 90484992
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 472227840, provided ptr: 0x70902ba00000 size: 135054848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 472227840, provided ptr: 0x70902ba00000 size: 135061760
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 56770560, provided ptr: 0x709075e13400 size: 24505344
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 56770560, provided ptr: 0x709075c33400 size: 24560640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 141926400, provided ptr: 0x709077356600 size: 42628608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 141926400, provided ptr: 0x709077356600 size: 42656256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 283852800, provided ptr: 0x70903a000000 size: 81623808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 283852800, provided ptr: 0x70903a000000 size: 81637632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 425779200, provided ptr: 0x70902b000000 size: 121783808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 425779200, provided ptr: 0x70902b000000 size: 121790720
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65028096, provided ptr: 0x7090764a0400 size: 26864640
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65028096, provided ptr: 0x709076278400 size: 26919936
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 162570240, provided ptr: 0x709077cfb600 size: 48526848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 162570240, provided ptr: 0x709077cfb600 size: 48554496
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 325140480, provided ptr: 0x70902c000000 size: 93420288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 325140480, provided ptr: 0x70902c000000 size: 93434112
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 487710720, provided ptr: 0x70901b000000 size: 139478528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 487710720, provided ptr: 0x70901b000000 size: 139485440
+[v2] alias=custom-voice-0.6b cn/medium: RTF median=1.14 min=1.14 max=1.14 mean=1.14 stdev=0.0 p10=1.14 p90=1.14 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 21504000, provided ptr: 0x7090746fc600 size: 8222208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 21504000, provided ptr: 0x709074702200 size: 8249856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43008000, provided ptr: 0x70907588e200 size: 12811008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43008000, provided ptr: 0x709075891200 size: 12824832
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 64512000, provided ptr: 0x709076733200 size: 18564608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 64512000, provided ptr: 0x709076733200 size: 18571520
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18923520, provided ptr: 0x709074594600 size: 7484928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18923520, provided ptr: 0x70907459a200 size: 7512576
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x70907550a200 size: 11336448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 37847040, provided ptr: 0x70907550d200 size: 11350272
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 56770560, provided ptr: 0x7090761ed200 size: 16352768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 56770560, provided ptr: 0x7090761ed200 size: 16359680
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x70907474ca00 size: 9451008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x70907474ca00 size: 9478656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51609600, provided ptr: 0x709075c63600 size: 15268608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51609600, provided ptr: 0x709075c66600 size: 15282432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x709076df6600 size: 22251008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 77414400, provided ptr: 0x709076df6600 size: 22257920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x709074774600 size: 8467968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 22364160, provided ptr: 0x70907477a200 size: 8495616
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x7090759ba200 size: 13302528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x7090759bd200 size: 13316352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7090768f5200 size: 19301888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7090768f5200 size: 19308800
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=custom-voice-0.6b en/short: RTF median=1.18 min=1.15 max=1.19 mean=1.17 stdev=0.02 p10=1.16 p90=1.19 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 16171008, provided ptr: 0x7090741de400 size: 12905472
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 16171008, provided ptr: 0x7090741f0400 size: 12960768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 40427520, provided ptr: 0x7090755c8a00 size: 13628928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 40427520, provided ptr: 0x7090755ce600 size: 13656576
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 80855040, provided ptr: 0x7090776d2600 size: 23624448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 80855040, provided ptr: 0x7090776d5600 size: 23638272
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 121282560, provided ptr: 0x70907925b600 size: 34784768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 121282560, provided ptr: 0x70907925b600 size: 34791680
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 16515072, provided ptr: 0x709074202400 size: 13003776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 16515072, provided ptr: 0x709074214400 size: 13059072
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41287680, provided ptr: 0x709075658a00 size: 13874688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41287680, provided ptr: 0x70907565e600 size: 13902336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 82575360, provided ptr: 0x709077816600 size: 24115968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 82575360, provided ptr: 0x709077819600 size: 24129792
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123863040, provided ptr: 0x709077274800 size: 35522048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123863040, provided ptr: 0x709077274400 size: 35528960
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 17203200, provided ptr: 0x70907424a400 size: 13200384
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 17203200, provided ptr: 0x70907425c400 size: 13255680
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43008000, provided ptr: 0x709075778a00 size: 14366208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 43008000, provided ptr: 0x70907577e600 size: 14393856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 86016000, provided ptr: 0x709077a9e600 size: 25099008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 86016000, provided ptr: 0x709077aa1600 size: 25112832
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 129024000, provided ptr: 0x7090774c0800 size: 36996608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 129024000, provided ptr: 0x7090774c0400 size: 37003520
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18235392, provided ptr: 0x7090742b6400 size: 13495296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 18235392, provided ptr: 0x7090742c8400 size: 13550592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 45588480, provided ptr: 0x709075928a00 size: 15103488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 45588480, provided ptr: 0x70907592e600 size: 15131136
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 91176960, provided ptr: 0x709077e6a600 size: 26573568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 91176960, provided ptr: 0x709077e6d600 size: 26587392
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 136765440, provided ptr: 0x709077832800 size: 39208448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 136765440, provided ptr: 0x709077832400 size: 39215360
+[v2] alias=custom-voice-0.6b en/medium: RTF median=1.16 min=1.14 max=1.17 mean=1.16 stdev=0.01 p10=1.15 p90=1.17 (n=5)
+[v2] alias=custom-voice-0.6b: smi bookend AFTER; peak_alloc=2.5195813179016113 GiB peak_reserved=2.71 GiB — unloading
+[v2] alias=voice-design: smi bookend BEFORE LOAD
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-1.7B-VoiceDesign … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[v2] alias=voice-design loaded in 3.1s (COLD-START load time)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=voice-design warmup (cn/short, recorded, excluded from stats): wall=4.23s audio=3.68s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 23052288, provided ptr: 0x7090d10ee400 size: 14871552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 23052288, provided ptr: 0x7090d1100400 size: 14926848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 57630720, provided ptr: 0x7090d2d48a00 size: 18544128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 57630720, provided ptr: 0x7090d2d4e600 size: 18571776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 115261440, provided ptr: 0x7090d5c62600 size: 33454848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 115261440, provided ptr: 0x7090d5c65600 size: 33468672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 172892160, provided ptr: 0x7090aa800000 size: 49530368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 172892160, provided ptr: 0x7090aa800000 size: 49537280
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14794752, provided ptr: 0x7090d0d8e400 size: 12512256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 14794752, provided ptr: 0x7090d0da0400 size: 12567552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36986880, provided ptr: 0x7090d1fc8a00 size: 12645888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36986880, provided ptr: 0x7090d1fce600 size: 12673536
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 73973760, provided ptr: 0x7090d3e02600 size: 21658368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 73973760, provided ptr: 0x7090d3e05600 size: 21672192
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 110960640, provided ptr: 0x7090d5733600 size: 31835648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 110960640, provided ptr: 0x7090d5733600 size: 31842560
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 19611648, provided ptr: 0x7090d0f86400 size: 13888512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 19611648, provided ptr: 0x7090d0f98400 size: 13943808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 49029120, provided ptr: 0x7090d27a8a00 size: 16086528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 49029120, provided ptr: 0x7090d27ae600 size: 16114176
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x7090d4fba600 size: 28539648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x7090d4fbd600 size: 28553472
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 147087360, provided ptr: 0x7090ab400000 size: 42157568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 147087360, provided ptr: 0x7090ab400000 size: 42164480
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=voice-design cn/short: RTF median=1.16 min=1.14 max=1.17 mean=1.16 stdev=0.01 p10=1.14 p90=1.17 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 61931520, provided ptr: 0x7090d2b61400 size: 25979904
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 61931520, provided ptr: 0x7090d2954400 size: 26035200
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 154828800, provided ptr: 0x7090d4293600 size: 46315008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 154828800, provided ptr: 0x7090d4293600 size: 46342656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 309657600, provided ptr: 0x709092c00000 size: 88996608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 309657600, provided ptr: 0x709092c00000 size: 89010432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 464486400, provided ptr: 0x709082800000 size: 132843008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 464486400, provided ptr: 0x709082800000 size: 132849920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63307776, provided ptr: 0x7090d2c2d400 size: 26373120
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 63307776, provided ptr: 0x7090d2a14400 size: 26428416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 158269440, provided ptr: 0x7090d43e3600 size: 47298048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 158269440, provided ptr: 0x7090d43e3600 size: 47325696
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 316538880, provided ptr: 0x70908d000000 size: 90962688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 316538880, provided ptr: 0x70908d000000 size: 90976512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 474808320, provided ptr: 0x70907c800000 size: 135792128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 474808320, provided ptr: 0x70907c800000 size: 135799040
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62275584, provided ptr: 0x7090d2b94400 size: 26078208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 62275584, provided ptr: 0x7090d2984400 size: 26133504
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 155688960, provided ptr: 0x7090d42e7600 size: 46560768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 155688960, provided ptr: 0x7090d42e7600 size: 46588416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 311377920, provided ptr: 0x709085400000 size: 89488128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 311377920, provided ptr: 0x709085400000 size: 89501952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 467066880, provided ptr: 0x709073400000 size: 133580288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 467066880, provided ptr: 0x709073400000 size: 133587200
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7090d2e5e400 size: 27454464
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 67092480, provided ptr: 0x7090d2c24400 size: 27509760
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 167731200, provided ptr: 0x7090d477f600 size: 50001408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 167731200, provided ptr: 0x7090d477f600 size: 50029056
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 335462400, provided ptr: 0x70907f000000 size: 96369408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 335462400, provided ptr: 0x70907f000000 size: 96383232
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 503193600, provided ptr: 0x709069e00000 size: 143902208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 503193600, provided ptr: 0x709069e00000 size: 143909120
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 54706176, provided ptr: 0x7090d2732400 size: 23915520
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 54706176, provided ptr: 0x7090d2564400 size: 23970816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 136765440, provided ptr: 0x7090d3baf600 size: 41154048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 136765440, provided ptr: 0x7090d3baf600 size: 41181696
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 273530880, provided ptr: 0x709083400000 size: 78674688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 273530880, provided ptr: 0x709083400000 size: 78688512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 410296320, provided ptr: 0x70906d200000 size: 117360128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 410296320, provided ptr: 0x70906d200000 size: 117367040
+[v2] alias=voice-design cn/medium: RTF median=1.16 min=1.15 max=1.16 mean=1.16 stdev=0.01 p10=1.15 p90=1.16 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12902400, provided ptr: 0x7090d0942000 size: 5764608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 12902400, provided ptr: 0x7090d0942000 size: 5792256
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x7090d120e200 size: 7895808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 25804800, provided ptr: 0x7090d120e200 size: 7909632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x7090d201d800 size: 11191808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 38707200, provided ptr: 0x7090d201f000 size: 11198720
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=voice-design en/short: RTF median=1.17 min=1.16 max=1.22 mean=1.18 stdev=0.02 p10=1.16 p90=1.21 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=voice-design en/medium: RTF median=1.15 min=1.15 max=1.16 mean=1.15 stdev=0.0 p10=1.15 p90=1.16 (n=5)
+[v2] alias=voice-design: smi bookend AFTER; peak_alloc=4.418854236602783 GiB peak_reserved=4.54 GiB — unloading
+[v2] alias=base: smi bookend BEFORE LOAD
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-1.7B-Base … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[v2] alias=base loaded in 3.0s (COLD-START load time)
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100608, provided ptr: 0x7090cc9c6c00 size: 92160
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100608, provided ptr: 0x7090cc9c6c00 size: 92416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 100608, provided ptr: 0x7090cc9c6c00 size: 92672
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x7090bb352000 size: 21064704
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 44728320, provided ptr: 0x7090bb35a400 size: 21120000
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 111820800, provided ptr: 0x7090be40a600 size: 34027008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 111820800, provided ptr: 0x7090be410200 size: 34054656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 223641600, provided ptr: 0x709068000000 size: 64420608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 223641600, provided ptr: 0x709068000000 size: 64434432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 335462400, provided ptr: 0x708d76200000 size: 95979008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 335462400, provided ptr: 0x708d76200000 size: 95985920
+[v2] alias=base warmup (cn/short, recorded, excluded from stats): wall=9.09s audio=7.6s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 52297728, provided ptr: 0x7090bb975400 size: 23227392
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 52297728, provided ptr: 0x7090bb7bc400 size: 23282688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 130744320, provided ptr: 0x7090bcd0b600 size: 39433728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 130744320, provided ptr: 0x7090bcd0b600 size: 39461376
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 261488640, provided ptr: 0x709067600000 size: 75234048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 261488640, provided ptr: 0x709067600000 size: 75247872
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 392232960, provided ptr: 0x708d66400000 size: 112199168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 392232960, provided ptr: 0x708d66400000 size: 112206080
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42663936, provided ptr: 0x7090bb0ac000 size: 20474880
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42663936, provided ptr: 0x7090bb0b4400 size: 20530176
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 106659840, provided ptr: 0x7090bdf24600 size: 32552448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 106659840, provided ptr: 0x7090bdf2a200 size: 32580096
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 213319680, provided ptr: 0x709084200000 size: 61471488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 213319680, provided ptr: 0x709084200000 size: 61485312
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 319979520, provided ptr: 0x709066600000 size: 91555328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 319979520, provided ptr: 0x709066600000 size: 91562240
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47824896, provided ptr: 0x7090bb51d000 size: 21949440
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47824896, provided ptr: 0x7090bb525400 size: 22004736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 119562240, provided ptr: 0x7090be935600 size: 36238848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 119562240, provided ptr: 0x7090be93b200 size: 36266496
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 239124480, provided ptr: 0x709067c00000 size: 68844288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 239124480, provided ptr: 0x709067c00000 size: 68858112
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 358686720, provided ptr: 0x708d6dc00000 size: 102614528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 358686720, provided ptr: 0x708d6dc00000 size: 102621440
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41631744, provided ptr: 0x7090bb01c000 size: 20179968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 41631744, provided ptr: 0x7090bb024400 size: 20235264
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 104079360, provided ptr: 0x7090bdd74600 size: 31815168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 104079360, provided ptr: 0x7090bdd7a200 size: 31842816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 208158720, provided ptr: 0x709070400000 size: 59996928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 208158720, provided ptr: 0x709070400000 size: 60010752
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 312238080, provided ptr: 0x708d6e800000 size: 89343488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 312238080, provided ptr: 0x708d6e800000 size: 89350400
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=base cn/short: RTF median=1.17 min=1.16 max=1.18 mean=1.17 stdev=0.01 p10=1.16 p90=1.18 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 94961664, provided ptr: 0x7090bd5c8400 size: 35417088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 94961664, provided ptr: 0x7090bd29b400 size: 35472384
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 237404160, provided ptr: 0x708d6b600000 size: 69907968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 237404160, provided ptr: 0x708d6b600000 size: 69935616
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 474808320, provided ptr: 0x708d5ae00000 size: 136182528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 474808320, provided ptr: 0x708d5ae00000 size: 136196352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 712212480, provided ptr: 0x708d4a600000 size: 203621888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 712212480, provided ptr: 0x708d56c00000 size: 203628800
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7090b9960000 size: 37776384
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 103219200, provided ptr: 0x7090b9960000 size: 37831680
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 258048000, provided ptr: 0x7090a8800000 size: 75806208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 258048000, provided ptr: 0x7090bbc88000 size: 75833856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 516096000, provided ptr: 0x708d5bc00000 size: 147979008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 516096000, provided ptr: 0x708d5bc00000 size: 147992832
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 774144000, provided ptr: 0x708d43400000 size: 221316608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 774144000, provided ptr: 0x708d57600000 size: 221323520
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 93241344, provided ptr: 0x7090b9960000 size: 34925568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 93241344, provided ptr: 0x7090b9960000 size: 34980864
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 233103360, provided ptr: 0x7090a9000000 size: 68679168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 233103360, provided ptr: 0x7090bb922000 size: 68706816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 466206720, provided ptr: 0x708d5d800000 size: 133724928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 466206720, provided ptr: 0x708d5d800000 size: 133738752
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 699310080, provided ptr: 0x708d4d600000 size: 199935488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 699310080, provided ptr: 0x708d59800000 size: 199942400
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 82919424, provided ptr: 0x7090bce20400 size: 31976448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 82919424, provided ptr: 0x7090bcb5c400 size: 32031744
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 207298560, provided ptr: 0x7090a7200000 size: 61306368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 207298560, provided ptr: 0x7090a7200000 size: 61334016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 414597120, provided ptr: 0x708d65800000 size: 118979328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 414597120, provided ptr: 0x708d65800000 size: 118993152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 621895680, provided ptr: 0x708d50000000 size: 177817088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 621895680, provided ptr: 0x708d50000000 size: 177824000
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 90488832, provided ptr: 0x7090bd2f0400 size: 34139136
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 90488832, provided ptr: 0x7090bcfea400 size: 34194432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 226222080, provided ptr: 0x708d6fe00000 size: 66713088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 226222080, provided ptr: 0x708d6fe00000 size: 66740736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 452444160, provided ptr: 0x708d60200000 size: 129792768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 452444160, provided ptr: 0x708d60200000 size: 129806592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 678666240, provided ptr: 0x708d48a00000 size: 194037248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 678666240, provided ptr: 0x708d48a00000 size: 194044160
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 89800704, provided ptr: 0x7090bd280400 size: 33942528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 89800704, provided ptr: 0x7090bcf80400 size: 33997824
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 224501760, provided ptr: 0x709067a00000 size: 66221568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 224501760, provided ptr: 0x709067a00000 size: 66249216
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 449003520, provided ptr: 0x708d64400000 size: 128809728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 449003520, provided ptr: 0x708d6c200000 size: 128823552
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 673505280, provided ptr: 0x708d4d000000 size: 192562688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 673505280, provided ptr: 0x708d4d000000 size: 192569600
+[v2] alias=base cn/medium: RTF median=1.16 min=1.16 max=1.17 mean=1.16 stdev=0.01 p10=1.16 p90=1.17 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x7090bab3c000 size: 17624064
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 32686080, provided ptr: 0x7090bab44400 size: 17679360
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 81715200, provided ptr: 0x7090bced4600 size: 25425408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 81715200, provided ptr: 0x7090bceda200 size: 25453056
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 163430400, provided ptr: 0x7090be515c00 size: 47217408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 163430400, provided ptr: 0x7090be515c00 size: 47231232
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 245145600, provided ptr: 0x708d6fa00000 size: 70174208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 245145600, provided ptr: 0x708d6fa00000 size: 70181120
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36470784, provided ptr: 0x7090bad4c000 size: 18705408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 36470784, provided ptr: 0x7090bad54400 size: 18760704
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 91176960, provided ptr: 0x7090bd504600 size: 28128768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 91176960, provided ptr: 0x7090bd50a200 size: 28156416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 182353920, provided ptr: 0x70903ca00000 size: 52624128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 182353920, provided ptr: 0x70903ca00000 size: 52637952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 273530880, provided ptr: 0x708d6a400000 size: 78284288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 273530880, provided ptr: 0x708d6a400000 size: 78291200
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33718272, provided ptr: 0x7090babcc000 size: 17918976
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33718272, provided ptr: 0x7090babd4400 size: 17974272
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 84295680, provided ptr: 0x7090bd084600 size: 26162688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 84295680, provided ptr: 0x7090bd08a200 size: 26190336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 168591360, provided ptr: 0x70905ce00000 size: 48691968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 168591360, provided ptr: 0x70905ce00000 size: 48705792
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 252887040, provided ptr: 0x708d6b000000 size: 72386048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 252887040, provided ptr: 0x708d6b000000 size: 72392960
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35782656, provided ptr: 0x7090bacec000 size: 18508800
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 35782656, provided ptr: 0x7090bacf4400 size: 18564096
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 89456640, provided ptr: 0x7090bd3e4600 size: 27637248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 89456640, provided ptr: 0x7090bd3ea200 size: 27664896
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 178913280, provided ptr: 0x709054c00000 size: 51641088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 178913280, provided ptr: 0x709054c00000 size: 51654912
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 268369920, provided ptr: 0x708d6a800000 size: 76809728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 268369920, provided ptr: 0x708d6a800000 size: 76816640
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=base en/short: RTF median=1.17 min=1.15 max=1.17 mean=1.17 stdev=0.01 p10=1.16 p90=1.17 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51265536, provided ptr: 0x7090bb8d3400 size: 22932480
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 51265536, provided ptr: 0x7090bb723400 size: 22987776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 128163840, provided ptr: 0x7090beef3600 size: 38696448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 128163840, provided ptr: 0x7090beef9200 size: 38724096
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 256327680, provided ptr: 0x7090a4200000 size: 73759488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 256327680, provided ptr: 0x7090a4200000 size: 73773312
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 384491520, provided ptr: 0x708d6d400000 size: 109987328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 384491520, provided ptr: 0x7090b9960000 size: 109994240
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 46448640, provided ptr: 0x7090bb451000 size: 21556224
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 46448640, provided ptr: 0x7090bb459400 size: 21611520
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x7090be6e9600 size: 35255808
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 116121600, provided ptr: 0x7090be6ef200 size: 35283456
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 232243200, provided ptr: 0x708d6fe00000 size: 66878208
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 232243200, provided ptr: 0x708d6fe00000 size: 66892032
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 348364800, provided ptr: 0x708d69c00000 size: 99665408
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 348364800, provided ptr: 0x708d69c00000 size: 99672320
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47480832, provided ptr: 0x7090bb4ea000 size: 21851136
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47480832, provided ptr: 0x7090bb4f2400 size: 21906432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 118702080, provided ptr: 0x7090be8a2600 size: 35993088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 118702080, provided ptr: 0x7090be8a8200 size: 36020736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 237404160, provided ptr: 0x708d6b800000 size: 68352768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 237404160, provided ptr: 0x708d6b800000 size: 68366592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 356106240, provided ptr: 0x708d65400000 size: 101877248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 356106240, provided ptr: 0x708d65400000 size: 101884160
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 78790656, provided ptr: 0x7090bcb80400 size: 30796800
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 78790656, provided ptr: 0x7090bc8e0400 size: 30852096
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 196976640, provided ptr: 0x709084600000 size: 58357248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 196976640, provided ptr: 0x709084600000 size: 58384896
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 393953280, provided ptr: 0x708d66400000 size: 113081088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 393953280, provided ptr: 0x708d66400000 size: 113094912
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 590929920, provided ptr: 0x708d51c00000 size: 168969728
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 590929920, provided ptr: 0x708d51c00000 size: 168976640
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 48857088, provided ptr: 0x7090bb5b6000 size: 22244352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 48857088, provided ptr: 0x7090bb5be400 size: 22299648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 122142720, provided ptr: 0x7090beaee600 size: 36976128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 122142720, provided ptr: 0x7090beaf4200 size: 37003776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 244285440, provided ptr: 0x708d6fa00000 size: 70318848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 244285440, provided ptr: 0x708d6fa00000 size: 70332672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 366428160, provided ptr: 0x708d69400000 size: 104826368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 366428160, provided ptr: 0x708d69400000 size: 104833280
+[v2] alias=base en/medium: RTF median=1.17 min=1.16 max=1.18 mean=1.17 stdev=0.01 p10=1.16 p90=1.18 (n=5)
+[v2] alias=base: smi bookend AFTER; peak_alloc=4.712892532348633 GiB peak_reserved=5.21 GiB — unloading
+[v2] alias=base-0.6b: smi bookend BEFORE LOAD
+[qwen3-tts-rocm] 加载 /workspace/repo/models/Qwen3-TTS-12Hz-0.6B-Base … 首次加载可能较慢（取决于文件系统缓存与首次内核初始化），出现大量内核日志属正常 / loading may be slower on the first run (filesystem cache + one-time kernel initialization); verbose kernel logs are expected on first run
+[v2] alias=base-0.6b loaded in 2.2s (COLD-START load time)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 45416448, provided ptr: 0x7090bb3b8000 size: 21261312
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 45416448, provided ptr: 0x7090bb3c0400 size: 21316608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x7090be530600 size: 34518528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 113541120, provided ptr: 0x7090be536200 size: 34546176
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 227082240, provided ptr: 0x709067e00000 size: 65403648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 227082240, provided ptr: 0x709067e00000 size: 65417472
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 340623360, provided ptr: 0x708eb6e00000 size: 97453568
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 340623360, provided ptr: 0x708eb6e00000 size: 97460480
+[v2] alias=base-0.6b warmup (cn/short, recorded, excluded from stats): wall=9.04s audio=7.76s
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42319872, provided ptr: 0x7090bb07c000 size: 20376576
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 42319872, provided ptr: 0x7090bb084400 size: 20431872
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x7090bde94600 size: 32306688
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 105799680, provided ptr: 0x7090bde9a200 size: 32334336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 211599360, provided ptr: 0x709084200000 size: 60979968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 211599360, provided ptr: 0x709084200000 size: 60993792
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 317399040, provided ptr: 0x709066600000 size: 90818048
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 317399040, provided ptr: 0x709066600000 size: 90824960
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 54362112, provided ptr: 0x7090bbab9400 size: 23817216
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 54362112, provided ptr: 0x7090bb8ee400 size: 23872512
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 135905280, provided ptr: 0x7090bcf15600 size: 40908288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 135905280, provided ptr: 0x7090bcf15600 size: 40935936
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 271810560, provided ptr: 0x709067200000 size: 78183168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 271810560, provided ptr: 0x709067200000 size: 78196992
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 407715840, provided ptr: 0x708eaea00000 size: 116622848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 407715840, provided ptr: 0x708eaea00000 size: 116629760
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 49201152, provided ptr: 0x7090bb5e9000 size: 22342656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 49201152, provided ptr: 0x7090bb5f1400 size: 22397952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123002880, provided ptr: 0x7090beb81600 size: 37221888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 123002880, provided ptr: 0x7090beb87200 size: 37249536
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 246005760, provided ptr: 0x709067a00000 size: 70810368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 246005760, provided ptr: 0x709067a00000 size: 70824192
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 369008640, provided ptr: 0x708eb6600000 size: 105563648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 369008640, provided ptr: 0x708eb6600000 size: 105570560
+[v2] alias=base-0.6b cn/short: RTF median=1.15 min=1.15 max=1.17 mean=1.16 stdev=0.01 p10=1.15 p90=1.17 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 91865088, provided ptr: 0x7090bd3d0400 size: 34532352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 91865088, provided ptr: 0x7090bd0be400 size: 34587648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 229662720, provided ptr: 0x709067c00000 size: 67696128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 229662720, provided ptr: 0x709067c00000 size: 67723776
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 459325440, provided ptr: 0x708eace00000 size: 131758848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 459325440, provided ptr: 0x708eace00000 size: 131772672
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 688988160, provided ptr: 0x708e9d200000 size: 196986368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 688988160, provided ptr: 0x708e9d200000 size: 196993280
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 84639744, provided ptr: 0x7090bcf38400 size: 32467968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 84639744, provided ptr: 0x7090bcc65400 size: 32523264
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 211599360, provided ptr: 0x709068200000 size: 62535168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 211599360, provided ptr: 0x709068200000 size: 62562816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 423198720, provided ptr: 0x708eae200000 size: 121436928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 423198720, provided ptr: 0x708eae200000 size: 121450752
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 634798080, provided ptr: 0x708e98200000 size: 181503488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 634798080, provided ptr: 0x708e98200000 size: 181510400
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 87736320, provided ptr: 0x7090bd130400 size: 33352704
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 87736320, provided ptr: 0x7090bce42400 size: 33408000
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 219340800, provided ptr: 0x708eb8e00000 size: 64747008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 219340800, provided ptr: 0x708eb8e00000 size: 64774656
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 438681600, provided ptr: 0x708ea9800000 size: 125860608
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 438681600, provided ptr: 0x708ea9800000 size: 125874432
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 658022400, provided ptr: 0x708e92c00000 size: 188139008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 658022400, provided ptr: 0x708e92c00000 size: 188145920
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 85671936, provided ptr: 0x7090bcfe0400 size: 32762880
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 85671936, provided ptr: 0x7090bcd04400 size: 32818176
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 214179840, provided ptr: 0x708eb8e00000 size: 63272448
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 214179840, provided ptr: 0x708eb8e00000 size: 63300096
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 428359680, provided ptr: 0x708ea9e00000 size: 122911488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 428359680, provided ptr: 0x708ea9e00000 size: 122925312
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 642539520, provided ptr: 0x708e93a00000 size: 183715328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 642539520, provided ptr: 0x708e93a00000 size: 183722240
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 88080384, provided ptr: 0x7090bd168400 size: 33451008
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 88080384, provided ptr: 0x7090bce77400 size: 33506304
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 220200960, provided ptr: 0x708eb8e00000 size: 64992768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 220200960, provided ptr: 0x7090bd463000 size: 65020416
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 440401920, provided ptr: 0x708ea9800000 size: 126352128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 440401920, provided ptr: 0x7090b9960000 size: 126365952
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 660602880, provided ptr: 0x708e92a00000 size: 188876288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 660602880, provided ptr: 0x708e92a00000 size: 188883200
+[v2] alias=base-0.6b cn/medium: RTF median=1.15 min=1.14 max=1.15 mean=1.15 stdev=0.01 p10=1.14 p90=1.15 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 64684032, provided ptr: 0x7090bc288400 size: 26766336
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 64684032, provided ptr: 0x7090bc063400 size: 26821632
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 161710080, provided ptr: 0x7090bdac2600 size: 48281088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 161710080, provided ptr: 0x7090bdac2600 size: 48308736
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 323420160, provided ptr: 0x708eb1600000 size: 92928768
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 323420160, provided ptr: 0x708eb1600000 size: 92942592
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 485130240, provided ptr: 0x708ea0600000 size: 138741248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 485130240, provided ptr: 0x708ea0600000 size: 138748160
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47136768, provided ptr: 0x7090bb4b7000 size: 21752832
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 47136768, provided ptr: 0x7090bb4bf400 size: 21808128
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 117841920, provided ptr: 0x7090be80f600 size: 35747328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 117841920, provided ptr: 0x7090be815200 size: 35774976
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 235683840, provided ptr: 0x708eb4600000 size: 67861248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 235683840, provided ptr: 0x708eb4600000 size: 67875072
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 353525760, provided ptr: 0x708eae200000 size: 101139968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 353525760, provided ptr: 0x708eae200000 size: 101146880
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34750464, provided ptr: 0x7090bac5c000 size: 18213888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 34750464, provided ptr: 0x7090bac64400 size: 18269184
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 86876160, provided ptr: 0x7090bd234600 size: 26899968
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 86876160, provided ptr: 0x7090bd23a200 size: 26927616
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 173752320, provided ptr: 0x709044e00000 size: 50166528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 173752320, provided ptr: 0x709044e00000 size: 50180352
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 260628480, provided ptr: 0x708eb3a00000 size: 74597888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 260628480, provided ptr: 0x708eb3a00000 size: 74604800
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33030144, provided ptr: 0x7090bab6c000 size: 17722368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 33030144, provided ptr: 0x7090bab74400 size: 17777664
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 82575360, provided ptr: 0x7090bcf64600 size: 25671168
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 82575360, provided ptr: 0x7090bcf6a200 size: 25698816
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 165150720, provided ptr: 0x7090be5e1c00 size: 47708928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 165150720, provided ptr: 0x7090be5e1c00 size: 47722752
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 247726080, provided ptr: 0x708eb8800000 size: 70911488
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 247726080, provided ptr: 0x708eb8800000 size: 70918400
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 39223296, provided ptr: 0x7090baecc000 size: 19491840
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 39223296, provided ptr: 0x7090baed4400 size: 19547136
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x7090bd984600 size: 30094848
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 98058240, provided ptr: 0x7090bd98a200 size: 30122496
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 196116480, provided ptr: 0x709044800000 size: 56556288
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 196116480, provided ptr: 0x709044800000 size: 56570112
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 294174720, provided ptr: 0x708eb2600000 size: 84182528
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 294174720, provided ptr: 0x708eb2600000 size: 84189440
+[v2] alias=base-0.6b en/short: RTF median=1.16 min=1.15 max=1.17 mean=1.16 stdev=0.01 p10=1.15 p90=1.17 (n=5)
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65716224, provided ptr: 0x7090bc330400 size: 27061248
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 65716224, provided ptr: 0x7090bc102400 size: 27116544
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 164290560, provided ptr: 0x7090bdbcd600 size: 49018368
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 164290560, provided ptr: 0x7090bdbcd600 size: 49046016
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 328581120, provided ptr: 0x708eb1400000 size: 94403328
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 328581120, provided ptr: 0x708eb1400000 size: 94417152
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 492871680, provided ptr: 0x708ea0000000 size: 140953088
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 492871680, provided ptr: 0x708ea0000000 size: 140960000
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 58146816, provided ptr: 0x7090bbd0b400 size: 24898560
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 58146816, provided ptr: 0x7090bbb1f400 size: 24953856
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 145367040, provided ptr: 0x7090bd2d2600 size: 43611648
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 145367040, provided ptr: 0x7090bd2d2600 size: 43639296
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 290734080, provided ptr: 0x708eb7c00000 size: 83589888
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 290734080, provided ptr: 0x708eb7c00000 size: 83603712
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 436101120, provided ptr: 0x708ea8800000 size: 124732928
+MIOpen(HIP): Warning [IsEnoughWorkspace] [EvaluateInvokers] Solver <GemmFwdRest>, workspace required: 436101120, provided ptr: 0x708ea8800000 size: 124739840
+Setting `pad_token_id` to `eos_token_id`:2150 for open-end generation.
+[v2] alias=base-0.6b en/medium: RTF median=1.14 min=1.14 max=1.15 mean=1.14 stdev=0.01 p10=1.14 p90=1.15 (n=5)
+[v2] alias=base-0.6b: smi bookend AFTER; peak_alloc=2.74576473236084 GiB peak_reserved=2.85 GiB — unloading
+[v2] wrote /workspace/evidence-gfx1100-v0.3/benchmark-v2-gfx1100-2026-09-29-run2.json
+| alias | lang | len | n | RTF median | min | max | mean | stdev | p10 | p90 | load s | warmup s |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| custom-voice | cn | short | 5 | 1.18 | 1.16 | 1.19 | 1.17 | 0.01 | 1.16 | 1.19 | 6.1 | 7.05 |
+| custom-voice | cn | medium | 5 | 1.16 | 1.16 | 1.16 | 1.16 | 0.0 | 1.16 | 1.16 | 6.1 | 7.05 |
+| custom-voice | en | short | 5 | 1.2 | 1.17 | 1.22 | 1.2 | 0.02 | 1.18 | 1.22 | 6.1 | 7.05 |
+| custom-voice | en | medium | 5 | 1.17 | 1.15 | 1.18 | 1.17 | 0.01 | 1.16 | 1.18 | 6.1 | 7.05 |
+| custom-voice-0.6b | cn | short | 5 | 1.15 | 1.14 | 1.17 | 1.15 | 0.01 | 1.14 | 1.16 | 2.0 | 4.05 |
+| custom-voice-0.6b | cn | medium | 5 | 1.14 | 1.14 | 1.14 | 1.14 | 0.0 | 1.14 | 1.14 | 2.0 | 4.05 |
+| custom-voice-0.6b | en | short | 5 | 1.18 | 1.15 | 1.19 | 1.17 | 0.02 | 1.16 | 1.19 | 2.0 | 4.05 |
+| custom-voice-0.6b | en | medium | 5 | 1.16 | 1.14 | 1.17 | 1.16 | 0.01 | 1.15 | 1.17 | 2.0 | 4.05 |
+| voice-design | cn | short | 5 | 1.16 | 1.14 | 1.17 | 1.16 | 0.01 | 1.14 | 1.17 | 3.08 | 4.23 |
+| voice-design | cn | medium | 5 | 1.16 | 1.15 | 1.16 | 1.16 | 0.01 | 1.15 | 1.16 | 3.08 | 4.23 |
+| voice-design | en | short | 5 | 1.17 | 1.16 | 1.22 | 1.18 | 0.02 | 1.16 | 1.21 | 3.08 | 4.23 |
+| voice-design | en | medium | 5 | 1.15 | 1.15 | 1.16 | 1.15 | 0.0 | 1.15 | 1.16 | 3.08 | 4.23 |
+| base | cn | short | 5 | 1.17 | 1.16 | 1.18 | 1.17 | 0.01 | 1.16 | 1.18 | 2.97 | 9.09 |
+| base | cn | medium | 5 | 1.16 | 1.16 | 1.17 | 1.16 | 0.01 | 1.16 | 1.17 | 2.97 | 9.09 |
+| base | en | short | 5 | 1.17 | 1.15 | 1.17 | 1.17 | 0.01 | 1.16 | 1.17 | 2.97 | 9.09 |
+| base | en | medium | 5 | 1.17 | 1.16 | 1.18 | 1.17 | 0.01 | 1.16 | 1.18 | 2.97 | 9.09 |
+| base-0.6b | cn | short | 5 | 1.15 | 1.15 | 1.17 | 1.16 | 0.01 | 1.15 | 1.17 | 2.19 | 9.04 |
+| base-0.6b | cn | medium | 5 | 1.15 | 1.14 | 1.15 | 1.15 | 0.01 | 1.14 | 1.15 | 2.19 | 9.04 |
+| base-0.6b | en | short | 5 | 1.16 | 1.15 | 1.17 | 1.16 | 0.01 | 1.15 | 1.17 | 2.19 | 9.04 |
+| base-0.6b | en | medium | 5 | 1.14 | 1.14 | 1.15 | 1.14 | 0.01 | 1.14 | 1.15 | 2.19 | 9.04 |
+BENCHMARK-V2-OK
+v2_run2_rc=0
+01:27:37

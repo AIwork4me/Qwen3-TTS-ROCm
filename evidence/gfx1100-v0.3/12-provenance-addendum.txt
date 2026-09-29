@@ -1,0 +1,24 @@
+=== PROVENANCE ADDENDUM (append-only; responds to the Task 8 round-1 verifier) ===
+
+1. SHA labeling. The candidate directory /workspace/gfx1100-candidate is a
+   git-archive extraction of repository commit 01273a8cda315bf68f8ef168f5964ecdbdd3e7b1,
+   re-initialized as a local git repo for status/diff auditing. Its local HEAD
+   is f7e8aa07 ("pristine candidate") with tree 6784315a7d901c3f322bd5f556d6fca0244ca831,
+   which is TREE-IDENTICAL to 01273a8^{tree} (verified by ls-tree comparison;
+   all blob hashes equal). Therefore:
+     - content provenance: commit 01273a8 (the v0.3 candidate);
+     - benchmark meta.git_head=f7e8aa07...: the candidate dir's own HEAD,
+       expected and truthful.
+   No source divergence exists between the two trees.
+
+2. Complete benchmark transcripts. 05-benchmark-v1.txt and 06-benchmark-v2.txt
+   were captured with `| tail` and truncated the table heads (11/12 and 7/20
+   rows). Complete re-runs on the same pristine candidate, same hardware,
+   same stack, with FULL stdout captured, are archived as:
+     - 10-benchmark-v1-full.txt  (+ benchmark-v1-gfx1100-2026-09-29-run2.json)
+     - 11-benchmark-v2-full.txt  (+ benchmark-v2-gfx1100-2026-09-29-run2.json)
+   The original truncated files remain untouched (append-only policy).
+
+3. run2 medians (recomputed from the run2 JSONs) for cross-run honesty:
+   v1 run2: 12 cells, median RTF range 1.16-1.27
+   v2 run2: 20 cells, median RTF range 1.14-1.20

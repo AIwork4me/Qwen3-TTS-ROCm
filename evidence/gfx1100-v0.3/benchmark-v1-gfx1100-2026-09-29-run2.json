@@ -1,0 +1,549 @@
+{
+  "meta": {
+    "host": "j-ywqny2nuwfmbn5jeo3wff4j6vc (Linux-6.8.0-79-generic-x86_64-with-glibc2.39)",
+    "cpu": "AMD EPYC 9334 32-Core Processor",
+    "gpu": "AMD Radeon Pro W7900D (gfx1100, multi_processor_count=48, torch-visible memory 48.0 GiB)",
+    "torch_version_hip": "2.12.0+rocm7.14.0 (HIP 7.14.60850)",
+    "date": "2026-09-29T01:05:52+00:00",
+    "git_head": "f7e8aa07badf328af3b87d6e4f85b3f932b8f9dd",
+    "upstream_qwen3_tts_sha": "022e286b98fbec7e1e916cb940cdf532cd9f488e",
+    "args": {
+      "aliases": "custom-voice,voice-design,base",
+      "max_new_tokens": 512,
+      "runs": 2,
+      "warmup": true,
+      "json_out": "/workspace/evidence-gfx1100-v0.3/benchmark-v1-gfx1100-2026-09-29-run2.json",
+      "aliases_resolved": [
+        "custom-voice",
+        "voice-design",
+        "base"
+      ],
+      "texts": {
+        "cn": {
+          "short": "今天的天气真不错，适合去公园散步。",
+          "medium": "杭州西湖的春天格外迷人，苏堤两畔的柳枝随微风轻轻摆动，三三两两的游人沿着湖边缓步而行，尽情享受着这段难得的午后时光。"
+        },
+        "en": {
+          "short": "Today is a good day.",
+          "medium": "The quick brown fox jumps over the lazy dog near the riverbank."
+        }
+      },
+      "sampling_kwargs": {
+        "do_sample": true,
+        "temperature": 1.0,
+        "top_k/top_p/repetition_penalty": "official generate_config.json defaults"
+      },
+      "dtype_attn_device": "loader.load defaults: bfloat16 + sdpa on cuda:0",
+      "warmup_policy": "one discarded cn/short generation per alias when --warmup"
+    },
+    "host_total_ram_gib": 503.6,
+    "per_alias": {
+      "custom-voice": {
+        "load_seconds": 6.227,
+        "peak_alloc_gb": 4.387
+      },
+      "voice-design": {
+        "load_seconds": 2.961,
+        "peak_alloc_gb": 4.804
+      },
+      "base": {
+        "load_seconds": 2.957,
+        "peak_alloc_gb": 4.713
+      }
+    }
+  },
+  "results": [
+    {
+      "alias": "custom-voice",
+      "method": "generate_custom_voice",
+      "lang": "cn",
+      "len": "short",
+      "text": "今天的天气真不错，适合去公园散步。",
+      "runs": 2,
+      "wall_s": [
+        4.009,
+        3.928
+      ],
+      "audio_s": [
+        3.36,
+        3.36
+      ],
+      "rtf_values": [
+        1.193,
+        1.169
+      ],
+      "median_rtf": 1.181,
+      "min_rtf": 1.169,
+      "max_rtf": 1.193,
+      "median_wall_s": 3.968,
+      "median_audio_s": 3.36,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 4.009,
+          "audio_s": 3.36,
+          "rtf": 1.193
+        },
+        {
+          "run": 2,
+          "wall_s": 3.928,
+          "audio_s": 3.36,
+          "rtf": 1.169
+        }
+      ],
+      "load_seconds": 6.227,
+      "peak_alloc_gb": 4.387
+    },
+    {
+      "alias": "custom-voice",
+      "method": "generate_custom_voice",
+      "lang": "cn",
+      "len": "medium",
+      "text": "杭州西湖的春天格外迷人，苏堤两畔的柳枝随微风轻轻摆动，三三两两的游人沿着湖边缓步而行，尽情享受着这段难得的午后时光。",
+      "runs": 2,
+      "wall_s": [
+        17.042,
+        16.981
+      ],
+      "audio_s": [
+        14.64,
+        14.64
+      ],
+      "rtf_values": [
+        1.1641,
+        1.1599
+      ],
+      "median_rtf": 1.162,
+      "min_rtf": 1.1599,
+      "max_rtf": 1.1641,
+      "median_wall_s": 17.012,
+      "median_audio_s": 14.64,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 17.042,
+          "audio_s": 14.64,
+          "rtf": 1.1641
+        },
+        {
+          "run": 2,
+          "wall_s": 16.981,
+          "audio_s": 14.64,
+          "rtf": 1.1599
+        }
+      ],
+      "load_seconds": 6.227,
+      "peak_alloc_gb": 4.387
+    },
+    {
+      "alias": "custom-voice",
+      "method": "generate_custom_voice",
+      "lang": "en",
+      "len": "short",
+      "text": "Today is a good day.",
+      "runs": 2,
+      "wall_s": [
+        1.591,
+        2.231
+      ],
+      "audio_s": [
+        1.28,
+        1.84
+      ],
+      "rtf_values": [
+        1.2427,
+        1.2123
+      ],
+      "median_rtf": 1.2275,
+      "min_rtf": 1.2123,
+      "max_rtf": 1.2427,
+      "median_wall_s": 1.911,
+      "median_audio_s": 1.56,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 1.591,
+          "audio_s": 1.28,
+          "rtf": 1.2427
+        },
+        {
+          "run": 2,
+          "wall_s": 2.231,
+          "audio_s": 1.84,
+          "rtf": 1.2123
+        }
+      ],
+      "load_seconds": 6.227,
+      "peak_alloc_gb": 4.387
+    },
+    {
+      "alias": "custom-voice",
+      "method": "generate_custom_voice",
+      "lang": "en",
+      "len": "medium",
+      "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+      "runs": 2,
+      "wall_s": [
+        4.794,
+        4.24
+      ],
+      "audio_s": [
+        4.08,
+        3.6
+      ],
+      "rtf_values": [
+        1.175,
+        1.1777
+      ],
+      "median_rtf": 1.1763,
+      "min_rtf": 1.175,
+      "max_rtf": 1.1777,
+      "median_wall_s": 4.517,
+      "median_audio_s": 3.84,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 4.794,
+          "audio_s": 4.08,
+          "rtf": 1.175
+        },
+        {
+          "run": 2,
+          "wall_s": 4.24,
+          "audio_s": 3.6,
+          "rtf": 1.1777
+        }
+      ],
+      "load_seconds": 6.227,
+      "peak_alloc_gb": 4.387
+    },
+    {
+      "alias": "voice-design",
+      "method": "generate_voice_design",
+      "lang": "cn",
+      "len": "short",
+      "text": "今天的天气真不错，适合去公园散步。",
+      "runs": 2,
+      "wall_s": [
+        4.441,
+        4.377
+      ],
+      "audio_s": [
+        3.76,
+        3.76
+      ],
+      "rtf_values": [
+        1.1811,
+        1.1642
+      ],
+      "median_rtf": 1.1726,
+      "min_rtf": 1.1642,
+      "max_rtf": 1.1811,
+      "median_wall_s": 4.409,
+      "median_audio_s": 3.76,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 4.441,
+          "audio_s": 3.76,
+          "rtf": 1.1811
+        },
+        {
+          "run": 2,
+          "wall_s": 4.377,
+          "audio_s": 3.76,
+          "rtf": 1.1642
+        }
+      ],
+      "load_seconds": 2.961,
+      "peak_alloc_gb": 4.804
+    },
+    {
+      "alias": "voice-design",
+      "method": "generate_voice_design",
+      "lang": "cn",
+      "len": "medium",
+      "text": "杭州西湖的春天格外迷人，苏堤两畔的柳枝随微风轻轻摆动，三三两两的游人沿着湖边缓步而行，尽情享受着这段难得的午后时光。",
+      "runs": 2,
+      "wall_s": [
+        20.019,
+        15.486
+      ],
+      "audio_s": [
+        16.64,
+        13.36
+      ],
+      "rtf_values": [
+        1.2031,
+        1.1592
+      ],
+      "median_rtf": 1.1811,
+      "min_rtf": 1.1592,
+      "max_rtf": 1.2031,
+      "median_wall_s": 17.753,
+      "median_audio_s": 15.0,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 20.019,
+          "audio_s": 16.64,
+          "rtf": 1.2031
+        },
+        {
+          "run": 2,
+          "wall_s": 15.486,
+          "audio_s": 13.36,
+          "rtf": 1.1592
+        }
+      ],
+      "load_seconds": 2.961,
+      "peak_alloc_gb": 4.804
+    },
+    {
+      "alias": "voice-design",
+      "method": "generate_voice_design",
+      "lang": "en",
+      "len": "short",
+      "text": "Today is a good day.",
+      "runs": 2,
+      "wall_s": [
+        2.398,
+        1.512
+      ],
+      "audio_s": [
+        2.0,
+        1.28
+      ],
+      "rtf_values": [
+        1.1988,
+        1.1815
+      ],
+      "median_rtf": 1.1901,
+      "min_rtf": 1.1815,
+      "max_rtf": 1.1988,
+      "median_wall_s": 1.955,
+      "median_audio_s": 1.64,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 2.398,
+          "audio_s": 2.0,
+          "rtf": 1.1988
+        },
+        {
+          "run": 2,
+          "wall_s": 1.512,
+          "audio_s": 1.28,
+          "rtf": 1.1815
+        }
+      ],
+      "load_seconds": 2.961,
+      "peak_alloc_gb": 4.804
+    },
+    {
+      "alias": "voice-design",
+      "method": "generate_voice_design",
+      "lang": "en",
+      "len": "medium",
+      "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+      "runs": 2,
+      "wall_s": [
+        4.158,
+        6.25
+      ],
+      "audio_s": [
+        3.6,
+        5.36
+      ],
+      "rtf_values": [
+        1.1549,
+        1.1661
+      ],
+      "median_rtf": 1.1605,
+      "min_rtf": 1.1549,
+      "max_rtf": 1.1661,
+      "median_wall_s": 5.204,
+      "median_audio_s": 4.48,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 4.158,
+          "audio_s": 3.6,
+          "rtf": 1.1549
+        },
+        {
+          "run": 2,
+          "wall_s": 6.25,
+          "audio_s": 5.36,
+          "rtf": 1.1661
+        }
+      ],
+      "load_seconds": 2.961,
+      "peak_alloc_gb": 4.804
+    },
+    {
+      "alias": "base",
+      "method": "generate_voice_clone",
+      "lang": "cn",
+      "len": "short",
+      "text": "今天的天气真不错，适合去公园散步。",
+      "runs": 2,
+      "wall_s": [
+        9.807,
+        9.694
+      ],
+      "audio_s": [
+        7.92,
+        8.16
+      ],
+      "rtf_values": [
+        1.2383,
+        1.188
+      ],
+      "median_rtf": 1.2131,
+      "min_rtf": 1.188,
+      "max_rtf": 1.2383,
+      "median_wall_s": 9.75,
+      "median_audio_s": 8.04,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 9.807,
+          "audio_s": 7.92,
+          "rtf": 1.2383
+        },
+        {
+          "run": 2,
+          "wall_s": 9.694,
+          "audio_s": 8.16,
+          "rtf": 1.188
+        }
+      ],
+      "load_seconds": 2.957,
+      "peak_alloc_gb": 4.713
+    },
+    {
+      "alias": "base",
+      "method": "generate_voice_clone",
+      "lang": "cn",
+      "len": "medium",
+      "text": "杭州西湖的春天格外迷人，苏堤两畔的柳枝随微风轻轻摆动，三三两两的游人沿着湖边缓步而行，尽情享受着这段难得的午后时光。",
+      "runs": 2,
+      "wall_s": [
+        19.293,
+        48.232
+      ],
+      "audio_s": [
+        16.4,
+        40.88
+      ],
+      "rtf_values": [
+        1.1764,
+        1.1798
+      ],
+      "median_rtf": 1.1781,
+      "min_rtf": 1.1764,
+      "max_rtf": 1.1798,
+      "median_wall_s": 33.762,
+      "median_audio_s": 28.64,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 19.293,
+          "audio_s": 16.4,
+          "rtf": 1.1764
+        },
+        {
+          "run": 2,
+          "wall_s": 48.232,
+          "audio_s": 40.88,
+          "rtf": 1.1798
+        }
+      ],
+      "load_seconds": 2.957,
+      "peak_alloc_gb": 4.713
+    },
+    {
+      "alias": "base",
+      "method": "generate_voice_clone",
+      "lang": "en",
+      "len": "short",
+      "text": "Today is a good day.",
+      "runs": 2,
+      "wall_s": [
+        7.717,
+        6.926
+      ],
+      "audio_s": [
+        6.08,
+        5.44
+      ],
+      "rtf_values": [
+        1.2693,
+        1.2731
+      ],
+      "median_rtf": 1.2712,
+      "min_rtf": 1.2693,
+      "max_rtf": 1.2731,
+      "median_wall_s": 7.321,
+      "median_audio_s": 5.76,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 7.717,
+          "audio_s": 6.08,
+          "rtf": 1.2693
+        },
+        {
+          "run": 2,
+          "wall_s": 6.926,
+          "audio_s": 5.44,
+          "rtf": 1.2731
+        }
+      ],
+      "load_seconds": 2.957,
+      "peak_alloc_gb": 4.713
+    },
+    {
+      "alias": "base",
+      "method": "generate_voice_clone",
+      "lang": "en",
+      "len": "medium",
+      "text": "The quick brown fox jumps over the lazy dog near the riverbank.",
+      "runs": 2,
+      "wall_s": [
+        9.53,
+        11.189
+      ],
+      "audio_s": [
+        8.16,
+        9.04
+      ],
+      "rtf_values": [
+        1.1679,
+        1.2377
+      ],
+      "median_rtf": 1.2028,
+      "min_rtf": 1.1679,
+      "max_rtf": 1.2377,
+      "median_wall_s": 10.359,
+      "median_audio_s": 8.6,
+      "runs_detail": [
+        {
+          "run": 1,
+          "wall_s": 9.53,
+          "audio_s": 8.16,
+          "rtf": 1.1679
+        },
+        {
+          "run": 2,
+          "wall_s": 11.189,
+          "audio_s": 9.04,
+          "rtf": 1.2377
+        }
+      ],
+      "load_seconds": 2.957,
+      "peak_alloc_gb": 4.713
+    }
+  ]
+}
