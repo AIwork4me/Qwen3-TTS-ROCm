@@ -39,14 +39,15 @@ cd "$ROOT"
 
 WITH_MODELS=0
 GFX_TARGET=""
+GFX_TARGET_SEEN=0
 while [[ $# -gt 0 ]]; do
     case "$1" in
         --with-models) WITH_MODELS=1; shift ;;
         --gfx-target)
             [[ $# -ge 2 ]] || { echo "ERROR: --gfx-target requires a value (gfx1100 | gfx1151 | auto)" >&2; exit 2; }
-            GFX_TARGET="$2"; shift 2 ;;
+            GFX_TARGET="$2"; GFX_TARGET_SEEN=1; shift 2 ;;
         --gfx-target=*)
-            GFX_TARGET="${1#--gfx-target=}"; shift ;;
+            GFX_TARGET="${1#--gfx-target=}"; GFX_TARGET_SEEN=1; shift ;;
         -h|--help)
             sed -n '2,31p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
             exit 0
@@ -57,6 +58,10 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+if [[ "$GFX_TARGET_SEEN" -eq 1 && -z "$GFX_TARGET" ]]; then
+    echo "ERROR: --gfx-target requires a non-empty value (gfx1100 | gfx1151 | auto)" >&2
+    exit 2
+fi
 [[ -z "$GFX_TARGET" ]] && GFX_TARGET="auto"
 
 # --- 0. architecture contract (docs/development/multiarch-design.md) ---------
