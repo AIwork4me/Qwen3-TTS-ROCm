@@ -1,0 +1,22 @@
+=== PHASE 2: verify_gpu.sh + qwen3-tts-rocm-check ===
+--- verify_gpu.sh (auto) ---
+torch 2.12.0+rocm7.14.0 | HIP 7.14.60850
+GPU: AMD Radeon Pro W7900D | arch: gfx1100
+validated architecture: gfx1100 (freshly validated in v0.3 on Radeon Pro W7900D (48 GB discrete))
+torchaudio 2.11.0+rocm7.14.0
+SPIKE-GPU-OK
+verify_rc=0
+--- verify_gpu.sh (explicit gfx1100) ---
+torch 2.12.0+rocm7.14.0 | HIP 7.14.60850
+GPU: AMD Radeon Pro W7900D | arch: gfx1100
+validated architecture: gfx1100 (freshly validated in v0.3 on Radeon Pro W7900D (48 GB discrete))
+torchaudio 2.11.0+rocm7.14.0
+SPIKE-GPU-OK
+verify_explicit_rc=0
+--- qwen3-tts-rocm-check ---
+[qwen3-tts-rocm] ROCm environment self-check (环境自检)
+INFO: models: 6/6 downloaded (已下载模型数).
+Summary: HIP available (可用); ROCm version: 7.14.60850; GPUs: 1 (gfx1100); warnings: 0; notes: 1; errors: 0 | 中文摘要：环境自检完成，HIP available (可用)，版本 7.14.60850，可见 GPU 1 块，警告 0 条，提示 1 条，错误 0 条。
+validated architecture: gfx1100 (freshly validated in v0.3 on Radeon Pro W7900D (48 GB discrete))
+→ 更多排障步骤: docs/troubleshooting.md (more: troubleshooting guide)
+check_rc=0

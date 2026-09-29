@@ -1,0 +1,23 @@
+=== PHASE 6: final integrity ===
+--- installed stack identities ---
+amd-torch-device-gfx11         2.12.0+rocm7.14.0
+amd-torch-device-gfx1100       2.12.0+rocm7.14.0
+amd-torchvision-device-gfx1100 0.27.0+rocm7.14.0
+qwen-tts                       0.1.1
+qwen3-tts-rocm                 0.2.1                        /workspace/gfx1100-candidate
+rocm                           7.14.0
+rocm-bootstrap                 0.1.0
+rocm-sdk-core                  7.14.0
+rocm-sdk-device-gfx1100        7.14.0
+rocm-sdk-libraries             7.14.0
+torch                          2.12.0+rocm7.14.0
+torchaudio                     2.11.0+rocm7.14.0
+torchvision                    0.27.0+rocm7.14.0
+triton                         3.7.1+git0263a6a6.rocm7.14.0
+--- git diff (tracked, candidate) ---
+0
+--- git status --porcelain (after completion) ---
+0
+--- untracked detail ---
+--- venv/models dirs are gitignored artifacts ---
+.gitignore:13:.venv/	.venv

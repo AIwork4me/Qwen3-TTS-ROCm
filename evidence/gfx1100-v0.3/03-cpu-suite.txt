@@ -1,0 +1,7 @@
+=== PHASE 3a: CPU suite (default [dev,demo] env) ===
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+343 passed, 15 skipped, 40 deselected, 1 warning in 13.69s
+=== PHASE 3b: quality extras + full CPU suite ===
+358 passed, 40 deselected, 3 warnings in 15.25s
+=== ruff ===
+All checks passed!

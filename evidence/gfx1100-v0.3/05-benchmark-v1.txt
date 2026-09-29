@@ -1,0 +1,16 @@
+=== PHASE 5a: benchmark v1 ===
+00:37:01
+| custom-voice | cn | medium | 2 | 1.22 | 1.22 | 1.22 | 19.59 |
+| custom-voice | en | short | 2 | 1.51 | 1.37 | 1.65 | 2.45 |
+| custom-voice | en | medium | 2 | 1.21 | 1.20 | 1.21 | 4.29 |
+| voice-design | cn | short | 2 | 1.18 | 1.16 | 1.19 | 3.87 |
+| voice-design | cn | medium | 2 | 1.19 | 1.18 | 1.20 | 17.98 |
+| voice-design | en | short | 2 | 1.30 | 1.20 | 1.40 | 1.99 |
+| voice-design | en | medium | 2 | 1.28 | 1.27 | 1.28 | 5.26 |
+| base | cn | short | 2 | 1.22 | 1.22 | 1.22 | 10.12 |
+| base | cn | medium | 2 | 1.23 | 1.22 | 1.24 | 20.73 |
+| base | en | short | 2 | 1.25 | 1.24 | 1.27 | 7.30 |
+| base | en | medium | 2 | 1.21 | 1.17 | 1.24 | 9.83 |
+[bench] wrote /workspace/evidence-gfx1100-v0.3/benchmark-v1-gfx1100-2026-09-29.json
+v1_rc=0
+00:41:15

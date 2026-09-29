@@ -1,0 +1,13 @@
+=== gfx1100 v0.3 pristine fresh-checkout validation — SUMMARY ===
+candidate: 01273a8cda315bf68f8ef168f5964ecdbdd3e7b1 (tree 6784315a7d901c3f322bd5f556d6fca0244ca831)
+host: AMD Radeon Pro W7900D, gfx1100, 48 GB; Ubuntu 24.04.4; kernel 6.8.0-79-generic; Python 3.12.3
+stack: torch 2.12.0+rocm7.14.0 / torchvision 0.27.0+rocm7.14.0 / torchaudio 2.11.0+rocm7.14.0 / HIP 7.14.60850 (device-gfx1100 extras)
+install: bash scripts/install.sh (auto -> gfx1100), ZERO source edits, INSTALL_RC=0, SPIKE-GPU-OK
+verify: verify_gpu.sh auto rc=0; explicit gfx1100 rc=0; qwen3-tts-rocm-check rc=0 warnings 0 errors 0
+CPU suite: 343 passed + 15 skipped ([dev,demo] env) -> 358 passed with .[quality]; ruff clean
+GPU suite: 40 passed, 358 deselected, 307.70 s
+benchmark v1: 12 cells (12 medians), median RTF range 1.18-1.51
+benchmark v2: 20 cells n=5 (20 medians), median RTF range 1.16-1.33
+synthesis: GENERATION-OK 6.64 s @ 24 kHz (official API, custom-voice 1.7B)
+final integrity: git diff 0 lines; git status --porcelain 0 lines
+VERDICT: PASS — zero-source-edit gfx1100 fresh-checkout install/verify/test/benchmark/reproduce

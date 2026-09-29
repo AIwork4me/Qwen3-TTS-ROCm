@@ -1,0 +1,7 @@
+=== PHASE 4: full GPU suite (pytest -m gpu) ===
+00:31:47
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+40 passed, 358 deselected, 4 warnings in 307.70s (0:05:07)
+gpu_rc=0
+00:36:57

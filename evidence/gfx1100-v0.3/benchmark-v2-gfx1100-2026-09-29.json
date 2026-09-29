@@ -1,0 +1,1452 @@
+{
+  "meta": {
+    "date": "2026-09-29T00:41:19+00:00",
+    "host": "j-ywqny2nuwfmbn5jeo3wff4j6vc",
+    "gpu": "AMD Radeon Pro W7900D (gfx1100)",
+    "torch": "2.12.0+rocm7.14.0",
+    "hip": "7.14.60850",
+    "git_head": "f7e8aa07badf328af3b87d6e4f85b3f932b8f9dd",
+    "methodology": "v2 (n=5, seeded runs, load/warmup/gen separated)",
+    "seed_base": 20260924,
+    "max_new_tokens": 512,
+    "runs_per_cell": 5,
+    "prompt_manifest": {
+      "cn": {
+        "short": "今天的天气真不错，适合去公园散步。",
+        "medium": "杭州西湖的春天格外迷人，苏堤两畔的柳枝随微风轻轻摆动，三三两两的游人沿着湖边缓步而行，尽情享受着这段难得的午后时光。"
+      },
+      "en": {
+        "short": "Today is a good day.",
+        "medium": "The quick brown fox jumps over the lazy dog near the riverbank."
+      }
+    },
+    "smi_bookends_note": "rocm-smi raw output kept verbatim; sensors vary by driver"
+  },
+  "per_alias": {
+    "custom-voice": {
+      "load_seconds": 6.27,
+      "cells": [
+        {
+          "lang": "cn",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260926,
+              "wall_seconds": 5.69,
+              "audio_seconds": 4.32,
+              "rtf": 1.32
+            },
+            {
+              "seed": 20260927,
+              "wall_seconds": 4.0,
+              "audio_seconds": 2.96,
+              "rtf": 1.35
+            },
+            {
+              "seed": 20260928,
+              "wall_seconds": 3.61,
+              "audio_seconds": 2.96,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260929,
+              "wall_seconds": 4.25,
+              "audio_seconds": 3.52,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20260930,
+              "wall_seconds": 3.36,
+              "audio_seconds": 2.48,
+              "rtf": 1.35
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 4.0,
+            "min": 3.36,
+            "max": 5.69,
+            "mean": 4.18,
+            "stdev": 0.91,
+            "p10": 3.46,
+            "p90": 5.11
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 2.96,
+            "min": 2.48,
+            "max": 4.32,
+            "mean": 3.25,
+            "stdev": 0.7,
+            "p10": 2.67,
+            "p90": 4.0
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.32,
+            "min": 1.21,
+            "max": 1.35,
+            "mean": 1.29,
+            "stdev": 0.07,
+            "p10": 1.21,
+            "p90": 1.35
+          }
+        },
+        {
+          "lang": "cn",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260931,
+              "wall_seconds": 18.96,
+              "audio_seconds": 15.36,
+              "rtf": 1.23
+            },
+            {
+              "seed": 20260932,
+              "wall_seconds": 17.58,
+              "audio_seconds": 14.56,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20260933,
+              "wall_seconds": 20.15,
+              "audio_seconds": 16.72,
+              "rtf": 1.2
+            },
+            {
+              "seed": 20260934,
+              "wall_seconds": 18.86,
+              "audio_seconds": 15.52,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260935,
+              "wall_seconds": 16.18,
+              "audio_seconds": 13.36,
+              "rtf": 1.21
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 18.86,
+            "min": 16.18,
+            "max": 20.15,
+            "mean": 18.35,
+            "stdev": 1.51,
+            "p10": 16.74,
+            "p90": 19.67
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 15.36,
+            "min": 13.36,
+            "max": 16.72,
+            "mean": 15.1,
+            "stdev": 1.24,
+            "p10": 13.84,
+            "p90": 16.24
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.21,
+            "min": 1.2,
+            "max": 1.23,
+            "mean": 1.21,
+            "stdev": 0.01,
+            "p10": 1.2,
+            "p90": 1.23
+          }
+        },
+        {
+          "lang": "en",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260936,
+              "wall_seconds": 1.75,
+              "audio_seconds": 1.44,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260937,
+              "wall_seconds": 1.96,
+              "audio_seconds": 1.36,
+              "rtf": 1.44
+            },
+            {
+              "seed": 20260938,
+              "wall_seconds": 1.71,
+              "audio_seconds": 1.44,
+              "rtf": 1.19
+            },
+            {
+              "seed": 20260939,
+              "wall_seconds": 2.2,
+              "audio_seconds": 1.28,
+              "rtf": 1.72
+            },
+            {
+              "seed": 20260940,
+              "wall_seconds": 2.21,
+              "audio_seconds": 1.84,
+              "rtf": 1.2
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 1.96,
+            "min": 1.71,
+            "max": 2.21,
+            "mean": 1.97,
+            "stdev": 0.24,
+            "p10": 1.73,
+            "p90": 2.21
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 1.44,
+            "min": 1.28,
+            "max": 1.84,
+            "mean": 1.47,
+            "stdev": 0.22,
+            "p10": 1.31,
+            "p90": 1.68
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.22,
+            "min": 1.19,
+            "max": 1.72,
+            "mean": 1.35,
+            "stdev": 0.23,
+            "p10": 1.19,
+            "p90": 1.61
+          }
+        },
+        {
+          "lang": "en",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260941,
+              "wall_seconds": 4.32,
+              "audio_seconds": 3.68,
+              "rtf": 1.18
+            },
+            {
+              "seed": 20260942,
+              "wall_seconds": 4.27,
+              "audio_seconds": 3.68,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20260943,
+              "wall_seconds": 4.26,
+              "audio_seconds": 3.6,
+              "rtf": 1.18
+            },
+            {
+              "seed": 20260944,
+              "wall_seconds": 3.93,
+              "audio_seconds": 3.28,
+              "rtf": 1.2
+            },
+            {
+              "seed": 20260945,
+              "wall_seconds": 3.81,
+              "audio_seconds": 3.2,
+              "rtf": 1.19
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 4.26,
+            "min": 3.81,
+            "max": 4.32,
+            "mean": 4.12,
+            "stdev": 0.23,
+            "p10": 3.86,
+            "p90": 4.3
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 3.6,
+            "min": 3.2,
+            "max": 3.68,
+            "mean": 3.49,
+            "stdev": 0.23,
+            "p10": 3.23,
+            "p90": 3.68
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.18,
+            "min": 1.16,
+            "max": 1.2,
+            "mean": 1.18,
+            "stdev": 0.01,
+            "p10": 1.17,
+            "p90": 1.2
+          }
+        }
+      ],
+      "smi_before": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 28065792\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 37.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 44.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 40.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 0: (601Mhz)\nGPU[0]\t\t: mclk clock level: 0: (96Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 0: (500Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      },
+      "warmup": {
+        "seed": 20260925,
+        "wall_seconds": 7.29,
+        "audio_seconds": 3.52,
+        "rtf": 2.07
+      },
+      "peak_alloc_gb": 4.8066911697387695,
+      "peak_reserved_gb": 5.08,
+      "smi_after": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 5240856576\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 40.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 49.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      }
+    },
+    "custom-voice-0.6b": {
+      "load_seconds": 2.04,
+      "cells": [
+        {
+          "lang": "cn",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260947,
+              "wall_seconds": 5.0,
+              "audio_seconds": 3.92,
+              "rtf": 1.28
+            },
+            {
+              "seed": 20260948,
+              "wall_seconds": 4.23,
+              "audio_seconds": 3.6,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260949,
+              "wall_seconds": 4.31,
+              "audio_seconds": 3.68,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260950,
+              "wall_seconds": 4.59,
+              "audio_seconds": 3.92,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260951,
+              "wall_seconds": 4.22,
+              "audio_seconds": 3.6,
+              "rtf": 1.17
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 4.31,
+            "min": 4.22,
+            "max": 5.0,
+            "mean": 4.47,
+            "stdev": 0.33,
+            "p10": 4.22,
+            "p90": 4.84
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 3.68,
+            "min": 3.6,
+            "max": 3.92,
+            "mean": 3.74,
+            "stdev": 0.16,
+            "p10": 3.6,
+            "p90": 3.92
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.17,
+            "min": 1.17,
+            "max": 1.28,
+            "mean": 1.19,
+            "stdev": 0.05,
+            "p10": 1.17,
+            "p90": 1.24
+          }
+        },
+        {
+          "lang": "cn",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260952,
+              "wall_seconds": 17.12,
+              "audio_seconds": 14.16,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20260953,
+              "wall_seconds": 17.64,
+              "audio_seconds": 14.64,
+              "rtf": 1.2
+            },
+            {
+              "seed": 20260954,
+              "wall_seconds": 16.26,
+              "audio_seconds": 14.16,
+              "rtf": 1.15
+            },
+            {
+              "seed": 20260955,
+              "wall_seconds": 15.37,
+              "audio_seconds": 13.2,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20260956,
+              "wall_seconds": 17.9,
+              "audio_seconds": 15.12,
+              "rtf": 1.18
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 17.12,
+            "min": 15.37,
+            "max": 17.9,
+            "mean": 16.86,
+            "stdev": 1.04,
+            "p10": 15.73,
+            "p90": 17.8
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 14.16,
+            "min": 13.2,
+            "max": 15.12,
+            "mean": 14.26,
+            "stdev": 0.71,
+            "p10": 13.58,
+            "p90": 14.93
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.18,
+            "min": 1.15,
+            "max": 1.21,
+            "mean": 1.18,
+            "stdev": 0.03,
+            "p10": 1.15,
+            "p90": 1.21
+          }
+        },
+        {
+          "lang": "en",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260957,
+              "wall_seconds": 2.74,
+              "audio_seconds": 2.0,
+              "rtf": 1.37
+            },
+            {
+              "seed": 20260958,
+              "wall_seconds": 2.41,
+              "audio_seconds": 1.76,
+              "rtf": 1.37
+            },
+            {
+              "seed": 20260959,
+              "wall_seconds": 3.17,
+              "audio_seconds": 2.4,
+              "rtf": 1.32
+            },
+            {
+              "seed": 20260960,
+              "wall_seconds": 2.76,
+              "audio_seconds": 2.08,
+              "rtf": 1.33
+            },
+            {
+              "seed": 20260961,
+              "wall_seconds": 2.78,
+              "audio_seconds": 2.4,
+              "rtf": 1.16
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 2.76,
+            "min": 2.41,
+            "max": 3.17,
+            "mean": 2.77,
+            "stdev": 0.27,
+            "p10": 2.54,
+            "p90": 3.01
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 2.08,
+            "min": 1.76,
+            "max": 2.4,
+            "mean": 2.13,
+            "stdev": 0.27,
+            "p10": 1.86,
+            "p90": 2.4
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.33,
+            "min": 1.16,
+            "max": 1.37,
+            "mean": 1.31,
+            "stdev": 0.09,
+            "p10": 1.22,
+            "p90": 1.37
+          }
+        },
+        {
+          "lang": "en",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260962,
+              "wall_seconds": 4.52,
+              "audio_seconds": 3.92,
+              "rtf": 1.15
+            },
+            {
+              "seed": 20260963,
+              "wall_seconds": 4.39,
+              "audio_seconds": 3.76,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260964,
+              "wall_seconds": 4.49,
+              "audio_seconds": 3.84,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260965,
+              "wall_seconds": 4.97,
+              "audio_seconds": 4.0,
+              "rtf": 1.24
+            },
+            {
+              "seed": 20260966,
+              "wall_seconds": 5.28,
+              "audio_seconds": 4.24,
+              "rtf": 1.25
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 4.52,
+            "min": 4.39,
+            "max": 5.28,
+            "mean": 4.73,
+            "stdev": 0.38,
+            "p10": 4.43,
+            "p90": 5.16
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 3.92,
+            "min": 3.76,
+            "max": 4.24,
+            "mean": 3.95,
+            "stdev": 0.18,
+            "p10": 3.79,
+            "p90": 4.14
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.17,
+            "min": 1.15,
+            "max": 1.25,
+            "mean": 1.2,
+            "stdev": 0.05,
+            "p10": 1.16,
+            "p90": 1.25
+          }
+        }
+      ],
+      "smi_before": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 935399424\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 38.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 48.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      },
+      "warmup": {
+        "seed": 20260946,
+        "wall_seconds": 4.14,
+        "audio_seconds": 3.52,
+        "rtf": 1.18
+      },
+      "peak_alloc_gb": 2.8437914848327637,
+      "peak_reserved_gb": 3.11,
+      "smi_after": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 3285196800\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 39.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 47.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      }
+    },
+    "voice-design": {
+      "load_seconds": 4.26,
+      "cells": [
+        {
+          "lang": "cn",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260968,
+              "wall_seconds": 6.7,
+              "audio_seconds": 5.36,
+              "rtf": 1.25
+            },
+            {
+              "seed": 20260969,
+              "wall_seconds": 4.5,
+              "audio_seconds": 3.84,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260970,
+              "wall_seconds": 4.06,
+              "audio_seconds": 3.44,
+              "rtf": 1.18
+            },
+            {
+              "seed": 20260971,
+              "wall_seconds": 5.69,
+              "audio_seconds": 4.56,
+              "rtf": 1.25
+            },
+            {
+              "seed": 20260972,
+              "wall_seconds": 4.35,
+              "audio_seconds": 3.76,
+              "rtf": 1.16
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 4.5,
+            "min": 4.06,
+            "max": 6.7,
+            "mean": 5.06,
+            "stdev": 1.11,
+            "p10": 4.18,
+            "p90": 6.3
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 3.84,
+            "min": 3.44,
+            "max": 5.36,
+            "mean": 4.19,
+            "stdev": 0.77,
+            "p10": 3.57,
+            "p90": 5.04
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.18,
+            "min": 1.16,
+            "max": 1.25,
+            "mean": 1.2,
+            "stdev": 0.04,
+            "p10": 1.16,
+            "p90": 1.25
+          }
+        },
+        {
+          "lang": "cn",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260973,
+              "wall_seconds": 17.34,
+              "audio_seconds": 14.4,
+              "rtf": 1.2
+            },
+            {
+              "seed": 20260974,
+              "wall_seconds": 17.29,
+              "audio_seconds": 14.72,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260975,
+              "wall_seconds": 17.57,
+              "audio_seconds": 14.48,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20260976,
+              "wall_seconds": 18.92,
+              "audio_seconds": 15.6,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20260977,
+              "wall_seconds": 15.46,
+              "audio_seconds": 12.72,
+              "rtf": 1.22
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 17.34,
+            "min": 15.46,
+            "max": 18.92,
+            "mean": 17.32,
+            "stdev": 1.23,
+            "p10": 16.19,
+            "p90": 18.38
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 14.48,
+            "min": 12.72,
+            "max": 15.6,
+            "mean": 14.38,
+            "stdev": 1.05,
+            "p10": 13.39,
+            "p90": 15.25
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.21,
+            "min": 1.17,
+            "max": 1.22,
+            "mean": 1.2,
+            "stdev": 0.02,
+            "p10": 1.18,
+            "p90": 1.22
+          }
+        },
+        {
+          "lang": "en",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260978,
+              "wall_seconds": 2.09,
+              "audio_seconds": 1.76,
+              "rtf": 1.19
+            },
+            {
+              "seed": 20260979,
+              "wall_seconds": 2.44,
+              "audio_seconds": 2.08,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20260980,
+              "wall_seconds": 1.76,
+              "audio_seconds": 1.2,
+              "rtf": 1.47
+            },
+            {
+              "seed": 20260981,
+              "wall_seconds": 1.42,
+              "audio_seconds": 1.2,
+              "rtf": 1.19
+            },
+            {
+              "seed": 20260982,
+              "wall_seconds": 2.06,
+              "audio_seconds": 1.76,
+              "rtf": 1.17
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 2.06,
+            "min": 1.42,
+            "max": 2.44,
+            "mean": 1.95,
+            "stdev": 0.38,
+            "p10": 1.56,
+            "p90": 2.3
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 1.76,
+            "min": 1.2,
+            "max": 2.08,
+            "mean": 1.6,
+            "stdev": 0.39,
+            "p10": 1.2,
+            "p90": 1.95
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.19,
+            "min": 1.17,
+            "max": 1.47,
+            "mean": 1.24,
+            "stdev": 0.13,
+            "p10": 1.17,
+            "p90": 1.36
+          }
+        },
+        {
+          "lang": "en",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260983,
+              "wall_seconds": 4.36,
+              "audio_seconds": 3.76,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20260984,
+              "wall_seconds": 3.98,
+              "audio_seconds": 3.44,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20260985,
+              "wall_seconds": 4.54,
+              "audio_seconds": 3.92,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20260986,
+              "wall_seconds": 4.08,
+              "audio_seconds": 3.52,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20260987,
+              "wall_seconds": 4.37,
+              "audio_seconds": 3.76,
+              "rtf": 1.16
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 4.36,
+            "min": 3.98,
+            "max": 4.54,
+            "mean": 4.27,
+            "stdev": 0.23,
+            "p10": 4.02,
+            "p90": 4.47
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 3.76,
+            "min": 3.44,
+            "max": 3.92,
+            "mean": 3.68,
+            "stdev": 0.2,
+            "p10": 3.47,
+            "p90": 3.86
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.16,
+            "min": 1.16,
+            "max": 1.16,
+            "mean": 1.16,
+            "stdev": 0.0,
+            "p10": 1.16,
+            "p90": 1.16
+          }
+        }
+      ],
+      "smi_before": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 938483712\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 38.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 47.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      },
+      "warmup": {
+        "seed": 20260967,
+        "wall_seconds": 4.26,
+        "audio_seconds": 3.68,
+        "rtf": 1.16
+      },
+      "peak_alloc_gb": 4.7528300285339355,
+      "peak_reserved_gb": 5.01,
+      "smi_after": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 5386424320\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 40.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 49.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      }
+    },
+    "base": {
+      "load_seconds": 3.02,
+      "cells": [
+        {
+          "lang": "cn",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260989,
+              "wall_seconds": 11.76,
+              "audio_seconds": 9.36,
+              "rtf": 1.26
+            },
+            {
+              "seed": 20260990,
+              "wall_seconds": 8.51,
+              "audio_seconds": 7.12,
+              "rtf": 1.2
+            },
+            {
+              "seed": 20260991,
+              "wall_seconds": 10.35,
+              "audio_seconds": 8.32,
+              "rtf": 1.24
+            },
+            {
+              "seed": 20260992,
+              "wall_seconds": 8.68,
+              "audio_seconds": 6.88,
+              "rtf": 1.26
+            },
+            {
+              "seed": 20260993,
+              "wall_seconds": 13.8,
+              "audio_seconds": 11.76,
+              "rtf": 1.17
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 10.35,
+            "min": 8.51,
+            "max": 13.8,
+            "mean": 10.62,
+            "stdev": 2.22,
+            "p10": 8.58,
+            "p90": 12.98
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 8.32,
+            "min": 6.88,
+            "max": 11.76,
+            "mean": 8.69,
+            "stdev": 1.98,
+            "p10": 6.98,
+            "p90": 10.8
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.24,
+            "min": 1.17,
+            "max": 1.26,
+            "mean": 1.23,
+            "stdev": 0.04,
+            "p10": 1.18,
+            "p90": 1.26
+          }
+        },
+        {
+          "lang": "cn",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20260994,
+              "wall_seconds": 23.53,
+              "audio_seconds": 19.28,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260995,
+              "wall_seconds": 49.85,
+              "audio_seconds": 40.88,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260996,
+              "wall_seconds": 20.04,
+              "audio_seconds": 16.48,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260997,
+              "wall_seconds": 22.25,
+              "audio_seconds": 18.24,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20260998,
+              "wall_seconds": 21.92,
+              "audio_seconds": 18.08,
+              "rtf": 1.21
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 22.25,
+            "min": 20.04,
+            "max": 49.85,
+            "mean": 27.52,
+            "stdev": 12.55,
+            "p10": 20.79,
+            "p90": 39.32
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 18.24,
+            "min": 16.48,
+            "max": 40.88,
+            "mean": 22.59,
+            "stdev": 10.27,
+            "p10": 17.12,
+            "p90": 32.24
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.22,
+            "min": 1.21,
+            "max": 1.22,
+            "mean": 1.22,
+            "stdev": 0.0,
+            "p10": 1.21,
+            "p90": 1.22
+          }
+        },
+        {
+          "lang": "en",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20260999,
+              "wall_seconds": 6.24,
+              "audio_seconds": 4.8,
+              "rtf": 1.3
+            },
+            {
+              "seed": 20261000,
+              "wall_seconds": 7.2,
+              "audio_seconds": 5.68,
+              "rtf": 1.27
+            },
+            {
+              "seed": 20261001,
+              "wall_seconds": 6.45,
+              "audio_seconds": 5.04,
+              "rtf": 1.28
+            },
+            {
+              "seed": 20261002,
+              "wall_seconds": 7.05,
+              "audio_seconds": 5.52,
+              "rtf": 1.28
+            },
+            {
+              "seed": 20261003,
+              "wall_seconds": 47.96,
+              "audio_seconds": 40.88,
+              "rtf": 1.17
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 7.05,
+            "min": 6.24,
+            "max": 47.96,
+            "mean": 14.98,
+            "stdev": 18.44,
+            "p10": 6.32,
+            "p90": 31.66
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 5.52,
+            "min": 4.8,
+            "max": 40.88,
+            "mean": 12.38,
+            "stdev": 15.93,
+            "p10": 4.9,
+            "p90": 26.8
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.28,
+            "min": 1.17,
+            "max": 1.3,
+            "mean": 1.26,
+            "stdev": 0.05,
+            "p10": 1.21,
+            "p90": 1.29
+          }
+        },
+        {
+          "lang": "en",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20261004,
+              "wall_seconds": 11.39,
+              "audio_seconds": 9.12,
+              "rtf": 1.25
+            },
+            {
+              "seed": 20261005,
+              "wall_seconds": 9.97,
+              "audio_seconds": 8.0,
+              "rtf": 1.25
+            },
+            {
+              "seed": 20261006,
+              "wall_seconds": 9.68,
+              "audio_seconds": 8.24,
+              "rtf": 1.17
+            },
+            {
+              "seed": 20261007,
+              "wall_seconds": 19.17,
+              "audio_seconds": 15.52,
+              "rtf": 1.24
+            },
+            {
+              "seed": 20261008,
+              "wall_seconds": 10.17,
+              "audio_seconds": 8.56,
+              "rtf": 1.19
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 10.17,
+            "min": 9.68,
+            "max": 19.17,
+            "mean": 12.08,
+            "stdev": 4.02,
+            "p10": 9.8,
+            "p90": 16.06
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 8.56,
+            "min": 8.0,
+            "max": 15.52,
+            "mean": 9.89,
+            "stdev": 3.18,
+            "p10": 8.1,
+            "p90": 12.96
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.24,
+            "min": 1.17,
+            "max": 1.25,
+            "mean": 1.22,
+            "stdev": 0.04,
+            "p10": 1.18,
+            "p90": 1.25
+          }
+        }
+      ],
+      "smi_before": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 988692480\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 39.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 48.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 45.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      },
+      "warmup": {
+        "seed": 20260988,
+        "wall_seconds": 9.45,
+        "audio_seconds": 7.6,
+        "rtf": 1.24
+      },
+      "peak_alloc_gb": 5.22683048248291,
+      "peak_reserved_gb": 5.62,
+      "smi_after": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 5603631104\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 41.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 50.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      }
+    },
+    "base-0.6b": {
+      "load_seconds": 2.14,
+      "cells": [
+        {
+          "lang": "cn",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20261010,
+              "wall_seconds": 9.67,
+              "audio_seconds": 8.32,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20261011,
+              "wall_seconds": 8.82,
+              "audio_seconds": 7.04,
+              "rtf": 1.25
+            },
+            {
+              "seed": 20261012,
+              "wall_seconds": 11.54,
+              "audio_seconds": 9.92,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20261013,
+              "wall_seconds": 11.98,
+              "audio_seconds": 9.84,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20261014,
+              "wall_seconds": 10.57,
+              "audio_seconds": 8.64,
+              "rtf": 1.22
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 10.57,
+            "min": 8.82,
+            "max": 11.98,
+            "mean": 10.52,
+            "stdev": 1.3,
+            "p10": 9.16,
+            "p90": 11.8
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 8.64,
+            "min": 7.04,
+            "max": 9.92,
+            "mean": 8.75,
+            "stdev": 1.19,
+            "p10": 7.55,
+            "p90": 9.89
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.22,
+            "min": 1.16,
+            "max": 1.25,
+            "mean": 1.2,
+            "stdev": 0.04,
+            "p10": 1.16,
+            "p90": 1.24
+          }
+        },
+        {
+          "lang": "cn",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20261015,
+              "wall_seconds": 22.15,
+              "audio_seconds": 18.56,
+              "rtf": 1.19
+            },
+            {
+              "seed": 20261016,
+              "wall_seconds": 20.35,
+              "audio_seconds": 16.88,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20261017,
+              "wall_seconds": 21.01,
+              "audio_seconds": 17.6,
+              "rtf": 1.19
+            },
+            {
+              "seed": 20261018,
+              "wall_seconds": 20.67,
+              "audio_seconds": 17.12,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20261019,
+              "wall_seconds": 21.24,
+              "audio_seconds": 17.68,
+              "rtf": 1.2
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 21.01,
+            "min": 20.35,
+            "max": 22.15,
+            "mean": 21.08,
+            "stdev": 0.68,
+            "p10": 20.48,
+            "p90": 21.79
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 17.6,
+            "min": 16.88,
+            "max": 18.56,
+            "mean": 17.57,
+            "stdev": 0.65,
+            "p10": 16.98,
+            "p90": 18.21
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.2,
+            "min": 1.19,
+            "max": 1.21,
+            "mean": 1.2,
+            "stdev": 0.01,
+            "p10": 1.19,
+            "p90": 1.21
+          }
+        },
+        {
+          "lang": "en",
+          "len": "short",
+          "runs": [
+            {
+              "seed": 20261020,
+              "wall_seconds": 14.75,
+              "audio_seconds": 12.24,
+              "rtf": 1.21
+            },
+            {
+              "seed": 20261021,
+              "wall_seconds": 10.09,
+              "audio_seconds": 8.16,
+              "rtf": 1.24
+            },
+            {
+              "seed": 20261022,
+              "wall_seconds": 6.67,
+              "audio_seconds": 5.28,
+              "rtf": 1.26
+            },
+            {
+              "seed": 20261023,
+              "wall_seconds": 6.14,
+              "audio_seconds": 4.88,
+              "rtf": 1.26
+            },
+            {
+              "seed": 20261024,
+              "wall_seconds": 7.87,
+              "audio_seconds": 6.32,
+              "rtf": 1.25
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 7.87,
+            "min": 6.14,
+            "max": 14.75,
+            "mean": 9.1,
+            "stdev": 3.5,
+            "p10": 6.35,
+            "p90": 12.89
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 6.32,
+            "min": 4.88,
+            "max": 12.24,
+            "mean": 7.38,
+            "stdev": 3.0,
+            "p10": 5.04,
+            "p90": 10.61
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.25,
+            "min": 1.21,
+            "max": 1.26,
+            "mean": 1.24,
+            "stdev": 0.02,
+            "p10": 1.22,
+            "p90": 1.26
+          }
+        },
+        {
+          "lang": "en",
+          "len": "medium",
+          "runs": [
+            {
+              "seed": 20261025,
+              "wall_seconds": 9.18,
+              "audio_seconds": 8.0,
+              "rtf": 1.15
+            },
+            {
+              "seed": 20261026,
+              "wall_seconds": 9.64,
+              "audio_seconds": 8.32,
+              "rtf": 1.16
+            },
+            {
+              "seed": 20261027,
+              "wall_seconds": 14.98,
+              "audio_seconds": 12.48,
+              "rtf": 1.2
+            },
+            {
+              "seed": 20261028,
+              "wall_seconds": 13.05,
+              "audio_seconds": 10.72,
+              "rtf": 1.22
+            },
+            {
+              "seed": 20261029,
+              "wall_seconds": 10.58,
+              "audio_seconds": 9.12,
+              "rtf": 1.16
+            }
+          ],
+          "wall_stats": {
+            "n": 5,
+            "median": 10.58,
+            "min": 9.18,
+            "max": 14.98,
+            "mean": 11.49,
+            "stdev": 2.46,
+            "p10": 9.36,
+            "p90": 14.21
+          },
+          "audio_stats": {
+            "n": 5,
+            "median": 9.12,
+            "min": 8.0,
+            "max": 12.48,
+            "mean": 9.73,
+            "stdev": 1.86,
+            "p10": 8.13,
+            "p90": 11.78
+          },
+          "rtf_stats": {
+            "n": 5,
+            "median": 1.16,
+            "min": 1.15,
+            "max": 1.22,
+            "mean": 1.18,
+            "stdev": 0.03,
+            "p10": 1.15,
+            "p90": 1.21
+          }
+        }
+      ],
+      "smi_before": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 1000378368\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 40.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 49.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 46.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      },
+      "warmup": {
+        "seed": 20261009,
+        "wall_seconds": 9.15,
+        "audio_seconds": 7.76,
+        "rtf": 1.18
+      },
+      "peak_alloc_gb": 3.204747200012207,
+      "peak_reserved_gb": 3.49,
+      "smi_after": {
+        "vram": "============================ ROCm System Management Interface ============================\n================================== Memory Usage (Bytes) ==================================\nGPU[0]\t\t: VRAM Total Memory (B): 51522830336\nGPU[0]\t\t: VRAM Total Used Memory (B): 3803209728\n==========================================================================================\n================================== End of ROCm SMI Log ===================================",
+        "temp_clocks": "============================ ROCm System Management Interface ============================\n====================================== Temperature =======================================\nGPU[0]\t\t: Temperature (Sensor edge) (C): 41.0\nGPU[0]\t\t: Temperature (Sensor junction) (C): 49.0\nGPU[0]\t\t: Temperature (Sensor memory) (C): 44.0\n==========================================================================================\n=============================== Current clock frequencies ================================\nGPU[0]\t\t: dcefclk clock level: 0: (145Mhz)\nGPU[0]\t\t: fclk clock level: 4: (1801Mhz)\nGPU[0]\t\t: mclk clock level: 3: (1124Mhz)\nGPU[0]\t\t: sclk clock level: 1: (0Mhz)\nGPU[0]\t\t: socclk clock level: 1: (1200Mhz)\nGPU[0]\t\t: pcie clock level: 2 (16.0GT/s x16)\n==========================================================================================\n================================== End of ROCm SMI Log ==================================="
+      }
+    }
+  }
+}
