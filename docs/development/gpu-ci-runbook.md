@@ -1,5 +1,16 @@
 # GPU CI runbook — self-hosted Radeon 8060S (`gfx1151`) regression runner
 
+# gfx1100 note (v0.3, 2026-09-29)
+
+The v0.3 program's gfx1100 host was an ephemeral lab session, NOT a
+persistent runner: no `radeon-gfx1100` runner is registered and no gfx1100
+workflow exists (deliberately — nothing may sit queued for absent
+hardware). gfx1100 GPU certification in v0.3 uses the documented MANUAL
+flow in `docs/development/gfx1100-manual-certification.md` instead. The
+`radeon-gfx1151` runner documented below remains the historical reference;
+its evidence is untouched.
+
+
 > **STATUS: LIVE — first green run 35857806038 on 2026-09-23 (gpu-short,
 > 32 nodes, commit a3a8a75). Nightly gpu-short at 02:00 local (+08:00) =
 > 18:00 UTC; runs when the validation host is powered/online at the window
